@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom';
 
 const Home = () => {
   const images = [
-    '/1-1.jfif',
+    '/1-1.png',
     '/1-2.png',
-    '/1-3.jfif',
-    '/1-4.jfif',
-    '/1-5.jfif',
-    '/1-6.jfif'
+    '/1-3.png',
+    '/1-4.png',
+    '/1-5.png',
+    '/1-6.png'
   ];
   
   const [currentImg, setCurrentImg] = useState(0);
