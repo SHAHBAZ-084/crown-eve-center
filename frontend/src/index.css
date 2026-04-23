@@ -941,70 +941,84 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
     background: var(--black) !important; 
     border-bottom: 1px solid rgba(255,255,255,0.1); 
     padding: 0 4vw !important;
-  }
-  .nav-links { 
-    display: none !important; /* Keep links hidden unless user wants a burger, but I'll try to show them if they really want */
+    height: 60px !important;
+    flex-wrap: nowrap !important;
   }
   
-  /* Actually, user said navbar ni aa ri - maybe they want the links */
   nav .nav-links { 
     display: flex !important; 
     position: fixed;
-    top: 72px;
+    top: 60px;
     left: 0;
     right: 0;
     background: var(--black2);
-    padding: 10px 5vw;
+    padding: 8px 5vw;
     overflow-x: auto;
     white-space: nowrap;
-    gap: 20px;
+    gap: 15px;
     border-bottom: 1px solid rgba(255,77,0,0.2);
+    z-index: 99;
   }
 
-  .logo-text { display: block !important; font-size: 14px !important; }
+  .nav-actions {
+    display: flex !important;
+    gap: 8px !important;
+  }
+
+  .btn-nav-login, .btn-nav-register {
+    padding: 6px 10px !important;
+    font-size: 9px !important;
+    height: auto !important;
+    min-width: 0 !important;
+  }
+
+  .logo-icon { width: 32px !important; height: 32px !important; font-size: 14px !important; }
+  .logo-text { display: block !important; font-size: 13px !important; }
   
   #hero { grid-template-columns: 1fr; width: 100%; overflow: hidden; }
   .full-screen-hero { 
-    padding: 140px 6vw 60px !important; 
+    padding: 130px 6vw 120px !important; /* Increased bottom padding */
     text-align: left !important;
     justify-content: flex-start !important;
     min-height: 100vh !important;
     width: 100% !important;
     position: relative;
+    display: flex !important;
+    flex-direction: column;
   }
   .hero-slideshow {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    z-index: 0;
-  }
-  .hero-slide {
-    background-position: center center !important;
-    background-size: cover !important;
+    inset: 0;
     width: 100%;
     height: 100%;
   }
+  .hero-slide {
+    background-position: center center !important;
+    background-size: cover !important; /* 'cover' is usually best, but I'll ensure it centers */
+  }
   .hero-content.full-width { 
     text-align: left !important; 
-    margin-top: 0 !important;
     width: 100% !important;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
   .hero-content.full-width h1.hero-title {
-    font-size: 44px !important;
-    line-height: 1.1;
+    font-size: 40px !important;
+    line-height: 1;
+    margin-bottom: 15px;
   }
   .hero-stats.horizontal {
-    gap: 20px;
-    margin-top: 30px;
+    gap: 15px;
+    margin-top: auto; /* Push to bottom of content area */
     flex-wrap: wrap;
     border-top: 1px solid rgba(255,255,255,0.1);
-    padding-top: 20px;
+    padding-top: 25px;
+    padding-bottom: 20px;
   }
   .hero-stats.horizontal .stat-num {
-    font-size: 26px;
+    font-size: 24px;
   }
   .hero-number { display: none; }
   .hero-visual { display: none; }
