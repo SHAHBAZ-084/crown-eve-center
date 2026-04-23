@@ -1,11 +1,11 @@
 // frontend/src/components/ui/DataTable.jsx
 import React from 'react';
-import SkeletonTable from './SkeletonTable';
+import TableSkeleton from '../skeletons/TableSkeleton';
 
 const DataTable = ({ columns, data, isLoading, meta, onPageChange }) => {
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-[2.5rem] overflow-hidden shadow-2xl">
-      {isLoading ? <SkeletonTable rows={meta?.limit || 5} /> : (
+      {isLoading ? <TableSkeleton rows={meta?.limit || 5} /> : (
         <table className="w-full text-left">
           <thead>
             <tr className="bg-slate-950/50 border-b border-slate-800">

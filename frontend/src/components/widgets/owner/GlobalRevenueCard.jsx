@@ -2,7 +2,7 @@
 import React from 'react';
 import { useRevenueSummary } from '../../../hooks/useRevenue';
 import { TrendingUp } from 'lucide-react';
-import CardSkeleton from '../../ui/SkeletonCard';
+import CardSkeleton from '../../skeletons/CardSkeleton';
 
 const GlobalRevenueCard = () => {
   const { data, isLoading } = useRevenueSummary();
