@@ -942,69 +942,82 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
     border-bottom: 1px solid rgba(255,77,0,0.3); 
     padding: 0 5vw !important;
     height: 70px !important;
-    display: flex !important;
-    flex-direction: row !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    z-index: 1000 !important;
   }
   
+  .header-auth-desktop { display: none !important; }
+
   nav .nav-links { 
     display: flex !important; 
+    flex-direction: column !important;
     position: fixed;
     top: 70px;
     left: 0;
     right: 0;
-    background: var(--black2);
-    padding: 10px 5vw;
-    overflow-x: auto;
-    white-space: nowrap;
-    gap: 15px;
-    border-bottom: 1px solid rgba(255,77,0,0.2);
+    bottom: 0;
+    background: rgba(10,10,10,0.98);
+    backdrop-filter: blur(20px);
+    padding: 40px 10vw !important;
+    gap: 30px !important;
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 99;
+    overflow-y: auto;
+    border-bottom: none !important;
+  }
+
+  nav .nav-links.active {
+    transform: translateX(0);
+  }
+
+  nav .nav-links li a {
+    font-size: 24px !important;
+    font-weight: 700;
   }
 
   .nav-actions {
     display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    gap: 10px !important;
-    margin-left: auto !important;
-    z-index: 1001 !important;
+    align-items: center !important;
+    gap: 15px !important;
   }
 
-  .btn-nav-login, .btn-nav-register {
-    display: inline-flex !important;
-    padding: 8px 12px !important;
-    font-size: 10px !important;
-    background: var(--orange) !important;
-    color: #fff !important;
-    border-radius: 4px;
-    font-weight: 700;
-    text-transform: uppercase;
-    text-decoration: none;
+  /* HAMBURGER */
+  .hamburger {
+    display: flex !important;
+    flex-direction: column;
+    gap: 6px;
+    background: none;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    z-index: 101;
   }
 
-  .btn-nav-login {
-    background: transparent !important;
-    border: 1px solid var(--orange) !important;
+  .hamburger .bar {
+    width: 28px;
+    height: 2px;
+    background: var(--white);
+    transition: all 0.3s;
   }
 
-  .logo-icon { width: 34px !important; height: 34px !important; font-size: 14px !important; }
-  .logo-text { display: block !important; font-size: 13px !important; }
+  .hamburger .bar.open:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+  .hamburger .bar.open:nth-child(2) { opacity: 0; }
+  .hamburger .bar.open:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+  .mobile-auth-links { display: block !important; width: 100%; }
+
+  .logo-icon { width: 36px !important; height: 36px !important; font-size: 15px !important; }
+  .logo-text { display: block !important; font-size: 14px !important; }
   
   #hero { grid-template-columns: 1fr; width: 100%; overflow: hidden; }
   .full-screen-hero { 
-    padding: 150px 6vw 140px !important;
-    text-align: left !important;
-    justify-content: flex-start !important;
+    padding: 160px 6vw 140px !important;
     min-height: 100vh !important;
     width: 100% !important;
     position: relative;
     display: flex !important;
   }
   .hero-slide {
-    background-size: 100% 100% !important; /* This will force the image to 'fit' exactly but might stretch it */
+    background-size: cover !important; /* Changed back to cover but with centering */
     background-position: center center !important;
   }
   .hero-content.full-width { 
@@ -1015,7 +1028,6 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
   .hero-content.full-width h1.hero-title {
     font-size: 42px !important;
     line-height: 1;
-    margin-bottom: 15px;
   }
   .hero-stats.horizontal {
     gap: 15px;
