@@ -1,16 +1,44 @@
-// frontend/src/pages/public/Home.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const Home = () => {
+  const images = [
+    '/1 (1).jfif',
+    '/1 (2).jfif',
+    '/1 (3).jfif',
+    '/1 (4).jfif',
+    '/1 (5).jfif',
+    '/1 (6).jfif'
+  ];
+  
+  const [currentImg, setCurrentImg] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImg((prev) => (prev + 1) % images.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [images.length]);
+
   return (
     <div id="page-home" className="page">
       {/* HERO */}
-      <section id="hero">
-        <div className="hero-bg"></div>
+      <section id="hero" className="full-screen-hero">
+        <div className="hero-slideshow">
+          {images.map((img, idx) => (
+            <div 
+              key={idx}
+              className={`hero-slide ${idx === currentImg ? 'active' : ''}`}
+              style={{ backgroundImage: `url('${img}')` }}
+            />
+          ))}
+          <div className="hero-overlay"></div>
+        </div>
+
         <div className="hero-lines"></div>
         <div className="hero-number">01</div>
-        <div className="hero-content">
+        
+        <div className="hero-content full-width">
           <div className="hero-badge">
             <div className="hero-badge-dot"></div>
             <span>Premium Bikes & Service — Pakistan</span>
@@ -31,7 +59,8 @@ const Home = () => {
               Book A Service
             </Link>
           </div>
-          <div className="hero-stats">
+          
+          <div className="hero-stats horizontal">
             <div>
               <div className="stat-num">12+</div>
               <div className="stat-label">Branches</div>
@@ -46,17 +75,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-        <div className="hero-visual">
-          <div className="bike-showcase">
-            <div className="bike-glow"></div>
-            <div className="bike-img-placeholder">
-              [ HERO BIKE IMAGE ]
-              <div className="bike-tag t1"><span className="bike-tag-dot"></span>1700cc Engine</div>
-              <div className="bike-tag t2"><span className="bike-tag-dot"></span>Sport Series</div>
-              <div className="bike-tag t3"><span className="bike-tag-dot"></span>2025 Model</div>
-            </div>
-          </div>
-        </div>
+
         <div className="scroll-indicator">
           <div className="scroll-line"></div>
           <span className="scroll-text">Scroll</span>
