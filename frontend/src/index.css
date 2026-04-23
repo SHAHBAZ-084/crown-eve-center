@@ -937,7 +937,27 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
 
 /* RESPONSIVE */
 @media(max-width:900px) {
-  #hero { grid-template-columns: 1fr; text-align: center; }
+  #hero { grid-template-columns: 1fr; }
+  .full-screen-hero { 
+    padding: 120px 6vw 60px !important; 
+    text-align: left !important;
+    justify-content: flex-start !important;
+  }
+  .hero-content.full-width { 
+    text-align: left !important; 
+  }
+  .hero-content.full-width h1.hero-title {
+    font-size: 60px !important;
+    line-height: 1;
+  }
+  .hero-stats.horizontal {
+    gap: 30px;
+    margin-top: 30px;
+  }
+  .hero-stats.horizontal .stat-num {
+    font-size: 32px;
+  }
+  .hero-number { display: none; }
   .hero-visual { display: none; }
   .features-grid { grid-template-columns: 1fr; }
   .products-grid, .testimonials-grid { grid-template-columns: 1fr 1fr; }
