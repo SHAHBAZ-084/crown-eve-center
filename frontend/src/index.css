@@ -109,6 +109,11 @@ nav.scrolled {
   inset: 3px;
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
   background: var(--black);
+  z-index: -1;
+}
+
+.mobile-auth-links {
+  display: none;
 }
 
 .logo-icon span {
