@@ -1,0 +1,203 @@
+// backend/prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  COMPANY_OWNER
+  BRANCH_OWNER
+  EMPLOYEE
+  TECHNICIAN
+  CUSTOMER
+  MANAGER
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+enum AppointmentStatus {
+  BOOKED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  email        String        @unique
+  password     String
+  name         String
+  role         Role          @default(CUSTOMER)
+  branchId     Int?
+  branch       Branch?       @relation(fields: [branchId], references: [id])
+  orders       Order[]
+  appointments Appointment[] @relation("CustomerAppointments")
+  tasks        Appointment[] @relation("TechnicianTasks")
+  createdAt    DateTime      @default(now())
+
+  @@index([email])
+  @@index([branchId])
+}
+
+model Branch {
+  id           Int           @id @default(autoincrement())
+  name         String
+  location     String
+  users        User[]
+  products     Product[]
+  inventory    Inventory[]
+  orders       Order[]
+  appointments Appointment[]
+  services     Service[]
+  purchases    Purchase[]
+  createdAt    DateTime      @default(now())
+}
+
+model Part {
+  id           Int           @id @default(autoincrement())
+  name         String
+  category     String
+  price        Float         // Selling price
+  stock        Int           @default(0) // Central catalog stock or reference
+  inventory    Inventory[]
+  productParts ProductPart[]
+  purchaseItems PurchaseItem[]
+  createdAt    DateTime      @default(now())
+
+  @@index([category])
+}
+
+model Product {
+  id        Int           @id @default(autoincrement())
+  name      String
+  price     Float
+  branchId  Int
+  branch    Branch        @relation(fields: [branchId], references: [id])
+  parts     ProductPart[]
+  orders    OrderItem[]
+  createdAt DateTime      @default(now())
+
+  @@index([branchId])
+}
+
+model ProductPart {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  partId    Int
+  part      Part    @relation(fields: [partId], references: [id], onDelete: Cascade)
+  quantity  Int     @default(1)
+
+  @@index([productId])
+  @@index([partId])
+}
+
+model Inventory {
+  id       Int    @id @default(autoincrement())
+  branchId Int
+  branch   Branch @relation(fields: [branchId], references: [id])
+  partId   Int
+  part     Part   @relation(fields: [partId], references: [id])
+  stock    Int    @default(0)
+  alertAt  Int    @default(5) // Threshold for alerts
+
+  @@unique([branchId, partId])
+  @@index([branchId])
+  @@index([stock])
+}
+
+model Order {
+  id         Int         @id @default(autoincrement())
+  customerId Int
+  customer   User        @relation(fields: [customerId], references: [id])
+  branchId   Int
+  branch     Branch      @relation(fields: [branchId], references: [id])
+  total      Float
+  status     OrderStatus @default(PENDING)
+  type       String      @default("POS") // POS or ONLINE
+  items      OrderItem[]
+  createdAt  DateTime    @default(now())
+
+  @@index([branchId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([branchId, status])
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+}
+
+model Service {
+  id           Int           @id @default(autoincrement())
+  name         String
+  description  String?
+  price        Float
+  branchId     Int
+  branch       Branch        @relation(fields: [branchId], references: [id])
+  appointments Appointment[]
+}
+
+model Appointment {
+  id          Int               @id @default(autoincrement())
+  customerId  Int
+  customer    User              @relation("CustomerAppointments", fields: [customerId], references: [id])
+  serviceId   Int
+  service     Service           @relation(fields: [serviceId], references: [id])
+  branchId    Int
+  branch      Branch            @relation(fields: [branchId], references: [id])
+  techId      Int?
+  technician  User?             @relation("TechnicianTasks", fields: [techId], references: [id])
+  scheduledAt DateTime
+  status      AppointmentStatus @default(BOOKED)
+  createdAt   DateTime          @default(now())
+
+  @@index([branchId])
+  @@index([techId])
+  @@index([scheduledAt])
+}
+
+model Supplier {
+  id        Int        @id @default(autoincrement())
+  name      String
+  contact   String
+  purchases Purchase[]
+}
+
+model Purchase {
+  id         Int            @id @default(autoincrement())
+  supplierId Int
+  supplier   Supplier       @relation(fields: [supplierId], references: [id])
+  branchId   Int
+  branch     Branch         @relation(fields: [branchId], references: [id])
+  total      Float
+  items      PurchaseItem[]
+  createdAt  DateTime       @default(now())
+
+  @@index([branchId])
+}
+
+model PurchaseItem {
+  id         Int      @id @default(autoincrement())
+  purchaseId Int
+  purchase   Purchase @relation(fields: [purchaseId], references: [id])
+  partId     Int
+  part       Part     @relation(fields: [partId], references: [id])
+  quantity   Int
+  cost       Float
+}
