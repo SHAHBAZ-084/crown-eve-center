@@ -937,25 +937,34 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
 
 /* RESPONSIVE */
 @media(max-width:900px) {
+  nav { background: var(--black) !important; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .logo-text { display: block !important; font-size: 16px !important; }
+  
   #hero { grid-template-columns: 1fr; }
   .full-screen-hero { 
-    padding: 120px 6vw 60px !important; 
+    padding: 100px 6vw 40px !important; 
     text-align: left !important;
     justify-content: flex-start !important;
+    min-height: 85vh !important;
+  }
+  .hero-slide {
+    background-position: center center !important;
   }
   .hero-content.full-width { 
     text-align: left !important; 
+    margin-top: 20px !important;
   }
   .hero-content.full-width h1.hero-title {
-    font-size: 60px !important;
-    line-height: 1;
+    font-size: 52px !important;
+    line-height: 1.1;
   }
   .hero-stats.horizontal {
-    gap: 30px;
+    gap: 25px;
     margin-top: 30px;
+    flex-wrap: wrap;
   }
   .hero-stats.horizontal .stat-num {
-    font-size: 32px;
+    font-size: 28px;
   }
   .hero-number { display: none; }
   .hero-visual { display: none; }
