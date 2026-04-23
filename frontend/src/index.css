@@ -937,46 +937,77 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
 
 /* RESPONSIVE */
 @media(max-width:900px) {
-  nav { background: var(--black) !important; border-bottom: 1px solid rgba(255,255,255,0.1); }
-  .logo-text { display: block !important; font-size: 16px !important; }
+  nav { 
+    background: var(--black) !important; 
+    border-bottom: 1px solid rgba(255,255,255,0.1); 
+    padding: 0 4vw !important;
+  }
+  .nav-links { 
+    display: none !important; /* Keep links hidden unless user wants a burger, but I'll try to show them if they really want */
+  }
   
-  #hero { grid-template-columns: 1fr; }
+  /* Actually, user said navbar ni aa ri - maybe they want the links */
+  nav .nav-links { 
+    display: flex !important; 
+    position: fixed;
+    top: 72px;
+    left: 0;
+    right: 0;
+    background: var(--black2);
+    padding: 10px 5vw;
+    overflow-x: auto;
+    white-space: nowrap;
+    gap: 20px;
+    border-bottom: 1px solid rgba(255,77,0,0.2);
+  }
+
+  .logo-text { display: block !important; font-size: 14px !important; }
+  
+  #hero { grid-template-columns: 1fr; width: 100%; overflow: hidden; }
   .full-screen-hero { 
-    padding: 100px 6vw 40px !important; 
+    padding: 140px 6vw 60px !important; 
     text-align: left !important;
     justify-content: flex-start !important;
-    min-height: 85vh !important;
+    min-height: 100vh !important;
+    width: 100% !important;
+    position: relative;
+  }
+  .hero-slideshow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 0;
   }
   .hero-slide {
     background-position: center center !important;
+    background-size: cover !important;
+    width: 100%;
+    height: 100%;
   }
   .hero-content.full-width { 
     text-align: left !important; 
-    margin-top: 20px !important;
+    margin-top: 0 !important;
+    width: 100% !important;
   }
   .hero-content.full-width h1.hero-title {
-    font-size: 52px !important;
+    font-size: 44px !important;
     line-height: 1.1;
   }
   .hero-stats.horizontal {
-    gap: 25px;
+    gap: 20px;
     margin-top: 30px;
     flex-wrap: wrap;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 20px;
   }
   .hero-stats.horizontal .stat-num {
-    font-size: 28px;
+    font-size: 26px;
   }
   .hero-number { display: none; }
   .hero-visual { display: none; }
-  .features-grid { grid-template-columns: 1fr; }
-  .products-grid, .testimonials-grid { grid-template-columns: 1fr 1fr; }
-  .services-layout, .contact-layout, .booking-form-layout { grid-template-columns: 1fr; }
-  .footer-top { grid-template-columns: 1fr 1fr; }
-  .shop-layout { grid-template-columns: 1fr; }
-  .shop-sidebar { position: static; max-height: none; }
-  .shop-grid { grid-template-columns: 1fr 1fr; }
-  .form-row { grid-template-columns: 1fr; }
-  nav .nav-links { display: none; }
 }
 
 /* ── DYNAMIC HERO IMPROVEMENTS ── */
