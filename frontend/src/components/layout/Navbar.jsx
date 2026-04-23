@@ -18,7 +18,6 @@ const Navbar = () => {
     <nav className={scrolled ? 'scrolled' : ''}>
       <Link to="/" className="logo">
         <div className="logo-icon"><span>CE</span></div>
-        <span className="logo-text">Crown <em>Eve</em></span>
       </Link>
       
       <ul className="nav-links">
