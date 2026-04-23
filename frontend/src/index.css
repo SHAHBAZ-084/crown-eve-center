@@ -939,20 +939,24 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
 @media(max-width:900px) {
   nav { 
     background: var(--black) !important; 
-    border-bottom: 1px solid rgba(255,255,255,0.1); 
-    padding: 0 4vw !important;
-    height: 60px !important;
-    flex-wrap: nowrap !important;
+    border-bottom: 1px solid rgba(255,77,0,0.3); 
+    padding: 0 5vw !important;
+    height: 70px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    z-index: 1000 !important;
   }
   
   nav .nav-links { 
     display: flex !important; 
     position: fixed;
-    top: 60px;
+    top: 70px;
     left: 0;
     right: 0;
     background: var(--black2);
-    padding: 8px 5vw;
+    padding: 10px 5vw;
     overflow-x: auto;
     white-space: nowrap;
     gap: 15px;
@@ -962,60 +966,63 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
 
   .nav-actions {
     display: flex !important;
-    gap: 8px !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    gap: 10px !important;
+    margin-left: auto !important;
+    z-index: 1001 !important;
   }
 
   .btn-nav-login, .btn-nav-register {
-    padding: 6px 10px !important;
-    font-size: 9px !important;
-    height: auto !important;
-    min-width: 0 !important;
+    display: inline-flex !important;
+    padding: 8px 12px !important;
+    font-size: 10px !important;
+    background: var(--orange) !important;
+    color: #fff !important;
+    border-radius: 4px;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
   }
 
-  .logo-icon { width: 32px !important; height: 32px !important; font-size: 14px !important; }
+  .btn-nav-login {
+    background: transparent !important;
+    border: 1px solid var(--orange) !important;
+  }
+
+  .logo-icon { width: 34px !important; height: 34px !important; font-size: 14px !important; }
   .logo-text { display: block !important; font-size: 13px !important; }
   
   #hero { grid-template-columns: 1fr; width: 100%; overflow: hidden; }
   .full-screen-hero { 
-    padding: 130px 6vw 120px !important; /* Increased bottom padding */
+    padding: 150px 6vw 140px !important;
     text-align: left !important;
     justify-content: flex-start !important;
     min-height: 100vh !important;
     width: 100% !important;
     position: relative;
     display: flex !important;
-    flex-direction: column;
-  }
-  .hero-slideshow {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
   }
   .hero-slide {
+    background-size: 100% 100% !important; /* This will force the image to 'fit' exactly but might stretch it */
     background-position: center center !important;
-    background-size: cover !important; /* 'cover' is usually best, but I'll ensure it centers */
   }
   .hero-content.full-width { 
     text-align: left !important; 
     width: 100% !important;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    z-index: 10 !important;
   }
   .hero-content.full-width h1.hero-title {
-    font-size: 40px !important;
+    font-size: 42px !important;
     line-height: 1;
     margin-bottom: 15px;
   }
   .hero-stats.horizontal {
     gap: 15px;
-    margin-top: auto; /* Push to bottom of content area */
+    margin-top: 40px;
     flex-wrap: wrap;
     border-top: 1px solid rgba(255,255,255,0.1);
     padding-top: 25px;
-    padding-bottom: 20px;
   }
   .hero-stats.horizontal .stat-num {
     font-size: 24px;
