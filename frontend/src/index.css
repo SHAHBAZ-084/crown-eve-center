@@ -953,8 +953,8 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
 /* ── DYNAMIC HERO IMPROVEMENTS ── */
 .full-screen-hero {
   grid-template-columns: 1fr !important;
-  padding: 0 5vw !important;
-  height: 100vh;
+  padding: 140px 5vw 100px !important;
+  min-height: 100vh;
   display: flex !important;
   align-items: center;
   justify-content: flex-start;
@@ -994,7 +994,6 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
   max-width: 800px;
   width: 100% !important;
   margin: 0;
-  margin-top: 140px;
   z-index: 5;
 }
 
@@ -1015,13 +1014,13 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
 
 .hero-stats.horizontal {
   justify-content: flex-start;
-  gap: 60px;
+  gap: 40px;
   border-top-color: rgba(255,255,255,0.15);
-  margin-top: 50px;
+  margin-top: 40px;
 }
 
 .hero-stats.horizontal .stat-num {
-  font-size: 52px;
+  font-size: 44px;
 }
 
 .hero-stats.horizontal .stat-label {
