@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../services/api';
-import { ShoppingCart, ArrowLeft, Package, CheckCircle, Info } from 'lucide-react';
+import { ShoppingCart, ArrowLeft, Package, CheckCircle, Info, Shield } from 'lucide-react';
 import CardSkeleton from '../../components/skeletons/CardSkeleton';
 
 const ProductDetail = () => {
