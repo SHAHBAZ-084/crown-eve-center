@@ -935,6 +935,9 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
   opacity: 0.6;
 }
 
+.hamburger { display: none; }
+.header-auth-desktop { display: flex; gap: 12px; }
+
 /* RESPONSIVE */
 @media(max-width:900px) {
   nav { 
