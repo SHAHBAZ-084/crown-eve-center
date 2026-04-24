@@ -34,16 +34,18 @@ const OwnerLayout = () => {
               <div className="logo-sub">Owner Panel</div>
             </div>
           </div>
-          <nav style={{ flex: 1 }}>
+          <nav className="sidebar-nav" style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: '4px' }}>
             {sections.map(sec => (
-              <div key={sec}>
+              <div key={sec} className="nav-section" style={{ display: 'flex', flexDirection: 'column' }}>
                 <div className="nav-section-label">{sec}</div>
-                {NAV.filter(n => n.section === sec).map(n => (
-                  <Link key={n.id} to={n.path} className={`nav-item ${location.pathname === n.path ? "active" : ""}`}>
-                    <Icon name={n.icon} size={18} />
-                    <span>{n.label}</span>
-                  </Link>
-                ))}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  {NAV.filter(n => n.section === sec).map(n => (
+                    <Link key={n.id} to={n.path} className={`nav-item ${location.pathname === n.path ? "active" : ""}`}>
+                      <Icon name={n.icon} size={18} />
+                      <span>{n.label}</span>
+                    </Link>
+                  ))}
+                </div>
               </div>
             ))}
           </nav>
