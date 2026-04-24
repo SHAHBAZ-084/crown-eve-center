@@ -974,6 +974,37 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
     color: #fff !important;
   }
 
+  nav .nav-links { 
+    display: none !important; 
+    flex-direction: column !important;
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(10,10,10,0.98);
+    backdrop-filter: blur(20px);
+    padding: 40px 10vw !important;
+    gap: 25px !important;
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2000;
+    overflow-y: auto;
+    border: none !important;
+  }
+
+  nav .nav-links.active {
+    display: flex !important;
+    transform: translateX(0);
+  }
+
+  nav .nav-links li a {
+    font-size: 24px !important;
+    font-weight: 700;
+    color: var(--white);
+    text-transform: uppercase;
+  }
+
   .nav-actions {
     display: flex !important;
     visibility: visible !important;
@@ -981,6 +1012,7 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
     align-items: center !important;
     gap: 12px !important;
     z-index: 2005 !important;
+    margin-left: auto;
   }
 
   /* HAMBURGER */
@@ -1006,6 +1038,10 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
     display: block !important;
   }
 
+  .hamburger .bar.open:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger .bar.open:nth-child(2) { opacity: 0; }
+  .hamburger .bar.open:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
   .logo-icon { width: 34px !important; height: 34px !important; font-size: 14px !important; }
   .logo-text { display: block !important; font-size: 13px !important; }
   .logo { gap: 8px !important; }
@@ -1017,8 +1053,9 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
     width: 100% !important;
     display: flex !important;
   }
+
   .hero-slide {
-    background-size: 100% 100% !important;
+    background-size: cover !important;
     background-position: center center !important;
   }
   .hero-content.full-width { 
