@@ -20,7 +20,7 @@ const Cart = () => {
       <div className="main-wrap">
         <div className="page-wrap">
         {/* Header Section */}
-        <div className="pg-hd">
+        <div className="pg-hd" style={{ paddingTop: '40px' }}>
           <div>
             <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '48px', letterSpacing: '-1px' }}>Your Cart</h1>
             <p style={{ fontSize: '14px', color: 'var(--muted2)' }}>{items.length} items currently in your selection.</p>

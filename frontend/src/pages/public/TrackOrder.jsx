@@ -27,7 +27,7 @@ const PublicTrackOrder = () => {
       <div className="main-wrap">
         <div className="page-wrap">
         {/* Header */}
-        <div className="pg-hd" style={{ textAlign: 'center', display: 'block', marginBottom: '40px' }}>
+        <div className="pg-hd" style={{ textAlign: 'center', display: 'block', marginBottom: '40px', paddingTop: '60px' }}>
           <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '56px', letterSpacing: '-1px', marginBottom: '8px' }}>
             Track Your <span style={{ color: 'var(--orange)' }}>Build</span>
           </h1>
