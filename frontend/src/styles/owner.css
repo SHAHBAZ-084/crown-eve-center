@@ -298,17 +298,31 @@ textarea { resize: vertical; min-height: 80px; }
 .tab:hover:not(.active) { color:var(--text); }
 
 /* Branch card */
-.branch-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:20px; }
-.branch-card {
-  background:var(--surface); border:1px solid var(--border); border-radius:var(--r-xl);
-  padding:28px; transition:all 0.2s; position:relative; overflow:hidden;
+.branch-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(380px,1fr)); gap:24px; }
+.premium-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl);
+  padding: 32px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden;
 }
-.branch-card:hover { border-color:var(--border2); transform:translateY(-2px); }
-.branch-card-accent { position:absolute; top:0; right:0; width:80px; height:80px; border-radius:0 var(--r-xl) 0 80px; opacity:0.06; }
-.branch-stats { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:20px 0; }
-.branch-stat { background:var(--surface2); border:1px solid var(--border); border-radius:var(--r-md); padding:14px; }
-.branch-stat-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.15em; color:var(--muted); margin-bottom:4px; }
-.branch-stat-val { font-family:var(--font-display); font-size:24px; }
+.premium-card:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+.branch-card-accent { position: absolute; top: 0; right: 0; width: 120px; height: 120px; border-radius: 0 var(--r-xl) 0 120px; opacity: 0.05; pointer-events: none; }
+.branch-card-header { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 24px; }
+.branch-icon-box { width: 54px; height: 54px; border-radius: 16px; background: rgba(255,77,0,0.08); display: flex; align-items: center; justify-content: center; color: var(--accent); flex-shrink: 0; }
+.branch-main-info { flex: 1; }
+.branch-name { font-family: var(--font-display); font-size: 24px; margin: 0 0 4px; color: var(--text); }
+.branch-location { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 6px; margin: 0; }
+.branch-card-actions { display: flex; gap: 8px; }
+.branch-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.metric-box { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r-md); padding: 16px; transition: border-color 0.2s; }
+.metric-box:hover { border-color: var(--border2); }
+.metric-label { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 6px; }
+.metric-value { font-family: var(--font-display); font-size: 28px; color: var(--text); }
+.branch-card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 20px; border-top: 1px solid var(--border); }
+.node-id { font-family: var(--font-mono); font-size: 11px; color: var(--accent); font-weight: 700; }
+.timestamp { font-size: 11px; color: var(--muted); }
+
+.empty-state-container { padding: 80px 0; display: flex; justify-content: center; width: 100%; }
+.empty-icon-wrap { width: 100px; height: 100px; border-radius: 50%; background: var(--surface2); display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; border: 1px solid var(--border); color: var(--muted); opacity: 0.5; }
+.premium-form .form-group small { display: block; margin-top: 6px; font-size: 11px; color: var(--muted); }
 
 /* Comparison chart */
 .compare-row { display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid var(--border); }
