@@ -10,18 +10,22 @@ const CustomerDashboard = () => {
   return (
     <div>
       {/* Welcome Banner */}
-      <div style={{ background: "linear-gradient(135deg,var(--card) 0%,var(--black3) 100%)", border: "1px solid var(--border)", borderRadius: 8, padding: "28px 32px", marginBottom: 24, position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(to right,transparent,var(--orange),transparent)" }} />
-        <div style={{ position: "absolute", top: -40, right: -20, width: 200, height: 200, background: "radial-gradient(circle,rgba(255,77,0,0.08),transparent 70%)", pointerEvents: "none" }} />
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase", color: "var(--orange)", marginBottom: 6 }}>Welcome back</div>
-            <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 44, lineHeight: 1, letterSpacing: -2, marginBottom: 8 }}>{user?.name || "Customer"}</div>
-            <div style={{ fontSize: 13, color: "var(--white2)" }}>{user?.email} · Member since {new Date(user?.createdAt || Date.now()).toLocaleDateString()}</div>
+      <div style={{ background: "linear-gradient(135deg,var(--card) 0%,var(--black3) 100%)", border: "1px solid var(--border)", borderRadius: 12, padding: "40px 48px", marginBottom: 32, position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "linear-gradient(to right,transparent,var(--orange),transparent)" }} />
+        <div style={{ position: "absolute", top: -40, right: -20, width: 300, height: 300, background: "radial-gradient(circle,rgba(255,77,0,0.1),transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 24, position: 'relative', zIndex: 2 }}>
+          <div style={{ flex: 1, minWidth: 300 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "3px", textTransform: "uppercase", color: "var(--orange)", marginBottom: 12 }}>Customer Portal</div>
+            <h1 style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 'clamp(44px, 6vw, 72px)', lineHeight: 0.9, letterSpacing: -2, marginBottom: 12 }}>
+              Welcome Back, <span style={{ color: "var(--orange)" }}>{user?.name?.split(' ')[0] || "Customer"}</span>
+            </h1>
+            <div style={{ fontSize: 14, color: "var(--white2)", maxWidth: 480, lineHeight: 1.7 }}>
+              {user?.email} · Member since {new Date(user?.createdAt || Date.now()).toLocaleDateString()}
+            </div>
           </div>
-          <div style={{ display: "flex", gap: 10 }}>
-            <button className="btn btn-ghost btn-sm" onClick={() => navigate("/shop")}>Browse Shop</button>
-            <button className="btn btn-primary btn-sm" onClick={() => navigate("/appointments")}>Book Service</button>
+          <div style={{ display: "flex", gap: 12 }}>
+            <button className="btn btn-ghost" onClick={() => navigate("/shop")} style={{ padding: '12px 24px' }}>Browse Shop</button>
+            <button className="btn btn-primary" onClick={() => navigate("/appointments")} style={{ padding: '12px 24px' }}>Book Service</button>
           </div>
         </div>
       </div>
@@ -103,10 +107,14 @@ const CustomerDashboard = () => {
             <div 
               key={a.label} 
               onClick={() => navigate(a.path)} 
-              style={{ background: "var(--card2)", border: "1px solid var(--border)", borderRadius: 7, padding: "18px 14px", textAlign: "center", cursor: "pointer", transition: "all .2s" }}
+              style={{ 
+                background: "var(--card2)", border: "1px solid var(--border)", borderRadius: 10, 
+                padding: "32px 24px", textAlign: "center", cursor: "pointer", transition: "all .2s",
+                display: "flex", flexDirection: "column", alignItems: "center", gap: 16
+              }}
             >
-              <div style={{ fontSize: 24, marginBottom: 10 }}>{a.ico}</div>
-              <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 14, fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase" }}>{a.label}</div>
+              <div style={{ fontSize: 32 }}>{a.ico}</div>
+              <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 15, fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", color: 'var(--white)' }}>{a.label}</div>
             </div>
           ))}
         </div>

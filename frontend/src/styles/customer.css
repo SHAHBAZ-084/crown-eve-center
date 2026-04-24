@@ -24,7 +24,7 @@
   --bbg: rgba(59, 130, 246, 0.1);
   --amber: #F59E0B;
   --abg: rgba(245, 158, 11, 0.1);
-  --nav: 64px;
+  --nav: 80px; /* Increased nav height */
 
   background: var(--black);
   color: var(--white);
@@ -63,30 +63,30 @@
 .cnav-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   text-decoration: none;
   cursor: pointer;
 }
 
 .logo-hex {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   background: var(--orange);
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   color: #fff;
   flex-shrink: 0;
 }
 
 .logo-txt {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 2px;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 3px;
   text-transform: uppercase;
 }
 
@@ -98,14 +98,14 @@
 .cnav-links {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
 }
 
 .cnl {
-  padding: 7px 14px;
-  font-size: 11px;
+  padding: 10px 18px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 1.5px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--muted2);
   background: transparent;
@@ -128,21 +128,21 @@
 .cnav-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 20px; /* Increased gap */
 }
 
 .cart-btn {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 7px 16px;
+  gap: 10px;
+  padding: 10px 20px;
   background: rgba(255, 77, 0, 0.1);
   border: 1px solid var(--border2);
   border-radius: 4px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 1.5px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--orange);
   cursor: pointer;
