@@ -26,10 +26,10 @@
 }
 
 .owner-dashboard-root {
-  background: var(--bg);
+  background: var(--bg) !important;
   color: var(--text);
   font-family: var(--font-body);
-  height: 100vh;
+  min-height: 100vh;
   overflow: hidden;
 }
 
@@ -249,7 +249,7 @@ textarea { resize: vertical; min-height: 80px; }
 .page-btn[disabled] { opacity:0.3; cursor:not-allowed; }
 
 /* Skeleton */
-.skeleton { background: linear-gradient(90deg, var(--surface2) 25%, rgba(255,255,255,0.04) 50%, var(--surface2) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: var(--r-sm); }
+.skeleton { background: linear-gradient(90deg, var(--surface) 25%, rgba(255,255,255,0.02) 50%, var(--surface) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: var(--r-sm); }
 @keyframes shimmer { from{background-position:200% 0;} to{background-position:-200% 0;} }
 
 /* Empty state */

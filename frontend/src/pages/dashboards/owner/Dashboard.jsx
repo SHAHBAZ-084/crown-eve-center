@@ -16,7 +16,8 @@ const DashboardPage = () => {
   const { data: compareData } = useFetch("/reports/branches/compare");
   const { data: orders } = useFetch("/orders?limit=6&page=1");
 
-  const maxRev = compareData ? Math.max(...compareData.map(b => b.revenue), 1) : 1;
+  const compareArray = Array.isArray(compareData) ? compareData : [];
+  const maxRev = compareArray.length > 0 ? Math.max(...compareArray.map(b => b.revenue || 0), 1) : 1;
 
   return (
     <div className="page">
@@ -43,7 +44,7 @@ const DashboardPage = () => {
             <Icon name="dollar" size={20} />
           </div>
           <div className="stat-card-label">Global Revenue</div>
-          <div className="stat-card-value">${((revenue?.totalRevenue || 0) / 1000).toFixed(1)}K</div>
+          <div className="stat-card-value">PKR {((revenue?.totalRevenue || 0) / 1000).toFixed(1)}K</div>
           <div className="stat-card-trend trend-up">↑ All branches</div>
           <div className="stat-card-glow" style={{ background: "var(--accent)" }} />
         </div>
@@ -80,18 +81,18 @@ const DashboardPage = () => {
           </div>
           {!compareData ? <Sk h={160} r={8} /> : (
             <div>
-              {compareData.map(b => (
+              {compareArray.map(b => (
                 <div key={b.name} className="compare-row">
                   <div style={{ width: 110, fontSize: 12, fontWeight: 600, flexShrink: 0, color: "var(--muted)" }}>{b.name}</div>
                   <div className="compare-bar-track">
                     <div className="compare-bar-fill" style={{ width: `${(b.revenue / maxRev) * 100}%` }} />
                   </div>
                   <div style={{ width: 80, textAlign: "right", fontSize: 12, fontWeight: 700, color: "var(--accent)", flexShrink: 0 }}>
-                    ${(b.revenue / 1000).toFixed(1)}K
+                    PKR {(b.revenue / 1000).toFixed(1)}K
                   </div>
                 </div>
               ))}
-              {compareData.length === 0 && <div className="empty"><Icon name="branches" size={36} /><div className="empty-title">No data</div></div>}
+              {compareArray.length === 0 && <div className="empty"><Icon name="branches" size={36} /><div className="empty-title">No data</div></div>}
             </div>
           )}
         </div>
@@ -131,7 +132,7 @@ const DashboardPage = () => {
                   <td><span style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}>#{o.id}</span></td>
                   <td style={{ fontSize: 13, color: "var(--muted)" }}>{o.branch?.name || "—"}</td>
                   <td style={{ fontSize: 13 }}>{o.customer?.name || "—"}</td>
-                  <td style={{ fontWeight: 700, color: "var(--accent)" }}>${o.total?.toFixed(2)}</td>
+                  <td style={{ fontWeight: 700, color: "var(--accent)" }}>PKR {(o.total ?? 0).toFixed(2)}</td>
                   <td><OrderBadge status={o.status} /></td>
                   <td style={{ fontSize: 12, color: "var(--muted)" }}>{new Date(o.createdAt).toLocaleDateString()}</td>
                 </tr>

@@ -24,6 +24,7 @@
 }
 
 html {
+  background: var(--black);
   scroll-behavior: smooth;
   overflow-x: hidden;
   width: 100%;
