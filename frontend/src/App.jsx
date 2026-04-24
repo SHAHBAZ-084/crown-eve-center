@@ -95,20 +95,20 @@ const App = () => {
               <Route path="/owner/purchases" element={<OwnerPurchases />} />
             </Route>
             
-            <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-              {/* Branch Routes */}
-              <Route element={<ProtectedRoute allowedRoles={['BRANCH_OWNER']}><BranchLayout /></ProtectedRoute>}>
-                <Route path="/branch/dashboard"    element={<BranchDashboard />} />
-                <Route path="/branch/products"     element={<BranchProducts />} />
-                <Route path="/branch/inventory"    element={<BranchInventory />} />
-                <Route path="/branch/orders"       element={<BranchOrders />} />
-                <Route path="/branch/services"     element={<BranchServices />} />
-                <Route path="/branch/appointments" element={<BranchAppointments />} />
-                <Route path="/branch/suppliers"    element={<BranchSuppliers />} />
-                <Route path="/branch/employees"    element={<BranchEmployees />} />
-                <Route path="/branch/reports"      element={<BranchReports />} />
-              </Route>
+            {/* Branch Routes - Outside main Layout to avoid double sidebar */}
+            <Route element={<ProtectedRoute allowedRoles={['BRANCH_OWNER']}><BranchLayout /></ProtectedRoute>}>
+              <Route path="/branch/dashboard"    element={<BranchDashboard />} />
+              <Route path="/branch/products"     element={<BranchProducts />} />
+              <Route path="/branch/inventory"    element={<BranchInventory />} />
+              <Route path="/branch/orders"       element={<BranchOrders />} />
+              <Route path="/branch/services"     element={<BranchServices />} />
+              <Route path="/branch/appointments" element={<BranchAppointments />} />
+              <Route path="/branch/suppliers"    element={<BranchSuppliers />} />
+              <Route path="/branch/employees"    element={<BranchEmployees />} />
+              <Route path="/branch/reports"      element={<BranchReports />} />
+            </Route>
 
+            <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
               {/* Employee Routes */}
               <Route path="/emp/dashboard" element={<ProtectedRoute allowedRoles={['EMPLOYEE']}><EmployeeDashboard /></ProtectedRoute>} />
               <Route path="/emp/pos"       element={<ProtectedRoute allowedRoles={['EMPLOYEE']}><POS /></ProtectedRoute>} />
