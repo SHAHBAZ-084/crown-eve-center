@@ -19,12 +19,16 @@ exports.create = async (req, res) => {
   try {
     const { name, email, password, role, branchId } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Enforce branchId for Branch Owners
+    const finalBranchId = req.user.role === 'BRANCH_OWNER' ? req.user.branchId : (branchId ? Number(branchId) : null);
+
     const user = await User.createUser({
       name,
       email,
       password: hashedPassword,
       role,
-      branchId: branchId ? Number(branchId) : null
+      branchId: finalBranchId
     });
     res.status(201).json({ id: user.id, name: user.name, email: user.email, role: user.role });
   } catch (e) {
