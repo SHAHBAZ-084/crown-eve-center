@@ -51,6 +51,12 @@ const Navbar = () => {
               <div className="text-[10px] font-black uppercase tracking-widest text-orange-500">{user.name}</div>
               <div className="text-[8px] text-muted uppercase tracking-widest">{user.role.replace('_', ' ')}</div>
             </div>
+            {user.role === 'COMPANY_OWNER' && (
+              <Link to="/owner/dashboard" className="btn-nav-register px-4 py-2">Dashboard</Link>
+            )}
+            {user.role === 'BRANCH_OWNER' && (
+              <Link to="/branch/dashboard" className="btn-nav-register px-4 py-2">Dashboard</Link>
+            )}
             <button 
               onClick={logout}
               className="btn-nav-login"

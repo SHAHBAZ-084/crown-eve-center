@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Home = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user?.role === 'COMPANY_OWNER') {
+      navigate('/owner/dashboard');
+    }
+  }, [user, navigate]);
   const images = [
     '/1-1.png',
     '/1-2.png',
