@@ -57,6 +57,12 @@ const Navbar = () => {
             {user.role === 'BRANCH_OWNER' && (
               <Link to="/branch/dashboard" className="btn-nav-register px-4 py-2">Dashboard</Link>
             )}
+            {user.role === 'CUSTOMER' && (
+              <Link to="/my/dashboard" className="btn-nav-register px-4 py-2">My Dashboard</Link>
+            )}
+            {['EMPLOYEE', 'TECHNICIAN'].includes(user.role) && (
+              <Link to="/emp/dashboard" className="btn-nav-register px-4 py-2">Terminal</Link>
+            )}
             <button 
               onClick={logout}
               className="btn-nav-login"
