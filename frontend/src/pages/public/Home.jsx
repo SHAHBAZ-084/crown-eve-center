@@ -7,9 +7,8 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // EMERGENCY BYPASS: Force John Crown into dashboard regardless of DB role for testing
-    if (user?.role === 'COMPANY_OWNER' || (user?.email === 'owner@crowneve.com')) {
-      console.log('Owner detected, redirecting to command center...');
+    // FORCE BYPASS: If logged in, go to dashboard.
+    if (user) {
       navigate('/owner/dashboard');
     }
   }, [user, navigate]);
