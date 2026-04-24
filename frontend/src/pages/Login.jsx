@@ -18,15 +18,11 @@ const Login = () => {
       console.log('Login successful:', user);
       
       // Redirect based on role
-      if (user.role === 'COMPANY_OWNER') {
-        navigate('/owner/dashboard');
-      } else if (user.role === 'BRANCH_OWNER') {
-        navigate('/branch/dashboard');
-      } else if (user.role === 'EMPLOYEE' || user.role === 'TECHNICIAN') {
-        navigate('/emp/dashboard');
-      } else {
-        navigate('/shop');
-      }
+      if (user.role === 'COMPANY_OWNER') navigate('/owner/dashboard');
+      else if (user.role === 'BRANCH_OWNER') navigate('/branch/dashboard');
+      else if (user.role === 'CUSTOMER') navigate('/my/dashboard');
+      else if (['EMPLOYEE', 'TECHNICIAN'].includes(user.role)) navigate('/emp/dashboard');
+      else navigate('/');
     } catch (err) {
       console.error('Login error:', err);
       const msg = err.response?.data?.message || 'Invalid credentials or server error';

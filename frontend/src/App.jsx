@@ -52,9 +52,15 @@ const EmployeeServices = lazy(() => import('./pages/dashboards/employee/Employee
 const TechnicianDashboard = lazy(() => import('./pages/dashboards/TechnicianDashboard'));
 
 // Customer Portal
-const MyOrders = lazy(() => import('./pages/customer/MyOrders'));
-const MyBookings = lazy(() => import('./pages/customer/MyBookings'));
-const Profile = lazy(() => import('./pages/customer/Profile'));
+const CustomerLayout = lazy(() => import('./components/customer/CustomerLayout'));
+const CustomerDashboard = lazy(() => import('./pages/dashboards/customer/Dashboard'));
+const CustomerOrders = lazy(() => import('./pages/dashboards/customer/Orders'));
+const CustomerBookings = lazy(() => import('./pages/dashboards/customer/Bookings'));
+const CustomerProfile = lazy(() => import('./pages/dashboards/customer/Profile'));
+const CustomerShop = lazy(() => import('./pages/dashboards/customer/Shop'));
+const CustomerCart = lazy(() => import('./pages/dashboards/customer/Cart'));
+const CustomerCheckout = lazy(() => import('./pages/dashboards/customer/Checkout'));
+const CustomerTrack = lazy(() => import('./pages/dashboards/customer/TrackOrder'));
 
 const FullPageSkeleton = () => (
   <div className="min-h-screen bg-black flex items-center justify-center">
@@ -108,18 +114,24 @@ const App = () => {
               <Route path="/branch/reports"      element={<BranchReports />} />
             </Route>
 
+            {/* Customer Portal - Premium Dashboard Shell */}
+            <Route element={<ProtectedRoute allowedRoles={['CUSTOMER']}><CustomerLayout /></ProtectedRoute>}>
+              <Route path="/my/dashboard" element={<CustomerDashboard />} />
+              <Route path="/my/orders"    element={<CustomerOrders />} />
+              <Route path="/my/bookings"  element={<CustomerBookings />} />
+              <Route path="/my/profile"   element={<CustomerProfile />} />
+              <Route path="/shop"         element={<CustomerShop />} />
+              <Route path="/cart"         element={<CustomerCart />} />
+              <Route path="/checkout"     element={<CustomerCheckout />} />
+              <Route path="/track/:id"    element={<CustomerTrack />} />
+            </Route>
+
             <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
               {/* Employee Routes */}
               <Route path="/emp/dashboard" element={<ProtectedRoute allowedRoles={['EMPLOYEE']}><EmployeeDashboard /></ProtectedRoute>} />
               <Route path="/emp/pos"       element={<ProtectedRoute allowedRoles={['EMPLOYEE']}><POS /></ProtectedRoute>} />
               <Route path="/emp/orders"    element={<ProtectedRoute allowedRoles={['EMPLOYEE']}><EmployeeOrders /></ProtectedRoute>} />
               <Route path="/emp/services"  element={<ProtectedRoute allowedRoles={['EMPLOYEE', 'TECHNICIAN']}><EmployeeServices /></ProtectedRoute>} />
-
-              <Route path="/checkout" element={<Checkout />} />
-              
-              <Route path="/my/orders" element={<ProtectedRoute allowedRoles={['CUSTOMER']}><MyOrders /></ProtectedRoute>} />
-              <Route path="/my/bookings" element={<ProtectedRoute allowedRoles={['CUSTOMER']}><MyBookings /></ProtectedRoute>} />
-              <Route path="/my/profile" element={<ProtectedRoute allowedRoles={['CUSTOMER']}><Profile /></ProtectedRoute>} />
             </Route>
 
             <Route path="/unauthorized" element={<div>Unauthorized Access</div>} />
