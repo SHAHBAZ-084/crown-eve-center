@@ -23,14 +23,14 @@ const Forgot = lazy(() => import('./pages/auth/Forgot'));
 
 // Dashboards - Owner
 const OwnerLayout = lazy(() => import('./components/owner/OwnerLayout'));
-const OwnerDashboard = lazy(() => import('./pages/dashboards/OwnerDashboard'));
-const OwnerBranches = lazy(() => import('./pages/dashboards/owner/OwnerBranches'));
-const OwnerParts = lazy(() => import('./pages/dashboards/owner/OwnerParts'));
-const OwnerUsers = lazy(() => import('./pages/dashboards/owner/OwnerUsers'));
-const OwnerReports = lazy(() => import('./pages/dashboards/owner/OwnerReports'));
-const OwnerSettings = lazy(() => import('./pages/dashboards/owner/OwnerSettings'));
-const OwnerOrders = lazy(() => import('./pages/dashboards/owner/OwnerOrders'));
-const OwnerPurchases = lazy(() => import('./pages/dashboards/owner/OwnerPurchases'));
+const OwnerDashboard = lazy(() => import('./pages/dashboards/owner/Dashboard'));
+const OwnerBranches = lazy(() => import('./pages/dashboards/owner/Branches'));
+const OwnerParts = lazy(() => import('./pages/dashboards/owner/Parts'));
+const OwnerUsers = lazy(() => import('./pages/dashboards/owner/Users'));
+const OwnerReports = lazy(() => import('./pages/dashboards/owner/Reports'));
+const OwnerSettings = lazy(() => import('./pages/dashboards/owner/Settings'));
+const OwnerOrders = lazy(() => import('./pages/dashboards/owner/Orders'));
+const OwnerPurchases = lazy(() => import('./pages/dashboards/owner/Purchases'));
 
 // Dashboards - Branch
 const BranchDashboard = lazy(() => import('./pages/dashboards/BranchDashboard'));

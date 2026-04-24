@@ -1,30 +1,29 @@
-import React from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { Icon, ToastContainer } from './OwnerShared';
-import './owner-theme.css';
+// frontend/src/components/owner/OwnerLayout.jsx
+import { Link, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { Icon, ToastContainer } from "./OwnerShared";
+import "../../styles/owner.css";
 
 const NAV = [
-  { id:"dashboard", label:"Dashboard", icon:"dashboard", section:"Overview", path:"/owner/dashboard" },
-  { id:"branches",  label:"Branches",  icon:"branches",  section:"Network", path:"/owner/branches" },
-  { id:"parts",     label:"Parts Catalog", icon:"parts", section:"Network", path:"/owner/parts" },
-  { id:"orders",    label:"All Orders",    icon:"orders",section:"Operations", path:"/owner/orders" },
-  { id:"purchases", label:"Purchases",     icon:"purchases",section:"Operations", path:"/owner/purchases" },
-  { id:"users",     label:"Personnel",     icon:"users", section:"Admin", path:"/owner/users" },
-  { id:"reports",   label:"Analytics",     icon:"reports",section:"Admin", path:"/owner/reports" },
-  { id:"settings",  label:"Settings",      icon:"settings",section:"Admin", path:"/owner/settings" },
+  { id: "dashboard", label: "Dashboard", path: "/owner/dashboard", icon: "dashboard", section: "Overview" },
+  { id: "branches", label: "Branches", path: "/owner/branches", icon: "branches", section: "Network" },
+  { id: "parts", label: "Parts Catalog", path: "/owner/parts", icon: "parts", section: "Network" },
+  { id: "orders", label: "All Orders", path: "/owner/orders", icon: "orders", section: "Operations" },
+  { id: "purchases", label: "Purchases", path: "/owner/purchases", icon: "purchases", section: "Operations" },
+  { id: "users", label: "Personnel", path: "/owner/users", icon: "users", section: "Admin" },
+  { id: "reports", label: "Analytics", path: "/owner/reports", icon: "reports", section: "Admin" },
+  { id: "settings", label: "Settings", path: "/owner/settings", icon: "settings", section: "Admin" },
 ];
 
 const OwnerLayout = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
 
   const sections = [...new Set(NAV.map(n => n.section))];
-  const currentPage = NAV.find(n => location.pathname.includes(n.path)) || NAV[0];
+  const currentPage = NAV.find(n => n.path === location.pathname);
 
   return (
-    <div className="owner-theme">
+    <div className="owner-dashboard-root">
       <div className="shell">
         {/* Sidebar */}
         <aside className="sidebar">
@@ -35,32 +34,28 @@ const OwnerLayout = () => {
               <div className="logo-sub">Owner Panel</div>
             </div>
           </div>
-          <nav style={{ flex:1 }}>
+          <nav style={{ flex: 1 }}>
             {sections.map(sec => (
               <div key={sec}>
                 <div className="nav-section-label">{sec}</div>
                 {NAV.filter(n => n.section === sec).map(n => (
-                  <div 
-                    key={n.id} 
-                    className={`nav-item ${location.pathname.includes(n.path) ? "active" : ""}`} 
-                    onClick={() => navigate(n.path)}
-                  >
+                  <Link key={n.id} to={n.path} className={`nav-item ${location.pathname === n.path ? "active" : ""}`}>
                     <Icon name={n.icon} size={18} />
                     <span>{n.label}</span>
-                  </div>
+                  </Link>
                 ))}
               </div>
             ))}
           </nav>
-          <div style={{ paddingTop:20, borderTop:"1px solid var(--border)" }}>
-            <div className="nav-user" style={{ marginBottom:12 }}>
-              <div className="nav-avatar">{user?.name?.[0]?.toUpperCase() || 'O'}</div>
+          <div style={{ paddingTop: 20, borderTop: "1px solid var(--border)" }}>
+            <div className="nav-user" style={{ marginBottom: 12 }}>
+              <div className="nav-avatar">{user?.name?.[0]?.toUpperCase() || "O"}</div>
               <div>
-                <div className="nav-user-name">{user?.name || 'Owner'}</div>
-                <div className="nav-user-role">Owner</div>
+                <div className="nav-user-name">{user?.name || "Owner"}</div>
+                <div className="nav-user-role">Company Owner</div>
               </div>
             </div>
-            <div className="nav-item" onClick={logout} style={{ color:"var(--red)" }}>
+            <div className="nav-item" onClick={logout} style={{ color: "var(--red)" }}>
               <Icon name="logout" size={18} />
               <span>Logout</span>
             </div>
@@ -70,9 +65,9 @@ const OwnerLayout = () => {
         {/* Main */}
         <main className="main">
           <div className="topbar">
-            <div className="topbar-title">{currentPage?.label?.toUpperCase()}</div>
+            <div className="topbar-title">{currentPage?.label?.toUpperCase() || "DASHBOARD"}</div>
             <div className="topbar-right">
-              <div className="live-badge"><span className="live-dot" />Live</div>
+              <div className="live-badge"><span className="live-dot" />Live Control Panel</div>
             </div>
           </div>
           <Outlet />

@@ -1,7 +1,13 @@
-import React from 'react';
-import { useFetch, Sk, Icon, TableSk, OrderBadge } from '../../components/owner/OwnerShared';
+// frontend/src/pages/dashboards/owner/Dashboard.jsx
+import React from "react";
+import { useFetch, Icon, Sk, TableSk } from "../../../components/owner/OwnerShared";
 
-const OwnerDashboard = () => {
+const OrderBadge = ({ status }) => {
+  const map = { PENDING: "badge-yellow", PROCESSING: "badge-blue", COMPLETED: "badge-green", CANCELLED: "badge-red" };
+  return <span className={`badge ${map[status] || "badge-blue"}`}>{status}</span>;
+};
+
+const DashboardPage = () => {
   const { data: branchCount } = useFetch("/branches/count");
   const { data: partsCount } = useFetch("/parts/count");
   const { data: orderCount } = useFetch("/orders/count");
@@ -31,7 +37,6 @@ const OwnerDashboard = () => {
         </div>
       </div>
 
-      {/* Stat cards */}
       <div className="stat-grid">
         <div className="stat-card">
           <div className="stat-card-icon" style={{ background: "rgba(255,77,0,0.1)", color: "var(--accent)" }}>
@@ -69,7 +74,6 @@ const OwnerDashboard = () => {
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
-        {/* Branch comparison */}
         <div className="card card-inner">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <div style={{ fontWeight: 700, fontSize: 15 }}>Branch Revenue Comparison</div>
@@ -92,7 +96,6 @@ const OwnerDashboard = () => {
           )}
         </div>
 
-        {/* Top branches */}
         <div className="card card-inner">
           <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 20 }}>Top Branches by Orders</div>
           {!topBranches ? <Sk h={160} r={8} /> : topBranches.map((b, i) => (
@@ -110,7 +113,6 @@ const OwnerDashboard = () => {
         </div>
       </div>
 
-      {/* Recent orders */}
       <div className="card">
         <div style={{ padding: "20px 20px 0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ fontWeight: 700, fontSize: 15 }}>Recent Orders (Network-wide)</div>
@@ -143,4 +145,4 @@ const OwnerDashboard = () => {
   );
 };
 
-export default OwnerDashboard;
+export default DashboardPage;
