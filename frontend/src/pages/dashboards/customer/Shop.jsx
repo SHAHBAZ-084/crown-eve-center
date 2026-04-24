@@ -1,89 +1,80 @@
 // frontend/src/pages/dashboards/customer/Shop.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Badge, Icon, useFetch } from "../../../components/customer/CustomerShared";
+import { Badge } from "../../../components/customer/CustomerShared";
 
-const ShopPage = () => {
+const Shop = () => {
   const navigate = useNavigate();
-  const { data: productData, loading } = useFetch("/products"); // Assume this endpoint exists
-  const [filter, setFilter] = useState("All");
+  const [cat, setCat] = useState("All");
   const [search, setSearch] = useState("");
 
-  const products = productData?.data || [
+  const PRODUCTS = [
     { id: 1, name: "Crown GT 390", cat: "Sport", spec: "450cc · Fuel Injected · ABS", price: 485000, stock: 6, emoji: "🏍️", badge: "In Stock" },
     { id: 2, name: "Crown Duke R", cat: "Naked", spec: "250cc · Street Fighter · LED", price: 310000, stock: 4, emoji: "🏍️", badge: "New Arrival" },
+    { id: 3, name: "Crown Trail X", cat: "Adventure", spec: "650cc · Dual Sport · Long Range", price: 720000, stock: 2, emoji: "🏍️", badge: "Low Stock" },
+    { id: 4, name: "Crown 125 Pro", cat: "Commuter", spec: "125cc · Commuter · Economy", price: 185000, stock: 12, emoji: "🛵", badge: "In Stock" },
     { id: 5, name: "Chain 21sp Heavy Duty", cat: "Drivetrain", spec: "Compatible: Duke, GT series", price: 2800, stock: 842, emoji: "🔗", badge: "In Stock" },
+    { id: 6, name: "Brake Pads Pro", cat: "Brakes", spec: "Front & Rear — Universal", price: 1200, stock: 240, emoji: "🛞", badge: "In Stock" },
+    { id: 7, name: "LED Headlight H4", cat: "Electrical", spec: "6000K · 35W · IP67", price: 3500, stock: 315, emoji: "💡", badge: "In Stock" },
+    { id: 8, name: "Oil Filter 17mm", cat: "Engine", spec: "Universal fitment · OEM grade", price: 450, stock: 12, emoji: "🔩", badge: "Low Stock" },
   ];
 
-  const cats = ["All", "Sport", "Naked", "Adventure", "Commuter", "Drivetrain", "Brakes", "Engine", "Electrical"];
-  const filtered = products.filter(p => {
-    const matchCat = filter === "All" || p.cat === filter;
-    const matchSearch = search === "" || p.name.toLowerCase().includes(search.toLowerCase());
-    return matchCat && matchSearch;
-  });
-
-  const addToCart = (product) => {
-    // Basic cart logic for now
-    alert(`${product.name} added to cart`);
-  };
+  const categories = ["All", "Sport", "Naked", "Adventure", "Commuter", "Drivetrain", "Brakes", "Electrical", "Engine"];
+  const filtered = PRODUCTS.filter(p => (cat === "All" || p.cat === cat) && p.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div>
       <div className="pg-hd">
-        <div><h1>Shop</h1><p>Browse premium bikes, parts, and accessories</p></div>
+        <div>
+          <h1>Browse Shop</h1>
+          <p>Authentic Crown Eve bikes, parts and accessories.</p>
+        </div>
+        <div className="pg-actions">
+          <div className="fsearch">
+            <span style={{ fontSize: 14, opacity: 0.5 }}>🔍</span>
+            <input placeholder="Search products..." value={search} onChange={e => setSearch(e.target.value)} />
+          </div>
+        </div>
       </div>
+
       <div className="fbar">
-        {cats.map(c => (
-          <button 
-            key={c} 
-            className={`fpill ${filter === c ? "on" : ""}`} 
-            onClick={() => setFilter(c)}
-          >
-            {c}
-          </button>
+        {categories.map(c => (
+          <button key={c} className={`fpill ${cat === c ? "on" : ""}`} onClick={() => setCat(c)}>{c}</button>
         ))}
-        <div className="fsearch">
-          <Icon name="search" size={12} />
-          <input 
-            placeholder="Search products..." 
-            value={search} 
-            onChange={e => setSearch(e.target.value)} 
-          />
-        </div>
       </div>
-      {loading ? (
-        <div style={{ padding: 40, textAlign: 'center' }}>Loading products...</div>
-      ) : filtered.length === 0 ? (
-        <div className="empty-state">
-          <div className="ei">🔍</div>
-          <h3>No results</h3>
-          <p>Try a different search or category filter.</p>
-        </div>
-      ) : (
-        <div className="g4">
-          {filtered.map(p => (
-            <div className="prod-card" key={p.id}>
-              <div className="prod-img" onClick={() => navigate(`/shop/${p.id}`)}>
-                <span style={{ fontSize: 40 }}>{p.emoji || "📦"}</span>
-              </div>
-              <div className="prod-body">
-                <div className="prod-cat">{p.cat}</div>
-                <div className="prod-name">{p.name}</div>
-                <div className="prod-spec">{p.spec}</div>
-                <div className="prod-footer">
-                  <div className="prod-price">PKR {p.price.toLocaleString()}</div>
-                  <Badge status={p.badge} />
-                </div>
-                <button className="btn btn-primary" style={{ width: "100%", marginTop: 14 }} onClick={() => addToCart(p)}>
-                  Add to Cart
-                </button>
+
+      <div className="g4">
+        {filtered.map(p => (
+          <div key={p.id} className="prod-card" onClick={() => navigate(`/shop/${p.id}`)}>
+            <div className="prod-img">
+              {p.emoji}
+              <div style={{ position: "absolute", top: 12, right: 12 }}>
+                <Badge status={p.badge} />
               </div>
             </div>
-          ))}
+            <div className="prod-body">
+              <div className="prod-cat">{p.cat}</div>
+              <div className="prod-name">{p.name}</div>
+              <div className="prod-spec">{p.spec}</div>
+              <div className="prod-footer">
+                <div className="prod-price">PKR {p.price.toLocaleString()}</div>
+                <button className="ca" style={{ fontSize: 10 }}>View Details →</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {filtered.length === 0 && (
+        <div className="empty-state">
+          <div className="ei">🔍</div>
+          <h3>No products found</h3>
+          <p>Try adjusting your search or category filter to find what you're looking for.</p>
+          <button className="btn btn-ghost btn-sm" onClick={() => { setCat("All"); setSearch(""); }}>Clear Filters</button>
         </div>
       )}
     </div>
   );
 };
 
-export default ShopPage;
+export default Shop;
