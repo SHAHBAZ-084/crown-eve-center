@@ -21,6 +21,10 @@ const OwnerLayout = () => {
 
   const sections = [...new Set(NAV.map(n => n.section))];
   const currentPage = NAV.find(n => n.path === location.pathname);
+  const handleLogout = () => {
+    logout();
+    window.location.href = '/';
+  };
 
   return (
     <div className="owner-dashboard-root">
@@ -59,7 +63,7 @@ const OwnerLayout = () => {
                 <div className="nav-user-role">Company Owner</div>
               </div>
             </div>
-            <div className="nav-item" onClick={logout} style={{ color: "var(--red)", marginTop: '12px' }}>
+            <div className="nav-item" onClick={handleLogout} style={{ color: "var(--red)", marginTop: '12px', cursor: 'pointer' }}>
               <Icon name="logout" size={18} />
               <span>Logout</span>
             </div>
