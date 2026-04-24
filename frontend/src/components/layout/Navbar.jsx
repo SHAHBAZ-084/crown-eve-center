@@ -31,7 +31,7 @@ const Navbar = () => {
         <li><Link to="/">Home</Link></li>
         <li><Link to="/shop">Shop</Link></li>
         <li><Link to="/about">About</Link></li>
-        <li><Link to="/appointments">Book Service</Link></li>
+        {user && <li><Link to="/appointments">Book Service</Link></li>}
         <li><Link to="/contact">Contact</Link></li>
         {/* On mobile, show auth links inside menu if not in header */}
         <li className="mobile-auth-links">

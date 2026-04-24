@@ -79,11 +79,13 @@ const App = () => {
               <Route path="/" element={<Home />} />
               <Route path="/shop" element={<Shop />} />
               <Route path="/shop/:id" element={<ProductDetail />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/track/:id" element={<TrackOrder />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
-              <Route path="/appointments" element={<Appointments />} />
+              
+              {/* Semi-protected routes: Guest cannot access, but they use the public layout */}
+              <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+              <Route path="/track/:id" element={<ProtectedRoute><TrackOrder /></ProtectedRoute>} />
+              <Route path="/appointments" element={<ProtectedRoute><Appointments /></ProtectedRoute>} />
             </Route>
 
             <Route path="/login" element={<Login />} />

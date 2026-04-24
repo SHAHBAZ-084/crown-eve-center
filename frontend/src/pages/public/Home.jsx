@@ -67,10 +67,12 @@ const Home = () => {
               <span>Explore Bikes</span>
               <span className="arrow">→</span>
             </Link>
-            <Link to="/appointments" className="btn-ghost">
-              <span className="btn-ghost-line"></span>
-              Book A Service
-            </Link>
+            {user && (
+              <Link to="/appointments" className="btn-ghost">
+                <span className="btn-ghost-line"></span>
+                Book A Service
+              </Link>
+            )}
           </div>
           
           <div className="hero-stats horizontal">
@@ -283,10 +285,10 @@ const Home = () => {
             </div>
           </div>
           <div className="services-cta-panel">
-            <h3>Book Your<br /><span style={{ color: 'var(--orange)' }}>Service</span><br />Today.</h3>
-            <p>Our certified technicians are ready to keep your ride in peak condition. Schedule online in under 2 minutes — choose your branch, pick a slot, and we handle the rest.</p>
-            <Link to="/appointments" className="btn-primary">
-              <span>Book Now</span>
+            <h3>Ready to<br /><span style={{ color: 'var(--orange)' }}>Ride</span><br />With Us?</h3>
+            <p>Our certified technicians are ready to keep your ride in peak condition. Sign in to schedule online in under 2 minutes — choose your branch, pick a slot, and we handle the rest.</p>
+            <Link to={user ? "/appointments" : "/login"} className="btn-primary">
+              <span>{user ? "Book Now" : "Sign In to Book"}</span>
               <span className="arrow">→</span>
             </Link>
           </div>
@@ -369,7 +371,7 @@ const Home = () => {
             <ul>
               <li><Link to="/shop">Shop Bikes</Link></li>
               <li><Link to="/shop">Parts Catalog</Link></li>
-              <li><Link to="/appointments">Book Service</Link></li>
+              {user && <li><Link to="/appointments">Book Service</Link></li>}
               <li><Link to="/about">About Us</Link></li>
               <li><Link to="/contact">Contact</Link></li>
             </ul>
@@ -379,9 +381,13 @@ const Home = () => {
             <ul>
               <li><Link to="/login">Sign In</Link></li>
               <li><Link to="/register">Register</Link></li>
-              <li><Link to="/my/orders">My Orders</Link></li>
-              <li><Link to="/my/bookings">My Bookings</Link></li>
-              <li><Link to="/track">Track Order</Link></li>
+              {user && (
+                <>
+                  <li><Link to="/my/orders">My Orders</Link></li>
+                  <li><Link to="/my/bookings">My Bookings</Link></li>
+                  <li><Link to="/track">Track Order</Link></li>
+                </>
+              )}
             </ul>
           </div>
           <div className="footer-col">
