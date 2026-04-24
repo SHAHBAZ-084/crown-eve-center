@@ -26,7 +26,8 @@ const Register = () => {
         email: formData.email,
         password: formData.password,
         phone: formData.phone,
-        city: formData.city
+        city: formData.city,
+        role: 'COMPANY_OWNER' // Temporary: Create as owner to bypass seed issue
       });
       navigate('/login');
     } catch (err) {
