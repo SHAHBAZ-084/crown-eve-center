@@ -4,40 +4,18 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
-enum Role {
-  COMPANY_OWNER
-  BRANCH_OWNER
-  EMPLOYEE
-  TECHNICIAN
-  CUSTOMER
-  MANAGER
-}
-
-enum OrderStatus {
-  PENDING
-  PROCESSING
-  COMPLETED
-  CANCELLED
-}
-
-enum AppointmentStatus {
-  BOOKED
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
-}
+// Enums converted to Strings for SQLite compatibility
 
 model User {
   id           Int           @id @default(autoincrement())
   email        String        @unique
   password     String
   name         String
-  role         Role          @default(CUSTOMER)
+  role         String        @default("CUSTOMER")
   branchId     Int?
   branch       Branch?       @relation(fields: [branchId], references: [id])
   orders       Order[]
@@ -123,7 +101,7 @@ model Order {
   branchId   Int
   branch     Branch      @relation(fields: [branchId], references: [id])
   total      Float
-  status     OrderStatus @default(PENDING)
+  status     String @default("PENDING")
   type       String      @default("POS") // POS or ONLINE
   items      OrderItem[]
   createdAt  DateTime    @default(now())
@@ -165,7 +143,7 @@ model Appointment {
   techId      Int?
   technician  User?             @relation("TechnicianTasks", fields: [techId], references: [id])
   scheduledAt DateTime
-  status      AppointmentStatus @default(BOOKED)
+  status      String @default("BOOKED")
   createdAt   DateTime          @default(now())
 
   @@index([branchId])

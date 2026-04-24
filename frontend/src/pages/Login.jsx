@@ -20,7 +20,7 @@ const Login = () => {
       // Role-based redirection
       if (user.role === 'COMPANY_OWNER') navigate('/owner/dashboard');
       else if (user.role === 'BRANCH_OWNER') navigate('/branch/dashboard');
-      else if (user.role === 'SERVICE_EMPLOYEE') navigate('/branch/appointments');
+      else if (user.role === 'EMPLOYEE' || user.role === 'TECHNICIAN') navigate('/emp/dashboard');
       else navigate('/');
     } catch (err) {
       console.error('Login error:', err);

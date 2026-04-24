@@ -28,5 +28,7 @@ jobs:
         working-directory: backend
         run: npx prisma generate
 
-      - name: Validation passed
-        run: echo "Backend validated — Render will auto-deploy via Hook"
+      - name: Deploy to Render
+        if: github.ref == 'refs/heads/main'
+        run: |
+          curl -f ${{ secrets.RENDER_DEPLOY_HOOK }}
