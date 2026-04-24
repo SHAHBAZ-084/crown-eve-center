@@ -1,118 +1,129 @@
 // frontend/src/pages/public/TrackOrder.jsx
 import React, { useState } from 'react';
-import { Search, MapPin, Package, CheckCircle, Truck, Clock } from 'lucide-react';
-import api from '../../services/api';
+import { useParams, useNavigate } from 'react-router-dom';
+import '../../styles/customer.css';
 
-const TrackOrder = () => {
-  const [orderId, setOrderId] = useState('');
-  const [order, setOrder] = useState(null);
-  const [loading, setLoading] = useState(false);
+const PublicTrackOrder = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [searchId, setSearchId] = useState(id || "");
+  const [showResults, setShowResults] = useState(!!id);
 
-  const handleTrack = async () => {
-    if (!orderId) return;
-    setLoading(true);
-    try {
-      const res = await api.get(`/orders/${orderId}`); // This would need a public endpoint or logic
-      setOrder(res.data);
-    } catch (err) {
-      alert('Order not found');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const steps = [
-    { label: 'Confirmed', status: 'COMPLETED', icon: <CheckCircle /> },
-    { label: 'Processing', status: 'PROCESSING', icon: <Package /> },
-    { label: 'On its way', status: 'SHIPPED', icon: <Truck /> },
-    { label: 'Delivered', status: 'DELIVERED', icon: <MapPin /> },
+  const STEPS = [
+    { label: "Order Placed", date: "Apr 23, 09:14 AM", done: true },
+    { label: "Payment Confirmed", date: "Apr 23, 09:16 AM", done: true },
+    { label: "Being Prepared", date: "Apr 23, 11:30 AM", done: true, active: true },
+    { label: "Out for Delivery", date: "Expected by 3:00 PM", done: false },
+    { label: "Delivered", date: "—", done: false },
   ];
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchId) setShowResults(true);
+  };
+
   return (
-    <div className="max-w-4xl mx-auto space-y-16 py-10">
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold tracking-tight">Track Your Build</h1>
-        <p className="text-slate-400">Enter your order reference ID to see live progress.</p>
-      </div>
+    <div id="customer-dashboard-shell">
+      <div className="page-wrap">
+        {/* Header */}
+        <div className="pg-hd" style={{ textAlign: 'center', display: 'block', marginBottom: '40px' }}>
+          <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '56px', letterSpacing: '-1px', marginBottom: '8px' }}>
+            Track Your <span style={{ color: 'var(--orange)' }}>Build</span>
+          </h1>
+          <p style={{ fontSize: '14px', color: 'var(--muted2)', maxWidth: '500px', margin: '0 auto' }}>
+            Enter your order reference ID below to see live progress and delivery updates.
+          </p>
+        </div>
 
-      <div className="relative max-w-lg mx-auto">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={24} />
-        <input 
-          type="text" 
-          placeholder="e.g. CEB-123456" 
-          value={orderId}
-          onChange={(e) => setOrderId(e.target.value)}
-          className="w-full bg-slate-900 border border-slate-800 rounded-3xl py-6 pl-14 pr-32 text-xl font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-        />
-        <button 
-          onClick={handleTrack}
-          className="absolute right-3 top-1/2 -translate-y-1/2 bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-2xl font-bold transition-all"
-        >
-          {loading ? '...' : 'Track'}
-        </button>
-      </div>
-
-      {order && (
-        <div className="bg-slate-900 border border-slate-800 rounded-[3rem] p-10 space-y-12 animate-in fade-in slide-in-from-bottom-10">
-          <header className="flex justify-between items-start">
-            <div>
-              <p className="text-slate-500 uppercase tracking-widest text-xs font-bold">Order Reference</p>
-              <h2 className="text-2xl font-bold">#{order.id}</h2>
+        {/* Search Bar */}
+        <div className="card" style={{ maxWidth: '600px', margin: '0 auto 40px', padding: '24px' }}>
+          <form onSubmit={handleSearch} style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ flex: 1, position: 'relative' }}>
+              <input 
+                className="fi" 
+                placeholder="e.g. CEB-123456" 
+                value={searchId}
+                onChange={(e) => setSearchId(e.target.value)}
+                style={{ height: '48px', paddingLeft: '40px' }}
+              />
+              <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }}>🔍</span>
             </div>
-            <div className="text-right">
-              <p className="text-slate-500 uppercase tracking-widest text-xs font-bold">Estimated Delivery</p>
-              <h2 className="text-xl font-bold text-blue-400">Oct 24, 2026</h2>
-            </div>
-          </header>
+            <button className="btn btn-primary" type="submit" style={{ height: '48px', padding: '0 24px' }}>
+              Track Progress
+            </button>
+          </form>
+        </div>
 
-          <div className="relative py-10">
-            {/* Progress Bar */}
-            <div className="absolute top-1/2 left-0 w-full h-1 bg-slate-800 -translate-y-1/2" />
-            <div className="absolute top-1/2 left-0 h-1 bg-blue-500 -translate-y-1/2 transition-all duration-1000" style={{ width: '66%' }} />
-            
-            <div className="relative flex justify-between">
-              {steps.map((step, i) => (
-                <div key={i} className="flex flex-col items-center space-y-3">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center z-10 transition-all ${
-                    i <= 2 ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/20' : 'bg-slate-800 text-slate-500'
-                  }`}>
-                    {step.icon}
+        {/* Results Section */}
+        {showResults ? (
+          <div className="g73" style={{ animation: 'fadeIn 0.5s ease' }}>
+            <div className="card">
+              <div className="ch">
+                <div className="ct">Live Build Status</div>
+                <div className="badge bg-b">In Assembly</div>
+              </div>
+              <div className="timeline" style={{ padding: "10px 0" }}>
+                {STEPS.map((s, i) => (
+                  <div key={s.label} className="tl-item">
+                    <div className="tl-left">
+                      <div className={`tl-dot ${s.done ? "done" : ""} ${s.active ? "active" : ""}`} />
+                      {i < STEPS.length - 1 && <div className={`tl-line ${s.done ? "done" : ""}`} />}
+                    </div>
+                    <div className="tl-content">
+                      <div className="tl-title" style={{ fontSize: '14px', fontWeight: 700 }}>{s.label}</div>
+                      <div className="tl-date" style={{ fontSize: '11px' }}>{s.date}</div>
+                    </div>
                   </div>
-                  <span className={`text-xs font-bold uppercase tracking-wider ${i <= 2 ? 'text-white' : 'text-slate-600'}`}>
-                    {step.label}
-                  </span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-slate-800">
-            <div className="space-y-2">
-              <h4 className="font-bold flex items-center"><Truck size={18} className="mr-2 text-slate-500" /> Shipping Address</h4>
-              <p className="text-slate-400 leading-relaxed">
-                John Doe<br />
-                123 Cycling Way, Gear District<br />
-                New York, NY 10001
-              </p>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-bold flex items-center"><Clock size={18} className="mr-2 text-slate-500" /> Recent Activity</h4>
-              <div className="space-y-4">
-                <div className="flex space-x-3 text-sm">
-                  <span className="text-slate-600 font-medium">10:45 AM</span>
-                  <span className="text-slate-300">Package arrived at local sorting facility.</span>
+            <div>
+              <div className="card" style={{ marginBottom: '20px' }}>
+                <div className="ch"><div className="ct">Build Summary</div></div>
+                <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
+                  <div style={{ width: 44, height: 44, background: "var(--black3)", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🏍️</div>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 700 }}>Crown GT 390</div>
+                    <div style={{ fontSize: 11, color: "var(--muted2)" }}>Sport Edition · Matt Black</div>
+                  </div>
                 </div>
-                <div className="flex space-x-3 text-sm">
-                  <span className="text-slate-600 font-medium">Yesterday</span>
-                  <span className="text-slate-300">Build completed at Main Branch. Quality checked.</span>
+                <div className="divider" />
+                <div className="trow">
+                  <span style={{ fontSize: 12, color: "var(--muted2)" }}>Order ID</span>
+                  <span className="mono" style={{ fontWeight: 600 }}>#{searchId}</span>
                 </div>
+                <div className="trow">
+                  <span style={{ fontSize: 12, color: "var(--muted2)" }}>Service Center</span>
+                  <span style={{ fontSize: 12, fontWeight: 600 }}>Gulberg, Lahore</span>
+                </div>
+              </div>
+
+              <div className="card" style={{ background: 'linear-gradient(to bottom right, var(--card), var(--black3))' }}>
+                <div className="ch"><div className="ct">Need Help?</div></div>
+                <p style={{ fontSize: '12px', color: 'var(--muted2)', lineHeight: 1.6, marginBottom: '16px' }}>
+                  If you have questions about your build progress, please contact our support team.
+                </p>
+                <button className="btn btn-ghost btn-xs" style={{ width: '100%' }}>Contact Support</button>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        ) : (
+          <div style={{ textAlign: 'center', padding: '60px 0', opacity: 0.3 }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>📦</div>
+            <p style={{ fontSize: '14px', fontWeight: 600 }}>Ready to track your build</p>
+          </div>
+        )}
+      </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}} />
     </div>
   );
 };
 
-export default TrackOrder;
+export default PublicTrackOrder;
