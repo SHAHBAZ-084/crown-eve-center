@@ -112,7 +112,15 @@
 .nav-user-role { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
 
 /* Main */
-.main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+.main { 
+  flex: 1 !important; 
+  margin-left: 280px !important; 
+  overflow-y: auto !important; 
+  display: flex !important; 
+  flex-direction: column !important; 
+  min-height: 100vh !important;
+  background: var(--bg) !important;
+}
 
 /* Topbar */
 .topbar {
