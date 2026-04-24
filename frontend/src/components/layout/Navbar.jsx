@@ -47,9 +47,9 @@ const Navbar = () => {
       <div className="nav-actions">
         {user ? (
           <div className="flex items-center gap-4">
-            <div className="text-right hidden sm:block">
-              <div className="text-[10px] font-black uppercase tracking-widest text-orange-500">{user.name}</div>
-              <div className="text-[8px] text-muted uppercase tracking-widest">{user.role.replace('_', ' ')}</div>
+            <div className="text-right mr-4">
+              <div className="text-[10px] font-bold uppercase tracking-widest text-orange-500">{user.name || 'User'}</div>
+              <div className="text-[8px] text-gray-400 uppercase tracking-widest">{user.role?.replace('_', ' ') || 'No Role'}</div>
             </div>
             {user.role === 'COMPANY_OWNER' && (
               <Link to="/owner/dashboard" className="btn-nav-register px-4 py-2">Dashboard</Link>
