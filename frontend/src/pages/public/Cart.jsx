@@ -1,76 +1,104 @@
 // frontend/src/pages/public/Cart.jsx
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import '../../styles/customer.css';
 
 const Cart = () => {
-  // Demo state - in real app, use a CartContext
+  const navigate = useNavigate();
+
+  // Mock data matching the screenshot
   const items = [
-    { id: 1, name: 'Crown Eve Elite Road', price: 4200, qty: 1 },
-    { id: 2, name: 'Aerodynamic Wheelset', price: 1200, qty: 1 },
+    { id: 1, name: 'Crown Eve Elite Road', price: 4200, qty: 1, emoji: "🚲" },
+    { id: 2, name: 'Aerodynamic Wheelset', price: 1200, qty: 1, emoji: "🛞" },
   ];
 
   const subtotal = items.reduce((acc, item) => acc + (item.price * item.qty), 0);
+  const total = subtotal; // Matching the screenshot's "Calculated at checkout" for shipping
 
   return (
-    <div className="max-w-6xl mx-auto space-y-12 pb-20">
-      <header className="flex items-center justify-between">
-        <h1 className="text-4xl font-bold">Your Cart</h1>
-        <span className="text-slate-400">{items.length} items</span>
-      </header>
+    <div id="customer-dashboard-shell">
+      <div className="page-wrap">
+        {/* Header Section */}
+        <div className="pg-hd">
+          <div>
+            <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '48px', letterSpacing: '-1px' }}>Your Cart</h1>
+            <p style={{ fontSize: '14px', color: 'var(--muted2)' }}>{items.length} items currently in your selection.</p>
+          </div>
+          <button className="btn btn-ghost btn-sm" onClick={() => navigate("/shop")}>
+            ← Continue Shopping
+          </button>
+        </div>
 
-      {items.length > 0 ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* List */}
-          <div className="lg:col-span-2 space-y-6">
+        <div className="g64">
+          {/* Items List */}
+          <div className="card">
+            <div className="ch">
+              <div className="ct">Items Overview</div>
+            </div>
             {items.map(item => (
-              <div key={item.id} className="bg-slate-900 border border-slate-800 rounded-[2rem] p-6 flex items-center gap-8">
-                <div className="w-24 h-24 bg-slate-950 rounded-2xl overflow-hidden">
-                  <img src="https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&q=80&w=200" alt={item.name} className="w-full h-full object-cover" />
+              <div key={item.id} className="ci" style={{ padding: '20px 0' }}>
+                <div className="ci-img" style={{ width: '80px', height: '80px', fontSize: '32px' }}>{item.emoji}</div>
+                <div style={{ flex: 1 }}>
+                  <div className="ci-name" style={{ fontSize: '18px', fontWeight: 700 }}>{item.name}</div>
+                  <div className="ci-sub" style={{ fontSize: '13px', marginTop: '4px' }}>Unit Price: PKR {item.price.toLocaleString()}</div>
                 </div>
-                <div className="flex-1">
-                  <h4 className="text-xl font-bold">{item.name}</h4>
-                  <p className="text-emerald-400 font-bold mt-1">${item.price.toLocaleString()}</p>
+                <div className="qty-ctrl">
+                  <button className="qty-btn">−</button>
+                  <span className="qty-num">{item.qty}</span>
+                  <button className="qty-btn">+</button>
                 </div>
-                <div className="flex items-center bg-slate-950 rounded-xl px-3 py-1">
-                   <button className="p-2">-</button>
-                   <span className="w-8 text-center font-bold">{item.qty}</span>
-                   <button className="p-2">+</button>
+                <div style={{ minWidth: 140, textAlign: "right" }}>
+                  <div className="mono" style={{ fontWeight: 700, color: "var(--orange)", fontSize: '16px' }}>
+                    PKR {(item.price * item.qty).toLocaleString()}
+                  </div>
+                  <button className="ca" style={{ fontSize: '10px', color: "var(--red)", marginTop: '4px' }}>Remove Item</button>
                 </div>
-                <button className="p-3 text-red-900 hover:text-red-500 transition-all">
-                  <Trash2 size={20} />
-                </button>
               </div>
             ))}
           </div>
 
-          {/* Summary */}
-          <div className="bg-slate-900 border border-slate-800 rounded-[3rem] p-8 h-fit space-y-8">
-            <h3 className="text-2xl font-bold">Order Summary</h3>
-            <div className="space-y-4 text-slate-400">
-              <div className="flex justify-between"><span>Subtotal</span><span className="text-white">${subtotal.toLocaleString()}</span></div>
-              <div className="flex justify-between"><span>Shipping</span><span className="text-white">Calculated at checkout</span></div>
+          {/* Summary Section */}
+          <div>
+            <div className="card" style={{ position: "sticky", top: "100px" }}>
+              <div className="ch">
+                <div className="ct">Order Summary</div>
+              </div>
+              <div className="trow">
+                <span style={{ fontSize: 14, color: "var(--muted2)" }}>Subtotal</span>
+                <span className="mono" style={{ fontWeight: 600, fontSize: '15px' }}>PKR {subtotal.toLocaleString()}</span>
+              </div>
+              <div className="trow">
+                <span style={{ fontSize: 14, color: "var(--muted2)" }}>Shipping</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "var(--green)", textTransform: 'uppercase' }}>Calculated at checkout</span>
+              </div>
+              <div className="divider" style={{ margin: '20px 0' }} />
+              <div className="trow" style={{ padding: "10px 0" }}>
+                <span style={{ fontSize: 16, fontWeight: 700 }}>Estimated Total</span>
+                <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '36px', color: "var(--orange)" }}>
+                  PKR {total.toLocaleString()}
+                </span>
+              </div>
+              <button 
+                className="btn btn-primary" 
+                style={{ width: "100%", marginTop: 24, height: 52, fontSize: '14px', borderRadius: '6px' }} 
+                onClick={() => navigate("/checkout")}
+              >
+                PROCEED TO CHECKOUT →
+              </button>
+              
+              <div style={{ marginTop: 24, padding: '16px', background: 'var(--black3)', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, opacity: 0.8 }}>
+                  <span style={{ fontSize: 20 }}>🛡️</span>
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: '1px' }}>Secure Payment</div>
+                    <div style={{ fontSize: 11, color: 'var(--muted2)' }}>SSL Encrypted Checkout</div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="pt-6 border-t border-slate-800 flex justify-between items-end">
-               <span className="text-slate-400">Estimated Total</span>
-               <span className="text-3xl font-black text-emerald-400">${subtotal.toLocaleString()}</span>
-            </div>
-            <Link to="/checkout" className="block w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-2xl text-center font-black text-xl shadow-2xl shadow-blue-900/20 transition-all">
-              PROCEED TO CHECKOUT
-            </Link>
           </div>
         </div>
-      ) : (
-        <div className="text-center py-32 space-y-6">
-          <div className="w-24 h-24 bg-slate-900 rounded-full flex items-center justify-center mx-auto text-slate-700">
-            <ShoppingBag size={48} />
-          </div>
-          <h3 className="text-2xl font-bold">Your cart is empty</h3>
-          <Link to="/shop" className="inline-flex items-center text-blue-400 font-bold hover:underline">
-            Go back shopping <ArrowRight size={18} className="ml-2" />
-          </Link>
-        </div>
-      )}
+      </div>
     </div>
   );
 };
