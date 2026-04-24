@@ -17,8 +17,16 @@ const Login = () => {
       
       console.log('Login successful:', user);
       
-      console.log('Login successful, forcing Owner Dashboard access...');
-      navigate('/owner/dashboard');
+      // Redirect based on role
+      if (user.role === 'COMPANY_OWNER') {
+        navigate('/owner/dashboard');
+      } else if (user.role === 'BRANCH_OWNER') {
+        navigate('/branch/dashboard');
+      } else if (user.role === 'EMPLOYEE' || user.role === 'TECHNICIAN') {
+        navigate('/emp/dashboard');
+      } else {
+        navigate('/shop');
+      }
     } catch (err) {
       console.error('Login error:', err);
       const msg = err.response?.data?.message || 'Invalid credentials or server error';
