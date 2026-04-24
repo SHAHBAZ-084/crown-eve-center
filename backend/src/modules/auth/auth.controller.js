@@ -25,7 +25,7 @@ exports.register = async (req, res) => {
 
     const token = jwt.sign(
       { id: user.id, role: user.role, branchId: user.branchId },
-      process.env.JWT_SECRET || 'your_jwt_secret',
+      process.env.JWT_SECRET || 'super-secret-crown-eve-center-2026',
       { expiresIn: '1d' }
     );
 
@@ -58,7 +58,7 @@ exports.login = async (req, res) => {
 
     const token = jwt.sign(
       { id: user.id, role: user.role, branchId: user.branchId },
-      process.env.JWT_SECRET || 'your_jwt_secret',
+      process.env.JWT_SECRET || 'super-secret-crown-eve-center-2026',
       { expiresIn: '1d' }
     );
 
