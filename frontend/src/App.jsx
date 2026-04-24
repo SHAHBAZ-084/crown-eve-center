@@ -45,7 +45,7 @@ const EmployeeDashboard = lazy(() => import('./pages/dashboards/EmployeeDashboar
 const POS = lazy(() => import('./pages/dashboards/employee/POS'));
 const EmployeeOrders = lazy(() => import('./pages/dashboards/employee/EmployeeOrders'));
 const EmployeeServices = lazy(() => import('./pages/dashboards/employee/EmployeeServices'));
-const TechnicianDashboard = lazy(() => import('./pages/dashboards/TechnicianDashboard'));
+const TechnicianDashboard = lazy(() => import('./pages/dashboards/technician/Dashboard'));
 
 // Customer Portal
 const CustomerLayout = lazy(() => import('./components/customer/CustomerLayout'));

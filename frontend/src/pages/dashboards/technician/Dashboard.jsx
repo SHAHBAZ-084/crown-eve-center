@@ -1,8 +1,8 @@
 // frontend/src/pages/dashboards/TechnicianDashboard.jsx
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../../context/AuthContext';
 import { Clock, CheckCircle, Play } from 'lucide-react';
-import api from '../../services/api';
+import api from '../../../services/api';
 
 const TechnicianDashboard = () => {
   const { user } = useAuth();

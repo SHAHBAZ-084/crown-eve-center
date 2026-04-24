@@ -77,7 +77,7 @@ const POS = () => {
 
         <div className="flex-1 overflow-y-auto grid grid-cols-2 xl:grid-cols-3 gap-6 pr-4 custom-scrollbar">
           {isLoading ? [...Array(6)].map((_, i) => <div key={i} className="h-48 bg-slate-900 animate-pulse rounded-[2rem]" />) : (
-            products?.data.map(p => (
+            (products?.data || []).map(p => (
               <button 
                 key={p.id}
                 onClick={() => addToCart(p)}
