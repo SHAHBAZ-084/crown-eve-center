@@ -7,9 +7,12 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // FORCE BYPASS: If logged in, go to dashboard.
+    // If logged in, redirect to the appropriate dashboard based on role
     if (user) {
-      navigate('/owner/dashboard');
+      if (user.role === 'COMPANY_OWNER') navigate('/owner/dashboard');
+      else if (user.role === 'BRANCH_OWNER') navigate('/branch/dashboard');
+      else if (user.role === 'CUSTOMER') navigate('/my/dashboard');
+      else if (['EMPLOYEE', 'TECHNICIAN'].includes(user.role)) navigate('/emp/dashboard');
     }
   }, [user, navigate]);
   const images = [
