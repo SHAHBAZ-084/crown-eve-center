@@ -12,14 +12,20 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const user = await login(email, password);
-      // Role-based redirection logic preserved
+      const res = await login(email, password);
+      const user = res.user;
+      
+      console.log('Login successful:', user);
+      
+      // Role-based redirection
       if (user.role === 'COMPANY_OWNER') navigate('/owner/dashboard');
       else if (user.role === 'BRANCH_OWNER') navigate('/branch/dashboard');
       else if (user.role === 'SERVICE_EMPLOYEE') navigate('/branch/appointments');
       else navigate('/');
     } catch (err) {
-      alert('Invalid credentials');
+      console.error('Login error:', err);
+      const msg = err.response?.data?.message || 'Invalid credentials or server error';
+      alert(msg);
     }
   };
 
