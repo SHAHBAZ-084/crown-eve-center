@@ -2,28 +2,30 @@
   --orange: #FF4D00;
   --orange2: #FF6B2B;
   --og: rgba(255, 77, 0, 0.12);
-  --bg: #080809;
-  --surf: #0F0F11;
-  --surf2: #141416;
-  --surf3: #1A1A1D;
-  --border: rgba(255, 255, 255, 0.06);
-  --border2: rgba(255, 255, 255, 0.11);
-  --white: #F0EFE8;
-  --white2: #7A7977;
+  --black: #0A0A0A;
+  --black2: #111111;
+  --black3: #161616;
+  --card: #1A1A1A;
+  --card2: #202020;
+  --border: rgba(255, 255, 255, 0.07);
+  --border2: rgba(255, 77, 0, 0.2);
   --muted: #666;
   --muted2: #888;
+  --white: #F0EFE8;
+  --white2: #B8B7B0;
   --green: #22C55E;
+  --gbg: rgba(34, 197, 94, 0.1);
   --red: #EF4444;
+  --rbg: rgba(239, 68, 68, 0.1);
   --blue: #3B82F6;
+  --bbg: rgba(59, 130, 246, 0.1);
+  --amber: #F59E0B;
+  --abg: rgba(245, 158, 11, 0.1);
   --nav: 80px;
-  
-  --font-d: 'Bebas Neue', sans-serif;
-  --font-b: 'DM Sans', sans-serif;
-  --font-m: 'JetBrains Mono', monospace;
 
-  background: var(--bg);
+  background: var(--black);
   color: var(--white);
-  font-family: var(--font-b);
+  font-family: 'Barlow', sans-serif;
   min-height: 100vh;
 }
 
@@ -35,7 +37,7 @@
 
 #customer-dashboard-shell button {
   cursor: pointer;
-  font-family: var(--font-b);
+  font-family: 'Barlow', sans-serif;
 }
 
 /* NAV */
@@ -45,7 +47,8 @@
   left: 0;
   right: 0;
   height: var(--nav);
-  background: var(--surf);
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(18px);
   border-bottom: 1px solid var(--border);
   z-index: 100;
   display: flex;
@@ -77,9 +80,10 @@
 }
 
 #customer-dashboard-shell .logo-txt {
-  font-family: var(--font-d);
-  font-size: 21px;
-  letter-spacing: 1px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 2px;
   text-transform: uppercase;
 }
 
@@ -167,7 +171,7 @@
   align-items: center;
   gap: 8px;
   padding: 5px 12px 5px 5px;
-  background: var(--surf2);
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: 99px;
   cursor: pointer;
@@ -186,8 +190,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-d);
-  font-size: 14px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
   color: #fff;
 }
 
@@ -210,9 +215,9 @@
 
 /* CARDS */
 #customer-dashboard-shell .card {
-  background: var(--surf);
+  background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 8px;
   padding: 22px;
 }
 
@@ -228,11 +233,12 @@
 }
 
 #customer-dashboard-shell .ct {
-  font-family: var(--font-d);
-  font-size: 16px;
-  letter-spacing: 1px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: var(--white);
+  color: var(--white2);
 }
 
 #customer-dashboard-shell .ca {
@@ -256,13 +262,15 @@
   align-items: center;
   gap: 7px;
   padding: 9px 20px;
-  font-family: var(--font-b);
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
   cursor: pointer;
   border: none;
   transition: all .18s;
-  border-radius: 8px;
+  border-radius: 4px;
 }
 
 #customer-dashboard-shell .btn-primary {
@@ -365,15 +373,15 @@
 
 #customer-dashboard-shell .fi {
   width: 100%;
-  background: var(--surf2);
-  border: 1px solid var(--border2);
+  background: var(--black3);
+  border: 1px solid var(--border);
   color: var(--white);
   padding: 10px 13px;
-  font-family: var(--font-b);
+  font-family: 'Barlow', sans-serif;
   font-size: 13px;
   outline: none;
   transition: border-color .2s;
-  border-radius: 8px;
+  border-radius: 4px;
 }
 
 #customer-dashboard-shell .fi:focus {
@@ -480,7 +488,7 @@
 }
 
 #customer-dashboard-shell .mono {
-  font-family: var(--font-m);
+  font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
 }
 
@@ -533,10 +541,10 @@
 }
 
 #customer-dashboard-shell .sv {
-  font-family: var(--font-d);
+  font-family: 'Bebas Neue', sans-serif;
   font-size: 40px;
   line-height: 1;
-  letter-spacing: 1px;
+  letter-spacing: -1px;
   margin-bottom: 7px;
 }
 
