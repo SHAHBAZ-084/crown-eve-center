@@ -27,20 +27,21 @@ const OwnerLayout = () => {
       <div className="shell">
         {/* Sidebar */}
         <aside id="owner-sidebar-fixed">
-          <div className="sidebar-logo">
+          <div className="sidebar-logo" style={{ position: 'relative', marginBottom: '40px', display: 'flex', alignItems: 'center' }}>
             <div className="logo-mark">CE</div>
             <div style={{ marginLeft: '12px' }}>
               <div className="logo-text">CROWN <span>EVE</span></div>
               <div className="logo-sub">Owner Panel</div>
             </div>
           </div>
-          <nav id="owner-nav-list">
+          
+          <nav id="owner-nav-list" style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
             {sections.map(sec => (
-              <div key={sec} className="nav-section">
-                <div className="nav-section-label">{sec}</div>
-                <div className="nav-links-group">
+              <div key={sec} className="nav-section" style={{ position: 'relative', marginBottom: '24px' }}>
+                <div className="nav-section-label" style={{ position: 'relative' }}>{sec}</div>
+                <div className="nav-links-group" style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}>
                   {NAV.filter(n => n.section === sec).map(n => (
-                    <Link key={n.id} to={n.path} className={`nav-item ${location.pathname === n.path ? "active" : ""}`}>
+                    <Link key={n.id} to={n.path} className={`nav-item ${location.pathname === n.path ? "active" : ""}`} style={{ position: 'relative' }}>
                       <Icon name={n.icon} size={18} />
                       <span>{n.label}</span>
                     </Link>
@@ -49,15 +50,16 @@ const OwnerLayout = () => {
               </div>
             ))}
           </nav>
-          <div id="owner-sidebar-footer">
-            <div className="nav-user">
+          
+          <div id="owner-sidebar-footer" style={{ position: 'relative', marginTop: 'auto', borderTop: "1px solid var(--border)", paddingTop: '20px' }}>
+            <div className="nav-user" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
               <div className="nav-avatar">{user?.name?.[0]?.toUpperCase() || "O"}</div>
               <div style={{ marginLeft: '10px' }}>
                 <div className="nav-user-name">{user?.name || "Owner"}</div>
                 <div className="nav-user-role">Company Owner</div>
               </div>
             </div>
-            <div className="nav-item" onClick={logout} style={{ color: "var(--red)", marginTop: '8px' }}>
+            <div className="nav-item" onClick={logout} style={{ position: 'relative', color: "var(--red)", marginTop: '12px' }}>
               <Icon name="logout" size={18} />
               <span>Logout</span>
             </div>
