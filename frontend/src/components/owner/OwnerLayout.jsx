@@ -26,8 +26,8 @@ const OwnerLayout = () => {
     <div className="owner-dashboard-root">
       <div className="shell">
         {/* Sidebar */}
-        <aside id="owner-sidebar-fixed">
-          <div className="sidebar-logo" style={{ position: 'relative', marginBottom: '40px', display: 'flex', alignItems: 'center' }}>
+        <div id="owner-sidebar-fixed">
+          <div className="sidebar-logo" style={{ marginBottom: '40px', display: 'flex', alignItems: 'center' }}>
             <div className="logo-mark">CE</div>
             <div style={{ marginLeft: '12px' }}>
               <div className="logo-text">CROWN <span>EVE</span></div>
@@ -35,13 +35,13 @@ const OwnerLayout = () => {
             </div>
           </div>
           
-          <nav id="owner-nav-list" style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <div id="owner-nav-list" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
             {sections.map(sec => (
-              <div key={sec} className="nav-section" style={{ position: 'relative', marginBottom: '24px' }}>
-                <div className="nav-section-label" style={{ position: 'relative' }}>{sec}</div>
-                <div className="nav-links-group" style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}>
+              <div key={sec} className="nav-section" style={{ marginBottom: '24px', display: 'flex', flexDirection: 'column' }}>
+                <div className="nav-section-label">{sec}</div>
+                <div className="nav-links-group" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   {NAV.filter(n => n.section === sec).map(n => (
-                    <Link key={n.id} to={n.path} className={`nav-item ${location.pathname === n.path ? "active" : ""}`} style={{ position: 'relative' }}>
+                    <Link key={n.id} to={n.path} className={`nav-item ${location.pathname === n.path ? "active" : ""}`}>
                       <Icon name={n.icon} size={18} />
                       <span>{n.label}</span>
                     </Link>
@@ -49,22 +49,22 @@ const OwnerLayout = () => {
                 </div>
               </div>
             ))}
-          </nav>
+          </div>
           
-          <div id="owner-sidebar-footer" style={{ position: 'relative', marginTop: 'auto', borderTop: "1px solid var(--border)", paddingTop: '20px' }}>
-            <div className="nav-user" style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+          <div id="owner-sidebar-footer" style={{ marginTop: 'auto', borderTop: "1px solid var(--border)", paddingTop: '20px' }}>
+            <div className="nav-user" style={{ display: 'flex', alignItems: 'center' }}>
               <div className="nav-avatar">{user?.name?.[0]?.toUpperCase() || "O"}</div>
               <div style={{ marginLeft: '10px' }}>
                 <div className="nav-user-name">{user?.name || "Owner"}</div>
                 <div className="nav-user-role">Company Owner</div>
               </div>
             </div>
-            <div className="nav-item" onClick={logout} style={{ position: 'relative', color: "var(--red)", marginTop: '12px' }}>
+            <div className="nav-item" onClick={logout} style={{ color: "var(--red)", marginTop: '12px' }}>
               <Icon name="logout" size={18} />
               <span>Logout</span>
             </div>
           </div>
-        </aside>
+        </div>
 
         {/* Main */}
         <main className="main">
