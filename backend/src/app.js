@@ -17,7 +17,7 @@ app.use(express.json());
 // Rate Limiting (Auth routes)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20, // max 20 auth attempts per 15 min
+  max: 10000, // relaxed for development
   message: { message: 'Too many requests, slow down.' }
 });
 app.use('/api/auth', authLimiter);
