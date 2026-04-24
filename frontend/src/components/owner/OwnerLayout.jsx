@@ -26,19 +26,19 @@ const OwnerLayout = () => {
     <div className="owner-dashboard-root">
       <div className="shell">
         {/* Sidebar */}
-        <aside className="sidebar">
+        <aside id="owner-sidebar-fixed">
           <div className="sidebar-logo">
             <div className="logo-mark">CE</div>
-            <div>
+            <div style={{ marginLeft: '12px' }}>
               <div className="logo-text">CROWN <span>EVE</span></div>
               <div className="logo-sub">Owner Panel</div>
             </div>
           </div>
-          <nav className="sidebar-nav" style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: '4px' }}>
+          <nav id="owner-nav-list">
             {sections.map(sec => (
-              <div key={sec} className="nav-section" style={{ display: 'flex', flexDirection: 'column' }}>
+              <div key={sec} className="nav-section">
                 <div className="nav-section-label">{sec}</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <div className="nav-links-group">
                   {NAV.filter(n => n.section === sec).map(n => (
                     <Link key={n.id} to={n.path} className={`nav-item ${location.pathname === n.path ? "active" : ""}`}>
                       <Icon name={n.icon} size={18} />
@@ -49,15 +49,15 @@ const OwnerLayout = () => {
               </div>
             ))}
           </nav>
-          <div style={{ paddingTop: 20, borderTop: "1px solid var(--border)" }}>
-            <div className="nav-user" style={{ marginBottom: 12 }}>
+          <div id="owner-sidebar-footer">
+            <div className="nav-user">
               <div className="nav-avatar">{user?.name?.[0]?.toUpperCase() || "O"}</div>
-              <div>
+              <div style={{ marginLeft: '10px' }}>
                 <div className="nav-user-name">{user?.name || "Owner"}</div>
                 <div className="nav-user-role">Company Owner</div>
               </div>
             </div>
-            <div className="nav-item" onClick={logout} style={{ color: "var(--red)" }}>
+            <div className="nav-item" onClick={logout} style={{ color: "var(--red)", marginTop: '8px' }}>
               <Icon name="logout" size={18} />
               <span>Logout</span>
             </div>
