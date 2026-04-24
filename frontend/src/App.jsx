@@ -33,15 +33,16 @@ const OwnerOrders = lazy(() => import('./pages/dashboards/owner/Orders'));
 const OwnerPurchases = lazy(() => import('./pages/dashboards/owner/Purchases'));
 
 // Dashboards - Branch
-const BranchDashboard = lazy(() => import('./pages/dashboards/BranchDashboard'));
-const BranchProducts = lazy(() => import('./pages/dashboards/branch/BranchProducts'));
-const BranchInventory = lazy(() => import('./pages/dashboards/branch/BranchInventory'));
-const BranchOrders = lazy(() => import('./pages/dashboards/branch/BranchOrders'));
-const BranchServices = lazy(() => import('./pages/dashboards/branch/BranchServices'));
-const BranchAppointments = lazy(() => import('./pages/dashboards/branch/BranchAppointments'));
-const BranchSuppliers = lazy(() => import('./pages/dashboards/branch/BranchSuppliers'));
-const BranchEmployees = lazy(() => import('./pages/dashboards/branch/BranchEmployees'));
-const BranchReports = lazy(() => import('./pages/dashboards/branch/BranchReports'));
+const BranchLayout = lazy(() => import('./components/branch/BranchLayout'));
+const BranchDashboard = lazy(() => import('./pages/dashboards/branch/Dashboard'));
+const BranchProducts = lazy(() => import('./pages/dashboards/branch/Products'));
+const BranchInventory = lazy(() => import('./pages/dashboards/branch/Inventory'));
+const BranchOrders = lazy(() => import('./pages/dashboards/branch/Orders'));
+const BranchServices = lazy(() => import('./pages/dashboards/branch/Services'));
+const BranchAppointments = lazy(() => import('./pages/dashboards/branch/Appointments'));
+const BranchSuppliers = lazy(() => import('./pages/dashboards/branch/Suppliers'));
+const BranchEmployees = lazy(() => import('./pages/dashboards/branch/Employees'));
+const BranchReports = lazy(() => import('./pages/dashboards/branch/Reports'));
 
 // Dashboards - Employee & Technician
 const EmployeeDashboard = lazy(() => import('./pages/dashboards/EmployeeDashboard'));
@@ -96,15 +97,17 @@ const App = () => {
             
             <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
               {/* Branch Routes */}
-              <Route path="/branch/dashboard"    element={<ProtectedRoute allowedRoles={['BRANCH_OWNER']}><BranchDashboard /></ProtectedRoute>} />
-              <Route path="/branch/products"     element={<ProtectedRoute allowedRoles={['BRANCH_OWNER']}><BranchProducts /></ProtectedRoute>} />
-              <Route path="/branch/inventory"    element={<ProtectedRoute allowedRoles={['BRANCH_OWNER']}><BranchInventory /></ProtectedRoute>} />
-              <Route path="/branch/orders"       element={<ProtectedRoute allowedRoles={['BRANCH_OWNER']}><BranchOrders /></ProtectedRoute>} />
-              <Route path="/branch/services"     element={<ProtectedRoute allowedRoles={['BRANCH_OWNER']}><BranchServices /></ProtectedRoute>} />
-              <Route path="/branch/appointments" element={<ProtectedRoute allowedRoles={['BRANCH_OWNER']}><BranchAppointments /></ProtectedRoute>} />
-              <Route path="/branch/suppliers"    element={<ProtectedRoute allowedRoles={['BRANCH_OWNER']}><BranchSuppliers /></ProtectedRoute>} />
-              <Route path="/branch/employees"    element={<ProtectedRoute allowedRoles={['BRANCH_OWNER']}><BranchEmployees /></ProtectedRoute>} />
-              <Route path="/branch/reports"      element={<ProtectedRoute allowedRoles={['BRANCH_OWNER']}><BranchReports /></ProtectedRoute>} />
+              <Route element={<ProtectedRoute allowedRoles={['BRANCH_OWNER']}><BranchLayout /></ProtectedRoute>}>
+                <Route path="/branch/dashboard"    element={<BranchDashboard />} />
+                <Route path="/branch/products"     element={<BranchProducts />} />
+                <Route path="/branch/inventory"    element={<BranchInventory />} />
+                <Route path="/branch/orders"       element={<BranchOrders />} />
+                <Route path="/branch/services"     element={<BranchServices />} />
+                <Route path="/branch/appointments" element={<BranchAppointments />} />
+                <Route path="/branch/suppliers"    element={<BranchSuppliers />} />
+                <Route path="/branch/employees"    element={<BranchEmployees />} />
+                <Route path="/branch/reports"      element={<BranchReports />} />
+              </Route>
 
               {/* Employee Routes */}
               <Route path="/emp/dashboard" element={<ProtectedRoute allowedRoles={['EMPLOYEE']}><EmployeeDashboard /></ProtectedRoute>} />
