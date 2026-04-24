@@ -1,5 +1,5 @@
 // frontend/src/pages/dashboards/employee/Orders.jsx
-import React, { useState } from "react";
+import { useState } from "react";
 import { useFetch, api, Icon, TblSk, toast, ORDER_BADGE } from "./EmployeeShared";
 
 export default function OrdersPage({ branchId }) {

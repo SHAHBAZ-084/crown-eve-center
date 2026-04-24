@@ -1,26 +1,41 @@
 // frontend/src/pages/dashboards/customer/Shop.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "../../../components/customer/CustomerShared";
+import api from "../../../services/api";
+import { useCart } from "../../../context/CartContext";
 
 const Shop = () => {
   const navigate = useNavigate();
+  const { addItem, count } = useCart();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [cat, setCat] = useState("All");
   const [search, setSearch] = useState("");
 
-  const PRODUCTS = [
-    { id: 1, name: "Crown GT 390", cat: "Sport", spec: "450cc · Fuel Injected · ABS", price: 485000, stock: 6, emoji: "🏍️", badge: "In Stock" },
-    { id: 2, name: "Crown Duke R", cat: "Naked", spec: "250cc · Street Fighter · LED", price: 310000, stock: 4, emoji: "🏍️", badge: "New Arrival" },
-    { id: 3, name: "Crown Trail X", cat: "Adventure", spec: "650cc · Dual Sport · Long Range", price: 720000, stock: 2, emoji: "🏍️", badge: "Low Stock" },
-    { id: 4, name: "Crown 125 Pro", cat: "Commuter", spec: "125cc · Commuter · Economy", price: 185000, stock: 12, emoji: "🛵", badge: "In Stock" },
-    { id: 5, name: "Chain 21sp Heavy Duty", cat: "Drivetrain", spec: "Compatible: Duke, GT series", price: 2800, stock: 842, emoji: "🔗", badge: "In Stock" },
-    { id: 6, name: "Brake Pads Pro", cat: "Brakes", spec: "Front & Rear — Universal", price: 1200, stock: 240, emoji: "🛞", badge: "In Stock" },
-    { id: 7, name: "LED Headlight H4", cat: "Electrical", spec: "6000K · 35W · IP67", price: 3500, stock: 315, emoji: "💡", badge: "In Stock" },
-    { id: 8, name: "Oil Filter 17mm", cat: "Engine", spec: "Universal fitment · OEM grade", price: 450, stock: 12, emoji: "🔩", badge: "Low Stock" },
-  ];
+  useEffect(() => {
+    api.get("/products")
+      .then(r => setProducts(r.data.data || r.data || []))
+      .catch(() => setProducts([]))
+      .finally(() => setLoading(false));
+  }, []);
 
-  const categories = ["All", "Sport", "Naked", "Adventure", "Commuter", "Drivetrain", "Brakes", "Electrical", "Engine"];
-  const filtered = PRODUCTS.filter(p => (cat === "All" || p.cat === cat) && p.name.toLowerCase().includes(search.toLowerCase()));
+  const categories = ["All", ...new Set(products.map(p => p.category).filter(Boolean))];
+  const filtered = products.filter(p =>
+    (cat === "All" || p.category === cat) &&
+    p.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const handleAdd = (e, p) => {
+    e.stopPropagation();
+    addItem({ id: p.id, name: p.name, price: p.price, category: p.category }, 1);
+  };
+
+  if (loading) return (
+    <div style={{ display: "flex", justifyContent: "center", padding: 80 }}>
+      <div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
 
   return (
     <div>
@@ -34,6 +49,9 @@ const Shop = () => {
             <span style={{ fontSize: 14, opacity: 0.5 }}>🔍</span>
             <input placeholder="Search products..." value={search} onChange={e => setSearch(e.target.value)} />
           </div>
+          <button className="btn btn-ghost btn-sm" onClick={() => navigate("/cart")} style={{ position: "relative" }}>
+            🛒 Cart {count > 0 && <span style={{ background: "var(--orange)", color: "#000", borderRadius: "50%", padding: "1px 6px", fontSize: 10, marginLeft: 4 }}>{count}</span>}
+          </button>
         </div>
       </div>
 
@@ -47,18 +65,18 @@ const Shop = () => {
         {filtered.map(p => (
           <div key={p.id} className="prod-card" onClick={() => navigate(`/shop/${p.id}`)}>
             <div className="prod-img">
-              {p.emoji}
+              📦
               <div style={{ position: "absolute", top: 12, right: 12 }}>
-                <Badge status={p.badge} />
+                <Badge status={p.stock > 5 ? "In Stock" : p.stock > 0 ? "Low Stock" : "Out of Stock"} />
               </div>
             </div>
             <div className="prod-body">
-              <div className="prod-cat">{p.cat}</div>
+              <div className="prod-cat">{p.category || "Product"}</div>
               <div className="prod-name">{p.name}</div>
-              <div className="prod-spec">{p.spec}</div>
+              <div className="prod-spec">{p.description || ""}</div>
               <div className="prod-footer">
-                <div className="prod-price">PKR {p.price.toLocaleString()}</div>
-                <button className="ca" style={{ fontSize: 10 }}>View Details →</button>
+                <div className="prod-price">PKR {Number(p.price).toLocaleString()}</div>
+                <button className="ca" style={{ fontSize: 10 }} onClick={e => handleAdd(e, p)}>Add to Cart +</button>
               </div>
             </div>
           </div>
@@ -69,7 +87,7 @@ const Shop = () => {
         <div className="empty-state">
           <div className="ei">🔍</div>
           <h3>No products found</h3>
-          <p>Try adjusting your search or category filter to find what you're looking for.</p>
+          <p>Try adjusting your search or category filter.</p>
           <button className="btn btn-ghost btn-sm" onClick={() => { setCat("All"); setSearch(""); }}>Clear Filters</button>
         </div>
       )}

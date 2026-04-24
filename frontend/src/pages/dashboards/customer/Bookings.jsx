@@ -1,20 +1,38 @@
 // frontend/src/pages/dashboards/customer/Bookings.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "../../../components/customer/CustomerShared";
+import api from "../../../services/api";
+
+const SERVICE_ICON = (name = "") => {
+  if (name.toLowerCase().includes("oil")) return "🛢";
+  if (name.toLowerCase().includes("brake")) return "🛞";
+  return "🔧";
+};
+
+const normalizeStatus = (s = "") => {
+  const m = { scheduled: "Upcoming", completed: "Completed", cancelled: "Cancelled", pending: "Upcoming" };
+  return m[s.toLowerCase()] || s;
+};
 
 const Bookings = () => {
   const navigate = useNavigate();
   const [tab, setTab] = useState("Upcoming");
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const BOOKINGS = [
-    { id: "BK-0042", service: "Full Tune-Up", branch: "Crown Eve Gulberg", date: "Apr 24, 2025", time: "10:00 AM", status: "Upcoming", tech: "Ahmed Kamran", price: 2500 },
-    { id: "BK-0039", service: "Oil & Filter Change", branch: "Crown Eve Gulberg", date: "Apr 10, 2025", time: "09:00 AM", status: "Completed", tech: "Bilal Hassan", price: 800 },
-    { id: "BK-0031", service: "Brake Overhaul", branch: "Crown Eve Islamabad", date: "Mar 28, 2025", time: "02:00 PM", status: "Completed", tech: "Umar Farooq", price: 3200 },
-    { id: "BK-0025", service: "Engine Diagnostics", branch: "Crown Eve DHA", date: "Mar 15, 2025", time: "11:30 AM", status: "Cancelled", tech: "—", price: 1500 },
-  ];
+  useEffect(() => {
+    api.get("/appointments/my")
+      .then(res => setBookings(res.data || []))
+      .catch(() => setError("Failed to load bookings."))
+      .finally(() => setLoading(false));
+  }, []);
 
-  const filtered = BOOKINGS.filter(b => tab === "All" || b.status === tab);
+  const filtered = bookings.filter(b => {
+    const status = normalizeStatus(b.status);
+    return tab === "All" || status === tab;
+  });
 
   return (
     <div>
@@ -32,51 +50,71 @@ const Bookings = () => {
         ))}
       </div>
 
-      <div className="g2">
-        {filtered.map(b => (
-          <div key={b.id} className="card" style={{ position: "relative" }}>
-            <div style={{ position: "absolute", top: 22, right: 22 }}>
-              <Badge status={b.status} />
-            </div>
-            <div style={{ display: "flex", gap: 18, alignItems: "flex-start", marginBottom: 20 }}>
-              <div style={{ width: 52, height: 52, background: "var(--black3)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>
-                {b.service.includes("Oil") ? "🛢" : b.service.includes("Brake") ? "🛞" : "🔧"}
-              </div>
-              <div>
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color: "var(--orange)", marginBottom: 4 }}>Booking {b.id}</div>
-                <div style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Barlow Condensed',sans-serif" }}>{b.service}</div>
-                <div style={{ fontSize: 13, color: "var(--muted2)" }}>{b.branch}</div>
-              </div>
-            </div>
-            
-            <div className="g2" style={{ marginBottom: 20 }}>
-              <div style={{ background: "var(--black3)", padding: "14px", borderRadius: 6, border: "1px solid var(--border)" }}>
-                <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "var(--muted)", marginBottom: 6 }}>Date & Time</div>
-                <div style={{ fontSize: 14, fontWeight: 600 }}>{b.date} · {b.time}</div>
-              </div>
-              <div style={{ background: "var(--black3)", padding: "14px", borderRadius: 6, border: "1px solid var(--border)" }}>
-                <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "var(--muted)", marginBottom: 6 }}>Technician</div>
-                <div style={{ fontSize: 14, fontWeight: 600 }}>{b.tech}</div>
-              </div>
-            </div>
+      {loading && <div className="card" style={{ textAlign: "center", padding: 40, color: "var(--muted2)" }}>Loading bookings…</div>}
+      {error && <div className="card" style={{ textAlign: "center", padding: 40, color: "var(--red)" }}>{error}</div>}
 
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Estimated Cost</div>
-                <div style={{ fontSize: 20, fontFamily: "'Bebas Neue',sans-serif", color: "var(--white)" }}>PKR {b.price.toLocaleString()}</div>
-              </div>
-              {b.status === "Upcoming" && (
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button className="btn btn-ghost btn-sm">Reschedule</button>
-                  <button className="btn btn-danger btn-sm">Cancel</button>
+      {!loading && !error && (
+        <div className="g2">
+          {filtered.map(b => {
+            const status = normalizeStatus(b.status);
+            const serviceName = b.service?.name || "Service";
+            const branchName = b.branch?.name || "—";
+            const scheduledAt = b.scheduledAt ? new Date(b.scheduledAt) : null;
+            const dateStr = scheduledAt ? scheduledAt.toLocaleDateString("en-PK", { dateStyle: "medium" }) : "—";
+            const timeStr = scheduledAt ? scheduledAt.toLocaleTimeString("en-PK", { timeStyle: "short" }) : "—";
+
+            return (
+              <div key={b._id} className="card" style={{ position: "relative" }}>
+                <div style={{ position: "absolute", top: 22, right: 22 }}>
+                  <Badge status={status} />
                 </div>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
+                <div style={{ display: "flex", gap: 18, alignItems: "flex-start", marginBottom: 20 }}>
+                  <div style={{ width: 52, height: 52, background: "var(--black3)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>
+                    {SERVICE_ICON(serviceName)}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color: "var(--orange)", marginBottom: 4 }}>
+                      Booking #{b._id?.slice(-6).toUpperCase()}
+                    </div>
+                    <div style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Barlow Condensed',sans-serif" }}>{serviceName}</div>
+                    <div style={{ fontSize: 13, color: "var(--muted2)" }}>{branchName}</div>
+                  </div>
+                </div>
 
-      {filtered.length === 0 && (
+                <div className="g2" style={{ marginBottom: 20 }}>
+                  <div style={{ background: "var(--black3)", padding: "14px", borderRadius: 6, border: "1px solid var(--border)" }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "var(--muted)", marginBottom: 6 }}>Date & Time</div>
+                    <div style={{ fontSize: 14, fontWeight: 600 }}>{dateStr} · {timeStr}</div>
+                  </div>
+                  <div style={{ background: "var(--black3)", padding: "14px", borderRadius: 6, border: "1px solid var(--border)" }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "var(--muted)", marginBottom: 6 }}>Status</div>
+                    <div style={{ fontSize: 14, fontWeight: 600 }}>{status}</div>
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div>
+                    {b.service?.price != null && (
+                      <>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Estimated Cost</div>
+                        <div style={{ fontSize: 20, fontFamily: "'Bebas Neue',sans-serif", color: "var(--white)" }}>PKR {b.service.price.toLocaleString()}</div>
+                      </>
+                    )}
+                  </div>
+                  {status === "Upcoming" && (
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button className="btn btn-ghost btn-sm">Reschedule</button>
+                      <button className="btn btn-danger btn-sm">Cancel</button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {!loading && !error && filtered.length === 0 && (
         <div className="empty-state">
           <div className="ei">📅</div>
           <h3>No bookings found</h3>

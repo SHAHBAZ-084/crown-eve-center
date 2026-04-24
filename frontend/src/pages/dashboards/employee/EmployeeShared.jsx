@@ -1,5 +1,5 @@
 // frontend/src/pages/dashboards/employee/EmployeeShared.jsx
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
 export const API_BASE  = "https://crown-eve-center.onrender.com/api";

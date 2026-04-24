@@ -58,6 +58,7 @@ model Part {
 model Product {
   id        Int           @id @default(autoincrement())
   name      String
+  category  String?
   price     Float
   branchId  Int
   branch    Branch        @relation(fields: [branchId], references: [id])

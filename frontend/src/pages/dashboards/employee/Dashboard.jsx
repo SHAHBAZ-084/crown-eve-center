@@ -1,5 +1,5 @@
 // frontend/src/pages/dashboards/employee/Dashboard.jsx
-import React from "react";
+
 import { useFetch, Icon, Sk, TblSk, ORDER_BADGE, APPT_BADGE } from "./EmployeeShared";
 
 export default function DashPage({ branchId, user }) {

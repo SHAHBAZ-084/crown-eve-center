@@ -1,5 +1,5 @@
 // frontend/src/pages/dashboards/employee/Appointments.jsx
-import React, { useState } from "react";
+import { useState } from "react";
 import { useFetch, api, Icon, TblSk, Modal, toast, APPT_BADGE } from "./EmployeeShared";
 
 export default function AppointmentsPage({ branchId }) {

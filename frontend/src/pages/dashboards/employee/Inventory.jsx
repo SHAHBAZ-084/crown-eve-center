@@ -1,5 +1,5 @@
 // frontend/src/pages/dashboards/employee/Inventory.jsx
-import React, { useState } from "react";
+import { useState } from "react";
 import { useFetch, useDebounce, Icon, Sk } from "./EmployeeShared";
 
 export default function InventoryPage({ branchId }) {

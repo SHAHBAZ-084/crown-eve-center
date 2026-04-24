@@ -7,10 +7,6 @@ import ProtectedRoute from './components/layout/ProtectedRoute';
 
 // Public Pages
 const Home = lazy(() => import('./pages/public/Home'));
-const Shop = lazy(() => import('./pages/shop/Shop'));
-const ProductDetail = lazy(() => import('./pages/public/ProductDetail'));
-const Cart = lazy(() => import('./pages/public/Cart'));
-const Checkout = lazy(() => import('./pages/checkout/Checkout'));
 const Appointments = lazy(() => import('./pages/appointments/Appointments'));
 const TrackOrder = lazy(() => import('./pages/public/TrackOrder'));
 const About = lazy(() => import('./pages/public/About'));
@@ -77,13 +73,10 @@ const App = () => {
           <Routes>
             <Route element={<Layout isPublic />}>
               <Route path="/" element={<Home />} />
-              <Route path="/shop" element={<Shop />} />
-              <Route path="/shop/:id" element={<ProductDetail />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
               
               {/* Semi-protected routes: Guest cannot access, but they use the public layout */}
-              <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
               <Route path="/track/:id" element={<ProtectedRoute><TrackOrder /></ProtectedRoute>} />
               <Route path="/appointments" element={<ProtectedRoute><Appointments /></ProtectedRoute>} />
             </Route>
@@ -136,6 +129,9 @@ const App = () => {
               <Route path="/emp/pos"       element={<ProtectedRoute allowedRoles={['EMPLOYEE']}><POS /></ProtectedRoute>} />
               <Route path="/emp/orders"    element={<ProtectedRoute allowedRoles={['EMPLOYEE']}><EmployeeOrders /></ProtectedRoute>} />
               <Route path="/emp/services"  element={<ProtectedRoute allowedRoles={['EMPLOYEE', 'TECHNICIAN']}><EmployeeServices /></ProtectedRoute>} />
+              
+              {/* Technician Routes */}
+              <Route path="/tech/dashboard" element={<ProtectedRoute allowedRoles={['TECHNICIAN']}><TechnicianDashboard /></ProtectedRoute>} />
             </Route>
 
             <Route path="/unauthorized" element={<div>Unauthorized Access</div>} />

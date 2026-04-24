@@ -44,7 +44,7 @@ const POS = () => {
   };
 
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
-  const tax = subtotal * 0.08;
+  const tax = subtotal * 0.17;
   const total = subtotal + tax;
 
   return (
@@ -88,7 +88,7 @@ const POS = () => {
                 </div>
                 <h4 className="font-bold truncate">{p.name}</h4>
                 <div className="flex justify-between items-center mt-4">
-                   <p className="text-xl font-black italic text-emerald-400">${p.price.toLocaleString()}</p>
+                   <p className="text-xl font-black italic text-emerald-400">PKR {p.price.toLocaleString()}</p>
                    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center"><Plus size={16} /></div>
                 </div>
               </button>
@@ -117,7 +117,7 @@ const POS = () => {
               >
                 <div className="flex-1 min-w-0 mr-4">
                   <p className="font-bold truncate text-sm">{item.name}</p>
-                  <p className="text-emerald-400 font-black text-xs">${(item.price * item.qty).toLocaleString()}</p>
+                  <p className="text-emerald-400 font-black text-xs">PKR {(item.price * item.qty).toLocaleString()}</p>
                 </div>
                 <div className="flex items-center space-x-3">
                   <div className="flex items-center bg-slate-900 rounded-lg p-1">
@@ -142,15 +142,15 @@ const POS = () => {
            <div className="space-y-2">
               <div className="flex justify-between text-xs font-bold text-slate-500 uppercase tracking-widest">
                  <span>Subtotal</span>
-                 <span>${subtotal.toLocaleString()}</span>
+                 <span>PKR {subtotal.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-xs font-bold text-slate-500 uppercase tracking-widest">
-                 <span>Tax (8%)</span>
-                 <span>${tax.toLocaleString()}</span>
+                 <span>Tax (17%)</span>
+                 <span>PKR {tax.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-2xl font-black italic text-white pt-2 border-t border-slate-800">
                  <span>TOTAL</span>
-                 <span className="text-blue-500">${total.toLocaleString()}</span>
+                 <span className="text-blue-500">PKR {total.toLocaleString()}</span>
               </div>
            </div>
 
@@ -159,7 +159,7 @@ const POS = () => {
             onClick={() => completeSale.mutate({
               branchId: user.branchId,
               type: 'POS',
-              items: cart.map(i => ({ productId: i.id, qty: i.qty })),
+              items: cart.map(i => ({ productId: i.id, quantity: i.qty, price: i.price })),
               total
             })}
             className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-slate-800 disabled:text-slate-600 py-6 rounded-2xl font-black text-xl flex items-center justify-center space-x-3 transition-all"

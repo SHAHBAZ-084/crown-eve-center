@@ -1,5 +1,5 @@
 // frontend/src/pages/dashboards/employee/Products.jsx
-import React, { useState } from "react";
+import { useState } from "react";
 import { useFetch, useDebounce, api, Icon, Modal, Confirm, toast } from "./EmployeeShared";
 
 export default function ProductsPage({ branchId }) {
