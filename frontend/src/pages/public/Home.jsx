@@ -8,6 +8,7 @@ const Home = () => {
 
   useEffect(() => {
     if (user?.role === 'COMPANY_OWNER') {
+      console.log('Owner detected, redirecting to command center...');
       navigate('/owner/dashboard');
     }
   }, [user, navigate]);
