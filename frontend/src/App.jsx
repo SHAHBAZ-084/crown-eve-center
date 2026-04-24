@@ -4,7 +4,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/layout/ProtectedRoute';
-import SmartRoute from './components/layout/SmartRoute';
 
 // Public Pages
 const Home = lazy(() => import('./pages/public/Home'));
@@ -52,7 +51,8 @@ const EmployeeOrders = lazy(() => import('./pages/dashboards/employee/EmployeeOr
 const EmployeeServices = lazy(() => import('./pages/dashboards/employee/EmployeeServices'));
 const TechnicianDashboard = lazy(() => import('./pages/dashboards/TechnicianDashboard'));
 
-// Customer Portal components
+// Customer Portal
+const CustomerLayout = lazy(() => import('./components/customer/CustomerLayout'));
 const CustomerDashboard = lazy(() => import('./pages/dashboards/customer/Dashboard'));
 const CustomerOrders = lazy(() => import('./pages/dashboards/customer/Orders'));
 const CustomerBookings = lazy(() => import('./pages/dashboards/customer/Bookings'));
@@ -75,32 +75,22 @@ const App = () => {
       <BrowserRouter>
         <Suspense fallback={<FullPageSkeleton />}>
           <Routes>
-            {/* Universal Layout - Switches to CustomerLayout if logged in as CUSTOMER */}
             <Route element={<Layout isPublic />}>
               <Route path="/" element={<Home />} />
-              <Route path="/shop" element={<SmartRoute publicElement={<Shop />} customerElement={<CustomerShop />} />} />
-              <Route path="/shop/:id" element={<SmartRoute publicElement={<ProductDetail />} customerElement={<CustomerProductDetail />} />} />
-              <Route path="/cart" element={<SmartRoute publicElement={<Cart />} customerElement={<CustomerCart />} />} />
-              <Route path="/checkout" element={<SmartRoute publicElement={<Checkout />} customerElement={<CustomerCheckout />} />} />
-              <Route path="/track/:id" element={<SmartRoute publicElement={<TrackOrder />} customerElement={<CustomerTrack />} />} />
+              <Route path="/shop" element={<Shop />} />
+              <Route path="/shop/:id" element={<ProductDetail />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/track/:id" element={<TrackOrder />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/appointments" element={<Appointments />} />
-              
-              {/* Dedicated Customer Routes */}
-              <Route element={<ProtectedRoute allowedRoles={['CUSTOMER']} />}>
-                <Route path="/my/dashboard" element={<CustomerDashboard />} />
-                <Route path="/my/orders"    element={<CustomerOrders />} />
-                <Route path="/my/bookings"  element={<CustomerBookings />} />
-                <Route path="/my/profile"   element={<CustomerProfile />} />
-              </Route>
             </Route>
 
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot" element={<Forgot />} />
 
-            {/* Owner App Shell */}
+            {/* Owner App Shell - TEMPORARILY OPEN FOR TESTING */}
             <Route element={<OwnerLayout />}>
               <Route path="/owner/dashboard" element={<OwnerDashboard />} />
               <Route path="/owner/branches"  element={<OwnerBranches />} />
@@ -112,7 +102,7 @@ const App = () => {
               <Route path="/owner/purchases" element={<OwnerPurchases />} />
             </Route>
             
-            {/* Branch Routes */}
+            {/* Branch Routes - Outside main Layout to avoid double sidebar */}
             <Route element={<ProtectedRoute allowedRoles={['BRANCH_OWNER']}><BranchLayout /></ProtectedRoute>}>
               <Route path="/branch/dashboard"    element={<BranchDashboard />} />
               <Route path="/branch/products"     element={<BranchProducts />} />
@@ -123,6 +113,19 @@ const App = () => {
               <Route path="/branch/suppliers"    element={<BranchSuppliers />} />
               <Route path="/branch/employees"    element={<BranchEmployees />} />
               <Route path="/branch/reports"      element={<BranchReports />} />
+            </Route>
+
+            {/* Customer Portal - Premium Dashboard Shell */}
+            <Route element={<ProtectedRoute allowedRoles={['CUSTOMER']}><CustomerLayout /></ProtectedRoute>}>
+              <Route path="/my/dashboard" element={<CustomerDashboard />} />
+              <Route path="/my/orders"    element={<CustomerOrders />} />
+              <Route path="/my/bookings"  element={<CustomerBookings />} />
+              <Route path="/my/profile"   element={<CustomerProfile />} />
+              <Route path="/shop"         element={<CustomerShop />} />
+              <Route path="/shop/:id"     element={<CustomerProductDetail />} />
+              <Route path="/cart"         element={<CustomerCart />} />
+              <Route path="/checkout"     element={<CustomerCheckout />} />
+              <Route path="/track/:id"    element={<CustomerTrack />} />
             </Route>
 
             <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>

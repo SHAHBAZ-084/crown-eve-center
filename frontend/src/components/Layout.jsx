@@ -7,20 +7,15 @@ import Navbar from './layout/Navbar';
 import Sidebar from './layout/Sidebar';
 import TopBar from './layout/TopBar';
 import Cursor from './layout/Cursor';
-import CustomerLayout from './customer/CustomerLayout';
 
 const Layout = ({ isPublic = false }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
 
-  // If user is a customer, always use the CustomerLayout for a premium terminal feel
-  if (user?.role === 'CUSTOMER') {
-    return <CustomerLayout />;
-  }
-
-  // Determine layout mode for other roles
+  // Determine layout mode
+  const isCustomer = user?.role === 'CUSTOMER';
   const isMinimal = user?.role === 'EMPLOYEE' || user?.role === 'TECHNICIAN';
-  const showNavbar = isPublic; // Only show public navbar if specifically marked as public and not a customer
+  const showNavbar = isPublic || isCustomer;
 
   if (showNavbar) {
     return (

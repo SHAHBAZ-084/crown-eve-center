@@ -1,81 +1,116 @@
-// frontend/src/pages/public/Shop.jsx
+// frontend/src/pages/shop/Shop.jsx
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../../styles/customer.css';
+import { useQuery } from '@tanstack/react-query';
+import api from '../../services/api';
 
-const PublicShop = () => {
-  const navigate = useNavigate();
-  const [cat, setCat] = useState("All");
-  const [search, setSearch] = useState("");
+const Shop = () => {
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('All');
 
-  const PRODUCTS = [
-    { id: 1, name: "Crown GT 390", cat: "Sport", spec: "450cc · Fuel Injected · ABS", price: 485000, stock: 6, emoji: "🏍️", badge: "In Stock" },
-    { id: 2, name: "Crown Duke R", cat: "Naked", spec: "250cc · Street Fighter · LED", price: 310000, stock: 4, emoji: "🏍️", badge: "New Arrival" },
-    { id: 3, name: "Crown Trail X", cat: "Adventure", spec: "650cc · Dual Sport · Long Range", price: 720000, stock: 2, emoji: "🏍️", badge: "Low Stock" },
-    { id: 4, name: "Crown 125 Pro", cat: "Commuter", spec: "125cc · Commuter · Economy", price: 185000, stock: 12, emoji: "🛵", badge: "In Stock" },
-    { id: 5, name: "Chain 21sp Heavy Duty", cat: "Drivetrain", spec: "Compatible: Duke, GT series", price: 2800, stock: 842, emoji: "🔗", badge: "In Stock" },
-    { id: 6, name: "Brake Pads Pro", cat: "Brakes", spec: "Front & Rear — Universal", price: 1200, stock: 240, emoji: "🛞", badge: "In Stock" },
-    { id: 7, name: "LED Headlight H4", cat: "Electrical", spec: "6000K · 35W · IP67", price: 3500, stock: 315, emoji: "💡", badge: "In Stock" },
-    { id: 8, name: "Oil Filter 17mm", cat: "Engine", spec: "Universal fitment · OEM grade", price: 450, stock: 12, emoji: "🔩", badge: "Low Stock" },
-  ];
-
-  const categories = ["All", "Sport", "Naked", "Adventure", "Commuter", "Drivetrain", "Brakes", "Electrical", "Engine"];
-  const filtered = PRODUCTS.filter(p => (cat === "All" || p.cat === cat) && p.name.toLowerCase().includes(search.toLowerCase()));
+  const { data, isLoading } = useQuery({
+    queryKey: ['shop-products', search, category],
+    queryFn: () => 
+      api.get('/products', { params: { search, category: category === 'All' ? '' : category, limit: 12 } })
+         .then(r => r.data),
+    staleTime: 60000,
+  });
 
   return (
-    <div id="customer-dashboard-shell">
-      <div className="page-wrap">
-        <div className="pg-hd">
-          <div>
-            <h1>Crown Eve Shop</h1>
-            <p>Authentic Crown Eve bikes, parts and accessories.</p>
-          </div>
-          <div className="pg-actions">
-            <div className="fsearch">
-              <span style={{ fontSize: 14, opacity: 0.5 }}>🔍</span>
-              <input placeholder="Search products..." value={search} onChange={e => setSearch(e.target.value)} />
-            </div>
-          </div>
-        </div>
-
-        <div className="fbar">
-          {categories.map(c => (
-            <button key={c} className={`fpill ${cat === c ? "on" : ""}`} onClick={() => setCat(c)}>{c}</button>
+    <div id="page-shop" className="page">
+      <div className="shop-hero">
+        <div className="section-label"><div className="section-label-line"></div><span>Our Collection</span></div>
+        <h1 style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 'clamp(60px,8vw,110px)', lineHeight: '0.9', letterSpacing: '-2px' }}>
+          Shop <span style={{ color: 'var(--orange)' }}>Premium</span><br />Bikes.
+        </h1>
+        <div className="shop-filters">
+          {['All', 'Sport', 'Naked', 'Adventure', 'Commuter', 'Parts'].map(cat => (
+            <button 
+              key={cat}
+              className={`filter-pill ${category === cat ? 'active' : ''}`}
+              onClick={() => setCategory(cat)}
+            >
+              {cat}
+            </button>
           ))}
         </div>
+      </div>
 
-        <div className="g4">
-          {filtered.map(p => (
-            <div key={p.id} className="prod-card" onClick={() => navigate(`/shop/${p.id}`)}>
-              <div className="prod-img">
-                {p.emoji}
-                <div style={{ position: "absolute", top: 12, right: 12, display: 'flex', gap: 5 }}>
-                  <span className={`badge ${p.badge === 'In Stock' ? 'bg-g' : p.badge === 'Low Stock' ? 'bg-a' : 'bg-o'}`}>{p.badge}</span>
+      <div className="shop-layout">
+        <aside className="shop-sidebar">
+          <div className="sidebar-section">
+            <h4>Category</h4>
+            <div className="sidebar-options">
+              {['All Bikes', 'Sport Series', 'Naked Series', 'Adventure', 'Commuter', 'Parts Only'].map(opt => (
+                <div key={opt} className="sidebar-opt">
+                  <span>{opt}</span>
+                  <span className="opt-count">12+</span>
                 </div>
-              </div>
-              <div className="prod-body">
-                <div className="prod-cat">{p.cat}</div>
-                <div className="prod-name">{p.name}</div>
-                <div className="prod-spec">{p.spec}</div>
-                <div className="prod-footer">
-                  <div className="prod-price">PKR {p.price.toLocaleString()}</div>
-                  <button className="ca" style={{ fontSize: 10 }}>View Details →</button>
-                </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
-
-        {filtered.length === 0 && (
-          <div className="empty-state">
-            <div className="ei">🔍</div>
-            <h3>No products found</h3>
-            <p>Try adjusting your search or category filter.</p>
           </div>
-        )}
+          <div className="sidebar-section">
+            <h4>Price Range</h4>
+            <input type="range" className="price-range" min="50000" max="2000000" defaultValue="1000000" />
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '11px', color: 'var(--muted)' }}>
+              <span>PKR 50K</span><span>PKR 20L</span>
+            </div>
+          </div>
+          <div className="sidebar-section">
+            <h4>Availability</h4>
+            <div className="sidebar-options">
+              <div className="sidebar-opt"><span>In Stock</span><span className="opt-count">38</span></div>
+              <div className="sidebar-opt"><span>On Order</span><span className="opt-count">8</span></div>
+            </div>
+          </div>
+        </aside>
+
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px', background: 'var(--black2)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <span style={{ fontSize: '12px', color: 'var(--muted)' }}>Showing {data?.data.length || 0} bikes</span>
+            <select style={{ background: 'var(--black)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--white)', padding: '8px 14px', fontSize: '12px', outline: 'none', fontFamily: "'Barlow',sans-serif" }}>
+              <option>Sort: Featured</option>
+              <option>Price: Low to High</option>
+              <option>Price: High to Low</option>
+            </select>
+          </div>
+
+          <div className="shop-grid">
+            {isLoading ? (
+              [...Array(6)].map((_, i) => (
+                <div key={i} className="product-card" style={{ height: '300px', background: 'var(--black3)', opacity: 0.5 }}></div>
+              ))
+            ) : (
+              data?.data.map(product => (
+                <div key={product.id} className="product-card">
+                  <div className="product-card-img">
+                    [ BIKE ]
+                    <div className="product-card-overlay"></div>
+                    <div className="product-card-quick">View Details</div>
+                  </div>
+                  <div className="product-card-body">
+                    <div className="product-cat">{product.category || 'Premium'}</div>
+                    <div className="product-name">{product.name}</div>
+                    <div className="product-price-row">
+                      <div className="product-price">PKR {(product.price / 1000).toFixed(0)}K</div>
+                      <div className="product-badge">In Stock</div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '40px' }}>
+            <button className="filter-pill active">1</button>
+            <button className="filter-pill">2</button>
+            <button className="filter-pill">3</button>
+            <span style={{ color: 'var(--muted)', fontSize: '13px' }}>...</span>
+            <button className="filter-pill">Next →</button>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
-export default PublicShop;
+export default Shop;
