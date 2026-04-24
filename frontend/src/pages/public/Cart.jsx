@@ -17,7 +17,8 @@ const Cart = () => {
 
   return (
     <div id="customer-dashboard-shell">
-      <div className="page-wrap">
+      <div className="main-wrap">
+        <div className="page-wrap">
         {/* Header Section */}
         <div className="pg-hd">
           <div>
