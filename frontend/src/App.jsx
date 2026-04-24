@@ -22,12 +22,15 @@ const Register = lazy(() => import('./pages/auth/Register'));
 const Forgot = lazy(() => import('./pages/auth/Forgot'));
 
 // Dashboards - Owner
+const OwnerLayout = lazy(() => import('./components/owner/OwnerLayout'));
 const OwnerDashboard = lazy(() => import('./pages/dashboards/OwnerDashboard'));
 const OwnerBranches = lazy(() => import('./pages/dashboards/owner/OwnerBranches'));
 const OwnerParts = lazy(() => import('./pages/dashboards/owner/OwnerParts'));
 const OwnerUsers = lazy(() => import('./pages/dashboards/owner/OwnerUsers'));
 const OwnerReports = lazy(() => import('./pages/dashboards/owner/OwnerReports'));
 const OwnerSettings = lazy(() => import('./pages/dashboards/owner/OwnerSettings'));
+const OwnerOrders = lazy(() => import('./pages/dashboards/owner/OwnerOrders'));
+const OwnerPurchases = lazy(() => import('./pages/dashboards/owner/OwnerPurchases'));
 
 // Dashboards - Branch
 const BranchDashboard = lazy(() => import('./pages/dashboards/BranchDashboard'));
@@ -78,16 +81,20 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot" element={<Forgot />} />
+
+            {/* Owner App Shell */}
+            <Route element={<ProtectedRoute allowedRoles={['COMPANY_OWNER']}><OwnerLayout /></ProtectedRoute>}>
+              <Route path="/owner/dashboard" element={<OwnerDashboard />} />
+              <Route path="/owner/branches"  element={<OwnerBranches />} />
+              <Route path="/owner/parts"     element={<OwnerParts />} />
+              <Route path="/owner/users"     element={<OwnerUsers />} />
+              <Route path="/owner/reports"   element={<OwnerReports />} />
+              <Route path="/owner/settings"  element={<OwnerSettings />} />
+              <Route path="/owner/orders"    element={<OwnerOrders />} />
+              <Route path="/owner/purchases" element={<OwnerPurchases />} />
+            </Route>
             
             <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-              {/* Owner Routes */}
-              <Route path="/owner/dashboard" element={<ProtectedRoute allowedRoles={['COMPANY_OWNER']}><OwnerDashboard /></ProtectedRoute>} />
-              <Route path="/owner/branches"  element={<ProtectedRoute allowedRoles={['COMPANY_OWNER']}><OwnerBranches /></ProtectedRoute>} />
-              <Route path="/owner/parts"     element={<ProtectedRoute allowedRoles={['COMPANY_OWNER']}><OwnerParts /></ProtectedRoute>} />
-              <Route path="/owner/users"     element={<ProtectedRoute allowedRoles={['COMPANY_OWNER']}><OwnerUsers /></ProtectedRoute>} />
-              <Route path="/owner/reports"   element={<ProtectedRoute allowedRoles={['COMPANY_OWNER']}><OwnerReports /></ProtectedRoute>} />
-              <Route path="/owner/settings"  element={<ProtectedRoute allowedRoles={['COMPANY_OWNER']}><OwnerSettings /></ProtectedRoute>} />
-
               {/* Branch Routes */}
               <Route path="/branch/dashboard"    element={<ProtectedRoute allowedRoles={['BRANCH_OWNER']}><BranchDashboard /></ProtectedRoute>} />
               <Route path="/branch/products"     element={<ProtectedRoute allowedRoles={['BRANCH_OWNER']}><BranchProducts /></ProtectedRoute>} />

@@ -1,90 +1,98 @@
-// frontend/src/pages/dashboards/owner/OwnerSettings.jsx
-import React from 'react';
-import { Settings, Shield, Bell, Globe, Database, Save } from 'lucide-react';
-
-const SettingItem = ({ icon, title, desc, children }) => (
-  <div className="flex items-start justify-between p-8 bg-slate-900 border border-slate-800 rounded-[2rem] hover:border-slate-700 transition-all">
-    <div className="flex items-start space-x-6">
-      <div className="w-12 h-12 bg-slate-950 rounded-2xl flex items-center justify-center text-blue-400">
-        {icon}
-      </div>
-      <div>
-        <h4 className="text-xl font-bold">{title}</h4>
-        <p className="text-sm text-slate-500 max-w-md">{desc}</p>
-      </div>
-    </div>
-    <div className="flex items-center h-full pt-2">
-      {children}
-    </div>
-  </div>
-);
+import React, { useState } from 'react';
+import { toast, Icon } from '../../../components/owner/OwnerShared';
 
 const OwnerSettings = () => {
-  return (
-    <div className="space-y-10 pb-20">
-      <header className="flex justify-between items-center">
-        <div>
-          <h2 className="text-3xl font-bold">System Configuration</h2>
-          <p className="text-slate-500">Master-level overrides and global parameters</p>
+  const [settings, setSettings] = useState({
+    globalCatalogAccess: true,
+    masterRBAC: false,
+    enterpriseAlerts: true,
+    dataRetention: "24",
+  });
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    setSaving(true);
+    await new Promise(r => setTimeout(r, 700));
+    toast("Settings saved");
+    setSaving(false);
+  };
+
+  const Toggle = ({ on, onChange }) => (
+    <button className={`toggle ${on ? "on" : "off"}`} onClick={() => onChange(!on)}>
+      <div className="toggle-thumb" />
+    </button>
+  );
+
+  const SettingRow = ({ icon, title, desc, children }) => (
+    <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", padding:"24px", background:"var(--surface2)", borderRadius:"var(--r-lg)", border:"1px solid var(--border)", gap:20 }}>
+      <div style={{ display:"flex", gap:16, flex:1 }}>
+        <div style={{ width:44, height:44, background:"var(--surface)", borderRadius:10, display:"flex", alignItems:"center", justifyContent:"center", color:"var(--accent)", flexShrink:0 }}>
+          <Icon name={icon} size={20} />
         </div>
-        <button className="flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-500 px-8 py-4 rounded-2xl font-black text-sm shadow-xl shadow-emerald-900/20 transition-all">
-          <Save size={20} />
-          <span>COMMIT CHANGES</span>
-        </button>
-      </header>
+        <div>
+          <div style={{ fontWeight:700, fontSize:15, marginBottom:4 }}>{title}</div>
+          <div style={{ fontSize:13, color:"var(--muted)", maxWidth:500 }}>{desc}</div>
+        </div>
+      </div>
+      <div style={{ paddingTop:8, flexShrink:0 }}>{children}</div>
+    </div>
+  );
 
-      <div className="space-y-6">
-        <SettingItem 
-          icon={<Globe />} 
-          title="Global Catalog Access" 
-          desc="Enable or disable branch-specific part visibility. When off, branches can only see their own local inventory."
-        >
-          <div className="w-14 h-8 bg-blue-600 rounded-full p-1 flex justify-end">
-            <div className="w-6 h-6 bg-white rounded-full shadow-lg" />
-          </div>
-        </SettingItem>
-
-        <SettingItem 
-          icon={<Shield />} 
-          title="Master RBAC Policy" 
-          desc="Strict enforcement of role-based access. Requires MFA for all Branch Owner and Technician accounts."
-        >
-          <div className="w-14 h-8 bg-slate-800 rounded-full p-1 flex justify-start">
-            <div className="w-6 h-6 bg-slate-600 rounded-full shadow-lg" />
-          </div>
-        </SettingItem>
-
-        <SettingItem 
-          icon={<Bell />} 
-          title="Enterprise Alerts" 
-          desc="Push notifications for low stock alerts and high-value orders directly to Company Owner dashboard."
-        >
-          <div className="w-14 h-8 bg-blue-600 rounded-full p-1 flex justify-end">
-            <div className="w-6 h-6 bg-white rounded-full shadow-lg" />
-          </div>
-        </SettingItem>
-
-        <SettingItem 
-          icon={<Database />} 
-          title="Data Retention" 
-          desc="Automatic archival of orders and logs after 24 months. Improves query performance on active data."
-        >
-          <select className="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 font-bold text-sm">
-            <option>24 Months</option>
-            <option>12 Months</option>
-            <option>Indefinite</option>
-          </select>
-        </SettingItem>
+  return (
+    <div className="page">
+      <div className="page-header">
+        <div>
+          <div className="page-eyebrow">System</div>
+          <div className="page-title">CONFIGURATION</div>
+          <div className="page-sub">Master-level overrides and global parameters</div>
+        </div>
+        <div className="page-actions">
+          <button className="btn btn-primary" onClick={save} disabled={saving}>{saving ? "Saving…" : "Commit Changes"}</button>
+        </div>
       </div>
 
-      <div className="bg-red-950/20 border border-red-900/30 p-10 rounded-[3rem] space-y-6 mt-12">
-        <h4 className="text-xl font-bold text-red-500 flex items-center">
-          <Shield size={24} className="mr-3" /> Danger Zone
-        </h4>
-        <p className="text-sm text-red-900/80 max-w-2xl">These actions are destructive and cannot be undone. System-wide maintenance may be required after execution.</p>
-        <div className="flex flex-wrap gap-4">
-          <button className="px-6 py-3 bg-red-900/20 border border-red-900/50 text-red-500 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all">Flush System Logs</button>
-          <button className="px-6 py-3 bg-red-900/20 border border-red-900/50 text-red-500 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all">Reset Network Stats</button>
+      <div style={{ display:"flex", flexDirection:"column", gap:12, marginBottom:32 }}>
+        <SettingRow icon="globe" title="Global Catalog Access" desc="Enable branch-level visibility to the central parts catalog. When off, branches see only local inventory.">
+          <Toggle on={settings.globalCatalogAccess} onChange={v=>setSettings(s=>({...s,globalCatalogAccess:v}))} />
+        </SettingRow>
+        <SettingRow icon="shield" title="Master RBAC Policy" desc="Strict role-based access enforcement. Requires MFA for Branch Owner and Technician accounts.">
+          <Toggle on={settings.masterRBAC} onChange={v=>setSettings(s=>({...s,masterRBAC:v}))} />
+        </SettingRow>
+        <SettingRow icon="bell" title="Enterprise Alerts" desc="Push notifications for low stock and high-value orders directly to the Company Owner dashboard.">
+          <Toggle on={settings.enterpriseAlerts} onChange={v=>setSettings(s=>({...s,enterpriseAlerts:v}))} />
+        </SettingRow>
+        <SettingRow icon="database" title="Data Retention Policy" desc="Automatic archival of orders and logs. Improves query performance on active datasets.">
+          <select value={settings.dataRetention} onChange={e=>setSettings(s=>({...s,dataRetention:e.target.value}))} style={{ width:160 }}>
+            <option value="12">12 Months</option>
+            <option value="24">24 Months</option>
+            <option value="0">Indefinite</option>
+          </select>
+        </SettingRow>
+      </div>
+
+      {/* API config section */}
+      <div style={{ background:"var(--surface2)", border:"1px solid var(--border)", borderRadius:"var(--r-lg)", padding:28, marginBottom:24 }}>
+        <div style={{ fontWeight:700, fontSize:15, marginBottom:16, display:"flex", alignItems:"center", gap:8 }}><Icon name="globe" size={18} /> API Configuration</div>
+        <div className="form-row">
+          <div className="form-group"><label>Backend URL</label><input defaultValue={import.meta.env.VITE_API_URL || "https://crown-eve-center.vercel.app/api"} /></div>
+          <div className="form-group"><label>Environment</label>
+            <select defaultValue="production"><option value="production">Production</option><option value="staging">Staging</option><option value="dev">Development</option></select>
+          </div>
+        </div>
+      </div>
+
+      {/* Danger zone */}
+      <div style={{ background:"rgba(239,68,68,0.04)", border:"1px solid rgba(239,68,68,0.2)", borderRadius:"var(--r-xl)", padding:32 }}>
+        <div style={{ color:"var(--red)", fontWeight:700, fontSize:16, display:"flex", alignItems:"center", gap:8, marginBottom:12 }}>
+          <Icon name="alert" size={20} /> Danger Zone
+        </div>
+        <div style={{ fontSize:13, color:"rgba(239,68,68,0.7)", marginBottom:20 }}>
+          These actions are destructive and cannot be undone. Requires system maintenance post-execution.
+        </div>
+        <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
+          <button className="btn btn-danger btn-sm">Flush System Logs</button>
+          <button className="btn btn-danger btn-sm">Reset Network Stats</button>
+          <button className="btn btn-danger btn-sm">Purge Expired Data</button>
         </div>
       </div>
     </div>

@@ -1,71 +1,106 @@
-// frontend/src/pages/dashboards/owner/OwnerBranches.jsx
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import api from '../../../services/api';
-import { MapPin, Plus, Edit2, Trash2, Users, Package } from 'lucide-react';
-import TableSkeleton from '../../../components/skeletons/TableSkeleton';
+import React, { useState } from 'react';
+import { useFetch, api, toast, Modal, Confirm, Sk, Icon } from '../../../components/owner/OwnerShared';
 
 const OwnerBranches = () => {
-  const { data: branches, isLoading } = useQuery({
-    queryKey: ['owner-branches'],
-    queryFn: () => api.get('/branches').then(r => r.data),
-  });
+  const { data: branchData, loading, refetch } = useFetch("/branches?limit=50");
+  const [showModal, setShowModal] = useState(false);
+  const [editTarget, setEditTarget] = useState(null);
+  const [confirmId, setConfirmId] = useState(null);
+  const [form, setForm] = useState({ name: "", location: "" });
+  const [saving, setSaving] = useState(false);
 
-  if (isLoading) return <TableSkeleton />;
+  const openAdd = () => { setForm({ name: "", location: "" }); setEditTarget(null); setShowModal(true); };
+  const openEdit = b => { setForm({ name: b.name, location: b.location }); setEditTarget(b); setShowModal(true); };
+
+  const submit = async () => {
+    if (!form.name || !form.location) return toast("Name and location required", "error");
+    setSaving(true);
+    try {
+      if (editTarget) {
+        await api(`/branches/${editTarget.id}`, { method: "PUT", body: form });
+        toast("Branch updated");
+      } else {
+        await api("/branches", { method: "POST", body: form });
+        toast("Branch created");
+      }
+      setShowModal(false);
+      refetch();
+    } catch (e) { toast(e.message, "error"); }
+    setSaving(false);
+  };
+
+  const remove = async (id) => {
+    try {
+      await api(`/branches/${id}`, { method: "DELETE" });
+      toast("Branch deleted");
+      refetch();
+    } catch (e) { toast(e.message, "error"); }
+    setConfirmId(null);
+  };
 
   return (
-    <div className="space-y-8">
-      <header className="flex justify-between items-center">
+    <div className="page">
+      <div className="page-header">
         <div>
-          <h2 className="text-3xl font-bold">Network Nodes</h2>
-          <p className="text-slate-500">Manage all global branch locations</p>
+          <div className="page-eyebrow">Network</div>
+          <div className="page-title">BRANCHES</div>
+          <div className="page-sub">Manage all global branch locations — {branchData?.meta?.total || 0} total</div>
         </div>
-        <button className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-2xl font-bold transition-all shadow-xl shadow-blue-900/20">
-          <Plus size={20} />
-          <span>New Branch</span>
-        </button>
-      </header>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {branches?.map(branch => (
-          <div key={branch.id} className="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 space-y-6 group hover:border-blue-500/50 transition-all">
-            <div className="flex justify-between items-start">
-              <div className="flex items-center space-x-4">
-                <div className="w-14 h-14 bg-blue-600/10 rounded-2xl flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
-                  <MapPin size={28} />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold">{branch.name}</h3>
-                  <p className="text-slate-500 text-sm">{branch.location}</p>
-                </div>
-              </div>
-              <div className="flex space-x-2">
-                <button className="p-3 bg-slate-950 rounded-xl text-slate-500 hover:text-white hover:bg-slate-800 transition-all"><Edit2 size={16} /></button>
-                <button className="p-3 bg-slate-950 rounded-xl text-red-900 hover:text-red-500 hover:bg-red-500/5 transition-all"><Trash2 size={16} /></button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
-                <div className="flex items-center text-slate-400 text-xs font-bold uppercase tracking-widest">
-                  <Users size={14} className="mr-2" /> Staff
-                </div>
-                <span className="font-bold">{branch._count?.users || 0}</span>
-              </div>
-              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
-                <div className="flex items-center text-slate-400 text-xs font-bold uppercase tracking-widest">
-                  <Package size={14} className="mr-2" /> Stock
-                </div>
-                <span className="font-bold">{branch._count?.products || 0}</span>
-              </div>
-            </div>
-
-            <button className="w-full py-4 bg-slate-800 hover:bg-blue-600 rounded-2xl font-bold transition-all">
-              Manage Operations
-            </button>
-          </div>
-        ))}
+        <div className="page-actions">
+          <button className="btn btn-primary" onClick={openAdd}><Icon name="plus" /> New Branch</button>
+        </div>
       </div>
+
+      {loading ? <div className="branch-grid">{[1,2,3,4].map(i=><div key={i} className="branch-card"><Sk h={24} mb={12}/><Sk h={14} w="60%" mb={20}/><Sk h={80}/></div>)}</div> : (
+        <div className="branch-grid">
+          {branchData?.data?.map(b => (
+            <div key={b.id} className="branch-card">
+              <div className="branch-card-accent" style={{ background: "var(--accent)" }} />
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+                  <div style={{ width: 48, height: 48, borderRadius: 12, background: "rgba(255,77,0,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--accent)", flexShrink: 0 }}>
+                    <Icon name="branches" size={22} />
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 18 }}>{b.name}</div>
+                    <div style={{ fontSize: 12, color: "var(--muted)" }}>{b.location}</div>
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 6 }}>
+                  <button className="btn-icon" onClick={() => openEdit(b)}><Icon name="edit" size={15} /></button>
+                  <button className="btn-icon danger" onClick={() => setConfirmId(b.id)}><Icon name="trash" size={15} /></button>
+                </div>
+              </div>
+              <div className="branch-stats">
+                <div className="branch-stat">
+                  <div className="branch-stat-label">Staff</div>
+                  <div className="branch-stat-val">{b._count?.users || 0}</div>
+                </div>
+                <div className="branch-stat">
+                  <div className="branch-stat-label">Products</div>
+                  <div className="branch-stat-val">{b._count?.products || 0}</div>
+                </div>
+              </div>
+              <div style={{ fontSize: 11, color: "var(--muted)", fontFamily: "var(--font-mono)" }}>
+                Created {new Date(b.createdAt).toLocaleDateString()}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {showModal && (
+        <Modal title={editTarget ? "EDIT BRANCH" : "NEW BRANCH"} onClose={() => setShowModal(false)}
+          footer={<>
+            <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
+            <button className="btn btn-primary" onClick={submit} disabled={saving}>{saving ? "Saving…" : "Save Branch"}</button>
+          </>}
+        >
+          <div className="form-group"><label>Branch Name</label><input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} placeholder="e.g. Downtown Main" /></div>
+          <div className="form-group"><label>Location</label><input value={form.location} onChange={e=>setForm(f=>({...f,location:e.target.value}))} placeholder="e.g. 123 Main St, New York" /></div>
+        </Modal>
+      )}
+      {confirmId && <Confirm msg="Permanently delete this branch? This cannot be undone." onConfirm={() => remove(confirmId)} onCancel={() => setConfirmId(null)} />}
     </div>
   );
 };

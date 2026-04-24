@@ -1,110 +1,123 @@
-// frontend/src/pages/dashboards/owner/OwnerParts.jsx
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import api from '../../../services/api';
-import { Package, Plus, Search, Filter, Edit3 } from 'lucide-react';
-import { useDebounce } from '../../../hooks/useDebounce';
-import TableSkeleton from '../../../components/skeletons/TableSkeleton';
+import { useFetch, useDebounce, api, toast, Modal, Confirm, Sk, TableSk, Icon } from '../../../components/owner/OwnerShared';
 
 const OwnerParts = () => {
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const debouncedSearch = useDebounce(search, 400);
+  const [category, setCategory] = useState("");
+  const ds = useDebounce(search);
+  const params = new URLSearchParams({ page, limit: 12, ...(ds && { search: ds }), ...(category && { category }) }).toString();
+  const { data, loading, refetch } = useFetch(`/parts?${params}`, [page, ds, category]);
+  const [showModal, setShowModal] = useState(false);
+  const [editTarget, setEditTarget] = useState(null);
+  const [confirmId, setConfirmId] = useState(null);
+  const [form, setForm] = useState({ name: "", category: "", price: "", stock: "" });
+  const [saving, setSaving] = useState(false);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['owner-parts', debouncedSearch, page],
-    queryFn: () => 
-      api.get('/parts', { params: { search: debouncedSearch, page, limit: 10 } })
-         .then(r => r.data),
-  });
+  const openAdd = () => { setForm({ name:"", category:"", price:"", stock:"" }); setEditTarget(null); setShowModal(true); };
+  const openEdit = p => { setForm({ name: p.name, category: p.category, price: p.price, stock: p.stock }); setEditTarget(p); setShowModal(true); };
+
+  const submit = async () => {
+    if (!form.name || !form.category || !form.price) return toast("Fill required fields", "error");
+    setSaving(true);
+    try {
+      const body = { name: form.name, category: form.category, price: parseFloat(form.price), stock: parseInt(form.stock) || 0 };
+      if (editTarget) { await api(`/parts/${editTarget.id}`, { method: "PUT", body }); toast("Part updated"); }
+      else { await api("/parts", { method: "POST", body }); toast("Part created"); }
+      setShowModal(false); refetch();
+    } catch(e) { toast(e.message, "error"); }
+    setSaving(false);
+  };
+
+  const remove = async id => {
+    try { await api(`/parts/${id}`, { method: "DELETE" }); toast("Part deleted"); refetch(); }
+    catch(e) { toast(e.message, "error"); }
+    setConfirmId(null);
+  };
+
+  const categories = [...new Set(data?.data?.map(p => p.category) || [])];
 
   return (
-    <div className="space-y-8">
-      <header className="flex justify-between items-center">
+    <div className="page">
+      <div className="page-header">
         <div>
-          <h2 className="text-3xl font-bold">Global Catalog</h2>
-          <p className="text-slate-500">Universal parts master list (1700+ SKUs)</p>
+          <div className="page-eyebrow">Inventory</div>
+          <div className="page-title">PARTS CATALOG</div>
+          <div className="page-sub">Global parts master list — {data?.meta?.total || 0} SKUs</div>
         </div>
-        <button className="flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-2xl font-bold transition-all shadow-xl shadow-emerald-900/20">
-          <Plus size={20} />
-          <span>Add SKU</span>
-        </button>
-      </header>
-
-      {/* Filter Bar */}
-      <div className="flex gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-          <input 
-            type="text" 
-            placeholder="Search catalog by name or SKU..." 
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-800 rounded-2xl py-3 pl-12 pr-4 focus:ring-2 focus:ring-blue-500/50 outline-none"
-          />
+        <div className="page-actions">
+          <button className="btn btn-primary" onClick={openAdd}><Icon name="plus" /> Add SKU</button>
         </div>
-        <button className="px-6 py-3 bg-slate-900 border border-slate-800 rounded-2xl flex items-center space-x-2 hover:bg-slate-800 transition-all font-bold">
-          <Filter size={18} />
-          <span>Category</span>
-        </button>
       </div>
 
-      <div className="bg-slate-900 border border-slate-800 rounded-[2.5rem] overflow-hidden">
-        {isLoading ? <TableSkeleton rows={8} /> : (
-          <table className="w-full text-left">
-            <thead>
-              <tr className="bg-slate-950/50 border-b border-slate-800">
-                <th className="px-8 py-6 text-[10px] uppercase tracking-widest font-black text-slate-500">Component</th>
-                <th className="px-8 py-6 text-[10px] uppercase tracking-widest font-black text-slate-500">Category</th>
-                <th className="px-8 py-6 text-[10px] uppercase tracking-widest font-black text-slate-500">Price</th>
-                <th className="px-8 py-6 text-[10px] uppercase tracking-widest font-black text-slate-500">Base Stock</th>
-                <th className="px-8 py-6 text-[10px] uppercase tracking-widest font-black text-slate-500 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/50">
-              {data?.data.map(part => (
-                <tr key={part.id} className="hover:bg-white/5 transition-all group">
-                  <td className="px-8 py-5">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-10 h-10 bg-slate-950 rounded-xl flex items-center justify-center text-slate-600">
-                        <Package size={20} />
-                      </div>
-                      <span className="font-bold group-hover:text-blue-400 transition-colors">{part.name}</span>
+      <div className="filter-bar">
+        <div className="search-wrap">
+          <Icon name="search" />
+          <input value={search} onChange={e=>{setSearch(e.target.value);setPage(1)}} placeholder="Search by name…" />
+        </div>
+        <select style={{ width: 180 }} value={category} onChange={e=>{setCategory(e.target.value);setPage(1)}}>
+          <option value="">All Categories</option>
+          {categories.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+      </div>
+
+      <div className="table-wrap">
+        {loading ? <TableSk rows={8} cols={5} /> : (
+          <table>
+            <thead><tr><th>Component</th><th>Category</th><th>Price</th><th>Base Stock</th><th style={{textAlign:"right"}}>Actions</th></tr></thead>
+            <tbody>
+              {data?.data?.map(p => (
+                <tr key={p.id}>
+                  <td>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 8, background: "var(--surface2)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)" }}><Icon name="parts" size={16} /></div>
+                      <span style={{ fontWeight: 600 }}>{p.name}</span>
                     </div>
                   </td>
-                  <td className="px-8 py-5 text-sm text-slate-400 font-medium">{part.category}</td>
-                  <td className="px-8 py-5 font-bold text-emerald-400">${part.price}</td>
-                  <td className="px-8 py-5 text-sm font-bold">{part.stock} units</td>
-                  <td className="px-8 py-5 text-right">
-                    <button className="p-3 text-slate-500 hover:text-white transition-all"><Edit3 size={16} /></button>
+                  <td><span className="badge badge-blue">{p.category}</span></td>
+                  <td style={{ fontWeight: 700, color: "var(--accent)" }}>${parseFloat(p.price).toFixed(2)}</td>
+                  <td>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: 13 }}>{p.stock}</span>
+                    {p.stock < 10 && <span className="badge badge-red" style={{ marginLeft: 8 }}>Low</span>}
                   </td>
+                  <td><div className="td-actions">
+                    <button className="btn-icon" onClick={() => openEdit(p)}><Icon name="edit" size={14} /></button>
+                    <button className="btn-icon danger" onClick={() => setConfirmId(p.id)}><Icon name="trash" size={14} /></button>
+                  </div></td>
                 </tr>
               ))}
+              {data?.data?.length === 0 && <tr><td colSpan={5}><div className="empty"><Icon name="parts" /><div className="empty-title">No parts found</div></div></td></tr>}
             </tbody>
           </table>
         )}
-
-        {/* Pagination */}
-        <div className="p-6 bg-slate-950/50 flex justify-between items-center">
-          <p className="text-xs text-slate-500 font-bold">Showing {data?.data.length} of {data?.meta.total} results</p>
-          <div className="flex space-x-2">
-            <button 
-              disabled={page === 1}
-              onClick={() => setPage(p => p - 1)}
-              className="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl disabled:opacity-30 font-bold text-xs"
-            >
-              Prev
-            </button>
-            <button 
-              disabled={page >= (data?.meta.totalPages || 1)}
-              onClick={() => setPage(p => p + 1)}
-              className="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl disabled:opacity-30 font-bold text-xs"
-            >
-              Next
-            </button>
+        <div className="pagination">
+          <div className="pagination-info">Showing {data?.data?.length || 0} of {data?.meta?.total || 0}</div>
+          <div className="pagination-controls">
+            <button className="page-btn" disabled={page <= 1} onClick={() => setPage(p=>p-1)}>Prev</button>
+            {Array.from({ length: Math.min(data?.meta?.totalPages || 1, 5) }).map((_, i) => (
+              <button key={i} className={`page-btn ${page === i+1 ? "active" : ""}`} onClick={() => setPage(i+1)}>{i+1}</button>
+            ))}
+            <button className="page-btn" disabled={page >= (data?.meta?.totalPages || 1)} onClick={() => setPage(p=>p+1)}>Next</button>
           </div>
         </div>
       </div>
+
+      {showModal && (
+        <Modal title={editTarget ? "EDIT PART" : "NEW PART"} onClose={() => setShowModal(false)}
+          footer={<>
+            <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
+            <button className="btn btn-primary" onClick={submit} disabled={saving}>{saving ? "Saving…" : "Save Part"}</button>
+          </>}
+        >
+          <div className="form-group"><label>Part Name *</label><input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} placeholder="e.g. Brake Pad Set" /></div>
+          <div className="form-row">
+            <div className="form-group"><label>Category *</label><input value={form.category} onChange={e=>setForm(f=>({...f,category:e.target.value}))} placeholder="e.g. Brakes" /></div>
+            <div className="form-group"><label>Price (USD) *</label><input type="number" min="0" step="0.01" value={form.price} onChange={e=>setForm(f=>({...f,price:e.target.value}))} placeholder="0.00" /></div>
+          </div>
+          <div className="form-group"><label>Base Stock</label><input type="number" min="0" value={form.stock} onChange={e=>setForm(f=>({...f,stock:e.target.value}))} placeholder="0" /></div>
+        </Modal>
+      )}
+      {confirmId && <Confirm msg="Delete this part from the global catalog?" onConfirm={() => remove(confirmId)} onCancel={() => setConfirmId(null)} />}
     </div>
   );
 };
