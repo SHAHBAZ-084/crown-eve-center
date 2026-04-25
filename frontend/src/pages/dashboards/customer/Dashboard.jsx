@@ -1,4 +1,4 @@
-// frontend/src/pages/dashboards/customer/Dashboard.jsx
+// frontend/src/pages/dashboards/customer/Dashboard.jsx v1.0.1-safe
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
