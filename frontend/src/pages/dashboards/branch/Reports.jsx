@@ -35,7 +35,7 @@ const Reports = () => {
       <div className="sg" style={{ marginBottom: 20 }}>
         <div className="sc">
           <div className="sc-label">Total Revenue</div>
-          <div className="sc-val">{sl ? "—" : `$${((summary?.totalRevenue || 0) / 1000).toFixed(1)}K`}</div>
+          <div className="sc-val">{sl ? "—" : `PKR ${((summary?.totalRevenue || 0) / 1000).toFixed(1)}K`}</div>
           <div className="sc-trend t-up">All time</div>
         </div>
         <div className="sc">
@@ -44,7 +44,7 @@ const Reports = () => {
         </div>
         <div className="sc">
           <div className="sc-label">Avg Order Value</div>
-          <div className="sc-val">{sl ? "—" : `$${(summary?.avgOrderValue || 0).toFixed(0)}`}</div>
+          <div className="sc-val">{sl ? "—" : `PKR ${(summary?.avgOrderValue || 0).toFixed(0)}`}</div>
         </div>
         <div className="sc">
           <div className="sc-label">Completed</div>
@@ -66,7 +66,7 @@ const Reports = () => {
                 const pct = (val / maxChart) * 100;
                 return (
                   <div key={i} className="bar-col">
-                    <div className="bar-vl">${(val / 1000).toFixed(1)}K</div>
+                    <div className="bar-vl">PKR {(val / 1000).toFixed(1)}K</div>
                     <div className="bar-fill" style={{ height: `${Math.max(pct, 2)}%` }} />
                     <div className="bar-lb">{d.date ? new Date(d.date).toLocaleDateString("en", { month: "short", day: "numeric" }) : `D${i + 1}`}</div>
                   </div>
@@ -85,7 +85,7 @@ const Reports = () => {
                 { label: "Total Orders",       val: branchReport.totalOrders || 0 },
                 { label: "Completed Orders",   val: branchReport.completedOrders || 0 },
                 { label: "Pending Orders",     val: branchReport.pendingOrders || 0 },
-                { label: "Revenue",            val: `$${(branchReport.revenue || 0).toFixed(2)}` },
+                { label: "Revenue",            val: `PKR ${(branchReport.revenue || 0).toFixed(2)}` },
                 { label: "Appointments",       val: branchReport.totalAppointments || 0 },
               ].map(({ label, val }) => (
                 <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid var(--border)" }}>
@@ -109,7 +109,7 @@ const Reports = () => {
                 <tr key={i}>
                   <td style={{ fontWeight: 600 }}>{s.productName || s.name || `Item ${i + 1}`}</td>
                   <td style={{ fontFamily: "var(--font-m)", fontSize: 12 }}>{s.quantity || s.units || "—"}</td>
-                  <td style={{ fontWeight: 700, color: "var(--acc)" }}>${(s.revenue || s.total || 0).toFixed(2)}</td>
+                  <td style={{ fontWeight: 700, color: "var(--acc)" }}>PKR {(s.revenue || s.total || 0).toLocaleString()}</td>
                 </tr>
               ))}
               {(Array.isArray(sales) ? sales : []).length === 0 && (

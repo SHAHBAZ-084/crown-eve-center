@@ -70,7 +70,7 @@ const Products = () => {
                 </div>
               </div>
               <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>{p.name}</div>
-              <div style={{ fontFamily: "var(--font-d)", fontSize: 24, color: "var(--acc)", marginBottom: 8 }}>${parseFloat(p.price).toFixed(2)}</div>
+              <div style={{ fontFamily: "var(--font-d)", fontSize: 24, color: "var(--acc)", marginBottom: 8 }}>PKR {parseFloat(p.price).toLocaleString()}</div>
               <div style={{ fontSize: 10, color: "var(--muted)", textTransform: "uppercase", letterSpacing: ".1em" }}>{p.parts?.length || 0} component parts</div>
             </div>
           ))}

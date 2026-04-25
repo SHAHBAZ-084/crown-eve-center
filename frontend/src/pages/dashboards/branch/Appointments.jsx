@@ -12,11 +12,12 @@ const Appointments = () => {
   const [statusF, setStatusF] = useState("");
   const params = new URLSearchParams({ branchId, page, limit: 12, ...(statusF && { status: statusF }) }).toString();
   const { data, loading, refetch } = useFetch(`/appointments?${params}`, [page, statusF, branchId]);
-  const { data: employees } = useFetch(`/branches/${branchId}`, [branchId]);
+  const { data: employees } = useFetch(`/users?branchId=${branchId}`, [branchId]);
   const [editAppt, setEditAppt] = useState(null);
   const [saving, setSaving]     = useState(false);
 
-  const technicianList = (employees?.users || []).filter(u => u.role === "TECHNICIAN");
+  const rawUsers = Array.isArray(employees) ? employees : (employees?.data || []);
+  const technicianList = rawUsers.filter(u => u.role === "TECHNICIAN");
   const APPT_STATUSES  = ["BOOKED", "IN_PROGRESS", "COMPLETED", "CANCELLED"];
 
   const updateAppt = async () => {

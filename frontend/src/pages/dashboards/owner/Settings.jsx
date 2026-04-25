@@ -35,7 +35,7 @@ const SettingsPage = () => {
   const save = async () => {
     setSaving(true);
     await new Promise(r => setTimeout(r, 700));
-    toast("Settings saved");
+    toast("Settings UI — backend endpoint not yet implemented", "e");
     setSaving(false);
   };
 

@@ -47,7 +47,7 @@ const OrdersPage = () => {
                   <td><span className={`badge ${o.type === "ONLINE" ? "badge-blue" : "badge-purple"}`}>{o.type}</span></td>
                   <td style={{ fontSize: 13, color: "var(--muted)" }}>{o.branch?.name || "—"}</td>
                   <td style={{ fontSize: 13 }}>{o.customer?.name || "—"}</td>
-                  <td style={{ fontWeight: 700, color: "var(--accent)" }}>${o.total?.toFixed(2)}</td>
+                  <td style={{ fontWeight: 700, color: "var(--accent)" }}>PKR {Number(o.total).toLocaleString()}</td>
                   <td><OrderBadge status={o.status} /></td>
                   <td style={{ fontSize: 12, color: "var(--muted)" }}>{new Date(o.createdAt).toLocaleDateString()}</td>
                 </tr>

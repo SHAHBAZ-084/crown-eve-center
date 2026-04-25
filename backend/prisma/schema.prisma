@@ -15,6 +15,7 @@ model User {
   email        String        @unique
   password     String
   name         String
+  phone        String?
   role         String        @default("CUSTOMER")
   branchId     Int?
   branch       Branch?       @relation(fields: [branchId], references: [id])
@@ -97,7 +98,7 @@ model Inventory {
 
 model Order {
   id         Int         @id @default(autoincrement())
-  customerId Int
+  customerId Int?
   customer   User        @relation(fields: [customerId], references: [id])
   branchId   Int
   branch     Branch      @relation(fields: [branchId], references: [id])

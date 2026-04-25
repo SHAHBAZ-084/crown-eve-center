@@ -81,3 +81,16 @@ exports.login = async (req, res) => {
 exports.getMe = async (req, res) => {
   res.status(200).json({ user: req.user });
 };
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const { name, phone } = req.body;
+    const user = await prisma.user.update({
+      where: { id: req.user.id },
+      data: { name, phone }
+    });
+    res.json({ message: 'Profile updated successfully', user });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error.', error: error.message });
+  }
+};

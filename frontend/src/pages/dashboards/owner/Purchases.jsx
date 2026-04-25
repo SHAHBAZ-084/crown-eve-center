@@ -25,7 +25,7 @@ const PurchasesPage = () => {
                   <td><span style={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 700 }}>#{p.id}</span></td>
                   <td style={{ fontSize: 13, color: "var(--muted)" }}>{p.branch?.name || "—"}</td>
                   <td style={{ fontSize: 13 }}>{p.supplier?.name || "—"}</td>
-                  <td style={{ fontWeight: 700, color: "var(--accent)" }}>${p.total?.toFixed(2)}</td>
+                  <td style={{ fontWeight: 700, color: "var(--accent)" }}>PKR {Number(p.total).toLocaleString()}</td>
                   <td style={{ fontSize: 12, color: "var(--muted)" }}>{p.items?.length || 0} parts</td>
                   <td style={{ fontSize: 12, color: "var(--muted)" }}>{new Date(p.createdAt).toLocaleDateString()}</td>
                 </tr>

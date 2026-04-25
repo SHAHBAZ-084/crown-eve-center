@@ -38,7 +38,7 @@ const ReportsPage = () => {
       <div className="stat-grid" style={{ marginBottom: 24 }}>
         <div className="stat-card">
           <div className="stat-card-label">Total Revenue</div>
-          <div className="stat-card-value">{sl ? "—" : `$${((summary?.totalRevenue || 0) / 1000).toFixed(1)}K`}</div>
+          <div className="stat-card-value">{sl ? "—" : `PKR ${((summary?.totalRevenue || 0) / 1000).toFixed(1)}K`}</div>
           <div className="stat-card-trend trend-up">All time</div>
         </div>
         <div className="stat-card">
@@ -47,7 +47,7 @@ const ReportsPage = () => {
         </div>
         <div className="stat-card">
           <div className="stat-card-label">Avg. Order Value</div>
-          <div className="stat-card-value">{sl ? "—" : `$${(summary?.avgOrderValue || 0).toFixed(0)}`}</div>
+          <div className="stat-card-value">{sl ? "—" : `PKR ${(summary?.avgOrderValue || 0).toFixed(0)}`}</div>
         </div>
         <div className="stat-card">
           <div className="stat-card-label">Completed</div>
@@ -66,8 +66,8 @@ const ReportsPage = () => {
                 const pct = (val / maxChart) * 100;
                 return (
                   <div key={i} className="chart-bar-col">
-                    <div className="chart-bar-val">${(val / 1000).toFixed(1)}K</div>
-                    <div className="chart-bar" style={{ height: `${Math.max(pct, 2)}%` }} title={`$${val.toFixed(2)}`} />
+                    <div className="chart-bar-val">PKR {(val / 1000).toFixed(1)}K</div>
+                    <div className="chart-bar" style={{ height: `${Math.max(pct, 2)}%` }} title={`PKR ${val.toFixed(2)}`} />
                     <div className="chart-bar-label">{d.date ? new Date(d.date).toLocaleDateString("en", { month: "short", day: "numeric" }) : `D${i + 1}`}</div>
                   </div>
                 );
@@ -86,7 +86,7 @@ const ReportsPage = () => {
                   <div key={b.name} style={{ marginBottom: 14 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, fontWeight: 600, marginBottom: 6 }}>
                       <span>{b.name}</span>
-                      <span style={{ color: "var(--accent)" }}>${(b.revenue / 1000).toFixed(1)}K · {b.orderCount} orders</span>
+                      <span style={{ color: "var(--accent)" }}>PKR {(b.revenue / 1000).toFixed(1)}K · {b.orderCount} orders</span>
                     </div>
                     <div className="compare-bar-track" style={{ height: 6 }}>
                       <div className="compare-bar-fill" style={{ width: `${(b.revenue / maxR) * 100}%`, background: i === 0 ? "var(--accent)" : "rgba(255,77,0,0.4)" }} />
@@ -109,9 +109,9 @@ const ReportsPage = () => {
                 <tr key={b.name}>
                   <td style={{ fontWeight: 700, color: i === 0 ? "var(--accent)" : "var(--muted)" }}>{i + 1}</td>
                   <td style={{ fontWeight: 600 }}>{b.name}</td>
-                  <td style={{ fontWeight: 700, color: "var(--accent)" }}>${b.revenue.toFixed(2)}</td>
+                  <td style={{ fontWeight: 700, color: "var(--accent)" }}>PKR {b.revenue.toLocaleString()}</td>
                   <td>{b.orderCount}</td>
-                  <td style={{ color: "var(--muted)" }}>${b.orderCount > 0 ? (b.revenue / b.orderCount).toFixed(2) : "0.00"}</td>
+                  <td style={{ color: "var(--muted)" }}>PKR {b.orderCount > 0 ? (b.revenue / b.orderCount).toLocaleString() : "0.00"}</td>
                 </tr>
               ))}
             </tbody>

@@ -1,10 +1,31 @@
 // frontend/src/pages/dashboards/customer/Profile.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../../../context/AuthContext";
+import api from "../../../services/api";
 
 const Profile = () => {
   const { user } = useAuth();
   const [pass, setPass] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [status, setStatus] = useState({ loading: false, error: "", success: "" });
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name || "");
+      setPhone(user.phone || "");
+    }
+  }, [user]);
+
+  const handleUpdate = async () => {
+    setStatus({ loading: true, error: "", success: "" });
+    try {
+      await api.put("/auth/profile", { name, phone });
+      setStatus({ loading: false, error: "", success: "Profile updated successfully!" });
+    } catch (e) {
+      setStatus({ loading: false, error: e.response?.data?.message || "Update failed", success: "" });
+    }
+  };
 
   return (
     <div>
@@ -22,7 +43,7 @@ const Profile = () => {
             <div className="fgrid">
               <div className="fg">
                 <label>Full Name</label>
-                <input className="fi" defaultValue={user?.name} style={{ background: 'var(--black2)' }} />
+                <input className="fi" value={name} onChange={e => setName(e.target.value)} style={{ background: 'var(--black2)' }} />
               </div>
               <div className="fg">
                 <label>Email Address</label>
@@ -32,7 +53,7 @@ const Profile = () => {
             <div className="fgrid">
               <div className="fg">
                 <label>Phone Number</label>
-                <input className="fi" defaultValue="+92 300 1234567" style={{ background: 'var(--black2)' }} />
+                <input className="fi" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+92 300 0000000" style={{ background: 'var(--black2)' }} />
               </div>
               <div className="fg">
                 <label>City</label>
@@ -43,7 +64,11 @@ const Profile = () => {
                 </select>
               </div>
             </div>
-            <button className="btn btn-primary" style={{ marginTop: 16 }}>Update Profile</button>
+            {status.error && <div style={{ color: "var(--red)", fontSize: 12, marginTop: 10 }}>{status.error}</div>}
+            {status.success && <div style={{ color: "var(--green)", fontSize: 12, marginTop: 10 }}>{status.success}</div>}
+            <button className="btn btn-primary" onClick={handleUpdate} disabled={status.loading} style={{ marginTop: 16 }}>
+              {status.loading ? "Updating..." : "Update Profile"}
+            </button>
           </div>
 
           <div className="card" style={{ borderTop: '2px solid var(--border)' }}>

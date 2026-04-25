@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 exports.getAll = async (req, res) => {
   try {
     let { branchId } = req.query;
-    if (req.user.role === 'BRANCH_OWNER') {
+    if (req.user.role === 'BRANCH_OWNER' || req.user.role === 'EMPLOYEE') {
       branchId = req.user.branchId;
     }
     const users = await User.getAllUsers(branchId ? Number(branchId) : undefined);

@@ -6,11 +6,11 @@ import { useAuth } from "../../../context/AuthContext";
 export default function DashPage() {
   const { user } = useAuth();
   const branchId = user?.branchId;
-  const { data: pendingCount } = useFetch(`/orders/count?status=PENDING`, [branchId]);
-  const { data: totalCount }   = useFetch(`/orders/count`, [branchId]);
+  const { data: pendingCount } = useFetch(`/orders/count?status=PENDING&branchId=${branchId}`, [branchId]);
+  const { data: totalCount }   = useFetch(`/orders/count?branchId=${branchId}`, [branchId]);
   const { data: todayAppts }   = useFetch(`/appointments/today?branchId=${branchId}`, [branchId]);
   const { data: alerts }       = useFetch(`/inventory/alerts?branchId=${branchId}`, [branchId]);
-  const { data: recent }       = useFetch(`/orders?limit=6&page=1`, [branchId]);
+  const { data: recent }       = useFetch(`/orders?limit=6&page=1&branchId=${branchId}`, [branchId]);
 
   const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 

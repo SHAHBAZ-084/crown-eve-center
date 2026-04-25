@@ -4,6 +4,7 @@ const { z } = require('zod');
 const createOrderSchema = z.object({
   body: z.object({
     branchId: z.number().int().positive(),
+    customerId: z.number().int().positive().optional(),
     type: z.enum(['POS', 'ONLINE']),
     notes: z.string().optional(),
     items: z.array(z.object({
