@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from './layout/Navbar';
 import Sidebar from './layout/Sidebar';
 import TopBar from './layout/TopBar';
-import Cursor from './layout/Cursor';
+
 
 const Layout = ({ isPublic = false }) => {
   const { user, logout } = useAuth();
@@ -20,7 +20,6 @@ const Layout = ({ isPublic = false }) => {
   if (showNavbar) {
     return (
       <div className="min-h-screen bg-black text-white font-sans">
-        <Cursor />
         <Navbar user={user} logout={logout} />
         <main>
           <Outlet />
@@ -31,7 +30,6 @@ const Layout = ({ isPublic = false }) => {
 
   return (
     <div className="min-h-screen bg-black text-white font-sans flex">
-      <Cursor />
       {!isMinimal && <Sidebar user={user} logout={logout} />}
 
       <div className={`flex-1 flex flex-col ${!isMinimal ? 'lg:ml-72' : ''}`}>

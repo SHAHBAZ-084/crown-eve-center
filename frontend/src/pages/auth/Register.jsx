@@ -123,7 +123,7 @@ const Register = () => {
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '24px' }}>
             <input type="checkbox" id="terms" style={{ marginTop: '3px', accentColor: 'var(--orange)' }} required />
-            <label htmlFor="terms" style={{ fontSize: '12px', color: 'var(--white2)', lineHeight: '1.6', cursor: 'none' }}>
+            <label htmlFor="terms" style={{ fontSize: '12px', color: 'var(--white2)', lineHeight: '1.6', cursor: 'pointer' }}>
               I agree to the <Link to="/terms" className="form-link">Terms of Service</Link> and <Link to="/privacy" className="form-link">Privacy Policy</Link>
             </label>
           </div>

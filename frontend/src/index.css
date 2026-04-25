@@ -32,7 +32,7 @@ body {
   color: var(--white);
   font-family: 'Barlow', sans-serif;
   overflow-x: hidden;
-  cursor: none;
+  
 }
 
 /* NOISE TEXTURE OVERLAY */
@@ -191,7 +191,7 @@ nav.scrolled {
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
-  cursor: none;
+  
   text-decoration: none;
   transition: all .3s;
   clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
@@ -211,7 +211,7 @@ nav.scrolled {
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
-  cursor: none;
+  
   text-decoration: none;
   transition: all .3s;
   clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
@@ -375,7 +375,7 @@ h1.hero-title .line3 {
   letter-spacing: 2px;
   text-transform: uppercase;
   text-decoration: none;
-  cursor: none;
+  
   transition: all .3s;
   clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
   position: relative;
@@ -410,7 +410,7 @@ h1.hero-title .line3 {
   letter-spacing: 2px;
   text-transform: uppercase;
   text-decoration: none;
-  cursor: none;
+  
   transition: color .3s;
 }
 
@@ -521,7 +521,7 @@ section { padding: 120px 5vw; position: relative; }
 
 .features-grid { display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 1px; margin-top: 80px; background: rgba(255, 255, 255, 0.06); }
 
-.feature-card { background: var(--black); padding: 48px 36px; position: relative; overflow: hidden; transition: background .3s; cursor: none; }
+.feature-card { background: var(--black); padding: 48px 36px; position: relative; overflow: hidden; transition: background .3s;  }
 
 .feature-card::before { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--orange); transform: scaleX(0); transition: transform .4s; }
 
@@ -556,13 +556,13 @@ section { padding: 120px 5vw; position: relative; }
 
 .products-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 60px; }
 
-.view-all { display: inline-flex; align-items: center; gap: 10px; color: var(--orange); font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; transition: gap .3s; cursor: none; }
+.view-all { display: inline-flex; align-items: center; gap: 10px; color: var(--orange); font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; transition: gap .3s;  }
 
 .view-all:hover { gap: 16px; }
 
 .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
 
-.product-card { background: var(--black); position: relative; overflow: hidden; cursor: none; }
+.product-card { background: var(--black); position: relative; overflow: hidden;  }
 
 .product-card-img { aspect-ratio: 4/3; background: var(--black3); display: flex; align-items: center; justify-content: center; font-size: 12px; letter-spacing: 2px; color: var(--muted); position: relative; overflow: hidden; transition: transform .6s; }
 
@@ -595,7 +595,7 @@ section { padding: 120px 5vw; position: relative; }
 
 .services-list { display: flex; flex-direction: column; gap: 0; }
 
-.service-item { padding: 28px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.06); display: flex; align-items: center; justify-content: space-between; cursor: none; transition: all .3s; }
+.service-item { padding: 28px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.06); display: flex; align-items: center; justify-content: space-between;  transition: all .3s; }
 
 .service-item:hover { padding-left: 16px; }
 
@@ -630,7 +630,7 @@ section { padding: 120px 5vw; position: relative; }
 
 .booking-text p { font-size: 16px; color: rgba(0, 0, 0, 0.6); margin-top: 16px; max-width: 420px; line-height: 1.7; }
 
-.btn-booking { display: inline-flex; align-items: center; gap: 16px; padding: 20px 52px; background: #000; color: var(--orange); font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; text-decoration: none; cursor: none; transition: all .3s; flex-shrink: 0; }
+.btn-booking { display: inline-flex; align-items: center; gap: 16px; padding: 20px 52px; background: #000; color: var(--orange); font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; text-decoration: none;  transition: all .3s; flex-shrink: 0; }
 
 .btn-booking:hover { background: var(--black2); transform: translateY(-2px); }
 
@@ -664,7 +664,7 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
 
 .footer-socials { display: flex; gap: 12px; margin-top: 28px; }
 
-.social-link { width: 38px; height: 38px; border: 1px solid rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--muted); text-decoration: none; transition: all .3s; cursor: none; }
+.social-link { width: 38px; height: 38px; border: 1px solid rgba(255, 255, 255, 0.12); display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--muted); text-decoration: none; transition: all .3s;  }
 
 .social-link:hover { border-color: var(--orange); color: var(--orange); background: var(--orange-glow); }
 
@@ -672,7 +672,7 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
 
 .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
 
-.footer-col ul li a { color: var(--white2); text-decoration: none; font-size: 13px; transition: color .3s; cursor: none; }
+.footer-col ul li a { color: var(--white2); text-decoration: none; font-size: 13px; transition: color .3s;  }
 
 .footer-col ul li a:hover { color: var(--orange); }
 
@@ -746,7 +746,7 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
   font-size: 14px;
   outline: none;
   transition: border-color .3s;
-  cursor: none;
+  
 }
 
 .form-group input:focus, .form-group select:focus, .form-textarea:focus { border-color: var(--orange); }
@@ -762,7 +762,7 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
   font-weight: 700;
   letter-spacing: 3px;
   text-transform: uppercase;
-  cursor: none;
+  
   transition: background .3s;
   margin-top: 12px;
 }
@@ -771,7 +771,7 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
 
 .form-divider { text-align: center; margin: 20px 0; color: var(--muted); font-size: 12px; }
 
-.form-link { color: var(--orange); text-decoration: none; font-size: 13px; cursor: none; }
+.form-link { color: var(--orange); text-decoration: none; font-size: 13px;  }
 
 .role-info { background: rgba(255, 77, 0, 0.08); border: 1px solid rgba(255, 77, 0, 0.2); padding: 14px 18px; margin-bottom: 28px; font-size: 12px; color: var(--white2); line-height: 1.6; }
 
@@ -786,7 +786,7 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
 
 .shop-filters { display: flex; align-items: center; gap: 12px; margin-top: 32px; flex-wrap: wrap; }
 
-.filter-pill { padding: 8px 20px; border: 1px solid rgba(255, 255, 255, 0.12); font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--white2); background: transparent; cursor: none; transition: all .3s; clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%); }
+.filter-pill { padding: 8px 20px; border: 1px solid rgba(255, 255, 255, 0.12); font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--white2); background: transparent;  transition: all .3s; clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%); }
 
 .filter-pill:hover, .filter-pill.active { background: var(--orange); border-color: var(--orange); color: #fff; }
 
@@ -800,7 +800,7 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
 
 .sidebar-options { display: flex; flex-direction: column; gap: 10px; }
 
-.sidebar-opt { display: flex; align-items: center; justify-content: space-between; cursor: none; color: var(--white2); font-size: 13px; transition: color .3s; }
+.sidebar-opt { display: flex; align-items: center; justify-content: space-between;  color: var(--white2); font-size: 13px; transition: color .3s; }
 
 .sidebar-opt:hover { color: var(--orange); }
 
@@ -887,7 +887,7 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
 
 .service-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 32px; }
 
-.service-option { padding: 20px; border: 1px solid rgba(255, 255, 255, 0.1); cursor: none; transition: all .3s; text-align: center; }
+.service-option { padding: 20px; border: 1px solid rgba(255, 255, 255, 0.1);  transition: all .3s; text-align: center; }
 
 .service-option:hover, .service-option.selected { border-color: var(--orange); background: rgba(255, 77, 0, 0.06); }
 
@@ -897,7 +897,7 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
 
 .date-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 32px; }
 
-.date-btn { padding: 14px 8px; border: 1px solid rgba(255, 255, 255, 0.08); text-align: center; cursor: none; transition: all .3s; }
+.date-btn { padding: 14px 8px; border: 1px solid rgba(255, 255, 255, 0.08); text-align: center;  transition: all .3s; }
 
 .date-btn:hover, .date-btn.selected { border-color: var(--orange); background: rgba(255, 77, 0, 0.08); }
 
@@ -907,7 +907,7 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
 
 .time-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 32px; }
 
-.time-btn { padding: 12px 8px; border: 1px solid rgba(255, 255, 255, 0.08); text-align: center; cursor: none; transition: all .3s; font-size: 13px; font-weight: 600; }
+.time-btn { padding: 12px 8px; border: 1px solid rgba(255, 255, 255, 0.08); text-align: center;  transition: all .3s; font-size: 13px; font-weight: 600; }
 
 .time-btn:hover, .time-btn.selected { border-color: var(--orange); background: rgba(255, 77, 0, 0.08); color: var(--orange); }
 
