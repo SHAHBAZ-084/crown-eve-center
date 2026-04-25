@@ -16,12 +16,12 @@ const Dashboard = () => {
 
   useEffect(() => {
     api.get("/orders/my")
-      .then(res => setOrders(res.data || []))
+      .then(res => setOrders(res.data.data || res.data || []))
       .catch(() => {})
       .finally(() => setLoadingOrders(false));
 
     api.get("/appointments/my")
-      .then(res => setBookings(res.data || []))
+      .then(res => setBookings(res.data.data || res.data || []))
       .catch(() => {})
       .finally(() => setLoadingBookings(false));
   }, []);
@@ -74,7 +74,7 @@ const Dashboard = () => {
           <div className="si">◫</div>
           <div className="sl">Active Orders</div>
           <div className="sv">{loadingOrders ? "—" : activeOrders.length}</div>
-          <span className="sc neu">{activeOrder ? `#${activeOrder._id?.slice(-6).toUpperCase()} · ${activeOrder.status}` : "No active orders"}</span>
+          <span className="sc neu">{activeOrder ? `#${String(activeOrder.id).padStart(6, '0')} · ${activeOrder.status}` : "No active orders"}</span>
         </div>
         <div className="stat">
           <div className="si">📅</div>
@@ -104,7 +104,7 @@ const Dashboard = () => {
             <>
               <div style={{ background: "var(--black3)", border: "1px solid var(--border)", borderRadius: 6, padding: "16px 18px", marginBottom: 16 }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                  <span className="mono" style={{ color: "var(--orange)", fontSize: 13 }}>#{activeOrder._id?.slice(-6).toUpperCase()}</span>
+                  <span className="mono" style={{ color: "var(--orange)", fontSize: 13 }}>#{String(activeOrder.id).padStart(6, '0')}</span>
                   <span className="badge bg-b" style={{ fontSize: 9 }}>{activeOrder.status}</span>
                 </div>
                 <div style={{ fontSize: 13, color: "var(--white2)", marginBottom: 16 }}>
@@ -114,7 +114,7 @@ const Dashboard = () => {
                   <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 28, color: "var(--orange)" }}>
                     PKR {(activeOrder.total ?? 0).toLocaleString()}
                   </div>
-                  <button className="ca" onClick={() => navigate(`/track/${activeOrder._id}`)} style={{ fontSize: 10 }}>Track Order →</button>
+                  <button className="ca" onClick={() => navigate(`/track/${activeOrder.id}`)} style={{ fontSize: 10 }}>Track Order →</button>
                 </div>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 0 }}>

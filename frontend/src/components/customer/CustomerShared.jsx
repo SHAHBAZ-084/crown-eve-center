@@ -51,6 +51,20 @@ export const useFetch = (endpoint) => {
   return { data, loading, error, refetch: fetchData };
 };
 
+export const STATUS_TIMELINE = {
+  PENDING:    [{ label: "Order Placed", done: true  }, { label: "Being Prepared", done: false }, { label: "Out for Delivery", done: false }, { label: "Delivered", done: false }],
+  PROCESSING: [{ label: "Order Placed", done: true  }, { label: "Being Prepared", done: true, active: true }, { label: "Out for Delivery", done: false }, { label: "Delivered", done: false }],
+  COMPLETED:  [{ label: "Order Placed", done: true  }, { label: "Being Prepared", done: true  }, { label: "Out for Delivery", done: true  }, { label: "Delivered", done: true  }],
+  CANCELLED:  [{ label: "Order Placed", done: true  }, { label: "Cancelled", done: true }],
+};
+
+export const STATUS_BADGE = {
+  PENDING:    { label: "Pending",    cls: "bg-y" },
+  PROCESSING: { label: "Processing", cls: "bg-b" },
+  COMPLETED:  { label: "Delivered",  cls: "bg-g" },
+  CANCELLED:  { label: "Cancelled",  cls: "bg-r" },
+};
+
 /**
  * UI COMPONENTS
  */

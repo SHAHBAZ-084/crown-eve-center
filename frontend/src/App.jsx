@@ -2,6 +2,7 @@
 import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 
@@ -11,6 +12,7 @@ const Appointments = lazy(() => import('./pages/appointments/Appointments'));
 const TrackOrder = lazy(() => import('./pages/public/TrackOrder'));
 const About = lazy(() => import('./pages/public/About'));
 const Contact = lazy(() => import('./pages/public/Contact'));
+const PublicCart = lazy(() => import('./pages/public/Cart'));
 
 // Auth Pages
 const Login = lazy(() => import('./pages/Login'));
@@ -68,7 +70,8 @@ const FullPageSkeleton = () => (
 const App = () => {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <CartProvider>
+        <BrowserRouter>
         <Suspense fallback={<FullPageSkeleton />}>
           <Routes>
             <Route element={<Layout isPublic />}>
@@ -79,6 +82,7 @@ const App = () => {
               {/* Semi-protected routes: Guest cannot access, but they use the public layout */}
               <Route path="/track/:id" element={<ProtectedRoute><TrackOrder /></ProtectedRoute>} />
               <Route path="/appointments" element={<ProtectedRoute><Appointments /></ProtectedRoute>} />
+              <Route path="/cart" element={<PublicCart />} />
             </Route>
 
             <Route path="/login" element={<Login />} />
@@ -118,7 +122,7 @@ const App = () => {
               <Route path="/my/profile"   element={<CustomerProfile />} />
               <Route path="/shop"         element={<CustomerShop />} />
               <Route path="/shop/:id"     element={<CustomerProductDetail />} />
-              <Route path="/cart"         element={<CustomerCart />} />
+              <Route path="/my/cart"      element={<CustomerCart />} />
               <Route path="/checkout"     element={<CustomerCheckout />} />
               <Route path="/track/:id"    element={<CustomerTrack />} />
             </Route>
@@ -138,7 +142,8 @@ const App = () => {
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Suspense>
-      </BrowserRouter>
+        </BrowserRouter>
+      </CartProvider>
     </AuthProvider>
   );
 };

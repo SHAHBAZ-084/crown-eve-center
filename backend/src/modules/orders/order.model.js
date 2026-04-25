@@ -104,6 +104,7 @@ const getOrderById = (id) => prisma.order.findUnique({
     status: true,
     total: true,
     createdAt: true,
+    branch: { select: { name: true } },
     customer: { select: { id: true, name: true, email: true } },
     items: {
       select: {

@@ -3,20 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import '../../styles/customer.css';
-
-const STATUS_TIMELINE = {
-  PENDING:    [{ label: "Order Placed", done: true  }, { label: "Being Prepared", done: false }, { label: "Out for Delivery", done: false }, { label: "Delivered", done: false }],
-  PROCESSING: [{ label: "Order Placed", done: true  }, { label: "Being Prepared", done: true, active: true }, { label: "Out for Delivery", done: false }, { label: "Delivered", done: false }],
-  COMPLETED:  [{ label: "Order Placed", done: true  }, { label: "Being Prepared", done: true  }, { label: "Out for Delivery", done: true  }, { label: "Delivered", done: true  }],
-  CANCELLED:  [{ label: "Order Placed", done: true  }, { label: "Cancelled", done: true }],
-};
-
-const STATUS_BADGE = {
-  PENDING:    "Pending",
-  PROCESSING: "In Assembly",
-  COMPLETED:  "Delivered",
-  CANCELLED:  "Cancelled",
-};
+import { STATUS_TIMELINE, STATUS_BADGE } from "../../components/customer/CustomerShared";
 
 const PublicTrackOrder = () => {
   const { id: paramId } = useParams();
@@ -85,7 +72,7 @@ const PublicTrackOrder = () => {
               <div className="card">
                 <div className="ch">
                   <div className="ct">Live Build Status</div>
-                  <div className="badge bg-b">{STATUS_BADGE[order.status] || order.status}</div>
+                  <div className={`badge ${STATUS_BADGE[order.status]?.cls || "bg-b"}`}>{STATUS_BADGE[order.status]?.label || order.status}</div>
                 </div>
                 <div className="timeline" style={{ padding: "10px 0" }}>
                   {steps.map((s, i) => (
@@ -122,7 +109,7 @@ const PublicTrackOrder = () => {
                   <div className="divider" />
                   <div className="trow">
                     <span style={{ fontSize: 12, color: "var(--muted2)" }}>Order ID</span>
-                    <span className="mono" style={{ fontWeight: 600 }}>#{order._id || searchId}</span>
+                    <span className="mono" style={{ fontWeight: 600 }}>#{String(order.id || searchId).padStart(6, '0')}</span>
                   </div>
                   <div className="trow">
                     <span style={{ fontSize: 12, color: "var(--muted2)" }}>Placed</span>

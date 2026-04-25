@@ -24,7 +24,7 @@ const Bookings = () => {
 
   useEffect(() => {
     api.get("/appointments/my")
-      .then(res => setBookings(res.data || []))
+      .then(res => setBookings(res.data.data || res.data || []))
       .catch(() => setError("Failed to load bookings."))
       .finally(() => setLoading(false));
   }, []);
@@ -64,7 +64,7 @@ const Bookings = () => {
             const timeStr = scheduledAt ? scheduledAt.toLocaleTimeString("en-PK", { timeStyle: "short" }) : "—";
 
             return (
-              <div key={b._id} className="card" style={{ position: "relative" }}>
+              <div key={b.id} className="card" style={{ position: "relative" }}>
                 <div style={{ position: "absolute", top: 22, right: 22 }}>
                   <Badge status={status} />
                 </div>
@@ -74,7 +74,7 @@ const Bookings = () => {
                   </div>
                   <div>
                     <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color: "var(--orange)", marginBottom: 4 }}>
-                      Booking #{b._id?.slice(-6).toUpperCase()}
+                      Booking #{String(b.id).padStart(6, '0')}
                     </div>
                     <div style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Barlow Condensed',sans-serif" }}>{serviceName}</div>
                     <div style={{ fontSize: 13, color: "var(--muted2)" }}>{branchName}</div>

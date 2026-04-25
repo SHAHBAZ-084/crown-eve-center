@@ -12,7 +12,7 @@ router.get('/count',       protect, allow('BRANCH_OWNER','EMPLOYEE', 'COMPANY_OW
 router.get('/my',          protect, allow('CUSTOMER'), ctrl.getMine);
 router.get('/',            protect, allow('BRANCH_OWNER','EMPLOYEE', 'COMPANY_OWNER'), ctrl.getAll);
 router.get('/customer/:id',protect, allow('CUSTOMER', 'BRANCH_OWNER'), ctrl.getByCustomer);
-router.get('/:id',         protect, allow('BRANCH_OWNER','EMPLOYEE','COMPANY_OWNER'), ctrl.getById);
+router.get('/:id',         protect, allow('BRANCH_OWNER','EMPLOYEE','COMPANY_OWNER','CUSTOMER'), ctrl.getById);
 router.put('/:id/status',  protect, allow('EMPLOYEE','BRANCH_OWNER'),             validate(updateStatusSchema), ctrl.updateStatus);
 
 module.exports = router;

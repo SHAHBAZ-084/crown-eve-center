@@ -2,10 +2,12 @@
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
 import '../../styles/customer.css';
 
 const CustomerLayout = () => {
   const { user, logout } = useAuth();
+  const { count } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -38,9 +40,9 @@ const CustomerLayout = () => {
         </div>
 
         <div className="cnav-right">
-          <button className="cart-btn" onClick={() => navigate("/cart")}>
+          <button className="cart-btn" onClick={() => navigate("/my/cart")}>
             🛒 Cart
-            <span className="cart-count">2</span>
+            <span className="cart-count">{count || 0}</span>
           </button>
           
           <div className="user-pill" onClick={() => navigate("/my/profile")}>

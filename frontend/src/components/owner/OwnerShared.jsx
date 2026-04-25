@@ -112,6 +112,10 @@ export const ToastContainer = () => {
 export const toast = (msg, type) => _addToast?.(msg, type);
 
 // ─── COMPONENTS ───────────────────────────────────────────────────────────────
+export const OrderBadge = ({ status }) => {
+  const map = { PENDING: "badge-yellow", PROCESSING: "badge-blue", COMPLETED: "badge-green", CANCELLED: "badge-red" };
+  return <span className={`badge ${map[status] || "badge-blue"}`}>{status}</span>;
+};
 export const Modal = ({ title, onClose, children, footer }) => (
   <div className="modal-backdrop" onClick={e => e.target === e.currentTarget && onClose()}>
     <div className="modal">

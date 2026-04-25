@@ -1,11 +1,6 @@
 // frontend/src/pages/dashboards/owner/Orders.jsx
 import React, { useState } from "react";
-import { useFetch, Icon, TableSk } from "../../../components/owner/OwnerShared";
-
-const OrderBadge = ({ status }) => {
-  const map = { PENDING: "badge-yellow", PROCESSING: "badge-blue", COMPLETED: "badge-green", CANCELLED: "badge-red" };
-  return <span className={`badge ${map[status] || "badge-blue"}`}>{status}</span>;
-};
+import { useFetch, Icon, TableSk, OrderBadge } from "../../../components/owner/OwnerShared";
 
 const OrdersPage = () => {
   const [page, setPage] = useState(1);

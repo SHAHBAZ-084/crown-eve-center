@@ -8,17 +8,26 @@ const TechnicianDashboard = () => {
   const { user } = useAuth();
   const [tasks, setTasks] = useState([]);
 
+  const fetchTasks = async () => {
+    try {
+      const res = await api.get('/appointments');
+      setTasks(res.data?.data || res.data || []);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   useEffect(() => {
-    const fetchTasks = async () => {
-      const res = await api.get('/appointments'); // Ideally filter by techId on server
-      setTasks(res.data.filter(t => t.techId === user.id || !t.techId));
-    };
-    fetchTasks();
+    if (user) fetchTasks();
   }, [user]);
 
   const updateStatus = async (id, status) => {
-    await api.put(`/appointments/${id}`, { status, techId: user.id });
-    // refresh
+    try {
+      await api.put(`/appointments/${id}`, { status, techId: user.id });
+      await fetchTasks();
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (

@@ -1,19 +1,21 @@
-// frontend/src/pages/public/Cart.jsx
 import React from 'react';
-import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
+import { useCart } from '../../../context/CartContext';
+import { useAuth } from '../../../context/AuthContext';
 import '../../styles/customer.css';
 
 const Cart = () => {
   const navigate = useNavigate();
+  const { items, updateQuantity, removeItem, getSubtotal } = useCart();
+  const { user } = useAuth();
 
-  // Mock data matching the screenshot
-  const items = [
-    { id: 1, name: 'Crown Eve Elite Road', price: 4200, qty: 1, emoji: "🚲" },
-    { id: 2, name: 'Aerodynamic Wheelset', price: 1200, qty: 1, emoji: "🛞" },
-  ];
+  React.useEffect(() => {
+    if (user && user.role === 'CUSTOMER') {
+      navigate('/my/cart');
+    }
+  }, [user, navigate]);
 
-  const subtotal = items.reduce((acc, item) => acc + (item.price * item.qty), 0);
+  const subtotal = getSubtotal();
   const total = subtotal;
 
   return (
@@ -35,26 +37,30 @@ const Cart = () => {
               <div className="ch">
                 <div className="ct">Items Overview</div>
               </div>
-              {items.map(item => (
-                <div key={item.id} className="ci" style={{ padding: '20px 0' }}>
-                  <div className="ci-img" style={{ width: '80px', height: '80px', fontSize: '32px' }}>{item.emoji}</div>
-                  <div style={{ flex: 1 }}>
-                    <div className="ci-name" style={{ fontSize: '18px', fontWeight: 700 }}>{item.name}</div>
-                    <div className="ci-sub" style={{ fontSize: '13px', marginTop: '4px' }}>Unit Price: PKR {item.price.toLocaleString()}</div>
-                  </div>
-                  <div className="qty-ctrl">
-                    <button className="qty-btn">-</button>
-                    <span className="qty-num">{item.qty}</span>
-                    <button className="qty-btn">+</button>
-                  </div>
-                  <div style={{ minWidth: 140, textAlign: "right" }}>
-                    <div className="mono" style={{ fontWeight: 700, color: "var(--orange)", fontSize: '16px' }}>
-                      PKR {(item.price * item.qty).toLocaleString()}
+              {items.length === 0 ? (
+                <div style={{ padding: '40px', textAlign: 'center', color: 'var(--muted2)' }}>Your cart is empty.</div>
+              ) : (
+                items.map(item => (
+                  <div key={item.id} className="ci" style={{ padding: '20px 0' }}>
+                    <div className="ci-img" style={{ width: '80px', height: '80px', fontSize: '32px' }}>{item.emoji || "📦"}</div>
+                    <div style={{ flex: 1 }}>
+                      <div className="ci-name" style={{ fontSize: '18px', fontWeight: 700 }}>{item.name}</div>
+                      <div className="ci-sub" style={{ fontSize: '13px', marginTop: '4px' }}>Unit Price: PKR {item.price?.toLocaleString()}</div>
                     </div>
-                    <button className="ca" style={{ fontSize: '10px', color: "var(--red)", marginTop: '4px' }}>Remove Item</button>
+                    <div className="qty-ctrl">
+                      <button className="qty-btn" onClick={() => updateQuantity(item.id, item.qty - 1)}>-</button>
+                      <span className="qty-num">{item.qty}</span>
+                      <button className="qty-btn" onClick={() => updateQuantity(item.id, item.qty + 1)}>+</button>
+                    </div>
+                    <div style={{ minWidth: 140, textAlign: "right" }}>
+                      <div className="mono" style={{ fontWeight: 700, color: "var(--orange)", fontSize: '16px' }}>
+                        PKR {((item.price || 0) * item.qty).toLocaleString()}
+                      </div>
+                      <button className="ca" onClick={() => removeItem(item.id)} style={{ fontSize: '10px', color: "var(--red)", marginTop: '4px' }}>Remove Item</button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
 
             <div>

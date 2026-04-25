@@ -2,20 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../../services/api";
-
-const STATUS_TIMELINE = {
-  PENDING:    [{ label: "Order Placed", done: true  }, { label: "Being Prepared", done: false }, { label: "Out for Delivery", done: false }, { label: "Delivered", done: false }],
-  PROCESSING: [{ label: "Order Placed", done: true  }, { label: "Being Prepared", done: true, active: true }, { label: "Out for Delivery", done: false }, { label: "Delivered", done: false }],
-  COMPLETED:  [{ label: "Order Placed", done: true  }, { label: "Being Prepared", done: true  }, { label: "Out for Delivery", done: true  }, { label: "Delivered", done: true  }],
-  CANCELLED:  [{ label: "Order Placed", done: true  }, { label: "Cancelled", done: true }],
-};
-
-const STATUS_BADGE = {
-  PENDING:    { label: "Pending",    cls: "bg-y" },
-  PROCESSING: { label: "Processing", cls: "bg-b" },
-  COMPLETED:  { label: "Delivered",  cls: "bg-g" },
-  CANCELLED:  { label: "Cancelled",  cls: "bg-r" },
-};
+import { STATUS_TIMELINE, STATUS_BADGE } from "../../../components/customer/CustomerShared";
 
 const TrackOrder = () => {
   const { id } = useParams();
@@ -42,7 +29,7 @@ const TrackOrder = () => {
       <div className="pg-hd">
         <div>
           <button className="ca" onClick={() => navigate(-1)} style={{ marginBottom: 12 }}>← Back to Orders</button>
-          <h1>Track Order <span style={{ color: "var(--orange)" }}>#{id}</span></h1>
+          <h1>Track Order <span style={{ color: "var(--orange)" }}>#{String(id).padStart(6, '0')}</span></h1>
           <p>Real-time updates for your Crown Eve purchase.</p>
         </div>
         {badge && (
@@ -98,7 +85,7 @@ const TrackOrder = () => {
               <div className="divider" />
               <div className="trow">
                 <span style={{ fontSize: 12, color: "var(--muted2)" }}>Order ID</span>
-                <span className="mono" style={{ fontWeight: 600 }}>#{id}</span>
+                <span className="mono" style={{ fontWeight: 600 }}>#{String(id).padStart(6, '0')}</span>
               </div>
               <div className="trow">
                 <span style={{ fontSize: 12, color: "var(--muted2)" }}>Placed</span>

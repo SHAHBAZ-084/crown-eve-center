@@ -1,11 +1,6 @@
 // frontend/src/pages/dashboards/owner/Dashboard.jsx
 import React from "react";
-import { useFetch, Icon, Sk, TableSk } from "../../../components/owner/OwnerShared";
-
-const OrderBadge = ({ status }) => {
-  const map = { PENDING: "badge-yellow", PROCESSING: "badge-blue", COMPLETED: "badge-green", CANCELLED: "badge-red" };
-  return <span className={`badge ${map[status] || "badge-blue"}`}>{status}</span>;
-};
+import { useFetch, Icon, Sk, TableSk, OrderBadge } from "../../../components/owner/OwnerShared";
 
 const DashboardPage = () => {
   const { data: branchCount } = useFetch("/branches/count");

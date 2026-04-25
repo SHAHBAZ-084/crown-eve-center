@@ -1,8 +1,11 @@
 // frontend/src/pages/dashboards/employee/Dashboard.jsx
 
 import { useFetch, Icon, Sk, TblSk, ORDER_BADGE, APPT_BADGE } from "./EmployeeShared";
+import { useAuth } from "../../../context/AuthContext";
 
-export default function DashPage({ branchId, user }) {
+export default function DashPage() {
+  const { user } = useAuth();
+  const branchId = user?.branchId;
   const { data: pendingCount } = useFetch(`/orders/count?status=PENDING`, [branchId]);
   const { data: totalCount }   = useFetch(`/orders/count`, [branchId]);
   const { data: todayAppts }   = useFetch(`/appointments/today?branchId=${branchId}`, [branchId]);

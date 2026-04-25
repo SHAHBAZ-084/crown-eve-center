@@ -42,6 +42,11 @@ exports.getById = async (req, res) => {
   try {
     const order = await Order.getOrderById(Number(req.params.id));
     if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    if (req.user.role === 'CUSTOMER' && order.customer.id !== req.user.id) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
     res.json(order);
   } catch (e) {
     res.status(500).json({ message: e.message });
