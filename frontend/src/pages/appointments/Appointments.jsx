@@ -1,46 +1,65 @@
 // frontend/src/pages/appointments/Appointments.jsx
-import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 
 const Appointments = () => {
-  const [selectedService, setSelectedService] = useState('Full Tune-Up');
-  const [selectedBranch, setSelectedBranch] = useState('');
-  const [selectedDate, setSelectedDate] = useState('24');
-  const [selectedTime, setSelectedTime] = useState('10:00 AM');
-  const [notes, setNotes] = useState('');
+  const navigate = useNavigate();
+  const [services, setServices] = useState([]);
+  const [branches, setBranches] = useState([]);
+  const [loading, setLoading] = useState(true);
   
-  const queryClient = useQueryClient();
+  const [selectedService, setSelectedService] = useState(null);
+  const [selectedBranch, setSelectedBranch] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTime, setSelectedTime] = useState("10:00 AM");
+  const [notes, setNotes] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const services = [
-    { name: 'Full Tune-Up', price: 2500 },
-    { name: 'Oil Change', price: 800 },
-    { name: 'Brake Overhaul', price: 3200 },
-    { name: 'Diagnostics', price: 1500 },
-    { name: 'Tyre Change', price: 600 },
-    { name: 'Chain Service', price: 400 }
-  ];
+  useEffect(() => {
+    Promise.all([
+      api.get('/services').then(res => setServices(res.data.data || res.data || [])),
+      api.get('/branches').then(res => setBranches(res.data.data || res.data || []))
+    ]).finally(() => setLoading(false));
+  }, []);
 
-  const mutation = useMutation({
-    mutationFn: (newBooking) => api.post('/appointments', newBooking),
-    onSuccess: () => {
-      alert('Booking Confirmed!');
-      queryClient.invalidateQueries(['appointments']);
-    },
-    onError: () => alert('Booking failed. Please try again.')
-  });
-
-  const handleBooking = (e) => {
+  const handleBooking = async (e) => {
     e.preventDefault();
-    if (!selectedBranch) return alert('Please select a branch');
-    mutation.mutate({
-      serviceType: selectedService,
-      branch: selectedBranch,
-      date: `2025-04-${selectedDate}`,
-      time: selectedTime,
-      notes
-    });
+    if (!selectedService || !selectedBranch || !selectedDate) {
+      return alert('Please complete all selections');
+    }
+
+    setSubmitting(true);
+    try {
+      // Create a proper ISO date string
+      const [hour, minutePart] = selectedTime.split(':');
+      const minute = minutePart.split(' ')[0];
+      const isPM = selectedTime.includes('PM');
+      let finalHour = parseInt(hour);
+      if (isPM && finalHour !== 12) finalHour += 12;
+      if (!isPM && finalHour === 12) finalHour = 0;
+
+      const scheduledAt = new Date(selectedDate);
+      scheduledAt.setHours(finalHour, parseInt(minute), 0, 0);
+
+      const payload = {
+        serviceId: Number(selectedService.id),
+        branchId: Number(selectedBranch),
+        scheduledAt: scheduledAt.toISOString(),
+        notes
+      };
+
+      await api.post('/appointments', payload);
+      alert('Booking Confirmed!');
+      navigate('/my/bookings');
+    } catch (err) {
+      alert(err.response?.data?.message || 'Booking failed. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  if (loading) return <div style={{ padding: 100, textAlign: 'center', color: 'var(--muted)' }}>Initializing booking system...</div>;
 
   return (
     <div id="page-booking" className="page">
@@ -58,8 +77,6 @@ const Appointments = () => {
           <div className={`step-item ${selectedBranch ? 'active' : ''}`}><div className="step-num">2</div> Choose Branch</div>
           <div className="step-connector"></div>
           <div className={`step-item ${selectedDate ? 'active' : ''}`}><div className="step-num">3</div> Pick Date & Time</div>
-          <div className="step-connector"></div>
-          <div className="step-item"><div className="step-num">4</div> Confirm</div>
         </div>
       </div>
 
@@ -69,12 +86,12 @@ const Appointments = () => {
           <div className="service-selector">
             {services.map(s => (
               <div 
-                key={s.name}
-                className={`service-option ${selectedService === s.name ? 'selected' : ''}`}
-                onClick={() => setSelectedService(s.name)}
+                key={s.id}
+                className={`service-option ${selectedService?.id === s.id ? 'selected' : ''}`}
+                onClick={() => setSelectedService(s)}
               >
                 <div className="service-option-name">{s.name}</div>
-                <div className="service-option-price">From PKR {s.price.toLocaleString()}</div>
+                <div className="service-option-price">PKR {Number(s.price).toLocaleString()}</div>
               </div>
             ))}
           </div>
@@ -87,26 +104,21 @@ const Appointments = () => {
               style={{ width: '100%', background: 'var(--black3)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--white)', padding: '14px 18px', fontFamily: "'Barlow',sans-serif", fontSize: '14px', outline: 'none' }}
             >
               <option value="">Select nearest branch</option>
-              <option>Crown Eve Gulberg — Lahore</option>
-              <option>Crown Eve DHA — Lahore</option>
-              <option>Crown Eve Clifton — Karachi</option>
-              <option>Crown Eve Blue Area — Islamabad</option>
-              <option>Crown Eve Canal Road — Faisalabad</option>
+              {branches.map(b => (
+                <option key={b.id} value={b.id}>{b.name} — {b.city || b.location}</option>
+              ))}
             </select>
           </div>
 
           <div className="form-section-title">Select Date</div>
-          <div className="date-grid">
-            {['23', '24', '25', '26', '27', '28', '30'].map(d => (
-              <div 
-                key={d}
-                className={`date-btn ${selectedDate === d ? 'selected' : ''}`}
-                onClick={() => setSelectedDate(d)}
-              >
-                <div className="day-name">{['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Mon'][['23', '24', '25', '26', '27', '28', '30'].indexOf(d)]}</div>
-                <div className="day-num">{d}</div>
-              </div>
-            ))}
+          <div className="form-group" style={{ marginBottom: '32px' }}>
+            <input 
+              type="date" 
+              className="fi" 
+              value={selectedDate} 
+              min={new Date().toISOString().split('T')[0]}
+              onChange={e => setSelectedDate(e.target.value)} 
+            />
           </div>
 
           <div className="form-section-title">Select Time</div>
@@ -132,19 +144,28 @@ const Appointments = () => {
               onChange={(e) => setNotes(e.target.value)}
             ></textarea>
           </div>
-          <button className="form-submit" style={{ marginTop: '8px' }} onClick={handleBooking}>Confirm Booking →</button>
+          <button 
+            className="form-submit" 
+            style={{ marginTop: '8px' }} 
+            onClick={handleBooking}
+            disabled={submitting}
+          >
+            {submitting ? 'Confirming...' : 'Confirm Booking →'}
+          </button>
         </div>
 
         <div className="booking-sidebar-summary">
           <h3>Booking Summary</h3>
-          <div className="summary-item"><span>Service</span><strong>{selectedService}</strong></div>
-          <div className="summary-item"><span>Branch</span><strong>{selectedBranch || '—'}</strong></div>
-          <div className="summary-item"><span>Date</span><strong>Tue, Apr {selectedDate}</strong></div>
+          <div className="summary-item"><span>Service</span><strong>{selectedService?.name || '—'}</strong></div>
+          <div className="summary-item"><span>Branch</span><strong>{branches.find(b => b.id == selectedBranch)?.name || '—'}</strong></div>
+          <div className="summary-item"><span>Date</span><strong>{selectedDate || '—'}</strong></div>
           <div className="summary-item"><span>Time</span><strong>{selectedTime}</strong></div>
-          <div className="summary-item"><span>Duration</span><strong>~2 hours</strong></div>
-          <div className="summary-total"><span>Estimate</span><span>PKR {services.find(s => s.name === selectedService)?.price.toLocaleString()}</span></div>
+          <div className="summary-total">
+            <span>Estimate</span>
+            <span>PKR {selectedService ? Number(selectedService.price).toLocaleString() : '0'}</span>
+          </div>
           <p style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '16px', lineHeight: '1.6' }}>
-            Final price confirmed at branch. Free cancellation up to 2 hours before appointment.
+            Final price confirmed at branch.
           </p>
         </div>
       </div>

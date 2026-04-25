@@ -1,118 +1,153 @@
 // frontend/src/pages/public/TrackOrder.jsx
-import React, { useState } from 'react';
-import { Search, MapPin, Package, CheckCircle, Truck, Clock } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import '../../styles/customer.css';
 
-const TrackOrder = () => {
-  const [orderId, setOrderId] = useState('');
+const STATUS_TIMELINE = {
+  PENDING:    [{ label: "Order Placed", done: true  }, { label: "Being Prepared", done: false }, { label: "Out for Delivery", done: false }, { label: "Delivered", done: false }],
+  PROCESSING: [{ label: "Order Placed", done: true  }, { label: "Being Prepared", done: true, active: true }, { label: "Out for Delivery", done: false }, { label: "Delivered", done: false }],
+  COMPLETED:  [{ label: "Order Placed", done: true  }, { label: "Being Prepared", done: true  }, { label: "Out for Delivery", done: true  }, { label: "Delivered", done: true  }],
+  CANCELLED:  [{ label: "Order Placed", done: true  }, { label: "Cancelled", done: true }],
+};
+
+const STATUS_BADGE = {
+  PENDING:    "Pending",
+  PROCESSING: "In Assembly",
+  COMPLETED:  "Delivered",
+  CANCELLED:  "Cancelled",
+};
+
+const PublicTrackOrder = () => {
+  const { id: paramId } = useParams();
+  const navigate = useNavigate();
+  const [searchId, setSearchId] = useState(paramId || "");
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleTrack = async () => {
+  const fetchOrder = (orderId) => {
     if (!orderId) return;
     setLoading(true);
-    try {
-      const res = await api.get(`/orders/${orderId}`); // This would need a public endpoint or logic
-      setOrder(res.data);
-    } catch (err) {
-      alert('Order not found');
-    } finally {
-      setLoading(false);
-    }
+    setError(null);
+    setOrder(null);
+    api.get(`/orders/${orderId}`)
+      .then(res => setOrder(res.data))
+      .catch(() => setError("Order not found. Check your order ID."))
+      .finally(() => setLoading(false));
   };
 
-  const steps = [
-    { label: 'Confirmed', status: 'COMPLETED', icon: <CheckCircle /> },
-    { label: 'Processing', status: 'PROCESSING', icon: <Package /> },
-    { label: 'On its way', status: 'SHIPPED', icon: <Truck /> },
-    { label: 'Delivered', status: 'DELIVERED', icon: <MapPin /> },
-  ];
+  useEffect(() => { if (paramId) fetchOrder(paramId); }, [paramId]);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchId.trim()) fetchOrder(searchId.trim());
+  };
+
+  const steps = order ? (STATUS_TIMELINE[order.status] || STATUS_TIMELINE.PENDING) : [];
+  const total = order?.total ?? order?.items?.reduce((s, i) => s + (i.price ?? 0) * (i.quantity ?? 1), 0) ?? 0;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-16 py-10">
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold tracking-tight">Track Your Build</h1>
-        <p className="text-slate-400">Enter your order reference ID to see live progress.</p>
-      </div>
-
-      <div className="relative max-w-lg mx-auto">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={24} />
-        <input 
-          type="text" 
-          placeholder="e.g. CEB-123456" 
-          value={orderId}
-          onChange={(e) => setOrderId(e.target.value)}
-          className="w-full bg-slate-900 border border-slate-800 rounded-3xl py-6 pl-14 pr-32 text-xl font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-        />
-        <button 
-          onClick={handleTrack}
-          className="absolute right-3 top-1/2 -translate-y-1/2 bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-2xl font-bold transition-all"
-        >
-          {loading ? '...' : 'Track'}
-        </button>
-      </div>
-
-      {order && (
-        <div className="bg-slate-900 border border-slate-800 rounded-[3rem] p-10 space-y-12 animate-in fade-in slide-in-from-bottom-10">
-          <header className="flex justify-between items-start">
-            <div>
-              <p className="text-slate-500 uppercase tracking-widest text-xs font-bold">Order Reference</p>
-              <h2 className="text-2xl font-bold">#{order.id}</h2>
-            </div>
-            <div className="text-right">
-              <p className="text-slate-500 uppercase tracking-widest text-xs font-bold">Estimated Delivery</p>
-              <h2 className="text-xl font-bold text-blue-400">Oct 24, 2026</h2>
-            </div>
-          </header>
-
-          <div className="relative py-10">
-            {/* Progress Bar */}
-            <div className="absolute top-1/2 left-0 w-full h-1 bg-slate-800 -translate-y-1/2" />
-            <div className="absolute top-1/2 left-0 h-1 bg-blue-500 -translate-y-1/2 transition-all duration-1000" style={{ width: '66%' }} />
-            
-            <div className="relative flex justify-between">
-              {steps.map((step, i) => (
-                <div key={i} className="flex flex-col items-center space-y-3">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center z-10 transition-all ${
-                    i <= 2 ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/20' : 'bg-slate-800 text-slate-500'
-                  }`}>
-                    {step.icon}
-                  </div>
-                  <span className={`text-xs font-bold uppercase tracking-wider ${i <= 2 ? 'text-white' : 'text-slate-600'}`}>
-                    {step.label}
-                  </span>
-                </div>
-              ))}
-            </div>
+    <div id="customer-dashboard-shell">
+      <div className="main-wrap">
+        <div className="page-wrap">
+          <div className="pg-hd" style={{ textAlign: 'center', display: 'block', marginBottom: '40px', paddingTop: '60px' }}>
+            <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '56px', letterSpacing: '-1px', marginBottom: '8px' }}>
+              Track Your Build
+            </h1>
+            <p style={{ fontSize: '14px', color: 'var(--muted2)', maxWidth: '500px', margin: '0 auto' }}>
+              Enter your order reference ID below to see live progress and delivery updates.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-slate-800">
-            <div className="space-y-2">
-              <h4 className="font-bold flex items-center"><Truck size={18} className="mr-2 text-slate-500" /> Shipping Address</h4>
-              <p className="text-slate-400 leading-relaxed">
-                John Doe<br />
-                123 Cycling Way, Gear District<br />
-                New York, NY 10001
-              </p>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-bold flex items-center"><Clock size={18} className="mr-2 text-slate-500" /> Recent Activity</h4>
-              <div className="space-y-4">
-                <div className="flex space-x-3 text-sm">
-                  <span className="text-slate-600 font-medium">10:45 AM</span>
-                  <span className="text-slate-300">Package arrived at local sorting facility.</span>
+          <div className="card" style={{ maxWidth: '600px', margin: '0 auto 40px', padding: '24px' }}>
+            <form onSubmit={handleSearch} style={{ display: 'flex', gap: '10px' }}>
+              <div style={{ flex: 1 }}>
+                <input
+                  className="fi"
+                  placeholder="Enter Order ID"
+                  value={searchId}
+                  onChange={(e) => setSearchId(e.target.value)}
+                  style={{ height: '48px' }}
+                />
+              </div>
+              <button className="btn btn-primary" type="submit" style={{ height: '48px', padding: '0 24px' }}>
+                Track Progress
+              </button>
+            </form>
+          </div>
+
+          {loading && <div className="card" style={{ maxWidth: 800, margin: "0 auto", textAlign: "center", padding: 40, color: "var(--muted2)" }}>Fetching order…</div>}
+          {error && <div className="card" style={{ maxWidth: 800, margin: "0 auto", textAlign: "center", padding: 40, color: "var(--red)" }}>{error}</div>}
+
+          {order && (
+            <div className="g73">
+              <div className="card">
+                <div className="ch">
+                  <div className="ct">Live Build Status</div>
+                  <div className="badge bg-b">{STATUS_BADGE[order.status] || order.status}</div>
                 </div>
-                <div className="flex space-x-3 text-sm">
-                  <span className="text-slate-600 font-medium">Yesterday</span>
-                  <span className="text-slate-300">Build completed at Main Branch. Quality checked.</span>
+                <div className="timeline" style={{ padding: "10px 0" }}>
+                  {steps.map((s, i) => (
+                    <div key={s.label} className="tl-item">
+                      <div className="tl-left">
+                        <div className={`tl-dot ${s.done ? "done" : ""} ${s.active ? "active" : ""}`} />
+                        {i < steps.length - 1 && <div className={`tl-line ${s.done ? "done" : ""}`} />}
+                      </div>
+                      <div className="tl-content">
+                        <div className="tl-title" style={{ fontSize: '14px', fontWeight: 700 }}>{s.label}</div>
+                        <div className="tl-date" style={{ fontSize: '11px' }}>
+                          {s.done && i === 0
+                            ? new Date(order.createdAt).toLocaleString("en-PK", { dateStyle: "medium", timeStyle: "short" })
+                            : s.done ? "Completed" : "Pending"}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <div className="card" style={{ marginBottom: '20px' }}>
+                  <div className="ch"><div className="ct">Build Summary</div></div>
+                  {(order.items || []).map((item, idx) => (
+                    <div key={idx} style={{ display: "flex", gap: 12, marginBottom: 14, alignItems: "center" }}>
+                      <div style={{ width: 44, height: 44, background: "var(--black3)", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🏍️</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 14, fontWeight: 700 }}>{item.product?.name || item.name || "Product"}</div>
+                        <div style={{ fontSize: 11, color: "var(--muted2)" }}>Qty: {item.quantity}</div>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="divider" />
+                  <div className="trow">
+                    <span style={{ fontSize: 12, color: "var(--muted2)" }}>Order ID</span>
+                    <span className="mono" style={{ fontWeight: 600 }}>#{order._id || searchId}</span>
+                  </div>
+                  <div className="trow">
+                    <span style={{ fontSize: 12, color: "var(--muted2)" }}>Placed</span>
+                    <span style={{ fontSize: 12 }}>{new Date(order.createdAt).toLocaleDateString("en-PK", { dateStyle: "medium" })}</span>
+                  </div>
+                  <div className="trow" style={{ marginTop: 10 }}>
+                    <span style={{ fontSize: 14, fontWeight: 700 }}>Total</span>
+                    <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 24, color: "var(--orange)" }}>PKR {total.toLocaleString()}</span>
+                  </div>
+                </div>
+
+                <div className="card">
+                  <div className="ch"><div className="ct">Need Help?</div></div>
+                  <p style={{ fontSize: '12px', color: 'var(--muted2)', lineHeight: 1.6, marginBottom: '16px' }}>
+                    Contact our support team for help with your order.
+                  </p>
+                  <button className="btn btn-ghost btn-xs" style={{ width: '100%' }}>Contact Support</button>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };
 
-export default TrackOrder;
+export default PublicTrackOrder;

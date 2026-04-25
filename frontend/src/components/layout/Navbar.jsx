@@ -31,7 +31,7 @@ const Navbar = () => {
         <li><Link to="/">Home</Link></li>
         <li><Link to="/shop">Shop</Link></li>
         <li><Link to="/about">About</Link></li>
-        <li><Link to="/appointments">Book Service</Link></li>
+        {user && <li><Link to="/appointments">Book Service</Link></li>}
         <li><Link to="/contact">Contact</Link></li>
         {/* On mobile, show auth links inside menu if not in header */}
         <li className="mobile-auth-links">
@@ -47,10 +47,22 @@ const Navbar = () => {
       <div className="nav-actions">
         {user ? (
           <div className="flex items-center gap-4">
-            <div className="text-right hidden sm:block">
-              <div className="text-[10px] font-black uppercase tracking-widest text-orange-500">{user.name}</div>
-              <div className="text-[8px] text-muted uppercase tracking-widest">{user.role.replace('_', ' ')}</div>
+            <div className="text-right mr-4">
+              <div className="text-[10px] font-bold uppercase tracking-widest text-orange-500">{user.name || 'User'}</div>
+              <div className="text-[8px] text-gray-400 uppercase tracking-widest">{user.role?.replace('_', ' ') || 'No Role'}</div>
             </div>
+            {user.role === 'COMPANY_OWNER' && (
+              <Link to="/owner/dashboard" className="btn-nav-register px-4 py-2">Dashboard</Link>
+            )}
+            {user.role === 'BRANCH_OWNER' && (
+              <Link to="/branch/dashboard" className="btn-nav-register px-4 py-2">Dashboard</Link>
+            )}
+            {user.role === 'CUSTOMER' && (
+              <Link to="/my/dashboard" className="btn-nav-register px-4 py-2">My Dashboard</Link>
+            )}
+            {['EMPLOYEE', 'TECHNICIAN'].includes(user.role) && (
+              <Link to="/emp/dashboard" className="btn-nav-register px-4 py-2">Terminal</Link>
+            )}
             <button 
               onClick={logout}
               className="btn-nav-login"

@@ -1,0 +1,61 @@
+name: Master CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ─── BACKEND JOB ──────────────────────────────────────────────────────────
+  backend:
+    name: Backend (Validate & Deploy)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Prisma Generate
+        working-directory: backend
+        run: npx prisma generate
+
+      - name: Trigger Render Deploy
+        if: github.ref == 'refs/heads/main' && success()
+        run: |
+          curl -f ${{ secrets.RENDER_DEPLOY_HOOK }}
+
+  # ─── FRONTEND JOB ──────────────────────────────────────────────────────────
+  frontend:
+    name: Frontend (Build Check)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build Check
+        working-directory: frontend
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://crown-eve-center.onrender.com/api' }}

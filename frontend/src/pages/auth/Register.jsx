@@ -26,7 +26,8 @@ const Register = () => {
         email: formData.email,
         password: formData.password,
         phone: formData.phone,
-        city: formData.city
+        city: formData.city,
+        role: 'CUSTOMER'
       });
       navigate('/login');
     } catch (err) {

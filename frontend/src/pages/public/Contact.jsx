@@ -1,5 +1,5 @@
 // frontend/src/pages/public/Contact.jsx
-import React from 'react';
+
 
 const Contact = () => {
   return (

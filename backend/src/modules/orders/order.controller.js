@@ -65,3 +65,12 @@ exports.updateStatus = async (req, res) => {
     res.status(500).json({ message: e.message });
   }
 };
+
+exports.getMine = async (req, res) => {
+  try {
+    const result = await Order.getOrders({ ...req.query, customerId: req.user.id });
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};

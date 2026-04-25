@@ -4,6 +4,7 @@ const { z } = require('zod');
 const createProductSchema = z.object({
   body: z.object({
     name: z.string().min(2),
+    category: z.string().optional(),
     description: z.string().optional(),
     price: z.number().positive(),
     branchId: z.number().int().positive(),
@@ -17,6 +18,7 @@ const createProductSchema = z.object({
 const updateProductSchema = z.object({
   body: z.object({
     name: z.string().min(2).optional(),
+    category: z.string().optional(),
     description: z.string().optional(),
     price: z.number().positive().optional(),
     parts: z.array(z.object({

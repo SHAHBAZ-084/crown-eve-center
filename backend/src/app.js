@@ -10,14 +10,25 @@ dotenv.config();
 const app = express();
 
 // Security Middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https://images.unsplash.com"],
+      connectSrc: ["'self'", "https://crown-eve-center.onrender.com", "http://localhost:5000"]
+    }
+  }
+}));
 app.use(cors());
 app.use(express.json());
 
 // Rate Limiting (Auth routes)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20, // max 20 auth attempts per 15 min
+  max: 10000, // relaxed for development
   message: { message: 'Too many requests, slow down.' }
 });
 app.use('/api/auth', authLimiter);

@@ -1,7 +1,8 @@
+// frontend/src/components/owner/OwnerShared.jsx
 import React, { useState, useEffect, useCallback } from "react";
 
 // ─── API HELPER & HOOKS ─────────────────────────────────────────────────────
-const API_BASE = import.meta.env.VITE_API_URL || "https://crown-eve-center.vercel.app/api";
+const API_BASE = import.meta.env.VITE_API_URL || "https://crown-eve-center.onrender.com/api";
 const TOKEN_KEY = "token";
 
 export const api = async (path, options = {}) => {
@@ -37,7 +38,6 @@ export function useFetch(path, deps = []) {
     } finally {
       setLoading(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [path, ...deps]);
   useEffect(() => { refetch(); }, [refetch]);
   return { data, loading, error, refetch };
@@ -111,7 +111,7 @@ export const ToastContainer = () => {
 };
 export const toast = (msg, type) => _addToast?.(msg, type);
 
-// ─── UI COMPONENTS ──────────────────────────────────────────────────────────
+// ─── COMPONENTS ───────────────────────────────────────────────────────────────
 export const Modal = ({ title, onClose, children, footer }) => (
   <div className="modal-backdrop" onClick={e => e.target === e.currentTarget && onClose()}>
     <div className="modal">
@@ -153,8 +153,3 @@ export const Confirm = ({ msg, onConfirm, onCancel }) => (
     </div>
   </div>
 );
-
-export const OrderBadge = ({ status }) => {
-  const map = { PENDING: "badge-yellow", PROCESSING: "badge-blue", COMPLETED: "badge-green", CANCELLED: "badge-red" };
-  return <span className={`badge ${map[status] || "badge-blue"}`}>{status}</span>;
-};

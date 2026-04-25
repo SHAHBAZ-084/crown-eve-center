@@ -9,6 +9,7 @@ const { createOrderSchema, updateStatusSchema } = require('./order.schema');
 
 router.post('/',           protect, allow('EMPLOYEE','BRANCH_OWNER','CUSTOMER'), validate(createOrderSchema), ctrl.create);
 router.get('/count',       protect, allow('BRANCH_OWNER','EMPLOYEE', 'COMPANY_OWNER'), ctrl.getCount);
+router.get('/my',          protect, allow('CUSTOMER'), ctrl.getMine);
 router.get('/',            protect, allow('BRANCH_OWNER','EMPLOYEE', 'COMPANY_OWNER'), ctrl.getAll);
 router.get('/customer/:id',protect, allow('CUSTOMER', 'BRANCH_OWNER'), ctrl.getByCustomer);
 router.get('/:id',         protect, allow('BRANCH_OWNER','EMPLOYEE','COMPANY_OWNER'), ctrl.getById);
