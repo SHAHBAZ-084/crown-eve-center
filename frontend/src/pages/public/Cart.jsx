@@ -6,7 +6,7 @@ import '../../styles/customer.css';
 
 const Cart = () => {
   const navigate = useNavigate();
-  const { items, updateQuantity, removeItem, getSubtotal } = useCart();
+  const { items, updateQty, removeItem, total } = useCart();
   const { user } = useAuth();
 
   React.useEffect(() => {
@@ -14,9 +14,6 @@ const Cart = () => {
       navigate('/my/cart');
     }
   }, [user, navigate]);
-
-  const subtotal = getSubtotal();
-  const total = subtotal;
 
   return (
     <div id="customer-dashboard-shell">
@@ -48,9 +45,9 @@ const Cart = () => {
                       <div className="ci-sub" style={{ fontSize: '13px', marginTop: '4px' }}>Unit Price: PKR {item.price?.toLocaleString()}</div>
                     </div>
                     <div className="qty-ctrl">
-                      <button className="qty-btn" onClick={() => updateQuantity(item.id, item.qty - 1)}>-</button>
+                      <button className="qty-btn" onClick={() => updateQty(item.id, item.qty - 1)}>-</button>
                       <span className="qty-num">{item.qty}</span>
-                      <button className="qty-btn" onClick={() => updateQuantity(item.id, item.qty + 1)}>+</button>
+                      <button className="qty-btn" onClick={() => updateQty(item.id, item.qty + 1)}>+</button>
                     </div>
                     <div style={{ minWidth: 140, textAlign: "right" }}>
                       <div className="mono" style={{ fontWeight: 700, color: "var(--orange)", fontSize: '16px' }}>
@@ -70,7 +67,7 @@ const Cart = () => {
                 </div>
                 <div className="trow">
                   <span style={{ fontSize: 14, color: "var(--muted2)" }}>Subtotal</span>
-                  <span className="mono" style={{ fontWeight: 600, fontSize: '15px' }}>PKR {subtotal.toLocaleString()}</span>
+                  <span className="mono" style={{ fontWeight: 600, fontSize: '15px' }}>PKR {(total || 0).toLocaleString()}</span>
                 </div>
                 <div className="trow">
                   <span style={{ fontSize: 14, color: "var(--muted2)" }}>Shipping</span>
@@ -80,7 +77,7 @@ const Cart = () => {
                 <div className="trow" style={{ padding: "10px 0" }}>
                   <span style={{ fontSize: 16, fontWeight: 700 }}>Estimated Total</span>
                   <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '36px', color: "var(--orange)" }}>
-                    PKR {total.toLocaleString()}
+                    PKR {(total || 0).toLocaleString()}
                   </span>
                 </div>
                 <button 

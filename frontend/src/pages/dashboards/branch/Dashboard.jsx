@@ -33,7 +33,7 @@ const Dashboard = () => {
         <div className="sc">
           <div className="sc-icon" style={{ background: "rgba(14,165,233,.12)", color: "var(--acc)" }}><Icon n="dollar" size={18} /></div>
           <div className="sc-label">Branch Revenue</div>
-          <div className="sc-val">${((revSummary?.totalRevenue || 0) / 1000).toFixed(1)}K</div>
+          <div className="sc-val">PKR {((revSummary?.totalRevenue || 0) / 1000).toFixed(1)}K</div>
           <div className="sc-trend t-up">↑ All time</div>
           <div className="sc-glow" style={{ background: "var(--acc)" }} />
         </div>
@@ -70,7 +70,7 @@ const Dashboard = () => {
                 const pct = (val / maxChart) * 100;
                 return (
                   <div key={i} className="bar-col">
-                    <div className="bar-vl">${(val / 1000).toFixed(1)}K</div>
+                    <div className="bar-vl">PKR {(val / 1000).toFixed(1)}K</div>
                     <div className="bar-fill" style={{ height: `${Math.max(pct, 2)}%` }} />
                     <div className="bar-lb">{d.date ? new Date(d.date).toLocaleDateString("en", { weekday: "short" }) : `D${i + 1}`}</div>
                   </div>
@@ -113,7 +113,7 @@ const Dashboard = () => {
                   <tr key={o.id}>
                     <td><span style={{ fontFamily: "var(--font-m)", fontSize: 11, fontWeight: 700 }}>#{o.id}</span></td>
                     <td style={{ fontSize: 12 }}>{o.customer?.name || "—"}</td>
-                    <td style={{ fontWeight: 700, color: "var(--acc)" }}>${o.total?.toFixed(2)}</td>
+                    <td style={{ fontWeight: 700, color: "var(--acc)" }}>PKR {o.total?.toFixed(2)}</td>
                     <td><span className={`badge ${ORDER_BADGE[o.status] || "bg-b"}`}>{o.status}</span></td>
                   </tr>
                 ))}

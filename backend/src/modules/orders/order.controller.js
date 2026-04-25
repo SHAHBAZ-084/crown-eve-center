@@ -1,9 +1,12 @@
 // backend/src/modules/orders/order.controller.js
 const Order = require('./order.model');
 
+const prisma = require('../../config/db');
+
 exports.create = async (req, res) => {
   try {
-    const order = await Order.createOrder({ ...req.body, customerId: req.user.id });
+    const customerId = req.user.role === 'CUSTOMER' ? req.user.id : (req.body.customerId || null);
+    const order = await Order.createOrder({ ...req.body, customerId });
     res.status(201).json(order);
   } catch (e) {
     res.status(500).json({ message: e.message });

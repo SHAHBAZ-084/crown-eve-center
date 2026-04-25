@@ -49,7 +49,7 @@ const Shop = () => {
             <span style={{ fontSize: 14, opacity: 0.5 }}>🔍</span>
             <input placeholder="Search products..." value={search} onChange={e => setSearch(e.target.value)} />
           </div>
-          <button className="btn btn-ghost btn-sm" onClick={() => navigate("/cart")} style={{ position: "relative" }}>
+          <button className="btn btn-ghost btn-sm" onClick={() => navigate("/my/cart")} style={{ position: "relative" }}>
             🛒 Cart {count > 0 && <span style={{ background: "var(--orange)", color: "#000", borderRadius: "50%", padding: "1px 6px", fontSize: 10, marginLeft: 4 }}>{count}</span>}
           </button>
         </div>

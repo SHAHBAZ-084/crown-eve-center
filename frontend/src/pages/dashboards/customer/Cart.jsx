@@ -64,7 +64,7 @@ const Cart = () => {
                 <span style={{ fontSize: 14, fontWeight: 700 }}>Total Amount</span>
                 <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 32, color: "var(--orange)" }}>PKR {grandTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
               </div>
-              <button className="btn btn-primary" style={{ width: "100%", marginTop: 20, height: 48 }} onClick={() => navigate("/checkout")}>
+              <button className="btn btn-primary" style={{ width: "100%", marginTop: 20, height: 48 }} onClick={() => navigate("/my/checkout")}>
                 Proceed to Checkout →
               </button>
               <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "center", marginTop: 20, opacity: 0.5 }}>

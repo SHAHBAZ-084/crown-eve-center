@@ -13,6 +13,7 @@ const TrackOrder = lazy(() => import('./pages/public/TrackOrder'));
 const About = lazy(() => import('./pages/public/About'));
 const Contact = lazy(() => import('./pages/public/Contact'));
 const PublicCart = lazy(() => import('./pages/public/Cart'));
+const PublicCheckout = lazy(() => import('./pages/checkout/Checkout'));
 
 // Auth Pages
 const Login = lazy(() => import('./pages/Login'));
@@ -83,6 +84,7 @@ const App = () => {
               <Route path="/track/:id" element={<ProtectedRoute><TrackOrder /></ProtectedRoute>} />
               <Route path="/appointments" element={<ProtectedRoute><Appointments /></ProtectedRoute>} />
               <Route path="/cart" element={<PublicCart />} />
+              <Route path="/checkout" element={<PublicCheckout />} />
             </Route>
 
             <Route path="/login" element={<Login />} />
@@ -90,7 +92,7 @@ const App = () => {
             <Route path="/forgot" element={<Forgot />} />
 
             {/* Owner App Shell - TEMPORARILY OPEN FOR TESTING */}
-            <Route element={<OwnerLayout />}>
+            <Route element={<ProtectedRoute allowedRoles={['COMPANY_OWNER']}><OwnerLayout /></ProtectedRoute>}>
               <Route path="/owner/dashboard" element={<OwnerDashboard />} />
               <Route path="/owner/branches"  element={<OwnerBranches />} />
               <Route path="/owner/parts"     element={<OwnerParts />} />
@@ -123,7 +125,7 @@ const App = () => {
               <Route path="/shop"         element={<CustomerShop />} />
               <Route path="/shop/:id"     element={<CustomerProductDetail />} />
               <Route path="/my/cart"      element={<CustomerCart />} />
-              <Route path="/checkout"     element={<CustomerCheckout />} />
+              <Route path="/my/checkout"  element={<CustomerCheckout />} />
               <Route path="/track/:id"    element={<CustomerTrack />} />
             </Route>
 

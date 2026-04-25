@@ -1,6 +1,6 @@
 // frontend/src/pages/Login.jsx
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
@@ -8,6 +8,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,12 +18,24 @@ const Login = () => {
       
       console.log('Login successful:', user);
       
-      // Redirect based on role
-      if (user.role === 'COMPANY_OWNER') navigate('/owner/dashboard');
-      else if (user.role === 'BRANCH_OWNER') navigate('/branch/dashboard');
-      else if (user.role === 'CUSTOMER') navigate('/my/dashboard');
-      else if (['EMPLOYEE', 'TECHNICIAN'].includes(user.role)) navigate('/emp/dashboard');
-      else navigate('/');
+      const searchParams = new URLSearchParams(location.search);
+      const redirectQuery = searchParams.get('redirect');
+      const from = location.state?.from || redirectQuery || null;
+
+      // Redirect to the intended page, or fallback based on role
+      if (from) {
+        navigate(from, { replace: true });
+      } else if (user.role === 'COMPANY_OWNER') {
+        navigate('/owner/dashboard');
+      } else if (user.role === 'BRANCH_OWNER') {
+        navigate('/branch/dashboard');
+      } else if (user.role === 'CUSTOMER') {
+        navigate('/my/dashboard');
+      } else if (['EMPLOYEE', 'TECHNICIAN'].includes(user.role)) {
+        navigate('/emp/dashboard');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       console.error('Login error:', err);
       const msg = err.response?.data?.message || 'Invalid credentials or server error';

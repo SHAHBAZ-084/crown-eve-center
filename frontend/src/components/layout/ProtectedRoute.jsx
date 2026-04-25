@@ -1,10 +1,11 @@
 // frontend/src/components/layout/ProtectedRoute.jsx
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   // Show nothing while checking auth state
   if (loading) {
@@ -17,7 +18,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   // Not logged in
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
   // Role not allowed (with emergency admin bypass)

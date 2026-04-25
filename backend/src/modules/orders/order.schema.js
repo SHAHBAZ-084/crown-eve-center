@@ -5,6 +5,7 @@ const createOrderSchema = z.object({
   body: z.object({
     branchId: z.number().int().positive(),
     type: z.enum(['POS', 'ONLINE']),
+    notes: z.string().optional(),
     items: z.array(z.object({
       productId: z.number().int().positive(),
       quantity: z.number().int().min(1),

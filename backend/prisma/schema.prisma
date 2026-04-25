@@ -104,6 +104,7 @@ model Order {
   total      Float
   status     String @default("PENDING")
   type       String      @default("POS") // POS or ONLINE
+  notes      String?
   items      OrderItem[]
   createdAt  DateTime    @default(now())
 

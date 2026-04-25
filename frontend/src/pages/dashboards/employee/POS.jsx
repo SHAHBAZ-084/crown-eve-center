@@ -19,6 +19,12 @@ const POS = () => {
     queryFn: () => api.get('/products', { params: { branchId: user?.branchId, search: debouncedSearch, category, limit: 24 } }).then(r => r.data),
   });
 
+  const { data: dynamicCategories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => api.get('/products').then(r => [...new Set((r.data?.data || r.data || []).map(p => p.category).filter(Boolean))])
+  });
+  const categories = ['', ...dynamicCategories];
+
   const completeSale = useMutation({
     mutationFn: (orderData) => api.post('/orders', orderData),
     onSuccess: () => {
@@ -63,7 +69,7 @@ const POS = () => {
               />
            </div>
            <div className="flex bg-slate-900 p-1 rounded-2xl border border-slate-800">
-              {['', 'Road', 'MTB', 'Parts'].map(c => (
+              {categories.map(c => (
                 <button 
                   key={c}
                   onClick={() => setCategory(c)}
@@ -159,6 +165,8 @@ const POS = () => {
             onClick={() => completeSale.mutate({
               branchId: user.branchId,
               type: 'POS',
+              customerId: null,
+              notes: 'Walk-in POS Sale',
               items: cart.map(i => ({ productId: i.id, quantity: i.qty, price: i.price })),
               total
             })}

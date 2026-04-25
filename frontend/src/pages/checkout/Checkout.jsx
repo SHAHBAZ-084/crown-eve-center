@@ -5,19 +5,22 @@ import { useAuth } from '../../context/AuthContext';
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
+    if (loading) return;
     if (user && user.role === 'CUSTOMER') {
-      navigate('/my/dashboard');
+      navigate('/my/checkout');
+    } else if (!user) {
+      navigate('/login?redirect=/checkout');
     } else {
-      navigate('/login');
+      navigate('/unauthorized');
     }
-  }, [user, navigate]);
+  }, [user, loading, navigate]);
 
   return (
-    <div style={{ padding: 40, textAlign: 'center', color: '#888' }}>
-      Redirecting to secure checkout...
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
     </div>
   );
 };
