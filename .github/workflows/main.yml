@@ -61,7 +61,9 @@ jobs:
 
       - name: Install Dependencies
         working-directory: frontend
-        run: npm install --include=optional
+        run: |
+          rm -f package-lock.json
+          npm install
 
       - name: Build Check
         working-directory: frontend
