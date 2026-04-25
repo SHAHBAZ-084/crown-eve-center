@@ -30,11 +30,12 @@ jobs:
       - name: Prisma Generate
         working-directory: backend
         run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
-      - name: Trigger Render Deploy
+      - name: Trigger Vercel Deploy
         if: github.ref == 'refs/heads/main' && success()
-        run: |
-          curl -f ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: curl -X POST ${{ secrets.VERCEL_DEPLOY_HOOK }}
 
   # ─── FRONTEND JOB ──────────────────────────────────────────────────────────
   frontend:
