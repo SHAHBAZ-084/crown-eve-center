@@ -1,0 +1,11 @@
+{
+  "name": "crown-eve-center-monorepo",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace=frontend"
+  }
+}
