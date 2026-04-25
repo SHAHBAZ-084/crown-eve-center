@@ -29,7 +29,8 @@ const Bookings = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = bookings.filter(b => {
+  const filtered = (Array.isArray(bookings) ? bookings : []).filter(b => {
+    if (!b) return false;
     const status = normalizeStatus(b.status);
     return tab === "All" || status === tab;
   });

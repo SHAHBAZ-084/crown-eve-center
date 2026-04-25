@@ -28,26 +28,32 @@ const Dashboard = () => {
       .finally(() => setLoadingBookings(false));
   }, []);
 
-  const safeOrders = Array.isArray(orders) ? orders : [];
-  const safeBookings = Array.isArray(bookings) ? bookings : [];
+  const data = React.useMemo(() => {
+    const safeOrders = Array.isArray(orders) ? orders : [];
+    const safeBookings = Array.isArray(bookings) ? bookings : [];
 
-  const totalOrders = safeOrders.length;
-  const activeOrders = safeOrders.filter(o => o && ACTIVE_STATUSES.includes(o.status));
-  const totalSpent = safeOrders
-    .filter(o => o && (o.status === "COMPLETED" || o.status === "completed"))
-    .reduce((s, o) => s + (Number(o.total) || 0), 0);
+    const activeOrders = safeOrders.filter(o => o && o.status && ACTIVE_STATUSES.includes(String(o.status)));
+    const totalSpent = safeOrders
+      .filter(o => o && (String(o.status).toUpperCase() === "COMPLETED"))
+      .reduce((s, o) => s + (Number(o.total) || 0), 0);
 
-  const upcomingBookings = safeBookings.filter(b => {
-    if (!b) return false;
-    const s = (b.status || "").toLowerCase();
-    return s === "scheduled" || s === "pending";
-  });
-  const nextBooking = [...upcomingBookings].sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt))[0] || null;
+    const upcomingBookings = safeBookings.filter(b => {
+      if (!b) return false;
+      const s = (b.status || "").toLowerCase();
+      return s === "scheduled" || s === "pending";
+    });
 
-  const recentOrder = [...safeOrders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0] || null;
-  const activeOrder = activeOrders[0] || null;
+    const nextBooking = [...upcomingBookings].sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt))[0] || null;
+    const recentOrder = [...safeOrders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0] || null;
+    const activeOrder = activeOrders[0] || null;
+
+    return { totalOrders: safeOrders.length, activeOrders, totalSpent, upcomingBookings, nextBooking, recentOrder, activeOrder };
+  }, [orders, bookings]);
+
+  const { totalOrders, activeOrders, totalSpent, upcomingBookings, nextBooking, recentOrder, activeOrder } = data;
 
   const fmtSpent = (n) => {
+    if (typeof n !== 'number') return '0';
     if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
     if (n >= 1000) return `${Math.round(n / 1000)}K`;
     return n.toLocaleString();
@@ -97,8 +103,8 @@ const Dashboard = () => {
         <div className="stat">
           <div className="si">🏍️</div>
           <div className="sl">Services Done</div>
-          <div className="sv">{loadingBookings ? "—" : safeBookings.filter(b => b && (b.status || "").toLowerCase() === "completed").length}</div>
-          <span className="sc up">{safeBookings.length > 0 ? `↑ ${safeBookings.length} total` : "No services yet"}</span>
+          <div className="sv">{loadingBookings ? "—" : (Array.isArray(bookings) ? bookings : []).filter(b => b && (b.status || "").toLowerCase() === "completed").length}</div>
+          <span className="sc up">{(Array.isArray(bookings) ? bookings : []).length > 0 ? `↑ ${(Array.isArray(bookings) ? bookings : []).length} total` : "No services yet"}</span>
         </div>
       </div>
 

@@ -17,11 +17,12 @@ const Orders = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = orders.filter(o => {
+  const filtered = (Array.isArray(orders) ? orders : []).filter(o => {
+    if (!o) return false;
     if (tab === "All") return true;
-    if (tab === "Active") return ["PENDING", "PROCESSING", "PREPARING"].includes(o.status);
-    if (tab === "Completed") return o.status === "COMPLETED";
-    if (tab === "Cancelled") return o.status === "CANCELLED";
+    if (tab === "Active") return ["PENDING", "PROCESSING", "PREPARING"].includes(String(o.status).toUpperCase());
+    if (tab === "Completed") return String(o.status).toUpperCase() === "COMPLETED";
+    if (tab === "Cancelled") return String(o.status).toUpperCase() === "CANCELLED";
     return true;
   });
 
