@@ -49,24 +49,22 @@ jobs:
     name: Frontend (Build Check)
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          # NO cache: 'npm' here — cache was restoring stale Vite 8 binaries
 
-      - name: Install Dependencies
+      - name: Clean Install (no cache, no lock file)
         working-directory: frontend
         run: |
-          rm -f package-lock.json
+          rm -rf node_modules package-lock.json
+          npm cache clean --force
           npm install
 
-      - name: Build Check
+      - name: Build
         working-directory: frontend
         run: npm run build
         env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://crown-eve-center.onrender.com/api' }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
