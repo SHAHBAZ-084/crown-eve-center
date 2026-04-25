@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from '../../../context/CartContext';
-import { useAuth } from '../../../context/AuthContext';
-import '../../styles/customer.css';
+import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
+import '../styles/customer.css';
 
 const Cart = () => {
   const navigate = useNavigate();
