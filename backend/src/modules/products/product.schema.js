@@ -11,7 +11,7 @@ const createProductSchema = z.object({
     parts: z.array(z.object({
       partId: z.number().int().positive(),
       quantity: z.number().int().positive(),
-    })).min(1),
+    })).optional().default([]),
   })
 });
 
