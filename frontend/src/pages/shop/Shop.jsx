@@ -1,16 +1,15 @@
 // frontend/src/pages/shop/Shop.jsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../services/api';
 
 const Shop = () => {
-  const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
 
   const { data, isLoading } = useQuery({
-    queryKey: ['shop-products', search, category],
+    queryKey: ['shop-products', category],
     queryFn: () => 
-      api.get('/products', { params: { search, category: category === 'All' ? '' : category, limit: 12 } })
+      api.get('/products', { params: { category: category === 'All' ? '' : category, limit: 12 } })
          .then(r => r.data),
     staleTime: 60000,
   });

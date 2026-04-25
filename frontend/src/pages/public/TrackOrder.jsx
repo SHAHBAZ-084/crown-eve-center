@@ -1,5 +1,5 @@
 // frontend/src/pages/public/TrackOrder.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import '../../styles/customer.css';
@@ -26,7 +26,7 @@ const PublicTrackOrder = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchOrder = (orderId) => {
+  const fetchOrder = useCallback((orderId) => {
     if (!orderId) return;
     setLoading(true);
     setError(null);
@@ -35,9 +35,9 @@ const PublicTrackOrder = () => {
       .then(res => setOrder(res.data))
       .catch(() => setError("Order not found. Check your order ID."))
       .finally(() => setLoading(false));
-  };
+  }, []);
 
-  useEffect(() => { if (paramId) fetchOrder(paramId); }, [paramId]);
+  useEffect(() => { if (paramId) fetchOrder(paramId); }, [paramId, fetchOrder]);
 
   const handleSearch = (e) => {
     e.preventDefault();
