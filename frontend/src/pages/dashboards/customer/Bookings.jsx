@@ -24,7 +24,7 @@ const Bookings = () => {
 
   useEffect(() => {
     api.get("/appointments/my")
-      .then(res => setBookings(res.data.data || res.data || []))
+      .then(res => { const d = res?.data?.data ?? res?.data; setBookings(Array.isArray(d) ? d : []); })
       .catch(() => setError("Failed to load bookings."))
       .finally(() => setLoading(false));
   }, []);

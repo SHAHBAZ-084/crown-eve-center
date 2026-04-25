@@ -12,7 +12,7 @@ const Orders = () => {
 
   useEffect(() => {
     api.get("/orders/my")
-      .then(r => setOrders(r.data.data || r.data || []))
+      .then(r => { const d = r?.data?.data ?? r?.data; setOrders(Array.isArray(d) ? d : []); })
       .catch(() => setOrders([]))
       .finally(() => setLoading(false));
   }, []);

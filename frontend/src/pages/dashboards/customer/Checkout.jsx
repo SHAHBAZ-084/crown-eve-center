@@ -19,7 +19,7 @@ const CheckoutPage = () => {
   const grandTotal = total + tax;
 
   useEffect(() => {
-    api.get("/branches").then(r => setBranches(r.data.data || r.data || [])).catch(() => {});
+    api.get("/branches").then(r => { const d = r?.data?.data ?? r?.data; setBranches(Array.isArray(d) ? d : []); }).catch(() => {});
   }, []);
 
   if (!items.length && !placedOrder) return (
@@ -52,7 +52,6 @@ const CheckoutPage = () => {
         branchId: Number(branchId),
         total: grandTotal,
         type: "ONLINE",
-        notes: `${addr.name} | ${addr.phone} | ${addr.address}, ${addr.city}`,
         items: items.map(i => ({ productId: i.id, quantity: i.qty, price: i.price }))
       };
       const res = await api.post("/orders", payload);
