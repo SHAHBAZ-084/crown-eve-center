@@ -25,11 +25,11 @@ const TopBar = ({ user, logout, isMinimal = false }) => {
         )}
         <div className="flex items-center space-x-3 bg-slate-900 p-1.5 pr-4 rounded-full border border-white/5">
           <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold">
-            {user?.name[0]}
+            {user?.name?.[0] || 'U'}
           </div>
           <div className="text-left">
-            <p className="text-[10px] font-bold leading-none">{user?.name.split(' ')[0]}</p>
-            <p className="text-[8px] text-slate-500 uppercase tracking-widest">{user?.role.replace('_', ' ')}</p>
+            <p className="text-[10px] font-bold leading-none">{user?.name?.split(' ')[0] || 'User'}</p>
+            <p className="text-[8px] text-slate-500 uppercase tracking-widest">{user?.role?.replace('_', ' ') || 'Guest'}</p>
           </div>
         </div>
         {isMinimal && (
