@@ -6,15 +6,8 @@ const Home = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // If logged in, redirect to the appropriate dashboard based on role
-    if (user) {
-      if (user.role === 'COMPANY_OWNER') navigate('/owner/dashboard');
-      else if (user.role === 'BRANCH_OWNER') navigate('/branch/dashboard');
-      else if (user.role === 'CUSTOMER') navigate('/my/dashboard');
-      else if (['EMPLOYEE', 'TECHNICIAN'].includes(user.role)) navigate('/emp/dashboard');
-    }
-  }, [user, navigate]);
+
+
   const images = [
     '/1-1.png',
     '/1-2.png',
