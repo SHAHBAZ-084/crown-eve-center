@@ -19,6 +19,7 @@ model User {
   password     String
   name         String
   phone        String?
+  city         String?
   role         String        @default("CUSTOMER")
   branchId     Int?
   branch       Branch?       @relation(fields: [branchId], references: [id])

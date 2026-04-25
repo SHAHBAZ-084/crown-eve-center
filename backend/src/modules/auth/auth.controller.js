@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const prisma = require('../../config/db');
 
 exports.register = async (req, res) => {
-  const { name, email, password, role, branchId } = req.body;
+  const { name, email, password, role, branchId, phone, city } = req.body;
 
   try {
     const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -20,6 +20,8 @@ exports.register = async (req, res) => {
         password: hashedPassword,
         role: role || 'CUSTOMER',
         branchId: branchId || null,
+        phone: phone || null,
+        city: city || null,
       },
     });
 

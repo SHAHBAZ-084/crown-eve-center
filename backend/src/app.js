@@ -68,6 +68,15 @@ app.use('/api/suppliers', supplierRoutes);
 app.use('/api/purchases', purchaseRoutes);
 app.use('/api/reports', reportRoutes);
 
+// Root route
+app.get('/', (req, res) => {
+  res.status(200).json({ 
+    message: 'Crown Eve Management System API', 
+    version: '1.0.0',
+    status: 'Operational'
+  });
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
