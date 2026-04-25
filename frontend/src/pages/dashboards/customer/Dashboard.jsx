@@ -18,7 +18,7 @@ const Dashboard = () => {
     api.get("/orders/my")
       .then(res => {
         const d = res.data;
-        const list = Array.isArray(d.data) ? d.data : (Array.isArray(d) ? d : []);
+        const list = Array.isArray(d?.data) ? d.data : (Array.isArray(d) ? d : []);
         setOrders(list);
       })
       .catch(() => setOrders([]))
@@ -27,7 +27,7 @@ const Dashboard = () => {
     api.get("/appointments/my")
       .then(res => {
         const d = res.data;
-        const list = Array.isArray(d.data) ? d.data : (Array.isArray(d) ? d : []);
+        const list = Array.isArray(d?.data) ? d.data : (Array.isArray(d) ? d : []);
         setBookings(list);
       })
       .catch(() => setBookings([]))
@@ -37,26 +37,28 @@ const Dashboard = () => {
   const safeOrders = Array.isArray(orders) ? orders : [];
   const safeBookings = Array.isArray(bookings) ? bookings : [];
 
-  const totalOrders = safeOrders.length;
   const activeOrders = safeOrders.filter(o => o && ACTIVE_STATUSES.includes(o.status));
+  const totalOrders = safeOrders.length;
+  
   const totalSpent = safeOrders
     .filter(o => o && (o.status === "COMPLETED" || o.status === "completed"))
-    .reduce((s, o) => s + (o.total ?? 0), 0);
+    .reduce((s, o) => s + (Number(o.total) || 0), 0);
 
   const upcomingBookings = safeBookings.filter(b => {
     if (!b) return false;
     const s = (b.status || "").toLowerCase();
     return s === "scheduled" || s === "pending";
   });
-  const nextBooking = upcomingBookings.sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt))[0] || null;
 
-  const recentOrder = safeOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0] || null;
+  const nextBooking = [...upcomingBookings].sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt))[0] || null;
+  const recentOrder = [...safeOrders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0] || null;
   const activeOrder = activeOrders[0] || null;
 
   const fmtSpent = (n) => {
-    if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
-    if (n >= 1000) return `${Math.round(n / 1000)}K`;
-    return n.toLocaleString();
+    const val = Number(n) || 0;
+    if (val >= 1000000) return `${(val / 1000000).toFixed(1)}M`;
+    if (val >= 1000) return `${Math.round(val / 1000)}K`;
+    return val.toLocaleString();
   };
 
   return (
