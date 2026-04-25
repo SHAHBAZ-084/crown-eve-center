@@ -3,8 +3,7 @@
         "frontend": {
             "entrypoint": "frontend",
             "routePrefix": "/",
-            "framework": "vite",
-            "outputDirectory": "dist"
+            "framework": "vite"
         },
         "backend": {
             "entrypoint": "backend",
