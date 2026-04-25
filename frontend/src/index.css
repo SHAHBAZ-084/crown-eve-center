@@ -913,32 +913,7 @@ footer { background: var(--black2); border-top: 1px solid rgba(255, 255, 255, 0.
 
 .form-section-title { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); color: var(--white); }
 
-/* CUSTOM CURSOR */
-#cursor {
-  position: fixed;
-  width: 10px;
-  height: 10px;
-  background: var(--orange);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%, -50%);
-  transition: transform .1s;
-  mix-blend-mode: difference;
-}
 
-#cursor-ring {
-  position: fixed;
-  width: 36px;
-  height: 36px;
-  border: 1.5px solid var(--orange);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9998;
-  transform: translate(-50%, -50%);
-  transition: all .18s ease;
-  opacity: 0.6;
-}
 
 .hamburger { display: none; }
 .header-auth-desktop { display: flex; gap: 12px; }
