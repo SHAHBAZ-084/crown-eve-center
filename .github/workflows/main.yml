@@ -54,7 +54,7 @@ jobs:
 
       - name: Install Dependencies
         working-directory: frontend
-        run: npm ci
+        run: npm install --include=optional
 
       - name: Build Check
         working-directory: frontend

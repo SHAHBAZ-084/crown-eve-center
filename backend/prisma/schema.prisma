@@ -102,7 +102,7 @@ model Inventory {
 model Order {
   id         Int         @id @default(autoincrement())
   customerId Int?
-  customer   User        @relation(fields: [customerId], references: [id])
+  customer   User?       @relation(fields: [customerId], references: [id])
   branchId   Int
   branch     Branch      @relation(fields: [branchId], references: [id])
   total      Float
