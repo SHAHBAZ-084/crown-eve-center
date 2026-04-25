@@ -41,7 +41,7 @@ const BranchEmployees = lazy(() => import('./pages/dashboards/branch/Employees')
 const BranchReports = lazy(() => import('./pages/dashboards/branch/Reports'));
 
 // Dashboards - Employee & Technician
-const EmployeeDashboard = lazy(() => import('./pages/dashboards/EmployeeDashboard'));
+const EmployeeDashboard = lazy(() => import('./pages/dashboards/employee/Dashboard'));
 const POS = lazy(() => import('./pages/dashboards/employee/POS'));
 const EmployeeOrders = lazy(() => import('./pages/dashboards/employee/EmployeeOrders'));
 const EmployeeServices = lazy(() => import('./pages/dashboards/employee/EmployeeServices'));
