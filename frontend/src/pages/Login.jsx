@@ -46,10 +46,26 @@ const Login = () => {
   return (
     <div id="page-login" className="page">
       <div className="login-card">
-        <Link to="/" className="logo" style={{ marginBottom: '32px', display: 'inline-flex' }}>
-          <div className="logo-icon"><span>CE</span></div>
-          <span className="logo-text">Crown <em>Eve</em></span>
-        </Link>
+        <div style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="logo" style={{ display: 'inline-flex' }}>
+            <div className="logo-icon"><span>CE</span></div>
+            <span className="logo-text">Crown <em>Eve</em></span>
+          </div>
+          <button
+            onClick={() => navigate('/')}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '6px',
+              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+              color: 'var(--white2)', borderRadius: '8px', padding: '7px 14px',
+              fontSize: '12px', cursor: 'pointer', letterSpacing: '0.05em',
+              fontWeight: 600, transition: 'all .2s'
+            }}
+            onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
+            onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+          >
+            ← Home
+          </button>
+        </div>
         <h2 className="text-5xl font-family-bebas mb-2 tracking-tighter uppercase text-white">Welcome Back.</h2>
         <p className="text-sm text-[#BDBDB8] mb-8">Sign in to your Crown Eve portal to manage your hub.</p>
         
