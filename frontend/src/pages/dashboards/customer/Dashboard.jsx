@@ -28,19 +28,23 @@ const Dashboard = () => {
       .finally(() => setLoadingBookings(false));
   }, []);
 
-  const totalOrders = orders.length;
-  const activeOrders = orders.filter(o => ACTIVE_STATUSES.includes(o.status));
-  const totalSpent = orders
-    .filter(o => o.status === "COMPLETED" || o.status === "completed")
-    .reduce((s, o) => s + (o.total ?? 0), 0);
+  const safeOrders = Array.isArray(orders) ? orders : [];
+  const safeBookings = Array.isArray(bookings) ? bookings : [];
 
-  const upcomingBookings = bookings.filter(b => {
+  const totalOrders = safeOrders.length;
+  const activeOrders = safeOrders.filter(o => o && ACTIVE_STATUSES.includes(o.status));
+  const totalSpent = safeOrders
+    .filter(o => o && (o.status === "COMPLETED" || o.status === "completed"))
+    .reduce((s, o) => s + (Number(o.total) || 0), 0);
+
+  const upcomingBookings = safeBookings.filter(b => {
+    if (!b) return false;
     const s = (b.status || "").toLowerCase();
     return s === "scheduled" || s === "pending";
   });
-  const nextBooking = upcomingBookings.sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt))[0] || null;
+  const nextBooking = [...upcomingBookings].sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt))[0] || null;
 
-  const recentOrder = orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0] || null;
+  const recentOrder = [...safeOrders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0] || null;
   const activeOrder = activeOrders[0] || null;
 
   const fmtSpent = (n) => {
@@ -93,8 +97,8 @@ const Dashboard = () => {
         <div className="stat">
           <div className="si">🏍️</div>
           <div className="sl">Services Done</div>
-          <div className="sv">{loadingBookings ? "—" : bookings.filter(b => (b.status || "").toLowerCase() === "completed").length}</div>
-          <span className="sc up">{bookings.length > 0 ? `↑ ${bookings.length} total` : "No services yet"}</span>
+          <div className="sv">{loadingBookings ? "—" : safeBookings.filter(b => b && (b.status || "").toLowerCase() === "completed").length}</div>
+          <span className="sc up">{safeBookings.length > 0 ? `↑ ${safeBookings.length} total` : "No services yet"}</span>
         </div>
       </div>
 
