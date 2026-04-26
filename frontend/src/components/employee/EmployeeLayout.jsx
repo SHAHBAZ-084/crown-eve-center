@@ -42,7 +42,7 @@ export default function EmployeeLayout() {
           </div>
 
           {/* Nav */}
-          <nav style={{ flex: 1 }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }} className="emp-nav-container">
             {sections.map(sec => (
               <div key={sec}>
                 <div className="sb-group-label">{sec}</div>
@@ -58,7 +58,7 @@ export default function EmployeeLayout() {
                 ))}
               </div>
             ))}
-          </nav>
+          </div>
 
           {/* Footer */}
           <div className="sb-footer">
