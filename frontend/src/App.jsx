@@ -14,6 +14,7 @@ const About = lazy(() => import('./pages/public/About'));
 const Contact = lazy(() => import('./pages/public/Contact'));
 const PublicCart = lazy(() => import('./pages/public/Cart'));
 const PublicCheckout = lazy(() => import('./pages/checkout/Checkout'));
+const NotFound = lazy(() => import('./pages/public/NotFound'));
 
 // Auth Pages
 const Login = lazy(() => import('./pages/Login'));
@@ -142,7 +143,7 @@ const App = () => {
             </Route>
 
             <Route path="/unauthorized" element={<div>Unauthorized Access</div>} />
-            <Route path="*" element={<Navigate to="/" />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
         </BrowserRouter>
