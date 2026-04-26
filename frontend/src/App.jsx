@@ -44,6 +44,7 @@ const BranchEmployees = lazy(() => import('./pages/dashboards/branch/Employees')
 const BranchReports = lazy(() => import('./pages/dashboards/branch/Reports'));
 
 // Dashboards - Employee & Technician
+const EmployeeLayout = lazy(() => import('./components/employee/EmployeeLayout'));
 const EmployeeDashboard = lazy(() => import('./pages/dashboards/employee/Dashboard'));
 const POS = lazy(() => import('./pages/dashboards/employee/POS'));
 const EmployeeOrders = lazy(() => import('./pages/dashboards/employee/EmployeeOrders'));
@@ -129,7 +130,7 @@ const App = () => {
               <Route path="/track/:id"    element={<CustomerTrack />} />
             </Route>
 
-            <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+            <Route element={<ProtectedRoute allowedRoles={['EMPLOYEE', 'TECHNICIAN']}><EmployeeLayout /></ProtectedRoute>}>
               {/* Employee Routes */}
               <Route path="/emp/dashboard" element={<ProtectedRoute allowedRoles={['EMPLOYEE']}><EmployeeDashboard /></ProtectedRoute>} />
               <Route path="/emp/pos"       element={<ProtectedRoute allowedRoles={['EMPLOYEE']}><POS /></ProtectedRoute>} />
