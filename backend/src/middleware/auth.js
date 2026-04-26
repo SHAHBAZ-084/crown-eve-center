@@ -5,7 +5,7 @@ const protect = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ message: 'No token' });
   try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret');
+    req.user = jwt.verify(token, process.env.JWT_SECRET || 'super-secret-crown-eve-center-2026');
     next();
   } catch {
     res.status(401).json({ message: 'Invalid token' });
