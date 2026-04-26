@@ -1,86 +1,210 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export default function NotFound() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-[#0A0A0B] flex flex-col items-center justify-center relative overflow-hidden text-[#F0EFE9] font-sans">
-      
-      {/* Content */}
-      <div className="z-10 flex flex-col items-center text-center px-4 max-w-2xl mx-auto mt-[-5vh]">
-        
-        {/* Bike Icon */}
-        <svg 
-          width="54" height="54" viewBox="0 0 24 24" fill="none" 
-          stroke="#FF4D00" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" 
-          className="mb-8"
-        >
-          <circle cx="5.5" cy="17.5" r="3.5"/>
-          <circle cx="18.5" cy="17.5" r="3.5"/>
-          <path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"/>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500&display=swap');
+        .notfound-wrap * { box-sizing: border-box; margin: 0; padding: 0; }
+        .notfound-wrap {
+          min-height: 100vh;
+          background: #080809;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 40px 20px;
+          font-family: 'DM Sans', sans-serif;
+          position: relative;
+          overflow: hidden;
+        }
+        .notfound-road {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          height: 110px;
+          background: #111113;
+        }
+        .notfound-road::before {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: repeating-linear-gradient(90deg, #FF4D00 0, #FF4D00 40px, transparent 40px, transparent 80px);
+          opacity: .35;
+        }
+        .notfound-skid {
+          position: absolute;
+          bottom: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          gap: 44px;
+        }
+        .skid-l, .skid-r {
+          width: 18px;
+          height: 100px;
+          background: repeating-linear-gradient(to top, #222 0, #222 6px, transparent 6px, transparent 10px);
+          border-radius: 3px 3px 0 0;
+          opacity: .85;
+        }
+        .skid-l { transform: rotate(-4deg) translateX(-6px); }
+        .skid-r { transform: rotate(4deg) translateX(6px); }
+        .notfound-num {
+          font-family: 'Bebas Neue', sans-serif;
+          font-size: clamp(120px, 25vw, 220px);
+          color: #FF4D00;
+          line-height: .88;
+          letter-spacing: .02em;
+          position: relative;
+          z-index: 2;
+          text-shadow: 0 0 60px rgba(255, 77, 0, 0.15);
+        }
+        .notfound-num::after {
+          content: '404';
+          position: absolute;
+          inset: 0;
+          color: transparent;
+          -webkit-text-stroke: 1px rgba(255, 77, 0, .18);
+          z-index: -1;
+          transform: translate(3px, 4px);
+        }
+        .notfound-badge {
+          background: rgba(255, 77, 0, .1);
+          border: 1px solid rgba(255, 77, 0, .25);
+          color: #FF4D00;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: .2em;
+          text-transform: uppercase;
+          padding: 6px 18px;
+          border-radius: 20px;
+          margin-bottom: 24px;
+        }
+        .notfound-headline {
+          font-family: 'DM Sans', sans-serif;
+          font-size: clamp(28px, 5vw, 42px);
+          color: #F0EFE9;
+          letter-spacing: .02em;
+          margin-bottom: 12px;
+          margin-top: 10px;
+          font-weight: 500;
+        }
+        .notfound-sub {
+          font-size: 15px;
+          color: #7A7977;
+          line-height: 1.6;
+          text-align: center;
+          max-width: 320px;
+          margin-bottom: 40px;
+        }
+        .notfound-btns {
+          display: flex;
+          gap: 12px;
+          position: relative;
+          z-index: 2;
+        }
+        .notfound-btn-p {
+          background: transparent;
+          color: #F0EFE9;
+          border: 1px solid rgba(255, 255, 255, .1);
+          padding: 12px 24px;
+          border-radius: 12px;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .notfound-btn-g {
+          background: transparent;
+          color: #F0EFE9;
+          border: 1px solid rgba(255, 255, 255, .1);
+          padding: 12px 24px;
+          border-radius: 12px;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .notfound-btn-p:hover { background: rgba(255, 255, 255, .04); border-color: rgba(255, 255, 255, .2); }
+        .notfound-btn-g:hover { background: rgba(255, 255, 255, .04); border-color: rgba(255, 255, 255, .2); }
+        .notfound-bike {
+          width: 90px;
+          height: 50px;
+          margin-bottom: 24px;
+          position: relative;
+          z-index: 2;
+        }
+        .notfound-cloud {
+          position: absolute;
+          right: 15%;
+          top: 25%;
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: rgba(255, 77, 0, .35);
+          animation: notfound-puff 1.4s ease-out forwards;
+        }
+        .notfound-cloud:nth-child(2) { right: 14%; top: 33%; width: 5px; height: 5px; animation-delay: .12s; }
+        .notfound-cloud:nth-child(3) { right: 16%; top: 29%; width: 4px; height: 4px; animation-delay: .22s; }
+        @keyframes notfound-puff {
+          0% { opacity: 1; transform: scale(1); }
+          100% { opacity: 0; transform: scale(4) translateX(14px); }
+        }
+      `}</style>
+
+      <div className="notfound-wrap">
+        <div className="notfound-cloud"></div>
+        <div className="notfound-cloud"></div>
+        <div className="notfound-cloud"></div>
+
+        <svg className="notfound-bike" viewBox="0 0 72 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="14" cy="28" r="10" stroke="#FF4D00" strokeWidth="2" fill="none"/>
+          <circle cx="14" cy="28" r="3" fill="#FF4D00"/>
+          <circle cx="58" cy="28" r="10" stroke="#FF4D00" strokeWidth="2" fill="none"/>
+          <circle cx="58" cy="28" r="3" fill="#FF4D00"/>
+          <path d="M14 28L26 14H42L52 28" stroke="#FF4D00" strokeWidth="2" strokeLinecap="round" fill="none"/>
+          <path d="M26 14L30 6H40" stroke="#FF4D00" strokeWidth="2" strokeLinecap="round" fill="none"/>
+          <path d="M40 6L52 28" stroke="#FF4D00" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
+          <path d="M34 14L30 6" stroke="#FF4D00" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
+          <ellipse cx="44" cy="8" rx="5" ry="4" fill="rgba(255,77,0,.15)" stroke="#FF4D00" strokeWidth="1"/>
         </svg>
 
-        {/* Badge */}
-        <div className="border border-[#FF4D00]/30 rounded-full px-5 py-[6px] text-[#FF4D00] text-[11px] font-bold tracking-[0.25em] mb-10 uppercase bg-[#FF4D00]/5">
-          Wrong Lane
-        </div>
+        <div className="notfound-badge">WRONG LANE</div>
+        <div className="notfound-num">404</div>
+        <div className="notfound-headline">You rode off the map.</div>
+        <div className="notfound-sub">This page doesn't exist. Even the best riders miss an exit sometimes.</div>
 
-        {/* 404 Text */}
-        <h1 
-          className="text-[160px] md:text-[220px] font-['Bebas_Neue'] leading-none text-[#FF4D00] mb-6 tracking-wide"
-          style={{ textShadow: "0 0 60px rgba(255,77,0,0.15), 0 0 20px rgba(255,77,0,0.05)" }}
-        >
-          404
-        </h1>
-
-        <h2 className="text-3xl md:text-[42px] font-medium tracking-wide mb-6">
-          You rode off the map.
-        </h2>
-
-        <p className="text-[#7A7977] text-sm md:text-[15px] max-w-md mx-auto mb-14 leading-relaxed">
-          This page doesn't exist. Even the best riders<br className="hidden md:block"/> miss an exit sometimes.
-        </p>
-
-        {/* Buttons */}
-        <div className="flex flex-wrap justify-center gap-5">
-          <button 
-            onClick={() => navigate(-1)}
-            className="px-7 py-3.5 rounded-xl border border-white/10 hover:border-white/20 hover:bg-white/[0.02] transition-all flex items-center gap-3 text-[13px] font-semibold text-white/90"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <div className="notfound-btns">
+          <button className="notfound-btn-p" onClick={() => navigate(-1)}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
             Ride Home
           </button>
-          
-          <Link 
-            to="/shop"
-            className="px-7 py-3.5 rounded-xl border border-white/10 hover:border-white/20 hover:bg-white/[0.02] transition-all text-[13px] font-semibold text-white/90"
-          >
+          <button className="notfound-btn-g" onClick={() => navigate('/shop')}>
             Browse Shop
-          </Link>
+          </button>
+        </div>
+
+        <div className="notfound-road">
+          <div className="notfound-skid">
+            <div className="skid-l"></div>
+            <div className="skid-r"></div>
+          </div>
         </div>
       </div>
-
-      {/* Road Perspective Background Effect */}
-      <div className="absolute bottom-0 w-full h-[40vh] overflow-hidden pointer-events-none opacity-40 z-0">
-        {/* Horizontal orange dashed lines & vertical grey tracks */}
-        <div 
-          className="absolute bottom-0 left-[50%] w-[200vw] h-[200vh]"
-          style={{
-            transform: 'translateX(-50%) perspective(400px) rotateX(78deg)',
-            transformOrigin: 'bottom center',
-            backgroundImage: `
-              repeating-linear-gradient(to bottom, transparent, transparent 40px, rgba(255, 77, 0, 0.5) 40px, rgba(255, 77, 0, 0.5) 45px),
-              repeating-linear-gradient(to right, transparent, transparent 48%, rgba(150, 150, 150, 0.15) 48%, rgba(150, 150, 150, 0.15) 48.5%, transparent 48.5%, transparent 51.5%, rgba(150, 150, 150, 0.15) 51.5%, rgba(150, 150, 150, 0.15) 52%, transparent 52%)
-            `,
-            backgroundSize: '100% 120px, 100% 100%'
-          }}
-        />
-        {/* Dark gradient fade at the top of the road */}
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-[#0A0A0B] via-[#0A0A0B]/80 to-transparent" />
-      </div>
-    </div>
+    </>
   );
 }
