@@ -25,6 +25,7 @@ app.use(helmet({
 app.use(cors({
   origin: [
     'http://localhost:5173',
+    'http://localhost:5174',
     'https://crown-eve-center.vercel.app',
     'https://crown-eve-center-298d.vercel.app',
     process.env.FRONTEND_URL
@@ -96,7 +97,10 @@ const logger = require('./config/logger');
 // Error handling middleware
 app.use((err, req, res, next) => {
   logger.error('Unhandled Error', { message: err.message, stack: err.stack });
-  res.status(500).json({ message: 'Something went wrong!', error: err.message });
+  res.status(500).json({ 
+    message: 'Something went wrong!',
+    ...(process.env.NODE_ENV !== 'production' && { error: err.message })
+  });
 });
 
 module.exports = app;

@@ -38,7 +38,18 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const user = await User.updateUser(Number(req.params.id), req.body);
+    const { name, email, phone, branchId, role } = req.body;
+    
+    // Whitelist only safe fields for general updates
+    const safeData = { name, email, phone };
+    
+    // Only COMPANY_OWNER can change role or branch assignment
+    if (req.user.role === 'COMPANY_OWNER') {
+      if (role) safeData.role = role;
+      if (branchId !== undefined) safeData.branchId = branchId ? Number(branchId) : null;
+    }
+
+    const user = await User.updateUser(Number(req.params.id), safeData);
     res.json(user);
   } catch (e) {
     res.status(500).json({ message: e.message });

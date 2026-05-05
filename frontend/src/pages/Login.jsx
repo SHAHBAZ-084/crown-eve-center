@@ -16,8 +16,6 @@ const Login = () => {
       const res = await login(email, password);
       const user = res.user;
       
-      console.log('Login successful:', user);
-      
       const searchParams = new URLSearchParams(location.search);
       const redirectQuery = searchParams.get('redirect');
       const from = location.state?.from || redirectQuery || null;

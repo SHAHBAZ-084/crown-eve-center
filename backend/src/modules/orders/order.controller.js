@@ -58,7 +58,14 @@ exports.getById = async (req, res) => {
 
 exports.getByCustomer = async (req, res) => {
   try {
-    const result = await Order.getOrders({ ...req.query, customerId: Number(req.params.id) });
+    const customerId = Number(req.params.id);
+    
+    // Security check: Customers can only fetch their own orders
+    if (req.user.role === 'CUSTOMER' && req.user.id !== customerId) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const result = await Order.getOrders({ ...req.query, customerId });
     res.json(result);
   } catch (e) {
     res.status(500).json({ message: e.message });
