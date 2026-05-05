@@ -367,7 +367,6 @@ h1.hero-title .line3 {
   align-items: center;
   gap: 12px;
   padding: 16px 40px;
-  background: var(--orange);
   color: #fff;
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 14px;
@@ -379,7 +378,15 @@ h1.hero-title .line3 {
   transition: all .3s;
   clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
   position: relative;
-  overflow: hidden;
+  isolation: isolate;
+}
+
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--orange);
+  z-index: -2;
 }
 
 .btn-primary::before {
@@ -390,11 +397,12 @@ h1.hero-title .line3 {
   transform: scaleX(0);
   transform-origin: left;
   transition: transform .3s;
+  z-index: -1;
 }
 
 .btn-primary:hover::before { transform: scaleX(1) }
 
-.btn-primary span { position: relative; z-index: 1; }
+/* Removed z-index requirement for children since we used isolation: isolate */
 
 .btn-primary .arrow { font-size: 18px; transition: transform .3s; }
 

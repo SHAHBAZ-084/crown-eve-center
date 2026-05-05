@@ -95,16 +95,16 @@ const Home = () => {
         <div className="marquee-track">
           <span className="marquee-item"><span className="marquee-sep">✦</span> Crown Eve Bikes <span className="marquee-sep">✦</span></span>
           <span className="marquee-item highlight">Premium Parts</span>
-          <span className="marquee-item"><span class="marquee-sep">✦</span> Expert Service <span className="marquee-sep">✦</span></span>
+          <span className="marquee-item"><span className="marquee-sep">✦</span> Expert Service <span className="marquee-sep">✦</span></span>
           <span className="marquee-item highlight">Nationwide Branches</span>
-          <span className="marquee-item"><span class="marquee-sep">✦</span> Ride The Legacy <span class="marquee-sep">✦</span></span>
+          <span className="marquee-item"><span className="marquee-sep">✦</span> Ride The Legacy <span className="marquee-sep">✦</span></span>
           <span className="marquee-item highlight">1700+ Genuine Parts</span>
           {/* Duplicate for infinite loop */}
-          <span className="marquee-item"><span class="marquee-sep">✦</span> Crown Eve Bikes <span class="marquee-sep">✦</span></span>
+          <span className="marquee-item"><span className="marquee-sep">✦</span> Crown Eve Bikes <span className="marquee-sep">✦</span></span>
           <span className="marquee-item highlight">Premium Parts</span>
-          <span className="marquee-item"><span class="marquee-sep">✦</span> Expert Service <span class="marquee-sep">✦</span></span>
+          <span className="marquee-item"><span className="marquee-sep">✦</span> Expert Service <span className="marquee-sep">✦</span></span>
           <span className="marquee-item highlight">Nationwide Branches</span>
-          <span className="marquee-item"><span class="marquee-sep">✦</span> Ride The Legacy <span class="marquee-sep">✦</span></span>
+          <span className="marquee-item"><span className="marquee-sep">✦</span> Ride The Legacy <span className="marquee-sep">✦</span></span>
           <span className="marquee-item highlight">1700+ Genuine Parts</span>
         </div>
       </div>

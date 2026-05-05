@@ -13,13 +13,13 @@ export default function ProductsPage({ branchId }) {
   const [showModal, setShowModal] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [confirmId, setConfirmId]   = useState(null);
-  const [form, setForm]             = useState({ name: "", price: "", parts: [] });
+  const [form, setForm]             = useState({ name: "", price: "", image: "", description: "", parts: [] });
   const [saving, setSaving]         = useState(false);
 
   const filtered = (data?.data || []).filter(p => !ds || p.name?.toLowerCase().includes(ds.toLowerCase()));
 
-  const openAdd  = () => { setForm({ name: "", price: "", parts: [] }); setEditTarget(null); setShowModal(true); };
-  const openEdit = p  => { setForm({ name: p.name, price: p.price, parts: p.parts?.map(pp => ({ partId: pp.partId, quantity: pp.quantity })) || [] }); setEditTarget(p); setShowModal(true); };
+  const openAdd  = () => { setForm({ name: "", price: "", image: "", description: "", parts: [] }); setEditTarget(null); setShowModal(true); };
+  const openEdit = p  => { setForm({ name: p.name, price: p.price, image: p.image || "", description: p.description || "", parts: p.parts?.map(pp => ({ partId: pp.partId, quantity: pp.quantity })) || [] }); setEditTarget(p); setShowModal(true); };
 
   const addPart    = () => setForm(f => ({ ...f, parts: [...f.parts, { partId: "", quantity: 1 }] }));
   const remPart    = i  => setForm(f => ({ ...f, parts: f.parts.filter((_, j) => j !== i) }));
@@ -32,6 +32,8 @@ export default function ProductsPage({ branchId }) {
       const body = {
         name: form.name,
         price: parseFloat(form.price),
+        image: form.image,
+        description: form.description,
         branchId: Number(branchId),
         parts: form.parts.filter(p => p.partId).map(p => ({ partId: Number(p.partId), quantity: Number(p.quantity) || 1 })),
       };
@@ -71,14 +73,17 @@ export default function ProductsPage({ branchId }) {
             <div key={p.id} className="prod-card">
               <div className="prod-stripe" />
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14, paddingTop: 8 }}>
-                <div style={{ width: 38, height: 38, borderRadius: 9, background: "rgba(255,77,0,.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--acc)" }}><Icon n="tag" s={17} /></div>
+                <div style={{ width: 38, height: 38, borderRadius: 9, background: "rgba(255,77,0,.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--acc)", overflow: "hidden" }}>
+                  {p.image ? <img src={p.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <Icon n="tag" s={17} />}
+                </div>
                 <div style={{ display: "flex", gap: 5 }}>
                   <button className="ico-btn" onClick={() => openEdit(p)}><Icon n="edit" s={13} /></button>
                   <button className="ico-btn del" onClick={() => setConfirmId(p.id)}><Icon n="trash" s={13} /></button>
                 </div>
               </div>
               <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 3, lineHeight: 1.3 }}>{p.name}</div>
-              <div style={{ fontFamily: "var(--font-d)", fontSize: 26, color: "var(--acc)", marginBottom: 10 }}>${parseFloat(p.price).toFixed(2)}</div>
+              {p.description && <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 8, lineClamp: 2, display: "-webkit-box", WebkitBoxOrient: "vertical", overflow: "hidden" }}>{p.description}</div>}
+              <div style={{ fontFamily: "var(--font-d)", fontSize: 26, color: "var(--acc)", marginBottom: 10 }}>PKR {parseFloat(p.price).toLocaleString()}</div>
               <div style={{ fontSize: 10, color: "var(--muted)", textTransform: "uppercase", letterSpacing: ".1em" }}>{p.parts?.length || 0} components</div>
             </div>
           ))}
@@ -103,13 +108,15 @@ export default function ProductsPage({ branchId }) {
           <div className="fr">
             <div className="fg"><label>Product Name *</label><input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Elite Road Bundle" /></div>
             <div className="fg">
-              <label>Price (USD) *</label>
+              <label>Price (PKR) *</label>
               <div style={{ position: "relative" }}>
-                <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--muted)", fontSize: 12 }}>$</span>
-                <input type="number" min="0" step="0.01" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} placeholder="0.00" style={{ paddingLeft: 22 }} />
+                <input type="number" min="0" step="0.01" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} placeholder="0.00" />
               </div>
             </div>
           </div>
+          <div className="fg"><label>Product Image URL</label><input value={form.image} onChange={e => setForm(f => ({ ...f, image: e.target.value }))} placeholder="https://example.com/image.jpg" /></div>
+          <div className="fg"><label>Description</label><textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Detailed product description…" style={{ height: 80, background: "var(--surf)", border: "1px solid var(--bdr)", borderRadius: "var(--r1)", color: "#fff", width: "100%", padding: 10, outline: "none" }} /></div>
+
           {form.parts.map((p, i) => (
             <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 80px auto", gap: 8, marginBottom: 8, alignItems: "center" }}>
               <select value={p.partId} onChange={e => updPart(i, "partId", e.target.value)}>

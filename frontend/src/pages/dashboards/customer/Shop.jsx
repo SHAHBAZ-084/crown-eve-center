@@ -65,17 +65,19 @@ const Shop = () => {
         {filtered.map(p => (
           <div key={p.id} className="prod-card" onClick={() => navigate(`/shop/${p.id}`)}>
             <div className="prod-img">
-              📦
+              {p.images?.find(img => img.is_primary)?.url ? (
+                <img src={p.images.find(img => img.is_primary).url} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : "📦"}
               <div style={{ position: "absolute", top: 12, right: 12 }}>
-                <Badge status={p.stock > 5 ? "In Stock" : p.stock > 0 ? "Low Stock" : "Out of Stock"} />
+                <Badge status={p.stock_qty > 5 ? "In Stock" : p.stock_qty > 0 ? "Low Stock" : "Out of Stock"} />
               </div>
             </div>
             <div className="prod-body">
-              <div className="prod-cat">{p.category || "Product"}</div>
+              <div className="prod-cat">{p.category?.name || "Product"}</div>
               <div className="prod-name">{p.name}</div>
               <div className="prod-spec">{p.description || ""}</div>
               <div className="prod-footer">
-                <div className="prod-price">PKR {Number(p.price).toLocaleString()}</div>
+                <div className="prod-price">PKR {Number(p.sale_price || p.price).toLocaleString()}</div>
                 <button className="ca" style={{ fontSize: 10 }} onClick={e => handleAdd(e, p)}>Add to Cart +</button>
               </div>
             </div>

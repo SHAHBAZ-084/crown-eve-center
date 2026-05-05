@@ -61,22 +61,95 @@ model Part {
 }
 
 model Product {
-  id        Int           @id @default(autoincrement())
-  name      String
-  category  String?
-  price     Float
-  branchId  Int
-  branch    Branch        @relation(fields: [branchId], references: [id])
-  parts     ProductPart[]
-  orders    OrderItem[]
-  createdAt DateTime      @default(now())
+  id           String         @id @default(uuid())
+  name         String
+  slug         String         @unique
+  product_type String         // 'bike' or 'part'
+  description  String?
+  price        Float          // Original price
+  sale_price   Float?         // Sale price (optional)
+  stock_qty    Int            @default(0)
+  categoryId   String?
+  category     Category?      @relation(fields: [categoryId], references: [id])
+  brandId      String?
+  brand        Brand?         @relation(fields: [brandId], references: [id])
+  is_active    Boolean        @default(true)
+  branchId     Int
+  branch       Branch         @relation(fields: [branchId], references: [id])
+  images       ProductImage[]
+  bikeDetail   Bike?
+  partDetail   PartDetail?
+  orders       OrderItem[]
+  productParts ProductPart[]
+  createdAt    DateTime       @default(now())
 
   @@index([branchId])
+  @@index([categoryId])
+  @@index([brandId])
+}
+
+model Bike {
+  id               String  @id @default(uuid())
+  productId        String  @unique
+  product          Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  motor_type       String? // Hub / Mid-Drive / BLDC
+  motor_watt       Int?
+  battery_capacity_wh Int?
+  range_km         Float?
+  top_speed_kmh    Float?
+  frame_material   String?
+  brake_type       String?
+  wheel_size       String?
+  payload_kg       Int?
+  color            String?
+  warranty         String?
+}
+
+model PartDetail {
+  id                String  @id @default(uuid())
+  productId         String  @unique
+  product           Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku               String? @unique
+  part_number       String?
+  compatible_models String?
+  part_category     String?
+  unit              String? // piece, set, pair
+}
+
+model Category {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  parent_id   String?
+  parent      Category?  @relation("SubCategories", fields: [parent_id], references: [id])
+  children    Category[] @relation("SubCategories")
+  description String?
+  products    Product[]
+  createdAt   DateTime   @default(now())
+}
+
+model Brand {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  country   String?
+  logo_url  String?
+  products  Product[]
+  createdAt DateTime  @default(now())
+}
+
+model ProductImage {
+  id         String  @id @default(uuid())
+  productId  String
+  product    Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url        String
+  is_primary Boolean @default(false)
+  sort_order Int     @default(0)
+
+  @@index([productId])
 }
 
 model ProductPart {
   id        Int     @id @default(autoincrement())
-  productId Int
+  productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   partId    Int
   part      Part    @relation(fields: [partId], references: [id], onDelete: Cascade)
@@ -123,27 +196,40 @@ model OrderItem {
   id        Int     @id @default(autoincrement())
   orderId   Int
   order     Order   @relation(fields: [orderId], references: [id])
-  productId Int
+  productId String
   product   Product @relation(fields: [productId], references: [id])
   quantity  Int
   price     Float
 }
 
 model Service {
-  id           Int           @id @default(autoincrement())
-  name         String
-  description  String?
-  price        Float
-  branchId     Int
-  branch       Branch        @relation(fields: [branchId], references: [id])
-  appointments Appointment[]
+  id                String           @id @default(uuid())
+  name              String
+  service_type      String           // maintenance / repair / installation
+  description       String?
+  base_price        Float
+  duration_minutes  Int              @default(30)
+  is_active         Boolean          @default(true)
+  branchId          Int
+  branch            Branch           @relation(fields: [branchId], references: [id])
+  serviceCategoryId String?
+  serviceCategory   ServiceCategory? @relation(fields: [serviceCategoryId], references: [id])
+  appointments      Appointment[]
+}
+
+model ServiceCategory {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  services    Service[]
+  createdAt   DateTime  @default(now())
 }
 
 model Appointment {
   id          Int               @id @default(autoincrement())
   customerId  Int
   customer    User              @relation("CustomerAppointments", fields: [customerId], references: [id])
-  serviceId   Int
+  serviceId   String
   service     Service           @relation(fields: [serviceId], references: [id])
   branchId    Int
   branch      Branch            @relation(fields: [branchId], references: [id])

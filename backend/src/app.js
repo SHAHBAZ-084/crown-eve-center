@@ -17,8 +17,8 @@ app.use(helmet({
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https://images.unsplash.com"],
-      connectSrc: ["'self'", "https://crown-eve-center.onrender.com", "http://localhost:5000"]
+      imgSrc: ["'self'", "data:", "https://images.unsplash.com", "*"],
+      connectSrc: ["'self'", "https://crown-eve-center.onrender.com", "http://localhost:5000", "*"]
     }
   }
 }));
@@ -32,6 +32,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+app.use('/uploads', express.static('uploads'));
 
 // Rate Limiting (Auth routes)
 const authLimiter = rateLimit({
@@ -54,6 +55,10 @@ const appointmentRoutes = require('./modules/appointments/appointment.routes');
 const supplierRoutes = require('./modules/suppliers/supplier.routes');
 const purchaseRoutes = require('./modules/purchases/purchase.routes');
 const reportRoutes = require('./modules/reports/report.routes');
+const categoryRoutes = require('./modules/categories/category.routes');
+const brandRoutes = require('./modules/brands/brand.routes');
+const uploadRoutes = require('./modules/uploads/upload.routes');
+const serviceCategoryRoutes = require('./modules/service-categories/service-category.routes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/branches', branchRoutes);
@@ -67,6 +72,10 @@ app.use('/api/appointments', appointmentRoutes);
 app.use('/api/suppliers', supplierRoutes);
 app.use('/api/purchases', purchaseRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/brands', brandRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/service-categories', serviceCategoryRoutes);
 
 // Root route
 app.get('/', (req, res) => {

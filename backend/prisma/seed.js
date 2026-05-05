@@ -7,8 +7,19 @@ const prisma = new PrismaClient();
 async function main() {
   const hashedPassword = await bcrypt.hash('admin123', 10);
 
-  // Create Company Owner
-  const owner = await prisma.user.upsert({
+  // 1. Create Default Branch
+  const branch = await prisma.branch.upsert({
+    where: { id: 1 },
+    update: {},
+    create: {
+      id: 1,
+      name: 'Main Branch',
+      location: 'Karachi, Pakistan',
+    },
+  });
+
+  // 2. Create Company Owner
+  await prisma.user.upsert({
     where: { email: 'owner@crowneve.com' },
     update: {},
     create: {
@@ -19,26 +30,47 @@ async function main() {
     },
   });
 
-  // Create a Branch
-  const branch = await prisma.branch.upsert({
-    where: { id: 1 },
+  // 3. Create Branch Manager
+  await prisma.user.upsert({
+    where: { email: 'manager@crowneve.com' },
     update: {},
     create: {
-      name: 'Main Branch',
-      location: 'New York',
+      email: 'manager@crowneve.com',
+      name: 'Branch Manager',
+      password: hashedPassword,
+      role: 'BRANCH_MANAGER',
+      branchId: branch.id,
     },
   });
 
-  // Create some Parts
-  await prisma.part.createMany({
-    data: [
-      { name: 'Shimano Brake Pads', category: 'Brakes', price: 25.0, stock: 100 },
-      { name: 'KMC Chain X11', category: 'Drivetrain', price: 35.0, stock: 50 },
-      { name: 'Maxxis Ardent Tire', category: 'Tires', price: 65.0, stock: 30 },
-    ],
+  // 4. Create Initial Categories
+  const cat1 = await prisma.category.upsert({
+    where: { name: 'Electric Bikes' },
+    update: {},
+    create: { name: 'Electric Bikes', description: 'Full EV motorbikes' },
   });
 
-  console.log('Seeding finished.');
+  const cat2 = await prisma.category.upsert({
+    where: { name: 'Spare Parts' },
+    update: {},
+    create: { name: 'Spare Parts', description: 'Maintenance and repair items' },
+  });
+
+  // 5. Create Initial Brands
+  await prisma.brand.upsert({
+    where: { name: 'Crown EV' },
+    update: {},
+    create: { name: 'Crown EV', country: 'Pakistan' },
+  });
+
+  // 6. Create Service Categories
+  await prisma.serviceCategory.upsert({
+    where: { name: 'Mechanical' },
+    update: {},
+    create: { name: 'Mechanical', description: 'Engine and motor related services' },
+  });
+
+  console.log('Seeding finished: Owner, Branch, Manager, and initial data created.');
 }
 
 main()
