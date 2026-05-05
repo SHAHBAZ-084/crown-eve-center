@@ -21,8 +21,8 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
-  // Role not allowed (with emergency admin bypass)
-  if (allowedRoles && !allowedRoles.includes(user.role) && user.email !== 'owner@crowneve.com') {
+  // Role not allowed
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
     return <Navigate to="/unauthorized" replace />;
   }
 

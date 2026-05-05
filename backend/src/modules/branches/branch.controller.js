@@ -91,10 +91,64 @@ exports.update = async (req, res) => {
 };
 
 exports.remove = async (req, res) => {
+  const id = Number(req.params.id);
   try {
-    await prisma.branch.delete({ where: { id: Number(req.params.id) } });
+    await prisma.$transaction(async (tx) => {
+      // 1. Delete purchase items for this branch's purchases
+      const purchases = await tx.purchase.findMany({ where: { branchId: id }, select: { id: true } });
+      const purchaseIds = purchases.map(p => p.id);
+      if (purchaseIds.length > 0) {
+        await tx.purchaseItem.deleteMany({ where: { purchaseId: { in: purchaseIds } } });
+      }
+
+      // 2. Delete order items for this branch's orders
+      const orders = await tx.order.findMany({ where: { branchId: id }, select: { id: true } });
+      const orderIds = orders.map(o => o.id);
+      if (orderIds.length > 0) {
+        await tx.orderItem.deleteMany({ where: { orderId: { in: orderIds } } });
+      }
+
+      // 2b. Delete order items referencing this branch's products (even if order is from another branch)
+      const products = await tx.product.findMany({ where: { branchId: id }, select: { id: true } });
+      const productIds = products.map(p => p.id);
+      if (productIds.length > 0) {
+        await tx.orderItem.deleteMany({ where: { productId: { in: productIds } } });
+      }
+
+      // 2c. Delete appointments referencing this branch's services (even if appointment is in another branch)
+      const services = await tx.service.findMany({ where: { branchId: id }, select: { id: true } });
+      const serviceIds = services.map(s => s.id);
+      if (serviceIds.length > 0) {
+        await tx.appointment.deleteMany({ where: { serviceId: { in: serviceIds } } });
+      }
+
+      // 3. Delete direct children
+      await tx.appointment.deleteMany({ where: { branchId: id } });
+      await tx.order.deleteMany({ where: { branchId: id } });
+      await tx.purchase.deleteMany({ where: { branchId: id } });
+      await tx.inventory.deleteMany({ where: { branchId: id } });
+      await tx.product.deleteMany({ where: { branchId: id } });
+      await tx.service.deleteMany({ where: { branchId: id } });
+
+      // 4. Unassign users (don't delete users — just detach from branch)
+      await tx.user.updateMany({ 
+        where: { branchId: id }, 
+        data: { branchId: null } 
+      });
+
+      // 5. Finally delete the branch
+      await tx.branch.delete({ where: { id } });
+    }, {
+      timeout: 30000 // 30 seconds
+    });
+
     res.json({ message: 'Branch deleted successfully' });
   } catch (e) {
-    res.status(500).json({ message: e.message });
+    const logger = require('../../config/logger');
+    logger.error('Branch Deletion Failed', { branchId: id, error: e.message, stack: e.stack });
+    res.status(500).json({ 
+      message: 'Failed to delete branch. This usually happens if there are complex data relations that couldn\'t be cleaned up automatically.',
+      error: e.message 
+    });
   }
 };

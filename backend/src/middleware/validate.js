@@ -10,7 +10,7 @@ const validate = (schema) => (req, res, next) => {
     });
     next();
   } catch (e) {
-    logger.error('Validation Error', { errors: e.errors });
+    logger.error('Validation Error Details:', e);
     return res.status(400).json({ 
       message: 'Validation failed', 
       errors: e.errors || e.message 

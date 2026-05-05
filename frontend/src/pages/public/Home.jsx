@@ -18,6 +18,8 @@ const Home = () => {
   ];
   
   const [currentImg, setCurrentImg] = useState(0);
+  const [services, setServices] = useState([]);
+  const [servicesLoading, setServicesLoading] = useState(true);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -25,6 +27,23 @@ const Home = () => {
     }, 5000);
     return () => clearInterval(timer);
   }, [images.length]);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/services`
+        );
+        const data = await res.json();
+        setServices(data);
+      } catch (err) {
+        console.error('Failed to load services:', err);
+      } finally {
+        setServicesLoading(false);
+      }
+    };
+    fetchServices();
+  }, []);
 
   return (
     <div id="page-home" className="page">
@@ -226,56 +245,40 @@ const Home = () => {
         <h2 className="section-title">Our<br /><span style={{ color: 'var(--orange)' }}>Services.</span></h2>
         <div className="services-layout">
           <div className="services-list">
-            <div className="service-item">
-              <div className="service-item-left">
-                <span className="service-item-num">01</span>
-                <div>
-                  <div className="service-item-name">Full Tune-Up</div>
-                  <div className="service-item-price">From PKR 2,500</div>
+            {servicesLoading ? (
+              // Simple skeleton — shows while loading
+              [...Array(5)].map((_, i) => (
+                <div key={i} className="service-item" style={{ opacity: 0.4 }}>
+                  <div className="service-item-left">
+                    <span className="service-item-num">0{i + 1}</span>
+                    <div>
+                      <div className="service-item-name" style={{ background: 'rgba(255,255,255,0.1)', height: '16px', width: '160px', borderRadius: '4px' }} />
+                      <div className="service-item-price" style={{ background: 'rgba(255,255,255,0.07)', height: '12px', width: '100px', borderRadius: '4px', marginTop: '6px' }} />
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <span className="service-item-icon">+</span>
-            </div>
-            <div className="service-item">
-              <div className="service-item-left">
-                <span className="service-item-num">02</span>
-                <div>
-                  <div className="service-item-name">Oil & Filter Change</div>
-                  <div className="service-item-price">From PKR 800</div>
+              ))
+            ) : services.length > 0 ? (
+              services.slice(0, 6).map((service, i) => (
+                <div key={service.id} className="service-item">
+                  <div className="service-item-left">
+                    <span className="service-item-num">{String(i + 1).padStart(2, '0')}</span>
+                    <div>
+                      <div className="service-item-name">{service.name}</div>
+                      <div className="service-item-price">
+                        {service.price
+                          ? `PKR ${Number(service.price).toLocaleString()}`
+                          : service.description || 'Contact for pricing'}
+                      </div>
+                    </div>
+                  </div>
+                  <span className="service-item-icon">+</span>
                 </div>
-              </div>
-              <span className="service-item-icon">+</span>
-            </div>
-            <div className="service-item">
-              <div className="service-item-left">
-                <span className="service-item-num">03</span>
-                <div>
-                  <div className="service-item-name">Brake System Overhaul</div>
-                  <div className="service-item-price">From PKR 3,200</div>
-                </div>
-              </div>
-              <span className="service-item-icon">+</span>
-            </div>
-            <div className="service-item">
-              <div className="service-item-left">
-                <span className="service-item-num">04</span>
-                <div>
-                  <div className="service-item-name">Engine Diagnostics</div>
-                  <div className="service-item-price">From PKR 1,500</div>
-                </div>
-              </div>
-              <span className="service-item-icon">+</span>
-            </div>
-            <div className="service-item">
-              <div className="service-item-left">
-                <span className="service-item-num">05</span>
-                <div>
-                  <div className="service-item-name">Tyre Replacement</div>
-                  <div className="service-item-price">From PKR 600</div>
-                </div>
-              </div>
-              <span className="service-item-icon">+</span>
-            </div>
+              ))
+            ) : (
+              // Fallback if no services in DB yet
+              <p style={{ color: 'var(--muted)', padding: '20px 0' }}>Services coming soon.</p>
+            )}
           </div>
           <div className="services-cta-panel">
             <h3>Ready to<br /><span style={{ color: 'var(--orange)' }}>Ride</span><br />With Us?</h3>

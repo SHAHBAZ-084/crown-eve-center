@@ -48,10 +48,31 @@ exports.update = async (req, res) => {
 };
 
 exports.remove = async (req, res) => {
+  const id = Number(req.params.id);
   try {
-    await prisma.part.delete({ where: { id: Number(req.params.id) } });
+    await prisma.$transaction(async (tx) => {
+      // 1. Delete inventory records referencing this part
+      await tx.inventory.deleteMany({ where: { partId: id } });
+
+      // 2. Delete product-part relationships
+      await tx.productPart.deleteMany({ where: { partId: id } });
+
+      // 3. Delete purchase items referencing this part
+      await tx.purchaseItem.deleteMany({ where: { partId: id } });
+
+      // 4. Finally delete the part
+      await tx.part.delete({ where: { id } });
+    }, {
+      timeout: 10000 // 10 seconds
+    });
+
     res.json({ message: 'Part deleted successfully' });
   } catch (e) {
-    res.status(500).json({ message: e.message });
+    const logger = require('../../config/logger');
+    logger.error('Part Deletion Failed', { partId: id, error: e.message });
+    res.status(500).json({ 
+      message: 'Failed to delete part. It is likely linked to active products or purchases.',
+      error: e.message 
+    });
   }
 };
