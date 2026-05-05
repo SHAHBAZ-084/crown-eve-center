@@ -106,7 +106,7 @@ const App = () => {
             </Route>
             
             {/* Branch Routes - Outside main Layout to avoid double sidebar */}
-            <Route element={<ProtectedRoute allowedRoles={['BRANCH_OWNER']}><BranchLayout /></ProtectedRoute>}>
+            <Route element={<ProtectedRoute allowedRoles={['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER']}><BranchLayout /></ProtectedRoute>}>
               <Route path="/branch/dashboard"    element={<BranchDashboard />} />
               <Route path="/branch/products"     element={<BranchProducts />} />
               <Route path="/branch/inventory"    element={<BranchInventory />} />

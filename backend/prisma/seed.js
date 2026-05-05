@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
-  const hashedPassword = await bcrypt.hash('admin123', 10);
+  const hashedPassword = await bcrypt.hash('11223344', 10);
 
   // 1. Create Default Branch
   const branch = await prisma.branch.upsert({
@@ -18,24 +18,25 @@ async function main() {
     },
   });
 
-  // 2. Create Company Owner
+  // 2. Technician
   await prisma.user.upsert({
-    where: { email: 'owner@crowneve.com' },
-    update: {},
+    where: { email: 'tech@gmail.com' },
+    update: { password: hashedPassword },
     create: {
-      email: 'owner@crowneve.com',
-      name: 'John Crown',
+      email: 'tech@gmail.com',
+      name: 'Expert Technician',
       password: hashedPassword,
-      role: 'COMPANY_OWNER',
+      role: 'TECHNICIAN',
+      branchId: branch.id,
     },
   });
 
-  // 3. Create Branch Manager
+  // 3. Manager
   await prisma.user.upsert({
-    where: { email: 'manager@crowneve.com' },
-    update: {},
+    where: { email: 'manager@gmail.com' },
+    update: { password: hashedPassword },
     create: {
-      email: 'manager@crowneve.com',
+      email: 'manager@gmail.com',
       name: 'Branch Manager',
       password: hashedPassword,
       role: 'BRANCH_MANAGER',
@@ -43,34 +44,50 @@ async function main() {
     },
   });
 
-  // 4. Create Initial Categories
-  const cat1 = await prisma.category.upsert({
-    where: { name: 'Electric Bikes' },
-    update: {},
-    create: { name: 'Electric Bikes', description: 'Full EV motorbikes' },
+  // 4. Employee
+  await prisma.user.upsert({
+    where: { email: 'employee@gmail.com' },
+    update: { password: hashedPassword },
+    create: {
+      email: 'employee@gmail.com',
+      name: 'Sales Employee',
+      password: hashedPassword,
+      role: 'EMPLOYEE',
+      branchId: branch.id,
+    },
   });
 
-  const cat2 = await prisma.category.upsert({
-    where: { name: 'Spare Parts' },
-    update: {},
-    create: { name: 'Spare Parts', description: 'Maintenance and repair items' },
+  // 5. Customer
+  await prisma.user.upsert({
+    where: { email: 'customer@gmail.com' },
+    update: { password: hashedPassword },
+    create: {
+      email: 'customer@gmail.com',
+      name: 'Valued Customer',
+      password: hashedPassword,
+      role: 'CUSTOMER',
+    },
   });
 
-  // 5. Create Initial Brands
-  await prisma.brand.upsert({
-    where: { name: 'Crown EV' },
-    update: {},
-    create: { name: 'Crown EV', country: 'Pakistan' },
+  // 6. Branch Owner
+  await prisma.user.upsert({
+    where: { email: 'branch@gmail.com' },
+    update: { password: hashedPassword, role: 'BRANCH_OWNER' },
+    create: {
+      email: 'branch@gmail.com',
+      name: 'Branch Owner',
+      password: hashedPassword,
+      role: 'BRANCH_OWNER',
+      branchId: branch.id,
+    },
   });
 
-  // 6. Create Service Categories
-  await prisma.serviceCategory.upsert({
-    where: { name: 'Mechanical' },
-    update: {},
-    create: { name: 'Mechanical', description: 'Engine and motor related services' },
-  });
+  // Initial Categories and Brands to keep UI clean
+  await prisma.category.upsert({ where: { name: 'Electric Bikes' }, update: {}, create: { name: 'Electric Bikes' } });
+  await prisma.brand.upsert({ where: { name: 'Crown EV' }, update: {}, create: { name: 'Crown EV', country: 'Pakistan' } });
+  await prisma.serviceCategory.upsert({ where: { name: 'Mechanical' }, update: {}, create: { name: 'Mechanical' } });
 
-  console.log('Seeding finished: Owner, Branch, Manager, and initial data created.');
+  console.log('Seeding finished: All requested accounts created with password 11223344');
 }
 
 main()

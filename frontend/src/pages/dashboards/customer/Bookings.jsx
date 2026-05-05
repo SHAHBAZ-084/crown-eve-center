@@ -23,7 +23,7 @@ const Bookings = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    api.get("/appointments/my")
+    api.get("/bookings")
       .then(res => { const d = res?.data?.data ?? res?.data; setBookings(Array.isArray(d) ? d : []); })
       .catch(() => setError("Failed to load bookings."))
       .finally(() => setLoading(false));
@@ -60,9 +60,9 @@ const Bookings = () => {
             const status = normalizeStatus(b.status);
             const serviceName = b.service?.name || "Service";
             const branchName = b.branch?.name || "—";
-            const scheduledAt = b.scheduledAt ? new Date(b.scheduledAt) : null;
-            const dateStr = scheduledAt ? scheduledAt.toLocaleDateString("en-PK", { dateStyle: "medium" }) : "—";
-            const timeStr = scheduledAt ? scheduledAt.toLocaleTimeString("en-PK", { timeStyle: "short" }) : "—";
+            const bookingDate = b.booking_date ? new Date(b.booking_date) : null;
+            const dateStr = bookingDate ? bookingDate.toLocaleDateString("en-PK", { dateStyle: "medium" }) : "—";
+            const timeStr = b.booking_time || "—";
 
             return (
               <div key={b.id} className="card" style={{ position: "relative" }}>
@@ -75,7 +75,7 @@ const Bookings = () => {
                   </div>
                   <div>
                     <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color: "var(--orange)", marginBottom: 4 }}>
-                      Booking #{String(b.id).padStart(6, '0')}
+                      Booking #{b.id.split('-')[0].toUpperCase()}
                     </div>
                     <div style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Barlow Condensed',sans-serif" }}>{serviceName}</div>
                     <div style={{ fontSize: 13, color: "var(--muted2)" }}>{branchName}</div>
@@ -95,10 +95,10 @@ const Bookings = () => {
 
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <div>
-                    {b.service?.price != null && (
+                    {b.service?.base_price != null && (
                       <>
                         <div style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Estimated Cost</div>
-                        <div style={{ fontSize: 20, fontFamily: "'Bebas Neue',sans-serif", color: "var(--white)" }}>PKR {b.service.price.toLocaleString()}</div>
+                        <div style={{ fontSize: 20, fontFamily: "'Bebas Neue',sans-serif", color: "var(--white)" }}>PKR {b.service.base_price.toLocaleString()}</div>
                       </>
                     )}
                   </div>

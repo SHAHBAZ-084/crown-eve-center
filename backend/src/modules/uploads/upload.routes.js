@@ -26,7 +26,9 @@ const upload = multer({
   }
 });
 
-router.post('/', upload.single('image'), (req, res) => {
+const { protect } = require('../../middleware/auth');
+
+router.post('/', protect, upload.single('image'), (req, res) => {
   if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
   
   // Construct the URL. In production, this would be your domain.

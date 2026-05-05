@@ -14,19 +14,19 @@ datasource db {
 // Enums converted to Strings for SQLite compatibility
 
 model User {
-  id           Int           @id @default(autoincrement())
-  email        String        @unique
+  id           String           @id @default(uuid())
+  email        String           @unique
   password     String
   name         String
   phone        String?
   city         String?
-  role         String        @default("CUSTOMER")
+  role         String           @default("CUSTOMER")
   branchId     Int?
-  branch       Branch?       @relation(fields: [branchId], references: [id])
+  branch       Branch?          @relation(fields: [branchId], references: [id])
   orders       Order[]
-  appointments Appointment[] @relation("CustomerAppointments")
-  tasks        Appointment[] @relation("TechnicianTasks")
-  createdAt    DateTime      @default(now())
+  serviceBookings ServiceBooking[] @relation("CustomerBookings")
+  tasks        ServiceBooking[] @relation("TechnicianTasks")
+  createdAt    DateTime         @default(now())
 
   @@index([email])
   @@index([branchId])
@@ -40,7 +40,7 @@ model Branch {
   products     Product[]
   inventory    Inventory[]
   orders       Order[]
-  appointments Appointment[]
+  serviceBookings ServiceBooking[]
   services     Service[]
   purchases    Purchase[]
   createdAt    DateTime      @default(now())
@@ -175,7 +175,7 @@ model Inventory {
 
 model Order {
   id         Int         @id @default(autoincrement())
-  customerId Int?
+  customerId String?
   customer   User?       @relation(fields: [customerId], references: [id])
   branchId   Int
   branch     Branch      @relation(fields: [branchId], references: [id])
@@ -214,7 +214,7 @@ model Service {
   branch            Branch           @relation(fields: [branchId], references: [id])
   serviceCategoryId String?
   serviceCategory   ServiceCategory? @relation(fields: [serviceCategoryId], references: [id])
-  appointments      Appointment[]
+  bookings          ServiceBooking[]
 }
 
 model ServiceCategory {
@@ -225,23 +225,27 @@ model ServiceCategory {
   createdAt   DateTime  @default(now())
 }
 
-model Appointment {
-  id          Int               @id @default(autoincrement())
-  customerId  Int
-  customer    User              @relation("CustomerAppointments", fields: [customerId], references: [id])
-  serviceId   String
-  service     Service           @relation(fields: [serviceId], references: [id])
-  branchId    Int
-  branch      Branch            @relation(fields: [branchId], references: [id])
-  techId      Int?
-  technician  User?             @relation("TechnicianTasks", fields: [techId], references: [id])
-  scheduledAt DateTime
-  status      String @default("BOOKED")
-  createdAt   DateTime          @default(now())
+model ServiceBooking {
+  id             String   @id @default(uuid())
+  customerId     String
+  customer       User     @relation("CustomerBookings", fields: [customerId], references: [id])
+  serviceId      String
+  service        Service  @relation(fields: [serviceId], references: [id])
+  branchId       Int
+  branch         Branch   @relation(fields: [branchId], references: [id])
+  techId         String?
+  technician     User?    @relation("TechnicianTasks", fields: [techId], references: [id])
+  bike_product_id String?
+  booking_date   DateTime
+  booking_time   String
+  status         String   @default("pending") // pending / confirmed / done / cancelled
+  customer_notes String?
+  final_price    Float?
+  createdAt      DateTime @default(now())
 
   @@index([branchId])
   @@index([techId])
-  @@index([scheduledAt])
+  @@index([booking_date])
 }
 
 model Supplier {

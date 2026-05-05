@@ -16,15 +16,14 @@ const Sidebar = ({ user, logout }) => {
 
   const navItems = [
     { name: 'Dashboard', path: '/owner/dashboard', icon: <LayoutDashboard size={20} />, roles: ['COMPANY_OWNER'] },
-    { name: 'Dashboard', path: '/branch/dashboard', icon: <LayoutDashboard size={20} />, roles: ['BRANCH_OWNER'] },
+    { name: 'Dashboard', path: '/branch/dashboard', icon: <LayoutDashboard size={20} />, roles: ['BRANCH_OWNER', 'BRANCH_MANAGER'] },
     { name: 'Branches', path: '/owner/branches', icon: <Settings size={20} />, roles: ['COMPANY_OWNER'] },
-    { name: 'Parts Master', path: '/owner/parts', icon: <Package size={20} />, roles: ['COMPANY_OWNER'] },
-    { name: 'Inventory', path: '/branch/inventory', icon: <Package size={20} />, roles: ['BRANCH_OWNER'] },
-    { name: 'Products', path: '/branch/products', icon: <ShoppingCart size={20} />, roles: ['BRANCH_OWNER'] },
-    { name: 'Orders', path: '/branch/orders', icon: <Package size={20} />, roles: ['BRANCH_OWNER'] },
-    { name: 'Service Bay', path: '/branch/appointments', icon: <Wrench size={20} />, roles: ['BRANCH_OWNER'] },
+    { name: 'Inventory', path: '/branch/inventory', icon: <Package size={20} />, roles: ['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER'] },
+    { name: 'Products', path: '/branch/products', icon: <ShoppingCart size={20} />, roles: ['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER'] },
+    { name: 'Services', path: '/branch/services', icon: <Wrench size={20} />, roles: ['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER'] },
+    { name: 'Orders', path: '/branch/orders', icon: <Package size={20} />, roles: ['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER'] },
     { name: 'Reports', path: '/owner/reports', icon: <FileText size={20} />, roles: ['COMPANY_OWNER'] },
-    { name: 'Reports', path: '/branch/reports', icon: <FileText size={20} />, roles: ['BRANCH_OWNER'] },
+    { name: 'Reports', path: '/branch/reports', icon: <FileText size={20} />, roles: ['BRANCH_OWNER', 'BRANCH_MANAGER'] },
     { name: 'Personnel', path: '/owner/users', icon: <Settings size={20} />, roles: ['COMPANY_OWNER'] },
     { name: 'Settings', path: '/owner/settings', icon: <Settings size={20} />, roles: ['COMPANY_OWNER'] },
   ];

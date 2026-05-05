@@ -31,25 +31,16 @@ const Appointments = () => {
 
     setSubmitting(true);
     try {
-      // Create a proper ISO date string
-      const [hour, minutePart] = selectedTime.split(':');
-      const minute = minutePart.split(' ')[0];
-      const isPM = selectedTime.includes('PM');
-      let finalHour = parseInt(hour);
-      if (isPM && finalHour !== 12) finalHour += 12;
-      if (!isPM && finalHour === 12) finalHour = 0;
-
-      const scheduledAt = new Date(selectedDate);
-      scheduledAt.setHours(finalHour, parseInt(minute), 0, 0);
-
       const payload = {
-        serviceId: Number(selectedService.id),
+        serviceId: selectedService.id,
         branchId: Number(selectedBranch),
-        scheduledAt: scheduledAt.toISOString(),
-        notes
+        booking_date: new Date(selectedDate).toISOString(),
+        booking_time: selectedTime,
+        customer_notes: notes,
+        final_price: parseFloat(selectedService.base_price)
       };
 
-      await api.post('/appointments', payload);
+      await api.post('/bookings', payload);
       alert('Booking Confirmed!');
       navigate('/my/bookings');
     } catch (err) {
@@ -91,7 +82,7 @@ const Appointments = () => {
                 onClick={() => setSelectedService(s)}
               >
                 <div className="service-option-name">{s.name}</div>
-                <div className="service-option-price">PKR {Number(s.price).toLocaleString()}</div>
+                <div className="service-option-price">PKR {Number(s.base_price).toLocaleString()}</div>
               </div>
             ))}
           </div>
@@ -162,7 +153,7 @@ const Appointments = () => {
           <div className="summary-item"><span>Time</span><strong>{selectedTime}</strong></div>
           <div className="summary-total">
             <span>Estimate</span>
-            <span>PKR {selectedService ? Number(selectedService.price).toLocaleString() : '0'}</span>
+            <span>PKR {selectedService ? Number(selectedService.base_price).toLocaleString() : '0'}</span>
           </div>
           <p style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '16px', lineHeight: '1.6' }}>
             Final price confirmed at branch.
