@@ -33,6 +33,7 @@ const Inventory = () => {
       await apiFetch(`/inventory/${id}`, { method: "PUT", body: { stock: newStock, alertAt: item.alertAt } });
       toast(`Stock updated to ${newStock}`);
       refetch();
+      refetchSummary();
     } catch (e) { toast(e.message, "e"); }
   };
 
@@ -42,7 +43,9 @@ const Inventory = () => {
     try {
       await apiFetch(`/inventory/${editing.id}`, { method: "PUT", body: { stock: Number(editing.stock), alertAt: Number(editing.alertAt) } });
       toast("Inventory updated");
-      setEditing(null); refetch();
+      setEditing(null); 
+      refetch();
+      refetchSummary();
     } catch (e) { toast(e.message, "e"); }
     setSaving(false);
   };

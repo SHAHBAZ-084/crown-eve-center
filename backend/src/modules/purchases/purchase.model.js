@@ -1,5 +1,6 @@
 // backend/src/modules/purchases/purchase.model.js
 const prisma = require('../../config/db');
+const { syncInventoryToPartsAndProducts } = require('../inventory/inventory.utils');
 
 const getPurchases = async ({ page = 1, limit = 20, branchId, supplierId }) => {
   const skip = (page - 1) * limit;
@@ -72,6 +73,9 @@ const createPurchase = async (data) => {
           alertAt: 10
         }
       });
+
+      // Sync stocks to Parts and Products
+      await syncInventoryToPartsAndProducts(tx, branchId, item.partId);
     }
 
     return purchase;

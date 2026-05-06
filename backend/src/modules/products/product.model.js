@@ -41,7 +41,7 @@ const getProducts = async ({ page = 1, limit = 20, branchId, categoryId, product
           }
         }
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { stock_qty: 'desc' }
     }),
     prisma.product.count({ where }),
   ]);

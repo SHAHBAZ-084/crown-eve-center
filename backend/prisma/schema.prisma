@@ -43,6 +43,7 @@ model Branch {
   serviceBookings ServiceBooking[]
   services     Service[]
   purchases    Purchase[]
+  adjustments  StockAdjustment[]
   createdAt    DateTime      @default(now())
 }
 
@@ -55,6 +56,7 @@ model Part {
   inventory    Inventory[]
   productParts ProductPart[]
   purchaseItems PurchaseItem[]
+  adjustments  StockAdjustment[]
   createdAt    DateTime      @default(now())
 
   @@index([category])
@@ -296,4 +298,17 @@ model PurchaseItem {
   part       Part     @relation(fields: [partId], references: [id])
   quantity   Int
   cost       Float
+}
+model StockAdjustment {
+  id        Int      @id @default(autoincrement())
+  branchId  Int
+  branch    Branch   @relation(fields: [branchId], references: [id])
+  partId    Int
+  part      Part     @relation(fields: [partId], references: [id])
+  quantity  Int      // Positive for In, Negative for Out
+  reason    String?  // e.g. "Manual Update", "Damaged", "Correction"
+  createdAt DateTime @default(now())
+
+  @@index([branchId])
+  @@index([createdAt])
 }

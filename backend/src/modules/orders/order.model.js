@@ -1,5 +1,6 @@
 // backend/src/modules/orders/order.model.js
 const prisma = require('../../config/db');
+const { syncInventoryToPartsAndProducts } = require('../inventory/inventory.utils');
 
 const createOrder = async (data) => {
   const { branchId, customerId, total, type, payment_method, transaction_id, customer_name, customer_phone, notes, items } = data;
@@ -53,6 +54,9 @@ const createOrder = async (data) => {
           where: { id: inv.id },
           data: { stock: { decrement: qtyToDeduct } }
         });
+
+        // Sync stocks to Parts and Products
+        await syncInventoryToPartsAndProducts(tx, branchId, productPart.partId);
       }
     }
 

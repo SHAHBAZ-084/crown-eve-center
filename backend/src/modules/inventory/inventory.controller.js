@@ -36,8 +36,15 @@ exports.getAlerts = async (req, res) => {
 
 exports.getSummary = async (req, res) => {
   try {
-    const { branchId } = req.query;
-    const summary = await Inventory.getInventorySummary(branchId);
+    let { branchId } = req.query;
+    // Fallback to user's branchId if not in query
+    if (!branchId || branchId === 'undefined' || branchId === 'null') {
+      branchId = req.user.branchId;
+    }
+    
+    if (!branchId) return res.status(400).json({ message: "Branch ID is required" });
+
+    const summary = await Inventory.getInventorySummary(Number(branchId));
     res.json(summary);
   } catch (e) {
     res.status(500).json({ message: e.message });
