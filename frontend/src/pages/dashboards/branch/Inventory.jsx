@@ -9,16 +9,21 @@ const Inventory = () => {
 
   const [search, setSearch] = useState("");
   const [page, setPage]     = useState(1);
+  const [showLowOnly, setShowLowOnly] = useState(false);
   const ds = useDebounce(search);
+  
   const params = new URLSearchParams({ branchId, page, limit: 20 }).toString();
-  const { data, loading, refetch } = useFetch(`/inventory?${params}`, [page, branchId]);
-  const { data: summary } = useFetch(`/inventory/summary?branchId=${branchId}`, [branchId]);
+  const { data, loading, refetch } = useFetch(`/inventory?${params}`, [page, branchId], 5000);
+  const { data: summary, refetch: refetchSummary } = useFetch(`/inventory/summary?branchId=${branchId}`, [branchId], 5000);
+  
   const [editing, setEditing]     = useState(null); // { id, stock, alertAt }
   const [saving, setSaving]       = useState(false);
 
-  const filtered = (data?.data || []).filter(i =>
-    !ds || i.part?.name?.toLowerCase().includes(ds.toLowerCase())
-  );
+  const filtered = (data?.data || []).filter(i => {
+    const matchesSearch = !ds || i.part?.name?.toLowerCase().includes(ds.toLowerCase());
+    const isLow = i.stock <= i.alertAt;
+    return matchesSearch && (!showLowOnly || isLow);
+  });
 
   const quickEdit = async (id, delta) => {
     const item = (data?.data || []).find(i => i.id === id);
@@ -85,8 +90,24 @@ const Inventory = () => {
            </div>
         </div>
       </div>
-      <div className="fbar">
-        <div className="sw"><Icon n="search" /><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search parts…" /></div>
+      <div className="fbar" style={{ display: "flex", gap: 12, alignItems: "center" }}>
+        <div className="sw" style={{ flex: 1 }}>
+          <Icon n="search" />
+          <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Search parts by name…" />
+        </div>
+        <button 
+          className={`btn ${showLowOnly ? "btn-p" : "btn-s"}`} 
+          onClick={() => { setShowLowOnly(!showLowOnly); setPage(1); }}
+          style={{ 
+            background: showLowOnly ? "rgba(239,68,68,0.2)" : "var(--surf)", 
+            color: showLowOnly ? "#ef4444" : "var(--muted)",
+            borderColor: showLowOnly ? "#ef4444" : "var(--border)",
+            fontWeight: 700,
+            fontSize: 11
+          }}
+        >
+          <Icon n="reports" size={14} /> {showLowOnly ? "Showing Low Stock" : "Filter Low Stock"}
+        </button>
       </div>
 
       {loading ? (

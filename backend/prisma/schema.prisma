@@ -196,11 +196,15 @@ model Order {
   branchId   Int
   branch     Branch      @relation(fields: [branchId], references: [id])
   total      Float
-  status     String @default("PENDING")
-  type       String      @default("POS") // POS or ONLINE
-  notes      String?
-  items      OrderItem[]
-  createdAt  DateTime    @default(now())
+  status         String @default("PENDING")
+  type           String      @default("POS") // POS or ONLINE
+  payment_method String      @default("CASH") // CASH, ACCOUNT, etc.
+  transaction_id String?
+  customer_name  String?
+  customer_phone String?
+  notes          String?
+  items          OrderItem[]
+  createdAt      DateTime    @default(now())
 
   @@index([branchId])
   @@index([status])

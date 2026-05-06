@@ -2,7 +2,7 @@
 const prisma = require('../../config/db');
 
 const createOrder = async (data) => {
-  const { branchId, customerId, total, type, notes, items } = data;
+  const { branchId, customerId, total, type, payment_method, transaction_id, customer_name, customer_phone, notes, items } = data;
 
   return prisma.$transaction(async (tx) => {
     // 1. Create the order
@@ -13,6 +13,10 @@ const createOrder = async (data) => {
         total,
         type: type || 'POS',
         status: 'PENDING',
+        payment_method: payment_method || 'CASH',
+        transaction_id,
+        customer_name,
+        customer_phone,
         notes,
         items: {
           create: items.map(item => ({
@@ -70,6 +74,10 @@ const getOrders = async ({ page = 1, limit = 20, branchId, status, type, custome
         total: true,
         createdAt: true,
         type: true,
+        payment_method: true,
+        transaction_id: true,
+        customer_name: true,
+        customer_phone: true,
         customer: {
           select: { id: true, name: true }
         },

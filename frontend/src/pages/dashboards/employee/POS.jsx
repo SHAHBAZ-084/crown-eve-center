@@ -14,6 +14,10 @@ const POS = () => {
   const [type, setType] = useState(''); // '' (All), 'bike', 'part'
   const [page, setPage] = useState(1);
   const [cart, setCart] = useState([]);
+  const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('CASH'); // 'CASH', 'ACCOUNT'
+  const [transactionId, setTransactionId] = useState('');
   const debouncedSearch = useDebounce(search, 300);
 
   const { data: products, isLoading } = useQuery({
@@ -40,6 +44,10 @@ const POS = () => {
     mutationFn: (orderData) => api.post('/orders', orderData),
     onSuccess: () => {
       setCart([]);
+      setCustomerName('');
+      setCustomerPhone('');
+      setPaymentMethod('CASH');
+      setTransactionId('');
       alert('Sale Completed Successfully!');
     }
   });
@@ -61,8 +69,7 @@ const POS = () => {
   };
 
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
-  const tax = subtotal * 0.17;
-  const total = subtotal + tax;
+  const total = subtotal;
 
   return (
     <div className="h-[calc(100vh-120px)] flex gap-8">
@@ -231,21 +238,73 @@ const POS = () => {
                  <span>Subtotal</span>
                  <span>PKR {subtotal.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between text-xs font-bold text-slate-500 uppercase tracking-widest">
-                 <span>Tax (17%)</span>
-                 <span>PKR {tax.toLocaleString()}</span>
-              </div>
               <div className="flex justify-between text-2xl font-black italic text-white pt-2 border-t border-slate-800">
                  <span>TOTAL</span>
                  <span className="text-blue-500">PKR {total.toLocaleString()}</span>
               </div>
-           </div>
+            </div>
+ 
+            {/* Customer Details */}
+            <div className="space-y-3 pb-2 border-b border-slate-800/50">
+               <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">Customer Details</label>
+               <div className="grid grid-cols-2 gap-2">
+                  <input 
+                    type="text" 
+                    placeholder="Customer Name" 
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    className="bg-slate-900 border border-slate-800 rounded-xl py-2.5 px-3 text-[10px] font-bold text-white focus:ring-1 focus:ring-blue-500 outline-none"
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Contact Number" 
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    className="bg-slate-900 border border-slate-800 rounded-xl py-2.5 px-3 text-[10px] font-bold text-white focus:ring-1 focus:ring-blue-500 outline-none"
+                  />
+               </div>
+            </div>
+
+            {/* Billing Method Selection */}
+            <div className="space-y-3 pt-2">
+               <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">Billing Method</label>
+               <div className="grid grid-cols-2 gap-2">
+                  <button 
+                    onClick={() => setPaymentMethod('CASH')}
+                    className={`py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${paymentMethod === 'CASH' ? 'bg-blue-600/10 border-blue-600 text-blue-500' : 'bg-slate-900 border-slate-800 text-slate-500'}`}
+                  >
+                    Cash
+                  </button>
+                  <button 
+                    onClick={() => setPaymentMethod('ACCOUNT')}
+                    className={`py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${paymentMethod === 'ACCOUNT' ? 'bg-blue-600/10 border-blue-600 text-blue-500' : 'bg-slate-900 border-slate-800 text-slate-500'}`}
+                  >
+                    Account
+                  </button>
+               </div>
+               
+               {paymentMethod === 'ACCOUNT' && (
+                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+                   <input 
+                     type="text" 
+                     placeholder="Enter Transaction ID..." 
+                     value={transactionId}
+                     onChange={(e) => setTransactionId(e.target.value)}
+                     className="w-full bg-slate-900 border border-slate-800 rounded-xl py-3 px-4 text-xs font-bold text-white focus:ring-1 focus:ring-blue-500 outline-none"
+                   />
+                 </motion.div>
+               )}
+            </div>
 
            <button 
             disabled={cart.length === 0 || completeSale.isPending}
             onClick={() => completeSale.mutate({
               branchId: user.branchId,
               type: 'POS',
+              payment_method: paymentMethod,
+              transaction_id: paymentMethod === 'ACCOUNT' ? transactionId : null,
+              customer_name: customerName,
+              customer_phone: customerPhone,
               customerId: null,
               notes: 'Walk-in POS Sale',
               items: cart.map(i => ({ productId: i.id, quantity: i.qty, price: i.price })),

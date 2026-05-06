@@ -82,6 +82,18 @@ async function main() {
     },
   });
 
+  // 7. Company Owner
+  await prisma.user.upsert({
+    where: { email: 'owner@crowneve.com' },
+    update: { password: hashedPassword },
+    create: {
+      email: 'owner@crowneve.com',
+      name: 'Company Owner',
+      password: hashedPassword,
+      role: 'COMPANY_OWNER',
+    },
+  });
+
   // Initial Categories and Brands to keep UI clean
   await prisma.category.upsert({ where: { name: 'Electric Bikes' }, update: {}, create: { name: 'Electric Bikes' } });
   await prisma.brand.upsert({ where: { name: 'Crown EV' }, update: {}, create: { name: 'Crown EV', country: 'Pakistan' } });
