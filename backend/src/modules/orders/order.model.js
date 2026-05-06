@@ -8,9 +8,9 @@ const createOrder = async (data) => {
     // 1. Create the order
     const order = await tx.order.create({
       data: {
-        branchId,
-        customerId,
-        total,
+        branchId: Number(branchId),
+        customerId: customerId || undefined,
+        total: Number(total),
         type: type || 'POS',
         status: 'PENDING',
         payment_method: payment_method || 'CASH',
@@ -21,17 +21,17 @@ const createOrder = async (data) => {
         items: {
           create: items.map(item => ({
             productId: item.productId,
-            quantity: item.quantity,
-            price: item.price
+            quantity: Number(item.quantity),
+            price: Number(item.price)
           }))
         }
       },
-      include: { items: { include: { product: { include: { parts: true } } } } }
+      include: { items: { include: { product: { include: { productParts: true } } } } }
     });
 
     // 2. Deduct inventory for each item's parts
     for (const item of order.items) {
-      for (const productPart of item.product.parts) {
+      for (const productPart of item.product.productParts) {
         const qtyToDeduct = productPart.quantity * item.quantity;
         
         // Find current stock
