@@ -1,8 +1,9 @@
 // backend/src/modules/products/product.model.js
 const prisma = require('../../config/db');
 
-const getProducts = async ({ page = 1, limit = 20, branchId, categoryId, product_type, search }) => {
+const getProducts = async ({ page = 1, limit = 20, branchId, categoryId, product_type, search, sortBy, order }) => {
   const skip = (page - 1) * limit;
+  
   const where = {
     ...(branchId && { branchId: Number(branchId) }),
     ...(categoryId && { categoryId }),
@@ -16,6 +17,16 @@ const getProducts = async ({ page = 1, limit = 20, branchId, categoryId, product
       ] 
     })
   };
+
+  // Dynamic sorting
+  let orderBy = { createdAt: 'desc' }; // Default
+  if (sortBy === 'price') {
+    orderBy = { price: order === 'desc' ? 'desc' : 'asc' };
+  } else if (sortBy === 'stock') {
+    orderBy = { stock_qty: order === 'asc' ? 'asc' : 'desc' };
+  } else if (sortBy === 'name') {
+    orderBy = { name: order === 'desc' ? 'desc' : 'asc' };
+  }
 
   const [data, total] = await Promise.all([
     prisma.product.findMany({
@@ -41,7 +52,7 @@ const getProducts = async ({ page = 1, limit = 20, branchId, categoryId, product
           }
         }
       },
-      orderBy: { stock_qty: 'desc' }
+      orderBy
     }),
     prisma.product.count({ where }),
   ]);
