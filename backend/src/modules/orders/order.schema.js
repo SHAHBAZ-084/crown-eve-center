@@ -4,15 +4,19 @@ const { z } = require('zod');
 const createOrderSchema = z.object({
   body: z.object({
     branchId: z.number().int().positive(),
-    customerId: z.number().int().positive().optional(),
+    customerId: z.string().optional().nullable(),
     type: z.enum(['POS', 'ONLINE']),
-    notes: z.string().optional(),
+    payment_method: z.string().optional(),
+    transaction_id: z.string().optional().nullable(),
+    customer_name: z.string().optional().nullable(),
+    customer_phone: z.string().optional().nullable(),
+    notes: z.string().optional().nullable(),
     items: z.array(z.object({
-      productId: z.number().int().positive(),
+      productId: z.string(),
       quantity: z.number().int().min(1),
-      price: z.number().positive(),
+      price: z.number().min(0),
     })).min(1),
-    total: z.number().positive(),
+    total: z.number().min(0),
   })
 });
 
