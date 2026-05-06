@@ -51,8 +51,17 @@ exports.update = async (req, res) => {
 
 exports.remove = async (req, res) => {
   try {
-    await Booking.deleteBooking(req.params.id);
     res.json({ message: 'Booking deleted successfully' });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
+exports.getToday = async (req, res) => {
+  try {
+    const { branchId } = req.query;
+    const bookings = await Booking.getTodayBookings(branchId);
+    res.json(bookings);
   } catch (e) {
     res.status(500).json({ message: e.message });
   }

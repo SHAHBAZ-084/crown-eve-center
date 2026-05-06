@@ -57,17 +57,54 @@ const getProducts = async ({ page = 1, limit = 20, branchId, categoryId, product
   };
 };
 
-const getProductById = (id) => prisma.product.findUnique({
-  where: { id },
-  include: {
-    branch: { select: { name: true } },
-    category: true,
-    brand: true,
-    images: { orderBy: { sort_order: 'asc' } },
-    bikeDetail: true,
-    partDetail: true
+const getProductById = async (id) => {
+  try {
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: {
+        branch: { select: { name: true, location: true } },
+        category: true,
+        brand: true,
+        images: { orderBy: { sort_order: 'asc' } },
+        bikeDetail: true,
+        partDetail: true
+      }
+    });
+
+    if (!product) return null;
+
+    // Find the same product in other branches
+    let otherBranches = [];
+    try {
+      otherBranches = await prisma.product.findMany({
+        where: {
+          id: { not: id },
+          name: product.name,
+          is_active: true,
+          OR: [
+            ...(product.partDetail?.item_code ? [{ partDetail: { is: { item_code: product.partDetail.item_code } } }] : []),
+            ...(product.bikeDetail?.motor_type ? [{ bikeDetail: { is: { motor_type: product.bikeDetail.motor_type } } }] : [])
+          ]
+        },
+        select: {
+          id: true,
+          stock_qty: true,
+          price: true,
+          sale_price: true,
+          branch: { select: { id: true, name: true, location: true } }
+        },
+        take: 5
+      });
+    } catch (err) {
+      console.error("Error fetching other branches:", err);
+    }
+
+    return { ...product, otherBranches };
+  } catch (err) {
+    console.error("Error in getProductById:", err);
+    throw err;
   }
-});
+};
 
 const createProduct = (data) => prisma.product.create({
   data,

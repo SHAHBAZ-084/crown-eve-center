@@ -38,8 +38,8 @@ const createOrder = async (data) => {
         const inv = await tx.inventory.findUnique({
           where: {
             branchId_partId: {
-              branchId,
-              partId: productPart.partId
+              branchId: Number(branchId),
+              partId: Number(productPart.partId)
             }
           },
           include: { part: true }
@@ -67,7 +67,7 @@ const getOrders = async ({ page = 1, limit = 20, branchId, status, type, custome
     ...(branchId && { branchId: Number(branchId) }),
     ...(status && { status }),
     ...(type && { type }),
-    ...(customerId && { customerId: Number(customerId) }),
+    ...(customerId && { customerId: String(customerId) }),
   };
 
   const [data, total] = await Promise.all([

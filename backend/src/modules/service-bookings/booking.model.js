@@ -47,4 +47,27 @@ const updateBooking = (id, data) => {
 
 const deleteBooking = (id) => prisma.serviceBooking.delete({ where: { id } });
 
-module.exports = { getAllBookings, getBookingById, createBooking, updateBooking, deleteBooking };
+const getTodayBookings = (branchId) => {
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  
+  const endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59, 999);
+
+  return prisma.serviceBooking.findMany({
+    where: {
+      branchId: Number(branchId),
+      booking_date: {
+        gte: startOfToday,
+        lte: endOfToday
+      }
+    },
+    include: {
+      customer: { select: { name: true } },
+      service: { select: { name: true } }
+    },
+    orderBy: { booking_time: 'asc' }
+  });
+};
+
+module.exports = { getAllBookings, getBookingById, createBooking, updateBooking, deleteBooking, getTodayBookings };

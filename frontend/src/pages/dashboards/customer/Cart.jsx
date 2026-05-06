@@ -7,8 +7,7 @@ const Cart = () => {
   const navigate = useNavigate();
   const { items, removeItem, updateQty, total } = useCart();
 
-  const tax = total * 0.17;
-  const grandTotal = total + tax;
+  const grandTotal = total;
 
   return (
     <div>
@@ -36,9 +35,16 @@ const Cart = () => {
                   <span className="qty-num">{item.qty}</span>
                   <button className="qty-btn" onClick={() => updateQty(item.id, item.qty + 1)}>+</button>
                 </div>
-                <div style={{ minWidth: 100, textAlign: "right" }}>
+                <div style={{ minWidth: 100, textAlign: "right", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
                   <div className="mono" style={{ fontWeight: 700, color: "var(--orange)" }}>PKR {(item.price * item.qty).toLocaleString()}</div>
-                  <button className="ca" style={{ fontSize: 9, color: "var(--red)" }} onClick={() => removeItem(item.id)}>Remove</button>
+                  <button 
+                    onClick={() => removeItem(item.id)}
+                    style={{ background: "rgba(255, 77, 77, 0.1)", color: "#ff4d4d", border: "1px solid rgba(255, 77, 77, 0.2)", borderRadius: 4, padding: "2px 8px", fontSize: 9, fontWeight: 700, cursor: "pointer", transition: "all .2s" }}
+                    onMouseOver={e => e.currentTarget.style.background = "rgba(255, 77, 77, 0.2)"}
+                    onMouseOut={e => e.currentTarget.style.background = "rgba(255, 77, 77, 0.1)"}
+                  >
+                    CANCEL ✕
+                  </button>
                 </div>
               </div>
             ))}
@@ -50,10 +56,6 @@ const Cart = () => {
               <div className="trow">
                 <span style={{ fontSize: 13, color: "var(--muted2)" }}>Subtotal</span>
                 <span className="mono" style={{ fontWeight: 600 }}>PKR {total.toLocaleString()}</span>
-              </div>
-              <div className="trow">
-                <span style={{ fontSize: 13, color: "var(--muted2)" }}>Sales Tax (17%)</span>
-                <span className="mono" style={{ fontWeight: 600 }}>PKR {tax.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
               </div>
               <div className="trow">
                 <span style={{ fontSize: 13, color: "var(--muted2)" }}>Shipping</span>

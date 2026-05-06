@@ -21,8 +21,8 @@ const Dashboard = () => {
       .then(res => setOrders(toArr(res)))
       .catch(() => {})
       .finally(() => setLoadingOrders(false));
-
-    api.get("/appointments/my")
+    
+    api.get("/bookings")
       .then(res => setBookings(toArr(res)))
       .catch(() => {})
       .finally(() => setLoadingBookings(false));

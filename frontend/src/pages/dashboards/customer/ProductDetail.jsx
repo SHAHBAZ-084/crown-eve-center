@@ -45,8 +45,19 @@ const ProductDetailPage = () => {
       <div className="g64">
         <div>
           <div className="card" style={{ marginBottom: 16 }}>
-            <div style={{ aspectRatio: "16/9", background: "var(--black3)", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 72, marginBottom: 16 }}>
-              📦
+            <div style={{ aspectRatio: "16/9", background: "var(--black3)", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+              {(() => {
+                const mainImg = product.images?.find(img => img.is_primary)?.url || product.images?.[0]?.url;
+                const imgSrc = mainImg 
+                  ? (mainImg.startsWith('http') ? mainImg : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${mainImg}`)
+                  : null;
+                
+                return imgSrc ? (
+                  <img src={imgSrc} alt={product.name} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                ) : (
+                  <div style={{ fontSize: 72 }}>📦</div>
+                );
+              })()}
             </div>
           </div>
         </div>
@@ -54,13 +65,13 @@ const ProductDetailPage = () => {
         <div>
           <div className="card">
             <div style={{ marginBottom: 8 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color: "var(--orange)" }}>{product.category || "Product"}</span>
+              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color: "#00a3ff" }}>{product.category || "Product"}</span>
             </div>
             <h2 style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 40, letterSpacing: -1, lineHeight: 0.95, marginBottom: 12 }}>{product.name}</h2>
             <div style={{ marginBottom: 16 }}><Badge status={stockStatus} /></div>
             <p style={{ fontSize: 13, color: "var(--white2)", lineHeight: 1.7, marginBottom: 20 }}>{product.description || "No description available."}</p>
 
-            <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 52, color: "var(--orange)", marginBottom: 20 }}>
+            <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 52, color: "#00a3ff", marginBottom: 20 }}>
               PKR {Number(product.price).toLocaleString()}
             </div>
 
@@ -78,17 +89,53 @@ const ProductDetailPage = () => {
                 className="btn btn-primary"
                 style={{ flex: 1 }}
                 onClick={handleAddToCart}
-                disabled={product.stock === 0}
+                disabled={product.stock_qty === 0}
               >
                 {added ? "✓ Added!" : "Add to Cart"}
               </button>
-              <button className="btn btn-ghost" onClick={() => { handleAddToCart(); navigate("/cart"); }}>
+              <button className="btn btn-ghost" onClick={() => { handleAddToCart(); navigate("/my/cart"); }}>
                 Buy Now
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Cross-Branch Availability Section */}
+      {product.otherBranches?.length > 0 && (
+        <div style={{ marginTop: 40 }}>
+          <div style={{ padding: "0 0 15px 0", borderBottom: "1px solid var(--border)", marginBottom: 20 }}>
+            <h3 style={{ fontSize: 18, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>Also Available at Other Branches</h3>
+            <p style={{ fontSize: 12, color: "var(--muted2)" }}>This product is also in stock at the following Crown Eve locations.</p>
+          </div>
+          <div className="g4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))" }}>
+            {product.otherBranches.map(ob => (
+              <div key={ob.id} className="card ci" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "15px 20px" }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 14 }}>{ob.branch.name}</div>
+                  <div style={{ fontSize: 11, opacity: 0.5 }}>{ob.branch.location || "Pakistan"}</div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: "var(--acc)" }}>PKR {Number(ob.sale_price || ob.price).toLocaleString()}</div>
+                  <div style={{ fontSize: 10, color: ob.stock_qty > 0 ? "var(--green)" : "var(--red)", fontWeight: 700 }}>
+                    {ob.stock_qty > 0 ? `${ob.stock_qty} IN STOCK` : "OUT OF STOCK"}
+                  </div>
+                  <button 
+                    className="btn btn-ghost btn-sm" 
+                    style={{ marginTop: 8, fontSize: 10, height: 28, padding: "0 12px" }}
+                    onClick={() => {
+                      window.scrollTo(0, 0);
+                      navigate(`/shop/${ob.id}`);
+                    }}
+                  >
+                    View this Branch →
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

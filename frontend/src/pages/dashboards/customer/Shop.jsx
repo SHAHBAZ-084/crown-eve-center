@@ -62,27 +62,46 @@ const Shop = () => {
       </div>
 
       <div className="g4">
-        {filtered.map(p => (
-          <div key={p.id} className="prod-card" onClick={() => navigate(`/shop/${p.id}`)}>
-            <div className="prod-img">
-              {p.images?.find(img => img.is_primary)?.url ? (
-                <img src={p.images.find(img => img.is_primary).url} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              ) : "📦"}
-              <div style={{ position: "absolute", top: 12, right: 12 }}>
-                <Badge status={p.stock_qty > 5 ? "In Stock" : p.stock_qty > 0 ? "Low Stock" : "Out of Stock"} />
+        {filtered.map(p => {
+          const mainImg = p.images?.find(img => img.is_primary)?.url || p.images?.[0]?.url;
+          const imgSrc = mainImg 
+            ? (mainImg.startsWith('http') ? mainImg : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${mainImg}`)
+            : null;
+
+          return (
+            <div key={p.id} className="card" style={{ cursor: "pointer", transition: "all .2s", padding: 12, background: "#0c0c0c", border: "1px solid #1a1a1a" }} onClick={() => navigate(`/shop/${p.id}`)}>
+              <div style={{ position: "relative", height: 140, background: "#000", borderRadius: 4, marginBottom: 12, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {imgSrc ? (
+                  <img src={imgSrc} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                ) : (
+                  <div style={{ fontSize: 24, opacity: 0.1 }}>📦</div>
+                )}
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <div style={{ fontWeight: 800, fontSize: 12, color: "#fff", textTransform: "uppercase" }}>{p.name}</div>
+                
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginTop: 4 }}>
+                  <div style={{ fontSize: 10, color: "#00a3ff", fontWeight: 700, textTransform: "uppercase" }}>
+                    {p.partDetail?.model || p.slug?.split('_').pop().toUpperCase()}
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontSize: 9, color: p.stock_qty > 0 ? "#ff4d4d" : "#ff4d4d", fontWeight: 700, marginBottom: 2 }}>QTY: {p.stock_qty}</div>
+                    <div style={{ fontSize: 18, color: "#00a3ff", fontWeight: 800, fontFamily: "var(--font-m)" }}>PKR {Number(p.sale_price || p.price).toLocaleString()}</div>
+                  </div>
+                </div>
+
+                <button 
+                  className="ca" 
+                  style={{ marginTop: 8, fontSize: 9, color: "var(--orange)", fontWeight: 700, textAlign: "right", background: "none", border: "none", padding: 0 }} 
+                  onClick={e => { e.stopPropagation(); handleAdd(e, p); }}
+                >
+                  ADD TO CART +
+                </button>
               </div>
             </div>
-            <div className="prod-body">
-              <div className="prod-cat">{p.category?.name || "Product"}</div>
-              <div className="prod-name">{p.name}</div>
-              <div className="prod-spec">{p.description || ""}</div>
-              <div className="prod-footer">
-                <div className="prod-price">PKR {Number(p.sale_price || p.price).toLocaleString()}</div>
-                <button className="ca" style={{ fontSize: 10 }} onClick={e => handleAdd(e, p)}>Add to Cart +</button>
-              </div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {filtered.length === 0 && (

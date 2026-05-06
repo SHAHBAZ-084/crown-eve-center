@@ -15,8 +15,7 @@ const CheckoutPage = () => {
   const [placedOrder, setPlacedOrder] = useState(null);
   const [error, setError] = useState("");
 
-  const tax = total * 0.17;
-  const grandTotal = total + tax;
+  const grandTotal = total;
 
   useEffect(() => {
     api.get("/branches").then(r => { const d = r?.data?.data ?? r?.data; setBranches(Array.isArray(d) ? d : []); }).catch(() => {});
@@ -89,13 +88,15 @@ const CheckoutPage = () => {
                 <div className="fg"><label>Phone</label><input className="fi" value={addr.phone} onChange={e => setAddr(p => ({ ...p, phone: e.target.value }))} placeholder="+92 300 0000000" /></div>
               </div>
               <div className="fg"><label>Street Address</label><input className="fi" value={addr.address} onChange={e => setAddr(p => ({ ...p, address: e.target.value }))} placeholder="Street, block, area" /></div>
-              <div className="fg">
-                <label>City</label>
-                <select className="fs" value={addr.city} onChange={e => setAddr(p => ({ ...p, city: e.target.value }))}>
-                  <option value="">Select city</option>
-                  {["Lahore", "Karachi", "Islamabad", "Faisalabad", "Rawalpindi"].map(c => <option key={c}>{c}</option>)}
-                </select>
-              </div>
+                <div className="fg">
+                  <label>City</label>
+                  <input 
+                    className="fi" 
+                    value={addr.city} 
+                    onChange={e => setAddr(p => ({ ...p, city: e.target.value }))} 
+                    placeholder="Enter your city" 
+                  />
+                </div>
               <button className="btn btn-primary" style={{ marginTop: 20 }} disabled={!addr.name || !addr.phone || !addr.city} onClick={() => setStep(2)}>
                 Continue →
               </button>
@@ -147,7 +148,6 @@ const CheckoutPage = () => {
                   </div>
                 ))}
                 <div className="divider" />
-                <div className="trow"><span style={{ fontSize: 13, color: "var(--muted2)" }}>Tax (17%)</span><span className="mono">PKR {tax.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span></div>
                 <div className="trow" style={{ padding: "10px 0" }}>
                   <span style={{ fontWeight: 700 }}>Total</span>
                   <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 28, color: "var(--orange)" }}>PKR {grandTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
