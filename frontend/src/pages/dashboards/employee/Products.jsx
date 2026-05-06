@@ -1,18 +1,26 @@
 // frontend/src/pages/dashboards/employee/Products.jsx
 import { useState } from "react";
-import { useFetch, useDebounce, api, Icon, Modal, Confirm, toast } from "./EmployeeShared";
+import { useFetch, useDebounce, api, Icon, Modal, Confirm, toast, UPLOAD_BASE } from "./EmployeeShared";
 
 export default function ProductsPage({ branchId }) {
   const [search, setSearch]     = useState("");
   const [page, setPage]         = useState(1);
   const ds = useDebounce(search);
-  const params = new URLSearchParams({ branchId, page, limit: 16 }).toString();
-  const { data, loading, refetch } = useFetch(`/products?${params}`, [branchId, page]);
+  const params = `branchId=${branchId}&page=${page}&limit=100${ds ? `&search=${ds}` : ""}`;
+  const { data, loading, refetch } = useFetch(`/products?${params}`, [branchId, page, ds]);
   const { data: partsData }        = useFetch("/parts?limit=200");
 
   const [showModal, setShowModal] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [confirmId, setConfirmId]   = useState(null);
+
+  const getImgUrl = (url) => {
+    if (!url) return "";
+    if (url.startsWith('http')) return url;
+    const base = UPLOAD_BASE.endsWith('/') ? UPLOAD_BASE.slice(0, -1) : UPLOAD_BASE;
+    const path = url.startsWith('/') ? url : `/${url}`;
+    return `${base}${path}`;
+  };
   const [form, setForm]             = useState({ 
     name: "", 
     product_type: "part", // Default to part for employee bundles
@@ -72,7 +80,7 @@ export default function ProductsPage({ branchId }) {
       name: p.name, 
       product_type: p.product_type || "part",
       price: p.price, 
-      image: p.image || "", 
+      image: p.image || p.images?.find(img => img.is_primary)?.url || "", 
       description: p.description || "", 
       parts: p.parts?.map(pp => ({ partId: pp.partId, quantity: pp.quantity })) || [],
       bikeDetail: p.bikeDetail || { motor_type: "", motor_watt_min: "", motor_watt_max: "", battery_voltage: "", battery_capacity_ah: "", battery_type: "", speed_min_kmh: "", speed_max_kmh: "", range_eco_min_km: "", range_eco_max_km: "", speed_modes: "", charger: "", charging_time_min_hrs: "", charging_time_max_hrs: "", net_weight_kg: "", loading_capacity_kg: "", security: "", braking_system: "", color_options: [], frame_material: "", wheel_size: "", warranty: "" },
@@ -137,17 +145,40 @@ export default function ProductsPage({ branchId }) {
               <div className="prod-stripe" />
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14, paddingTop: 8 }}>
                 <div style={{ width: 38, height: 38, borderRadius: 9, background: "rgba(255,77,0,.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--acc)", overflow: "hidden" }}>
-                  {p.image ? <img src={p.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <Icon n="tag" s={17} />}
+                  {p.images?.find(img => img.is_primary)?.url ? (
+                    <img 
+                      src={getImgUrl(p.images.find(img => img.is_primary).url)} 
+                      alt="" 
+                      style={{ width: "100%", height: "100%", objectFit: "contain" }} 
+                    />
+                  ) : <Icon n="tag" s={17} />}
                 </div>
                 <div style={{ display: "flex", gap: 5 }}>
                   <button className="ico-btn" onClick={() => openEdit(p)}><Icon n="edit" s={13} /></button>
                   <button className="ico-btn del" onClick={() => setConfirmId(p.id)}><Icon n="trash" s={13} /></button>
                 </div>
               </div>
-              <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 3, lineHeight: 1.3 }}>{p.name}</div>
-              {p.description && <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 8, lineClamp: 2, display: "-webkit-box", WebkitBoxOrient: "vertical", overflow: "hidden" }}>{p.description}</div>}
-              <div style={{ fontFamily: "var(--font-d)", fontSize: 26, color: "var(--acc)", marginBottom: 10 }}>PKR {parseFloat(p.price).toLocaleString()}</div>
-              <div style={{ fontSize: 10, color: "var(--muted)", textTransform: "uppercase", letterSpacing: ".1em" }}>{p.parts?.length || 0} components</div>
+              <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 2, color: "#fff", textTransform: "uppercase" }}>{p.name}</div>
+              <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span>
+                  {p.brand?.name}
+                  {p.brand?.name && p.category?.name ? " · " : ""}
+                  {p.category?.name}
+                </span>
+                <span style={{ fontWeight: 600, color: p.stock_qty > 0 ? "var(--acc)" : "#ff4d4d" }}>
+                  QTY: {p.stock_qty}
+                </span>
+              </div>
+              
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginTop: 8 }}>
+                <div style={{ fontSize: 11, color: "var(--acc)", fontWeight: 700, textTransform: "uppercase", flex: 1, paddingRight: 8 }}>
+                  {p.partDetail?.model || p.bikeDetail?.motor_type || ""}
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                  {p.sale_price && <div style={{ fontSize: 11, color: "var(--muted)", textDecoration: "line-through", marginBottom: 2 }}>{p.price}</div>}
+                  <div style={{ fontFamily: "var(--font-d)", fontSize: 20, color: "#fff", lineHeight: 1 }}>PKR {parseFloat(p.sale_price || p.price).toLocaleString()}</div>
+                </div>
+              </div>
             </div>
           ))}
         </div>

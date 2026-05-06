@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
 export const API_BASE  = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+export const UPLOAD_BASE = API_BASE.replace('/api', '');
 export const TOKEN_KEY = "token";
 
 // ─── API HELPER ──────────────────────────────────────────────────────────────
@@ -297,7 +298,7 @@ export const CSS = `
   .tabs { display:flex; gap:3px; background:var(--surf2); border:1px solid var(--bdr); padding:3px; border-radius:var(--r2); width:fit-content; }
   .tab  { padding:6px 14px; border-radius:9px; font-size:12px; font-weight:700; cursor:pointer; transition:all .15s; color:var(--muted); }
   .tab.on { background:var(--acc); color:#fff; }
-  .prod-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px; }
+  .prod-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; }
   .prod-card { background:var(--surf); border:1px solid var(--bdr); border-radius:var(--r3); padding:20px; transition:all .2s; position:relative; overflow:hidden; }
   .prod-card:hover { border-color:var(--bdr2); transform:translateY(-1px); }
   .prod-stripe { position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--acc),transparent); }

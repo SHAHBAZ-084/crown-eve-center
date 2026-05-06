@@ -1,7 +1,8 @@
 // frontend/src/components/branch/BranchShared.jsx
 import React, { useState, useEffect, useCallback } from "react";
 
-const API_BASE = import.meta.env.VITE_API_URL || "https://crown-eve-center.onrender.com/api";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+export const UPLOAD_BASE = API_BASE.replace('/api', '');
 const TOKEN_KEY = "token";
 
 // ─── API HELPER ──────────────────────────────────────────────────────────────

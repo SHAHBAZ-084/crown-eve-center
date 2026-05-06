@@ -1,18 +1,28 @@
 // frontend/src/pages/dashboards/branch/Products.jsx
 import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import { useFetch, apiFetch, toast, Icon, Modal, Confirm } from "../../../components/branch/BranchShared";
+import { useFetch, apiFetch, toast, Icon, Modal, Confirm, UPLOAD_BASE } from "../../../components/branch/BranchShared";
 
 const Products = () => {
   const { user } = useOutletContext();
   const branchId = user?.branchId;
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [activeTab, setActiveTab] = useState("bikes");
 
-  const params = `branchId=${branchId}&limit=50&page=1`;
-  const { data, loading, refetch } = useFetch(`/products?${params}`, [branchId]);
-  const { data: catsData, refetch: refetchCats } = useFetch("/categories");
-  const { data: brandsData, refetch: refetchBrands } = useFetch("/brands");
+  const activeProductType = activeTab === "bikes" ? "bike" : activeTab === "parts" ? "part" : "";
+  const params = `branchId=${branchId}&limit=100&page=${page}${search ? `&search=${search}` : ""}${activeProductType ? `&product_type=${activeProductType}` : ""}`;
+  const { data, loading, refetch } = useFetch(`/products?${params}`, [branchId, page, search, activeProductType]);
+  const { data: catsData } = useFetch("/categories");
+  const { data: brandsData } = useFetch("/brands");
 
-  const [activeTab, setActiveTab] = useState("products");
+  const getImgUrl = (url) => {
+    if (!url) return "";
+    if (url.startsWith('http')) return url;
+    const base = UPLOAD_BASE.endsWith('/') ? UPLOAD_BASE.slice(0, -1) : UPLOAD_BASE;
+    const path = url.startsWith('/') ? url : `/${url}`;
+    return `${base}${path}`;
+  };
   const [showModal, setShowModal] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [confirmId, setConfirmId]   = useState(null);
@@ -112,8 +122,11 @@ const Products = () => {
           <div className="psub">Full control over bikes, spare parts, and brand relationships.</div>
         </div>
         <div className="ph-r" style={{ display: "flex", gap: 8 }}>
-          <button className={`btn ${activeTab === "products" ? "btn-p" : "btn-s"}`} onClick={() => setActiveTab("products")}>
-            <Icon n="inventory" /> Manage Products
+          <button className={`btn ${activeTab === "bikes" ? "btn-p" : "btn-s"}`} onClick={() => setActiveTab("bikes")}>
+            <Icon n="bike" /> Manage Bikes
+          </button>
+          <button className={`btn ${activeTab === "parts" ? "btn-p" : "btn-s"}`} onClick={() => setActiveTab("parts")}>
+            <Icon n="settings" /> Manage Parts
           </button>
           <button className={`btn ${activeTab === "categories" ? "btn-p" : "btn-s"}`} onClick={() => setActiveTab("categories")}>
             <Icon n="settings" /> Manage Categories
@@ -125,8 +138,11 @@ const Products = () => {
       </div>
 
       <div className="tabs" style={{ marginBottom: 30 }}>
-        <div className={`tab ${activeTab === "products" ? "active" : ""}`} onClick={() => setActiveTab("products")}>
-          <Icon n="products" size={14} /> Products List ({data?.meta?.total || 0})
+        <div className={`tab ${activeTab === "bikes" ? "active" : ""}`} onClick={() => setActiveTab("bikes")}>
+          <Icon n="bike" size={14} /> Bikes List ({activeTab === "bikes" ? data?.meta?.total || 0 : "..."})
+        </div>
+        <div className={`tab ${activeTab === "parts" ? "active" : ""}`} onClick={() => setActiveTab("parts")}>
+          <Icon n="settings" size={14} /> Spare Parts List ({activeTab === "parts" ? data?.meta?.total || 0 : "..."})
         </div>
         <div className={`tab ${activeTab === "categories" ? "active" : ""}`} onClick={() => setActiveTab("categories")}>
           <Icon n="settings" size={14} /> Categories List ({catsData?.length || 0})
@@ -136,44 +152,87 @@ const Products = () => {
         </div>
       </div>
 
-      {loading ? (
-        <div className="g4">
-          {Array.from({ length: 8 }).map((_, i) => <div key={i} className="sk" style={{ height: 200, borderRadius: 20 }} />)}
+      <div className="tab-content">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, gap: 15 }}>
+          <div style={{ fontWeight: 700, fontSize: 18 }}>Product Catalog</div>
+          <div style={{ flex: 1, position: "relative", maxWidth: 400 }}>
+            <Icon n="search" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", opacity: 0.4 }} size={16} />
+            <input 
+              placeholder="Search products by name..." 
+              style={{ paddingLeft: 40, background: "var(--surf)", border: "1px solid var(--border)" }}
+              value={search}
+              onChange={e => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+            />
+          </div>
+          <button className="btn btn-p" onClick={openAdd}><Icon n="plus" /> Add New Product</button>
         </div>
-      ) : (
-        <div className="tab-content">
-          {activeTab === "products" && (
-            <>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                <div style={{ fontWeight: 700, fontSize: 18 }}>Product Catalog</div>
-                <button className="btn btn-p" onClick={openAdd}><Icon n="plus" /> Add New Product</button>
-              </div>
-              <div className="g4">
+
+        {(activeTab === "bikes" || activeTab === "parts") && loading && (
+          <div className="g4">
+            {Array.from({ length: 8 }).map((_, i) => <div key={i} className="sk" style={{ height: 200, borderRadius: 20 }} />)}
+          </div>
+        )}
+        
+        {(activeTab === "bikes" || activeTab === "parts") && !loading && (
+          <div className="tab-pane">
+            <div className="g4">
                 {(data?.data || []).map(p => (
                   <div key={p.id} className="card ci" style={{ transition: "all .2s" }}>
                     <div style={{ position: "relative", height: 160, borderRadius: 12, background: "var(--surf)", marginBottom: 14, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
                       {p.images?.find(img => img.is_primary)?.url ? (
-                        <img src={p.images.find(img => img.is_primary).url.startsWith('http') ? p.images.find(img => img.is_primary).url : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${p.images.find(img => img.is_primary).url}`} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        <img 
+                          src={getImgUrl(p.images.find(img => img.is_primary).url)} 
+                          alt="" 
+                          style={{ width: "100%", height: "100%", objectFit: "contain" }} 
+                        />
                       ) : <Icon n={p.product_type === "bike" ? "bike" : "settings"} size={40} opacity={0.2} />}
                       <div style={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 4 }}>
                         <button className="btn-ico" onClick={() => openEdit(p)}><Icon n="edit" size={12} /></button>
                         <button className="btn-ico dng" onClick={() => setConfirmId(p.id)}><Icon n="trash" size={12} /></button>
                       </div>
-                      <div style={{ position: "absolute", bottom: 8, left: 8 }}>
-                        <span className={`badge badge-${p.product_type === "bike" ? "blue" : "orange"}`} style={{ fontSize: 10 }}>{p.product_type.toUpperCase()}</span>
-                      </div>
+                  </div>
+                  <div style={{ fontWeight: 700, marginBottom: 4, textTransform: "uppercase", fontSize: 13 }}>{p.name}</div>
+                  <div style={{ fontSize: 11, opacity: 0.5, marginBottom: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span>
+                      {p.brand?.name}
+                      {p.brand?.name && p.category?.name ? " · " : ""}
+                      {p.category?.name}
+                    </span>
+                    <span style={{ fontWeight: 600, color: p.stock_qty > 0 ? "#4facfe" : "#ff4d4d" }}>
+                      QTY: {p.stock_qty}
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginTop: 8 }}>
+                    <div style={{ fontSize: 11, color: "var(--acc)", fontWeight: 700, textTransform: "uppercase", flex: 1, paddingRight: 8 }}>
+                      {p.partDetail?.model || p.bikeDetail?.motor_type || ""}
                     </div>
-                    <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 2 }}>{p.name}</div>
-                    <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 8 }}>{p.brand?.name || "No Brand"} · {p.category?.name || "Uncategorized"}</div>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                      <div style={{ fontFamily: "var(--font-d)", fontSize: 20, color: "var(--acc)" }}>PKR {parseFloat(p.sale_price || p.price).toLocaleString()}</div>
-                      {p.sale_price && <div style={{ fontSize: 12, color: "var(--muted)", textDecoration: "line-through" }}>{p.price}</div>}
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                      {p.sale_price && <div style={{ fontSize: 11, color: "var(--muted)", textDecoration: "line-through", marginBottom: 2 }}>{p.price}</div>}
+                      <div style={{ fontFamily: "var(--font-d)", fontSize: 20, color: "var(--acc)", lineHeight: 1 }}>PKR {parseFloat(p.sale_price || p.price).toLocaleString()}</div>
                     </div>
                   </div>
+                </div>
                 ))}
                 {(data?.data || []).length === 0 && <div className="empty" style={{ gridColumn: "1/-1" }}><Icon n="products" size={36} /><div className="empty-t">No products yet</div></div>}
               </div>
-            </>
+
+              {data?.meta && data.meta.totalPages > 1 && (
+                <div style={{ marginTop: 30, display: "flex", justifyContent: "center", gap: 10, paddingBottom: 20 }}>
+                  <button className="btn btn-s" disabled={page === 1} onClick={() => setPage(p => Math.max(1, p - 1))}>
+                    <Icon n="arrow-left" size={14} /> Previous
+                  </button>
+                  <div style={{ display: "flex", alignItems: "center", gap: 15, fontSize: 13, fontWeight: 700, color: "var(--muted)" }}>
+                    Page <span style={{ color: "var(--acc)" }}>{page}</span> of {data.meta.totalPages}
+                  </div>
+                  <button className="btn btn-s" disabled={page === data.meta.totalPages} onClick={() => setPage(p => Math.min(data.meta.totalPages, p + 1))}>
+                    Next <Icon n="arrow-right" size={14} />
+                  </button>
+                </div>
+              )}
+            </div>
           )}
 
           {activeTab === "categories" && (
@@ -267,7 +326,6 @@ const Products = () => {
             </div>
           )}
         </div>
-      )}
 
       {/* Main Product Modal */}
       {showModal && (
@@ -459,7 +517,7 @@ const Products = () => {
           {form.images.map((img, i) => (
             <div key={i} className="card ci" style={{ marginBottom: 12, background: "rgba(255,255,255,0.02)", display: "flex", alignItems: "center", gap: 15, padding: 12 }}>
               <div style={{ width: 60, height: 60, borderRadius: 8, background: "var(--surf)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--border)" }}>
-                {img.url ? <img src={img.url.startsWith('http') ? img.url : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${img.url}`} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <Icon n="image" opacity={0.2} />}
+                {img.url ? <img src={getImgUrl(img.url)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <Icon n="image" opacity={0.2} />}
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>

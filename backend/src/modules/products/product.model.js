@@ -7,7 +7,14 @@ const getProducts = async ({ page = 1, limit = 20, branchId, categoryId, product
     ...(branchId && { branchId: Number(branchId) }),
     ...(categoryId && { categoryId }),
     ...(product_type && { product_type }),
-    ...(search && { name: { contains: search, mode: 'insensitive' } })
+    ...(search && { 
+      OR: [
+        { name: { contains: search, mode: 'insensitive' } },
+        { partDetail: { item_code: { contains: search, mode: 'insensitive' } } },
+        { partDetail: { model: { contains: search, mode: 'insensitive' } } },
+        { partDetail: { description: { contains: search, mode: 'insensitive' } } }
+      ] 
+    })
   };
 
   const [data, total] = await Promise.all([

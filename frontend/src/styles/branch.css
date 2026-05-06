@@ -136,6 +136,8 @@
 .t-up { color: var(--green); }
 .t-dn { color: var(--red); }
 .sc-glow { position: absolute; bottom: -40px; right: -20px; width: 90px; height: 90px; border-radius: 50%; opacity: .07; filter: blur(30px); }
+.g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.g4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
 
 /* ── Table ── */
 .tw { background: var(--surf); border: 1px solid var(--border); border-radius: var(--r-xl); overflow: hidden; }
