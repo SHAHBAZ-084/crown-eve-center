@@ -16,16 +16,18 @@ const getRevenueSummary = async ({ branchId }) => {
 
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  const [today, week, month] = await Promise.all([
+  const [today, week, month, total] = await Promise.all([
     prisma.order.aggregate({ where: { ...where, createdAt: { gte: startOfToday } }, _sum: { total: true } }),
     prisma.order.aggregate({ where: { ...where, createdAt: { gte: startOfWeek } }, _sum: { total: true } }),
-    prisma.order.aggregate({ where: { ...where, createdAt: { gte: startOfMonth } }, _sum: { total: true } })
+    prisma.order.aggregate({ where: { ...where, createdAt: { gte: startOfMonth } }, _sum: { total: true } }),
+    prisma.order.aggregate({ where: { ...where }, _sum: { total: true } })
   ]);
 
   return {
     today: today._sum.total || 0,
     thisWeek: week._sum.total || 0,
-    thisMonth: month._sum.total || 0
+    thisMonth: month._sum.total || 0,
+    totalRevenue: total._sum.total || 0
   };
 };
 
