@@ -24,20 +24,28 @@ export const apiFetch = async (path, options = {}) => {
 };
 
 // ─── HOOKS ───────────────────────────────────────────────────────────────────
-export function useFetch(path, deps = []) {
+export function useFetch(path, deps = [], refreshMs = 0) {
   const [data, setData]       = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState(null);
 
-  const refetch = useCallback(async () => {
+  const refetch = useCallback(async (showLoading = true) => {
     if (!path) return;
-    setLoading(true); setError(null);
+    if (showLoading) setLoading(true);
+    setError(null);
     try { setData(await apiFetch(path)); }
     catch (e) { setError(e.message); }
     finally { setLoading(false); }
   }, [path, ...deps]);
 
-  useEffect(() => { refetch(); }, [refetch]);
+  useEffect(() => {
+    refetch();
+    if (refreshMs > 0) {
+      const t = setInterval(() => refetch(false), refreshMs);
+      return () => clearInterval(t);
+    }
+  }, [refetch, refreshMs]);
+
   return { data, loading, error, refetch };
 }
 

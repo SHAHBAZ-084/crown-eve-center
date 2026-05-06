@@ -145,6 +145,8 @@ model Brand {
   id        String    @id @default(uuid())
   name      String    @unique
   country   String?
+  city      String?
+  contact   String?
   logo_url  String?
   products  Product[]
   createdAt DateTime  @default(now())

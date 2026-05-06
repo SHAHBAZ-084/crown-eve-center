@@ -250,11 +250,40 @@ td { padding: 12px 18px; font-size: 13px; color: var(--text); }
 .cal-day.today { border-color: var(--acc); color: var(--acc); }
 .cal-day .dot { width: 5px; height: 5px; background: var(--acc); border-radius: 50%; }
 
-/* ── Tabs ── */
-.tabs { display: flex; gap: 3px; margin-bottom: 20px; background: var(--surf2); border: 1px solid var(--border); padding: 3px; border-radius: var(--r-md); width: fit-content; }
-.tab { padding: 7px 16px; border-radius: 9px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; color: var(--muted); }
-.tab.active { background: var(--acc); color: #fff; }
-.tab:hover:not(.active) { color: var(--text); }
+/* ── Tabs Navbar ── */
+.tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 24px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 6px;
+  border-radius: 100px;
+  width: fit-content;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+.tab {
+  padding: 10px 20px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tab.active {
+  background: var(--acc);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+.tab:hover:not(.active) {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
 
 /* ── Confirm ── */
 .conf-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.72); backdrop-filter: blur(4px); z-index: 60; display: flex; align-items: center; justify-content: center; }

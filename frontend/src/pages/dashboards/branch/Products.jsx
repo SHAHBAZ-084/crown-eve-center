@@ -13,8 +13,8 @@ const Products = () => {
   const activeProductType = activeTab === "bikes" ? "bike" : activeTab === "parts" ? "part" : "";
   const params = `branchId=${branchId}&limit=100&page=${page}${search ? `&search=${search}` : ""}${activeProductType ? `&product_type=${activeProductType}` : ""}`;
   const { data, loading, refetch } = useFetch(`/products?${params}`, [branchId, page, search, activeProductType]);
-  const { data: catsData } = useFetch("/categories");
-  const { data: brandsData } = useFetch("/brands");
+  const { data: catsData, refetch: refetchCats } = useFetch("/categories");
+  const { data: brandsData, refetch: refetchBrands } = useFetch("/brands");
 
   const getImgUrl = (url) => {
     if (!url) return "";
@@ -27,6 +27,8 @@ const Products = () => {
   const [editTarget, setEditTarget] = useState(null);
   const [confirmId, setConfirmId] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [showBrandModal, setShowBrandModal] = useState(false);
+  const [brandEditTarget, setBrandEditTarget] = useState(null);
 
   const initialForm = {
     name: "", product_type: "bike", description: "", price: "", sale_price: "", stock_qty: 0,
@@ -69,7 +71,7 @@ const Products = () => {
   const [form, setForm] = useState(initialForm);
 
   const [catForm, setCatForm] = useState({ name: "", parent_id: "", description: "" });
-  const [brandForm, setBrandForm] = useState({ name: "", country: "", logo_url: "" });
+  const [brandForm, setBrandForm] = useState({ name: "", country: "", city: "", contact: "", logo_url: "" });
 
   const openAdd = () => { setForm(initialForm); setEditTarget(null); setShowModal(true); };
   const openEdit = p => {
@@ -102,9 +104,18 @@ const Products = () => {
     catch (e) { toast(e.message, "e"); }
   };
 
+  const openAddBrand = () => { setBrandForm({ name: "", country: "", city: "", contact: "", logo_url: "" }); setBrandEditTarget(null); setShowBrandModal(true); };
+  const openEditBrand = b => { setBrandForm({ name: b.name, country: b.country || "", city: b.city || "", contact: b.contact || "", logo_url: b.logo_url || "" }); setBrandEditTarget(b); setShowBrandModal(true); };
+
   const saveBrand = async () => {
-    try { await apiFetch("/brands", { method: "POST", body: brandForm }); toast("Brand saved"); setBrandForm({ name: "", country: "", logo_url: "" }); refetchBrands(); }
-    catch (e) { toast(e.message, "e"); }
+    if (!brandForm.name) return toast("Supplier name required", "e");
+    setSaving(true);
+    try {
+      if (brandEditTarget) { await apiFetch(`/brands/${brandEditTarget.id}`, { method: "PUT", body: brandForm }); toast("Supplier updated"); }
+      else { await apiFetch("/brands", { method: "POST", body: brandForm }); toast("Supplier saved"); }
+      setShowBrandModal(false); refetchBrands();
+    } catch (e) { toast(e.message, "e"); }
+    setSaving(false);
   };
 
   const remove = async id => {
@@ -119,7 +130,7 @@ const Products = () => {
         <div className="ph-l">
           <div className="eyebrow">Catalog</div>
           <div className="ptitle">MASTER INVENTORY</div>
-          <div className="psub">Full control over bikes, spare parts, and brand relationships.</div>
+          <div className="psub">Full control over bikes, spare parts, and supplier relationships.</div>
         </div>
         <div className="ph-r" style={{ display: "flex", gap: 8 }}>
         </div>
@@ -135,8 +146,8 @@ const Products = () => {
         <div className={`tab ${activeTab === "categories" ? "active" : ""}`} onClick={() => setActiveTab("categories")}>
           <Icon n="settings" size={14} /> Categories List ({catsData?.length || 0})
         </div>
-        <div className={`tab ${activeTab === "brands" ? "active" : ""}`} onClick={() => setActiveTab("brands")}>
-          <Icon n="tag" size={14} /> Brands List ({brandsData?.length || 0})
+        <div className={`tab ${activeTab === "suppliers" ? "active" : ""}`} onClick={() => setActiveTab("suppliers")}>
+          <Icon n="tag" size={14} /> Suppliers List ({brandsData?.length || 0})
         </div>
       </div>
 
@@ -159,7 +170,9 @@ const Products = () => {
                 }}
               />
             </div>
-            <button className="btn btn-p" onClick={openAdd}><Icon n="plus" /> Add New Product</button>
+            <button className="btn btn-p" onClick={openAdd}>
+              <Icon n="plus" /> {activeTab === "bikes" ? "Add New Bike" : "Add New Part"}
+            </button>
           </div>
         )}
         {(activeTab === "bikes" || activeTab === "parts") && loading && (
@@ -275,29 +288,21 @@ const Products = () => {
           </div>
         )}
 
-        {activeTab === "brands" && (
+        {activeTab === "suppliers" && (
           <div className="card" style={{ overflow: "hidden" }}>
-            <div className="ci" style={{ background: "var(--surf2)", borderBottom: "1px solid var(--border)" }}>
-              <div style={{ fontWeight: 700, fontSize: 18 }}>Brand Partners</div>
-            </div>
-            <div className="ci" style={{ display: "flex", gap: 10, flexWrap: "wrap", background: "rgba(255,255,255,0.02)" }}>
-              <div style={{ flex: 1 }}>
-                <label style={{ fontSize: 10, color: "var(--muted)", marginBottom: 4, display: "block" }}>BRAND NAME</label>
-                <input placeholder="e.g. Crown EV" value={brandForm.name} onChange={e => setBrandForm(b => ({ ...b, name: e.target.value }))} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <label style={{ fontSize: 10, color: "var(--muted)", marginBottom: 4, display: "block" }}>ORIGIN COUNTRY</label>
-                <input placeholder="e.g. Pakistan" value={brandForm.country} onChange={e => setBrandForm(b => ({ ...b, country: e.target.value }))} />
-              </div>
-              <div style={{ display: "flex", alignItems: "flex-end" }}>
-                <button className="btn btn-p" onClick={saveBrand} style={{ height: 40 }}><Icon n="plus" /> Add Brand</button>
-              </div>
+            <div className="ci" style={{ background: "var(--surf2)", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ fontWeight: 700, fontSize: 18 }}>Supplier Partners</div>
+              <button className="btn btn-p btn-sm" onClick={openAddBrand}>
+                <Icon n="plus" /> Add New Supplier
+              </button>
             </div>
             <div className="tw">
               <table>
                 <thead>
                   <tr>
-                    <th>Brand Identity</th>
+                    <th>Supplier Identity</th>
+                    <th>Location / City</th>
+                    <th>Contact Info</th>
                     <th>Origin</th>
                     <th style={{ textAlign: "right" }}>Actions</th>
                   </tr>
@@ -306,12 +311,18 @@ const Products = () => {
                   {brandsData?.map(b => (
                     <tr key={b.id}>
                       <td style={{ fontWeight: 700 }}>{b.name}</td>
+                      <td>{b.city || <span style={{ opacity: 0.3 }}>—</span>}</td>
+                      <td style={{ fontSize: 12, fontWeight: 600 }}>{b.contact || <span style={{ opacity: 0.3 }}>—</span>}</td>
                       <td>{b.country || "International"}</td>
                       <td className="tda">
-                        <button className="btn-ico dng" onClick={async () => { await apiFetch(`/brands/${b.id}`, { method: "DELETE" }); refetchBrands(); }}><Icon n="trash" size={12} /></button>
+                        <button className="btn-ico" onClick={() => openEditBrand(b)}><Icon n="edit" size={12} /></button>
+                        <button className="btn-ico dng" onClick={async () => { if(confirm("Delete this supplier?")) { await apiFetch(`/brands/${b.id}`, { method: "DELETE" }); refetchBrands(); } }}><Icon n="trash" size={12} /></button>
                       </td>
                     </tr>
                   ))}
+                  {(!brandsData || brandsData.length === 0) && (
+                    <tr><td colSpan="5" style={{ textAlign: "center", padding: 40, opacity: 0.5 }}>No suppliers registered yet.</td></tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -350,9 +361,9 @@ const Products = () => {
                 {catsData?.map(c => <option key={c.id} value={c.id}>{c.parent?.name ? `${c.parent.name} > ` : ""}{c.name}</option>)}
               </select>
             </div>
-            <div className="fg"><label>Brand</label>
+            <div className="fg"><label>Supplier</label>
               <select value={form.brandId} onChange={e => setForm(f => ({ ...f, brandId: e.target.value }))}>
-                <option value="">— Select Brand —</option>
+                <option value="">— Select Supplier —</option>
                 {brandsData?.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
             </div>
@@ -556,6 +567,35 @@ const Products = () => {
 
 
       {confirmId && <Confirm msg="Delete this product?" onYes={() => remove(confirmId)} onNo={() => setConfirmId(null)} />}
+
+      {/* Supplier Modal */}
+      {showBrandModal && (
+        <Modal title={brandEditTarget ? "EDIT SUPPLIER" : "NEW SUPPLIER"} onClose={() => setShowBrandModal(false)}
+          footer={<>
+            <button className="btn btn-s btn-sm" onClick={() => setShowBrandModal(false)}>Cancel</button>
+            <button className="btn btn-p btn-sm" onClick={saveBrand} disabled={saving}>{saving ? "Saving…" : "Save Supplier"}</button>
+          </>}
+        >
+          <div className="fg" style={{ marginBottom: 15 }}>
+            <label>Supplier Name *</label>
+            <input placeholder="e.g. Crown EV" value={brandForm.name} onChange={e => setBrandForm(b => ({ ...b, name: e.target.value }))} />
+          </div>
+          <div className="fr">
+            <div className="fg">
+              <label>City</label>
+              <input placeholder="e.g. Karachi" value={brandForm.city} onChange={e => setBrandForm(b => ({ ...b, city: e.target.value }))} />
+            </div>
+            <div className="fg">
+              <label>Origin Country</label>
+              <input placeholder="e.g. Pakistan" value={brandForm.country} onChange={e => setBrandForm(b => ({ ...b, country: e.target.value }))} />
+            </div>
+          </div>
+          <div className="fg" style={{ marginTop: 15 }}>
+            <label>Contact Info (Phone/Email)</label>
+            <input placeholder="+92 300 0000000" value={brandForm.contact} onChange={e => setBrandForm(b => ({ ...b, contact: e.target.value }))} />
+          </div>
+        </Modal>
+      )}
 
     </div>
   );

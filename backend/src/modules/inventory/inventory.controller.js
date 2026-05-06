@@ -32,4 +32,14 @@ exports.getAlerts = async (req, res) => {
   } catch (e) {
     res.status(500).json({ message: e.message });
   }
+exports.getSummary = async (req, res) => {
+  try {
+    const { branchId } = req.query;
+    const summary = await Inventory.getInventorySummary(branchId);
+    res.json(summary);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
 };
+
+module.exports = exports;

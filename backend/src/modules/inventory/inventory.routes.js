@@ -5,6 +5,7 @@ const { protect } = require('../../middleware/auth');
 const { allow } = require('../../middleware/rbac');
 
 router.get('/alerts',    protect, allow('BRANCH_OWNER', 'COMPANY_OWNER', 'EMPLOYEE'), ctrl.getAlerts);
+router.get('/summary',   protect, allow('BRANCH_OWNER', 'COMPANY_OWNER', 'EMPLOYEE'), ctrl.getSummary);
 router.get('/',          protect, allow('BRANCH_OWNER', 'EMPLOYEE', 'COMPANY_OWNER'), ctrl.getAll);
 router.put('/:id',       protect, allow('BRANCH_OWNER'), ctrl.update);
 

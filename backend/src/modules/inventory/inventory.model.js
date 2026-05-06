@@ -53,4 +53,43 @@ const getAlerts = (branchId, isGlobal = false) => {
   });
 };
 
-module.exports = { getBranchInventory, updateStockById, getAlerts };
+const getInventorySummary = async (branchId) => {
+  const lastWeek = new Date();
+  lastWeek.setDate(lastWeek.getDate() - 7);
+  const whereBranch = { branchId: Number(branchId) };
+
+  const [lowStockCount, weeklyOut, weeklyIn] = await Promise.all([
+    // 1. Low Stock Count
+    prisma.inventory.count({
+      where: { ...whereBranch, stock: { lte: prisma.inventory.fields.alertAt } }
+    }),
+    // 2. Weekly Out (Sales/Orders)
+    prisma.orderItem.aggregate({
+      where: {
+        order: {
+          branchId: Number(branchId),
+          createdAt: { gte: lastWeek }
+        }
+      },
+      _sum: { quantity: true }
+    }),
+    // 3. Weekly In (Purchases/Restock)
+    prisma.purchaseItem.aggregate({
+      where: {
+        purchase: {
+          branchId: Number(branchId),
+          createdAt: { gte: lastWeek }
+        }
+      },
+      _sum: { quantity: true }
+    })
+  ]);
+
+  return {
+    lowStock: lowStockCount,
+    weeklyOut: weeklyOut._sum.quantity || 0,
+    weeklyIn: weeklyIn._sum.quantity || 0
+  };
+};
+
+module.exports = { getBranchInventory, updateStockById, getAlerts, getInventorySummary };

@@ -12,6 +12,7 @@ const Inventory = () => {
   const ds = useDebounce(search);
   const params = new URLSearchParams({ branchId, page, limit: 20 }).toString();
   const { data, loading, refetch } = useFetch(`/inventory?${params}`, [page, branchId]);
+  const { data: summary } = useFetch(`/inventory/summary?branchId=${branchId}`, [branchId]);
   const [editing, setEditing]     = useState(null); // { id, stock, alertAt }
   const [saving, setSaving]       = useState(false);
 
@@ -49,11 +50,41 @@ const Inventory = () => {
           <div className="ptitle">STATION STOCK</div>
           <div className="psub">Local parts management · {data?.meta?.total || 0} SKUs tracked</div>
         </div>
-        <div className="ph-r">
+        <div className="ph-r" style={{ display: "flex", gap: 10 }}>
           <button className="btn btn-s btn-sm" onClick={() => refetch()}><Icon n="refresh" /> Reconcile</button>
         </div>
       </div>
 
+      {/* Summary Cards */}
+      <div className="g3" style={{ marginBottom: 25 }}>
+        <div className="card ci" style={{ display: "flex", alignItems: "center", gap: 15, background: "linear-gradient(135deg, rgba(34,197,94,0.1) 0%, rgba(34,197,94,0.05) 100%)", border: "1px solid rgba(34,197,94,0.2)" }}>
+           <div style={{ width: 45, height: 45, borderRadius: 12, background: "rgba(34,197,94,0.2)", display: "flex", alignItems: "center", justifyContent: "center", color: "#22c55e" }}>
+              <Icon n="plus" size={20} />
+           </div>
+           <div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 1 }}>Stock In (Weekly)</div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: "#22c55e" }}>{summary?.weeklyIn || 0} <span style={{ fontSize: 12, fontWeight: 500, color: "var(--muted)" }}>units</span></div>
+           </div>
+        </div>
+        <div className="card ci" style={{ display: "flex", alignItems: "center", gap: 15, background: "linear-gradient(135deg, rgba(14,165,233,0.1) 0%, rgba(14,165,233,0.05) 100%)", border: "1px solid rgba(14,165,233,0.2)" }}>
+           <div style={{ width: 45, height: 45, borderRadius: 12, background: "rgba(14,165,233,0.2)", display: "flex", alignItems: "center", justifyContent: "center", color: "#0ea5e9" }}>
+              <Icon n="orders" size={20} />
+           </div>
+           <div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 1 }}>Stock Out (Weekly)</div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: "#0ea5e9" }}>{summary?.weeklyOut || 0} <span style={{ fontSize: 12, fontWeight: 500, color: "var(--muted)" }}>units</span></div>
+           </div>
+        </div>
+        <div className="card ci" style={{ display: "flex", alignItems: "center", gap: 15, background: "linear-gradient(135deg, rgba(239,68,68,0.1) 0%, rgba(239,68,68,0.05) 100%)", border: "1px solid rgba(239,68,68,0.2)" }}>
+           <div style={{ width: 45, height: 45, borderRadius: 12, background: "rgba(239,68,68,0.2)", display: "flex", alignItems: "center", justifyContent: "center", color: "#ef4444" }}>
+              <Icon n="reports" size={20} />
+           </div>
+           <div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 1 }}>Low Stock Items</div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: "#ef4444" }}>{summary?.lowStock || 0} <span style={{ fontSize: 12, fontWeight: 500, color: "var(--muted)" }}>alerts</span></div>
+           </div>
+        </div>
+      </div>
       <div className="fbar">
         <div className="sw"><Icon n="search" /><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search parts…" /></div>
       </div>
