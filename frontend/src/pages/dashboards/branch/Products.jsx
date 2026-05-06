@@ -25,45 +25,45 @@ const Products = () => {
   };
   const [showModal, setShowModal] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
-  const [confirmId, setConfirmId]   = useState(null);
-  const [saving, setSaving]         = useState(false);
+  const [confirmId, setConfirmId] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   const initialForm = {
     name: "", product_type: "bike", description: "", price: "", sale_price: "", stock_qty: 0,
     categoryId: "", brandId: "", is_active: true, images: [{ url: "", is_primary: true, sort_order: 0 }],
-    bikeDetail: { 
-      motor_type: "", 
-      motor_watt_min: "", 
-      motor_watt_max: "", 
-      battery_voltage: "", 
-      battery_capacity_ah: "", 
-      battery_type: "", 
-      speed_min_kmh: "", 
-      speed_max_kmh: "", 
-      range_eco_min_km: "", 
-      range_eco_max_km: "", 
-      speed_modes: "", 
-      charger: "", 
-      charging_time_min_hrs: "", 
-      charging_time_max_hrs: "", 
-      net_weight_kg: "", 
-      loading_capacity_kg: "", 
-      security: "", 
-      braking_system: "", 
-      color_options: [], 
-      frame_material: "", 
-      wheel_size: "", 
-      warranty: "" 
+    bikeDetail: {
+      motor_type: "",
+      motor_watt_min: "",
+      motor_watt_max: "",
+      battery_voltage: "",
+      battery_capacity_ah: "",
+      battery_type: "",
+      speed_min_kmh: "",
+      speed_max_kmh: "",
+      range_eco_min_km: "",
+      range_eco_max_km: "",
+      speed_modes: "",
+      charger: "",
+      charging_time_min_hrs: "",
+      charging_time_max_hrs: "",
+      net_weight_kg: "",
+      loading_capacity_kg: "",
+      security: "",
+      braking_system: "",
+      color_options: [],
+      frame_material: "",
+      wheel_size: "",
+      warranty: ""
     },
-    partDetail: { 
-      serial_no: "", 
-      item_code: "", 
-      model: "", 
-      description: "", 
-      cp_price: "", 
-      compatible_models: [], 
-      compatible_bike_ids: [], 
-      unit: "piece" 
+    partDetail: {
+      serial_no: "",
+      item_code: "",
+      model: "",
+      description: "",
+      cp_price: "",
+      compatible_models: [],
+      compatible_bike_ids: [],
+      unit: "piece"
     }
   };
   const [form, setForm] = useState(initialForm);
@@ -71,10 +71,10 @@ const Products = () => {
   const [catForm, setCatForm] = useState({ name: "", parent_id: "", description: "" });
   const [brandForm, setBrandForm] = useState({ name: "", country: "", logo_url: "" });
 
-  const openAdd  = () => { setForm(initialForm); setEditTarget(null); setShowModal(true); };
-  const openEdit = p  => { 
+  const openAdd = () => { setForm(initialForm); setEditTarget(null); setShowModal(true); };
+  const openEdit = p => {
     setForm({
-      name: p.name, product_type: p.product_type, description: p.description || "", 
+      name: p.name, product_type: p.product_type, description: p.description || "",
       price: p.price, sale_price: p.sale_price || "", stock_qty: p.stock_qty,
       categoryId: p.categoryId || "", brandId: p.brandId || "", is_active: p.is_active,
       images: p.images?.length ? p.images : [{ url: "", is_primary: true, sort_order: 0 }],
@@ -122,18 +122,6 @@ const Products = () => {
           <div className="psub">Full control over bikes, spare parts, and brand relationships.</div>
         </div>
         <div className="ph-r" style={{ display: "flex", gap: 8 }}>
-          <button className={`btn ${activeTab === "bikes" ? "btn-p" : "btn-s"}`} onClick={() => setActiveTab("bikes")}>
-            <Icon n="bike" /> Manage Bikes
-          </button>
-          <button className={`btn ${activeTab === "parts" ? "btn-p" : "btn-s"}`} onClick={() => setActiveTab("parts")}>
-            <Icon n="settings" /> Manage Parts
-          </button>
-          <button className={`btn ${activeTab === "categories" ? "btn-p" : "btn-s"}`} onClick={() => setActiveTab("categories")}>
-            <Icon n="settings" /> Manage Categories
-          </button>
-          <button className={`btn ${activeTab === "brands" ? "btn-p" : "btn-s"}`} onClick={() => setActiveTab("brands")}>
-            <Icon n="tag" /> Manage Brands
-          </button>
         </div>
       </div>
 
@@ -153,46 +141,50 @@ const Products = () => {
       </div>
 
       <div className="tab-content">
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, gap: 15 }}>
-          <div style={{ fontWeight: 700, fontSize: 18 }}>Product Catalog</div>
-          <div style={{ flex: 1, position: "relative", maxWidth: 400 }}>
-            <Icon n="search" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", opacity: 0.4 }} size={16} />
-            <input 
-              placeholder="Search products by name..." 
-              style={{ paddingLeft: 40, background: "var(--surf)", border: "1px solid var(--border)" }}
-              value={search}
-              onChange={e => {
-                setSearch(e.target.value);
-                setPage(1);
-              }}
-            />
-          </div>
-          <button className="btn btn-p" onClick={openAdd}><Icon n="plus" /> Add New Product</button>
-        </div>
+        {(activeTab === "bikes" || activeTab === "parts") && (
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, gap: 15 }}>
+            <div style={{ fontWeight: 700, fontSize: 18 }}>
+              {activeTab === "bikes" ? "Bikes Catalog" : "Spare Parts Catalog"}
+            </div>
+            <div style={{ flex: 1, position: "relative", maxWidth: 400 }}>
+              <Icon n="search" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", opacity: 0.4 }} size={16} />
 
+              <input
+                placeholder="Search products by name..."
+                style={{ paddingLeft: 40, background: "var(--surf)", border: "1px solid var(--border)" }}
+                value={search}
+                onChange={e => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+              />
+            </div>
+            <button className="btn btn-p" onClick={openAdd}><Icon n="plus" /> Add New Product</button>
+          </div>
+        )}
         {(activeTab === "bikes" || activeTab === "parts") && loading && (
           <div className="g4">
             {Array.from({ length: 8 }).map((_, i) => <div key={i} className="sk" style={{ height: 200, borderRadius: 20 }} />)}
           </div>
         )}
-        
+
         {(activeTab === "bikes" || activeTab === "parts") && !loading && (
           <div className="tab-pane">
             <div className="g4">
-                {(data?.data || []).map(p => (
-                  <div key={p.id} className="card ci" style={{ transition: "all .2s" }}>
-                    <div style={{ position: "relative", height: 160, borderRadius: 12, background: "var(--surf)", marginBottom: 14, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      {p.images?.find(img => img.is_primary)?.url ? (
-                        <img 
-                          src={getImgUrl(p.images.find(img => img.is_primary).url)} 
-                          alt="" 
-                          style={{ width: "100%", height: "100%", objectFit: "contain" }} 
-                        />
-                      ) : <Icon n={p.product_type === "bike" ? "bike" : "settings"} size={40} opacity={0.2} />}
-                      <div style={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 4 }}>
-                        <button className="btn-ico" onClick={() => openEdit(p)}><Icon n="edit" size={12} /></button>
-                        <button className="btn-ico dng" onClick={() => setConfirmId(p.id)}><Icon n="trash" size={12} /></button>
-                      </div>
+              {(data?.data || []).map(p => (
+                <div key={p.id} className="card ci" style={{ transition: "all .2s" }}>
+                  <div style={{ position: "relative", height: 160, borderRadius: 12, background: "var(--surf)", marginBottom: 14, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {p.images?.find(img => img.is_primary)?.url ? (
+                      <img
+                        src={getImgUrl(p.images.find(img => img.is_primary).url)}
+                        alt=""
+                        style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                      />
+                    ) : <Icon n={p.product_type === "bike" ? "bike" : "settings"} size={40} opacity={0.2} />}
+                    <div style={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 4 }}>
+                      <button className="btn-ico" onClick={() => openEdit(p)}><Icon n="edit" size={12} /></button>
+                      <button className="btn-ico dng" onClick={() => setConfirmId(p.id)}><Icon n="trash" size={12} /></button>
+                    </div>
                   </div>
                   <div style={{ fontWeight: 700, marginBottom: 4, textTransform: "uppercase", fontSize: 13 }}>{p.name}</div>
                   <div style={{ fontSize: 11, opacity: 0.5, marginBottom: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -215,117 +207,117 @@ const Products = () => {
                     </div>
                   </div>
                 </div>
-                ))}
-                {(data?.data || []).length === 0 && <div className="empty" style={{ gridColumn: "1/-1" }}><Icon n="products" size={36} /><div className="empty-t">No products yet</div></div>}
-              </div>
-
-              {data?.meta && data.meta.totalPages > 1 && (
-                <div style={{ marginTop: 30, display: "flex", justifyContent: "center", gap: 10, paddingBottom: 20 }}>
-                  <button className="btn btn-s" disabled={page === 1} onClick={() => setPage(p => Math.max(1, p - 1))}>
-                    <Icon n="arrow-left" size={14} /> Previous
-                  </button>
-                  <div style={{ display: "flex", alignItems: "center", gap: 15, fontSize: 13, fontWeight: 700, color: "var(--muted)" }}>
-                    Page <span style={{ color: "var(--acc)" }}>{page}</span> of {data.meta.totalPages}
-                  </div>
-                  <button className="btn btn-s" disabled={page === data.meta.totalPages} onClick={() => setPage(p => Math.min(data.meta.totalPages, p + 1))}>
-                    Next <Icon n="arrow-right" size={14} />
-                  </button>
-                </div>
-              )}
+              ))}
+              {(data?.data || []).length === 0 && <div className="empty" style={{ gridColumn: "1/-1" }}><Icon n="products" size={36} /><div className="empty-t">No products yet</div></div>}
             </div>
-          )}
 
-          {activeTab === "categories" && (
-            <div className="card" style={{ overflow: "hidden" }}>
-              <div className="ci" style={{ background: "var(--surf2)", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ fontWeight: 700, fontSize: 18 }}>Categories Architecture</div>
+            {data?.meta && data.meta.totalPages > 1 && (
+              <div style={{ marginTop: 30, display: "flex", justifyContent: "center", gap: 10, paddingBottom: 20 }}>
+                <button className="btn btn-s" disabled={page === 1} onClick={() => setPage(p => Math.max(1, p - 1))}>
+                  <Icon n="arrow-left" size={14} /> Previous
+                </button>
+                <div style={{ display: "flex", alignItems: "center", gap: 15, fontSize: 13, fontWeight: 700, color: "var(--muted)" }}>
+                  Page <span style={{ color: "var(--acc)" }}>{page}</span> of {data.meta.totalPages}
+                </div>
+                <button className="btn btn-s" disabled={page === data.meta.totalPages} onClick={() => setPage(p => Math.min(data.meta.totalPages, p + 1))}>
+                  Next <Icon n="arrow-right" size={14} />
+                </button>
               </div>
-              <div className="ci" style={{ display: "flex", gap: 10, flexWrap: "wrap", background: "rgba(255,255,255,0.02)" }}>
-                <div style={{ flex: 1, minWidth: 200 }}>
-                  <label style={{ fontSize: 10, color: "var(--muted)", marginBottom: 4, display: "block" }}>CATEGORY NAME</label>
-                  <input placeholder="e.g. Electric Spares" value={catForm.name} onChange={e => setCatForm(c => ({ ...c, name: e.target.value }))} />
-                </div>
-                <div style={{ flex: 1, minWidth: 200 }}>
-                  <label style={{ fontSize: 10, color: "var(--muted)", marginBottom: 4, display: "block" }}>PARENT CATEGORY</label>
-                  <select value={catForm.parent_id} onChange={e => setCatForm(c => ({ ...c, parent_id: e.target.value }))}>
-                    <option value="">— Top Level —</option>
-                    {catsData?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
-                </div>
-                <div style={{ display: "flex", alignItems: "flex-end" }}>
-                  <button className="btn btn-p" onClick={saveCat} style={{ height: 40 }}><Icon n="plus" /> Add Category</button>
-                </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "categories" && (
+          <div className="card" style={{ overflow: "hidden" }}>
+            <div className="ci" style={{ background: "var(--surf2)", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ fontWeight: 700, fontSize: 18 }}>Categories Architecture</div>
+            </div>
+            <div className="ci" style={{ display: "flex", gap: 10, flexWrap: "wrap", background: "rgba(255,255,255,0.02)" }}>
+              <div style={{ flex: 1, minWidth: 200 }}>
+                <label style={{ fontSize: 10, color: "var(--muted)", marginBottom: 4, display: "block" }}>CATEGORY NAME</label>
+                <input placeholder="e.g. Electric Spares" value={catForm.name} onChange={e => setCatForm(c => ({ ...c, name: e.target.value }))} />
               </div>
-              <div className="tw">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Category Name</th>
-                      <th>Parent Architecture</th>
-                      <th>Description</th>
-                      <th style={{ textAlign: "right" }}>Actions</th>
+              <div style={{ flex: 1, minWidth: 200 }}>
+                <label style={{ fontSize: 10, color: "var(--muted)", marginBottom: 4, display: "block" }}>PARENT CATEGORY</label>
+                <select value={catForm.parent_id} onChange={e => setCatForm(c => ({ ...c, parent_id: e.target.value }))}>
+                  <option value="">— Top Level —</option>
+                  {catsData?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+              <div style={{ display: "flex", alignItems: "flex-end" }}>
+                <button className="btn btn-p" onClick={saveCat} style={{ height: 40 }}><Icon n="plus" /> Add Category</button>
+              </div>
+            </div>
+            <div className="tw">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Category Name</th>
+                    <th>Parent Architecture</th>
+                    <th>Description</th>
+                    <th style={{ textAlign: "right" }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {catsData?.map(c => (
+                    <tr key={c.id}>
+                      <td style={{ fontWeight: 600 }}>{c.name}</td>
+                      <td>{c.parent?.name ? <span className="badge badge-blue">{c.parent.name}</span> : <span style={{ color: "var(--muted)" }}>Root Node</span>}</td>
+                      <td style={{ color: "var(--muted)", fontSize: 12 }}>{c.description || "System default category"}</td>
+                      <td className="tda">
+                        <button className="btn-ico dng" onClick={async () => { await apiFetch(`/categories/${c.id}`, { method: "DELETE" }); refetchCats(); }}><Icon n="trash" size={12} /></button>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {catsData?.map(c => (
-                      <tr key={c.id}>
-                        <td style={{ fontWeight: 600 }}>{c.name}</td>
-                        <td>{c.parent?.name ? <span className="badge badge-blue">{c.parent.name}</span> : <span style={{ color: "var(--muted)" }}>Root Node</span>}</td>
-                        <td style={{ color: "var(--muted)", fontSize: 12 }}>{c.description || "System default category"}</td>
-                        <td className="tda">
-                          <button className="btn-ico dng" onClick={async () => { await apiFetch(`/categories/${c.id}`, { method: "DELETE" }); refetchCats(); }}><Icon n="trash" size={12} /></button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          )}
+          </div>
+        )}
 
-          {activeTab === "brands" && (
-            <div className="card" style={{ overflow: "hidden" }}>
-              <div className="ci" style={{ background: "var(--surf2)", borderBottom: "1px solid var(--border)" }}>
-                <div style={{ fontWeight: 700, fontSize: 18 }}>Brand Partners</div>
+        {activeTab === "brands" && (
+          <div className="card" style={{ overflow: "hidden" }}>
+            <div className="ci" style={{ background: "var(--surf2)", borderBottom: "1px solid var(--border)" }}>
+              <div style={{ fontWeight: 700, fontSize: 18 }}>Brand Partners</div>
+            </div>
+            <div className="ci" style={{ display: "flex", gap: 10, flexWrap: "wrap", background: "rgba(255,255,255,0.02)" }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ fontSize: 10, color: "var(--muted)", marginBottom: 4, display: "block" }}>BRAND NAME</label>
+                <input placeholder="e.g. Crown EV" value={brandForm.name} onChange={e => setBrandForm(b => ({ ...b, name: e.target.value }))} />
               </div>
-              <div className="ci" style={{ display: "flex", gap: 10, flexWrap: "wrap", background: "rgba(255,255,255,0.02)" }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: 10, color: "var(--muted)", marginBottom: 4, display: "block" }}>BRAND NAME</label>
-                  <input placeholder="e.g. Crown EV" value={brandForm.name} onChange={e => setBrandForm(b => ({ ...b, name: e.target.value }))} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: 10, color: "var(--muted)", marginBottom: 4, display: "block" }}>ORIGIN COUNTRY</label>
-                  <input placeholder="e.g. Pakistan" value={brandForm.country} onChange={e => setBrandForm(b => ({ ...b, country: e.target.value }))} />
-                </div>
-                <div style={{ display: "flex", alignItems: "flex-end" }}>
-                  <button className="btn btn-p" onClick={saveBrand} style={{ height: 40 }}><Icon n="plus" /> Add Brand</button>
-                </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ fontSize: 10, color: "var(--muted)", marginBottom: 4, display: "block" }}>ORIGIN COUNTRY</label>
+                <input placeholder="e.g. Pakistan" value={brandForm.country} onChange={e => setBrandForm(b => ({ ...b, country: e.target.value }))} />
               </div>
-              <div className="tw">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Brand Identity</th>
-                      <th>Origin</th>
-                      <th style={{ textAlign: "right" }}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {brandsData?.map(b => (
-                      <tr key={b.id}>
-                        <td style={{ fontWeight: 700 }}>{b.name}</td>
-                        <td>{b.country || "International"}</td>
-                        <td className="tda">
-                          <button className="btn-ico dng" onClick={async () => { await apiFetch(`/brands/${b.id}`, { method: "DELETE" }); refetchBrands(); }}><Icon n="trash" size={12} /></button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div style={{ display: "flex", alignItems: "flex-end" }}>
+                <button className="btn btn-p" onClick={saveBrand} style={{ height: 40 }}><Icon n="plus" /> Add Brand</button>
               </div>
             </div>
-          )}
-        </div>
+            <div className="tw">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Brand Identity</th>
+                    <th>Origin</th>
+                    <th style={{ textAlign: "right" }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {brandsData?.map(b => (
+                    <tr key={b.id}>
+                      <td style={{ fontWeight: 700 }}>{b.name}</td>
+                      <td>{b.country || "International"}</td>
+                      <td className="tda">
+                        <button className="btn-ico dng" onClick={async () => { await apiFetch(`/brands/${b.id}`, { method: "DELETE" }); refetchBrands(); }}><Icon n="trash" size={12} /></button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Main Product Modal */}
       {showModal && (
@@ -459,7 +451,7 @@ const Products = () => {
               <div className="fg"><label>Cost Price (CP)</label><input type="number" step="0.01" value={form.partDetail.cp_price} onChange={e => setForm(f => ({ ...f, partDetail: { ...f.partDetail, cp_price: e.target.value } }))} /></div>
               <div className="fg"><label>Unit</label><input placeholder="piece, set, pair" value={form.partDetail.unit} onChange={e => setForm(f => ({ ...f, partDetail: { ...f.partDetail, unit: e.target.value } }))} /></div>
               <div className="fg"><label>Technical Description</label><textarea value={form.partDetail.description} onChange={e => setForm(f => ({ ...f, partDetail: { ...f.partDetail, description: e.target.value } }))} style={{ height: 40 }} /></div>
-              
+
               <div className="fg" style={{ gridColumn: "1 / -1" }}>
                 <label>Compatible Models (Text)</label>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
@@ -523,8 +515,8 @@ const Products = () => {
                 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                   <button className="btn btn-s btn-sm" style={{ position: "relative", overflow: "hidden" }}>
                     <Icon n="upload" size={12} /> {img.url ? "Change Image" : "Upload Image"}
-                    <input 
-                      type="file" 
+                    <input
+                      type="file"
                       accept="image/*"
                       style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer" }}
                       onChange={async (e) => {
