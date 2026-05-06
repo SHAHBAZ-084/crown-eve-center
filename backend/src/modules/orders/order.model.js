@@ -12,7 +12,7 @@ const createOrder = async (data) => {
         customerId: customerId || undefined,
         total: Number(total),
         type: type || 'POS',
-        status: 'PENDING',
+        status: type === 'POS' ? 'COMPLETED' : 'PENDING',
         payment_method: payment_method || 'CASH',
         transaction_id,
         customer_name,
