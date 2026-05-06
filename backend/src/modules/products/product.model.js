@@ -28,7 +28,18 @@ const getProducts = async ({ page = 1, limit = 20, branchId, categoryId, product
         brand: true,
         images: { orderBy: { sort_order: 'asc' } },
         bikeDetail: true,
-        partDetail: true
+        partDetail: true,
+        productParts: {
+          include: {
+            part: {
+              include: {
+                inventory: {
+                  where: { branchId: branchId ? Number(branchId) : 0 }
+                }
+              }
+            }
+          }
+        }
       },
       orderBy: { createdAt: 'desc' }
     }),

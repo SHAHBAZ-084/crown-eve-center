@@ -49,6 +49,9 @@ const POS = () => {
       setPaymentMethod('CASH');
       setTransactionId('');
       alert('Sale Completed Successfully!');
+    },
+    onError: (err) => {
+      alert(err.response?.data?.message || 'Failed to complete sale. Please check stock availability.');
     }
   });
 
@@ -126,6 +129,7 @@ const POS = () => {
                 ? (mainImg.startsWith('http') ? mainImg : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${mainImg}`)
                 : null;
               const modelName = p.partDetail?.model || p.bikeDetail?.model || "Standard";
+              const stock = p.productParts?.reduce((acc, pp) => acc + (pp.part?.inventory?.[0]?.stock || 0), 0) || 0;
 
               return (
                 <button 
@@ -152,7 +156,14 @@ const POS = () => {
                   </div>
                   
                   <div className="p-3 flex flex-col flex-1 justify-between">
-                    <h4 className="font-bold text-xs text-slate-100 line-clamp-1">{p.name}</h4>
+                    <div>
+                      <h4 className="font-bold text-xs text-slate-100 line-clamp-1">{p.name}</h4>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <span className={`text-[8px] font-black uppercase tracking-tighter px-1.5 py-0.5 rounded ${stock <= 0 ? 'bg-red-500/20 text-red-500' : 'bg-emerald-500/10 text-emerald-500'}`}>
+                          STOCK: {stock}
+                        </span>
+                      </div>
+                    </div>
                     <div className="flex justify-between items-center mt-3">
                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.1em]">{p.partDetail?.item_code || 'N/A'}</span>
                        <div className="w-8 h-8 bg-blue-600/10 text-blue-500 rounded-xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">

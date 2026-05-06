@@ -34,16 +34,24 @@ const createOrder = async (data) => {
       for (const productPart of item.product.parts) {
         const qtyToDeduct = productPart.quantity * item.quantity;
         
-        await tx.inventory.update({
+        // Find current stock
+        const inv = await tx.inventory.findUnique({
           where: {
             branchId_partId: {
               branchId,
               partId: productPart.partId
             }
           },
-          data: {
-            stock: { decrement: qtyToDeduct }
-          }
+          include: { part: true }
+        });
+
+        if (!inv || inv.stock < qtyToDeduct) {
+          throw new Error(`Insufficient stock for: ${inv?.part?.name || 'Item'}. Available: ${inv?.stock || 0}`);
+        }
+        
+        await tx.inventory.update({
+          where: { id: inv.id },
+          data: { stock: { decrement: qtyToDeduct } }
         });
       }
     }
