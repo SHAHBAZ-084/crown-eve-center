@@ -21,8 +21,40 @@ const Products = () => {
   const initialForm = {
     name: "", product_type: "bike", description: "", price: "", sale_price: "", stock_qty: 0,
     categoryId: "", brandId: "", is_active: true, images: [{ url: "", is_primary: true, sort_order: 0 }],
-    bikeDetail: { motor_type: "", motor_watt: "", battery_capacity_wh: "", range_km: "", top_speed_kmh: "", frame_material: "", brake_type: "", wheel_size: "", payload_kg: "", color: "", warranty: "" },
-    partDetail: { sku: "", part_number: "", compatible_models: "", part_category: "", unit: "piece" }
+    bikeDetail: { 
+      motor_type: "", 
+      motor_watt_min: "", 
+      motor_watt_max: "", 
+      battery_voltage: "", 
+      battery_capacity_ah: "", 
+      battery_type: "", 
+      speed_min_kmh: "", 
+      speed_max_kmh: "", 
+      range_eco_min_km: "", 
+      range_eco_max_km: "", 
+      speed_modes: "", 
+      charger: "", 
+      charging_time_min_hrs: "", 
+      charging_time_max_hrs: "", 
+      net_weight_kg: "", 
+      loading_capacity_kg: "", 
+      security: "", 
+      braking_system: "", 
+      color_options: [], 
+      frame_material: "", 
+      wheel_size: "", 
+      warranty: "" 
+    },
+    partDetail: { 
+      serial_no: "", 
+      item_code: "", 
+      model: "", 
+      description: "", 
+      cp_price: "", 
+      compatible_models: [], 
+      compatible_bike_ids: [], 
+      unit: "piece" 
+    }
   };
   const [form, setForm] = useState(initialForm);
 
@@ -283,18 +315,143 @@ const Products = () => {
 
           {form.product_type === "bike" ? (
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 20px" }}>
-              <div className="fg"><label>Motor Type</label><input placeholder="e.g. Hub Motor" value={form.bikeDetail.motor_type} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, motor_type: e.target.value } }))} /></div>
-              <div className="fg"><label>Motor Watt</label><input type="number" placeholder="e.g. 1000" value={form.bikeDetail.motor_watt} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, motor_watt: e.target.value } }))} /></div>
-              <div className="fg"><label>Battery (Wh)</label><input type="number" placeholder="e.g. 1200" value={form.bikeDetail.battery_capacity_wh} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, battery_capacity_wh: e.target.value } }))} /></div>
-              <div className="fg"><label>Range (km)</label><input type="number" placeholder="e.g. 80" value={form.bikeDetail.range_km} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, range_km: e.target.value } }))} /></div>
-              <div className="fg"><label>Top Speed (km/h)</label><input type="number" value={form.bikeDetail.top_speed_kmh} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, top_speed_kmh: e.target.value } }))} /></div>
-              <div className="fg"><label>Color</label><input value={form.bikeDetail.color} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, color: e.target.value } }))} /></div>
+              <div className="fg"><label>Motor Type</label><input placeholder="e.g. Multi Mode Motor" value={form.bikeDetail.motor_type} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, motor_type: e.target.value } }))} /></div>
+              <div className="fg"><label>Motor Watt (Min/Max)</label>
+                <div style={{ display: "flex", gap: 5 }}>
+                  <input type="number" placeholder="Min" value={form.bikeDetail.motor_watt_min} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, motor_watt_min: e.target.value } }))} />
+                  <input type="number" placeholder="Max" value={form.bikeDetail.motor_watt_max} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, motor_watt_max: e.target.value } }))} />
+                </div>
+              </div>
+              <div className="fg"><label>Battery (V / Ah)</label>
+                <div style={{ display: "flex", gap: 5 }}>
+                  <input type="number" step="0.1" placeholder="Volts" value={form.bikeDetail.battery_voltage} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, battery_voltage: e.target.value } }))} />
+                  <input type="number" step="0.1" placeholder="Amp-Hours" value={form.bikeDetail.battery_capacity_ah} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, battery_capacity_ah: e.target.value } }))} />
+                </div>
+              </div>
+              <div className="fg"><label>Battery Type</label><input placeholder="e.g. Lithium LFP" value={form.bikeDetail.battery_type} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, battery_type: e.target.value } }))} /></div>
+              <div className="fg"><label>Speed (Min/Max km/h)</label>
+                <div style={{ display: "flex", gap: 5 }}>
+                  <input type="number" step="0.1" placeholder="Min" value={form.bikeDetail.speed_min_kmh} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, speed_min_kmh: e.target.value } }))} />
+                  <input type="number" step="0.1" placeholder="Max" value={form.bikeDetail.speed_max_kmh} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, speed_max_kmh: e.target.value } }))} />
+                </div>
+              </div>
+              <div className="fg"><label>Range Eco (Min/Max km)</label>
+                <div style={{ display: "flex", gap: 5 }}>
+                  <input type="number" placeholder="Min" value={form.bikeDetail.range_eco_min_km} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, range_eco_min_km: e.target.value } }))} />
+                  <input type="number" placeholder="Max" value={form.bikeDetail.range_eco_max_km} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, range_eco_max_km: e.target.value } }))} />
+                </div>
+              </div>
+              <div className="fg"><label>Speed Modes</label><input type="number" value={form.bikeDetail.speed_modes} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, speed_modes: e.target.value } }))} /></div>
+              <div className="fg"><label>Charger</label><input placeholder="e.g. 72V10A" value={form.bikeDetail.charger} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, charger: e.target.value } }))} /></div>
+              <div className="fg"><label>Charging Time (Min/Max hrs)</label>
+                <div style={{ display: "flex", gap: 5 }}>
+                  <input type="number" step="0.1" placeholder="Min" value={form.bikeDetail.charging_time_min_hrs} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, charging_time_min_hrs: e.target.value } }))} />
+                  <input type="number" step="0.1" placeholder="Max" value={form.bikeDetail.charging_time_max_hrs} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, charging_time_max_hrs: e.target.value } }))} />
+                </div>
+              </div>
+              <div className="fg"><label>Weight / Capacity (kg)</label>
+                <div style={{ display: "flex", gap: 5 }}>
+                  <input type="number" placeholder="Net Weight" value={form.bikeDetail.net_weight_kg} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, net_weight_kg: e.target.value } }))} />
+                  <input type="number" placeholder="Load Capacity" value={form.bikeDetail.loading_capacity_kg} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, loading_capacity_kg: e.target.value } }))} />
+                </div>
+              </div>
+              <div className="fg"><label>Security</label><input placeholder="e.g. NFC Unlock" value={form.bikeDetail.security} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, security: e.target.value } }))} /></div>
+              <div className="fg"><label>Braking System</label><input placeholder="e.g. F/R CBS" value={form.bikeDetail.braking_system} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, braking_system: e.target.value } }))} /></div>
+              <div className="fg"><label>Frame Material</label><input value={form.bikeDetail.frame_material} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, frame_material: e.target.value } }))} /></div>
+              <div className="fg"><label>Wheel Size</label><input value={form.bikeDetail.wheel_size} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, wheel_size: e.target.value } }))} /></div>
+              <div className="fg"><label>Warranty</label><input value={form.bikeDetail.warranty} onChange={e => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, warranty: e.target.value } }))} /></div>
+              <div className="fg" style={{ gridColumn: "1 / -1" }}>
+                <label>Color Options</label>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
+                  {(form.bikeDetail.color_options || []).map((c, i) => (
+                    <div key={i} style={{ background: "var(--acc)", color: "#fff", padding: "4px 10px", borderRadius: 20, fontSize: 12, display: "flex", alignItems: "center", gap: 6 }}>
+                      {c}
+                      <button onClick={() => setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, color_options: f.bikeDetail.color_options.filter((_, j) => j !== i) } }))} style={{ border: "none", background: "none", color: "#fff", cursor: "pointer", padding: 0, display: "flex" }}><Icon n="close" size={10} /></button>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input id="new-color" placeholder="e.g. Metallic Black" onKeyDown={e => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      const val = e.target.value.trim();
+                      if (val) {
+                        setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, color_options: [...(f.bikeDetail.color_options || []), val] } }));
+                        e.target.value = "";
+                      }
+                    }
+                  }} />
+                  <button className="btn btn-s btn-sm" onClick={(e) => {
+                    e.preventDefault();
+                    const el = document.getElementById("new-color");
+                    const val = el.value.trim();
+                    if (val) {
+                      setForm(f => ({ ...f, bikeDetail: { ...f.bikeDetail, color_options: [...(f.bikeDetail.color_options || []), val] } }));
+                      el.value = "";
+                    }
+                  }}>Add</button>
+                </div>
+              </div>
             </div>
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 20px" }}>
-              <div className="fg"><label>SKU / Serial</label><input value={form.partDetail.sku} onChange={e => setForm(f => ({ ...f, partDetail: { ...f.partDetail, sku: e.target.value } }))} /></div>
-              <div className="fg"><label>Compatible Models</label><input placeholder="e.g. Crown EV 100, 125" value={form.partDetail.compatible_models} onChange={e => setForm(f => ({ ...f, partDetail: { ...f.partDetail, compatible_models: e.target.value } }))} /></div>
+              <div className="fg"><label>Serial No (S/O)</label><input type="number" value={form.partDetail.serial_no} onChange={e => setForm(f => ({ ...f, partDetail: { ...f.partDetail, serial_no: e.target.value } }))} /></div>
+              <div className="fg"><label>Item Code</label><input placeholder="e.g. SK-0104-FR" value={form.partDetail.item_code} onChange={e => setForm(f => ({ ...f, partDetail: { ...f.partDetail, item_code: e.target.value } }))} /></div>
+              <div className="fg"><label>Model</label><input placeholder="e.g. SPARK RD" value={form.partDetail.model} onChange={e => setForm(f => ({ ...f, partDetail: { ...f.partDetail, model: e.target.value } }))} /></div>
+              <div className="fg"><label>Cost Price (CP)</label><input type="number" step="0.01" value={form.partDetail.cp_price} onChange={e => setForm(f => ({ ...f, partDetail: { ...f.partDetail, cp_price: e.target.value } }))} /></div>
               <div className="fg"><label>Unit</label><input placeholder="piece, set, pair" value={form.partDetail.unit} onChange={e => setForm(f => ({ ...f, partDetail: { ...f.partDetail, unit: e.target.value } }))} /></div>
+              <div className="fg"><label>Technical Description</label><textarea value={form.partDetail.description} onChange={e => setForm(f => ({ ...f, partDetail: { ...f.partDetail, description: e.target.value } }))} style={{ height: 40 }} /></div>
+              
+              <div className="fg" style={{ gridColumn: "1 / -1" }}>
+                <label>Compatible Models (Text)</label>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
+                  {(form.partDetail.compatible_models || []).map((m, i) => (
+                    <div key={i} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid var(--border)", padding: "4px 10px", borderRadius: 20, fontSize: 11, display: "flex", alignItems: "center", gap: 6 }}>
+                      {m}
+                      <button onClick={() => setForm(f => ({ ...f, partDetail: { ...f.partDetail, compatible_models: f.partDetail.compatible_models.filter((_, j) => j !== i) } }))} style={{ border: "none", background: "none", color: "var(--muted)", cursor: "pointer", padding: 0, display: "flex" }}><Icon n="close" size={10} /></button>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input id="new-model" placeholder="Type model name and press Enter" onKeyDown={e => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      const val = e.target.value.trim();
+                      if (val) {
+                        setForm(f => ({ ...f, partDetail: { ...f.partDetail, compatible_models: [...(f.partDetail.compatible_models || []), val] } }));
+                        e.target.value = "";
+                      }
+                    }
+                  }} />
+                </div>
+              </div>
+
+              <div className="fg" style={{ gridColumn: "1 / -1" }}>
+                <label>Linked Bikes (for Filtering)</label>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
+                  {(form.partDetail.compatible_bike_ids || []).map((id, i) => {
+                    const bike = (data?.data || []).find(p => p.id === id);
+                    return (
+                      <div key={i} style={{ background: "rgba(14,165,233,0.1)", border: "1px solid var(--acc)", color: "var(--acc)", padding: "4px 10px", borderRadius: 20, fontSize: 11, display: "flex", alignItems: "center", gap: 6 }}>
+                        {bike?.name || id}
+                        <button onClick={() => setForm(f => ({ ...f, partDetail: { ...f.partDetail, compatible_bike_ids: f.partDetail.compatible_bike_ids.filter((_, j) => j !== i) } }))} style={{ border: "none", background: "none", color: "var(--acc)", cursor: "pointer", padding: 0, display: "flex" }}><Icon n="close" size={10} /></button>
+                      </div>
+                    );
+                  })}
+                </div>
+                <select onChange={e => {
+                  const id = e.target.value;
+                  if (id && !form.partDetail.compatible_bike_ids.includes(id)) {
+                    setForm(f => ({ ...f, partDetail: { ...f.partDetail, compatible_bike_ids: [...f.partDetail.compatible_bike_ids, id] } }));
+                  }
+                  e.target.value = "";
+                }}>
+                  <option value="">— Link to a Bike —</option>
+                  {(data?.data || []).filter(p => p.product_type === 'bike').map(b => (
+                    <option key={b.id} value={b.id}>{b.name}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           )}
 

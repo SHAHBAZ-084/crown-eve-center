@@ -56,9 +56,33 @@ exports.create = async (req, res) => {
     };
 
     if (product_type === 'bike' && bikeDetail) {
-      data.bikeDetail = { create: bikeDetail };
+      // Ensure numeric fields are correctly parsed
+      const formattedBikeDetail = {
+        ...bikeDetail,
+        motor_watt_min: bikeDetail.motor_watt_min ? parseInt(bikeDetail.motor_watt_min) : null,
+        motor_watt_max: bikeDetail.motor_watt_max ? parseInt(bikeDetail.motor_watt_max) : null,
+        battery_voltage: bikeDetail.battery_voltage ? parseFloat(bikeDetail.battery_voltage) : null,
+        battery_capacity_ah: bikeDetail.battery_capacity_ah ? parseFloat(bikeDetail.battery_capacity_ah) : null,
+        speed_min_kmh: bikeDetail.speed_min_kmh ? parseFloat(bikeDetail.speed_min_kmh) : null,
+        speed_max_kmh: bikeDetail.speed_max_kmh ? parseFloat(bikeDetail.speed_max_kmh) : null,
+        range_eco_min_km: bikeDetail.range_eco_min_km ? parseInt(bikeDetail.range_eco_min_km) : null,
+        range_eco_max_km: bikeDetail.range_eco_max_km ? parseInt(bikeDetail.range_eco_max_km) : null,
+        speed_modes: bikeDetail.speed_modes ? parseInt(bikeDetail.speed_modes) : null,
+        charging_time_min_hrs: bikeDetail.charging_time_min_hrs ? parseFloat(bikeDetail.charging_time_min_hrs) : null,
+        charging_time_max_hrs: bikeDetail.charging_time_max_hrs ? parseFloat(bikeDetail.charging_time_max_hrs) : null,
+        net_weight_kg: bikeDetail.net_weight_kg ? parseInt(bikeDetail.net_weight_kg) : null,
+        loading_capacity_kg: bikeDetail.loading_capacity_kg ? parseInt(bikeDetail.loading_capacity_kg) : null,
+      };
+      data.bikeDetail = { create: formattedBikeDetail };
     } else if (product_type === 'part' && partDetail) {
-      data.partDetail = { create: partDetail };
+      const formattedPartDetail = {
+        ...partDetail,
+        serial_no: partDetail.serial_no ? parseInt(partDetail.serial_no) : null,
+        cp_price: partDetail.cp_price ? parseFloat(partDetail.cp_price) : null,
+        compatible_models: partDetail.compatible_models || [],
+        compatible_bike_ids: partDetail.compatible_bike_ids || [],
+      };
+      data.partDetail = { create: formattedPartDetail };
     }
 
     const product = await Product.createProduct(data);
@@ -99,19 +123,42 @@ exports.update = async (req, res) => {
     }
 
     if (bikeDetail) {
+      const formattedBikeDetail = {
+        ...bikeDetail,
+        motor_watt_min: bikeDetail.motor_watt_min ? parseInt(bikeDetail.motor_watt_min) : undefined,
+        motor_watt_max: bikeDetail.motor_watt_max ? parseInt(bikeDetail.motor_watt_max) : undefined,
+        battery_voltage: bikeDetail.battery_voltage ? parseFloat(bikeDetail.battery_voltage) : undefined,
+        battery_capacity_ah: bikeDetail.battery_capacity_ah ? parseFloat(bikeDetail.battery_capacity_ah) : undefined,
+        speed_min_kmh: bikeDetail.speed_min_kmh ? parseFloat(bikeDetail.speed_min_kmh) : undefined,
+        speed_max_kmh: bikeDetail.speed_max_kmh ? parseFloat(bikeDetail.speed_max_kmh) : undefined,
+        range_eco_min_km: bikeDetail.range_eco_min_km ? parseInt(bikeDetail.range_eco_min_km) : undefined,
+        range_eco_max_km: bikeDetail.range_eco_max_km ? parseInt(bikeDetail.range_eco_max_km) : undefined,
+        speed_modes: bikeDetail.speed_modes ? parseInt(bikeDetail.speed_modes) : undefined,
+        charging_time_min_hrs: bikeDetail.charging_time_min_hrs ? parseFloat(bikeDetail.charging_time_min_hrs) : undefined,
+        charging_time_max_hrs: bikeDetail.charging_time_max_hrs ? parseFloat(bikeDetail.charging_time_max_hrs) : undefined,
+        net_weight_kg: bikeDetail.net_weight_kg ? parseInt(bikeDetail.net_weight_kg) : undefined,
+        loading_capacity_kg: bikeDetail.loading_capacity_kg ? parseInt(bikeDetail.loading_capacity_kg) : undefined,
+      };
       data.bikeDetail = {
         upsert: {
-          create: bikeDetail,
-          update: bikeDetail
+          create: formattedBikeDetail,
+          update: formattedBikeDetail
         }
       };
     }
 
     if (partDetail) {
+      const formattedPartDetail = {
+        ...partDetail,
+        serial_no: partDetail.serial_no ? parseInt(partDetail.serial_no) : undefined,
+        cp_price: partDetail.cp_price ? parseFloat(partDetail.cp_price) : undefined,
+        compatible_models: partDetail.compatible_models,
+        compatible_bike_ids: partDetail.compatible_bike_ids,
+      };
       data.partDetail = {
         upsert: {
-          create: partDetail,
-          update: partDetail
+          create: formattedPartDetail,
+          update: formattedPartDetail
         }
       };
     }
