@@ -68,26 +68,49 @@
   font-family: 'Inter', sans-serif;
 }
 
-.book-now-btn {
-  background: var(--orange); /* Changed from green to orange */
-  color: #fff;
-  border: none;
-  padding: 20px 50px;
-  font-size: 16px;
-  font-weight: 800;
-  border-radius: 4px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+.product-actions-row {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
 }
 
-.book-now-btn:hover {
+.add-to-cart-btn, .buy-now-btn {
+  flex: 1;
+  height: 60px;
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: all 0.3s ease;
+}
+
+.add-to-cart-btn {
+  background: transparent;
+  border: 2px solid var(--orange);
+  color: var(--orange);
+}
+
+.add-to-cart-btn:hover {
+  background: var(--orange);
+  color: #fff;
+  box-shadow: 0 10px 20px var(--orange-glow);
+}
+
+.buy-now-btn {
+  background: var(--orange);
+  border: none;
+  color: #fff;
+}
+
+.buy-now-btn:hover {
   background: var(--orange-light);
-  transform: translateY(-5px);
+  transform: translateY(-3px);
   box-shadow: 0 15px 30px var(--orange-glow);
 }
 

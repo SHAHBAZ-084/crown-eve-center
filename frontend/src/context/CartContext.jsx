@@ -32,7 +32,7 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = () => setItems([]);
 
-  const total = items.reduce((acc, i) => acc + i.price * i.qty, 0);
+  const total = items.reduce((acc, i) => acc + (i.sale_price || i.price) * i.qty, 0);
   const count = items.reduce((acc, i) => acc + i.qty, 0);
 
   return (

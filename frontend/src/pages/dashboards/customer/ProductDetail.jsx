@@ -59,13 +59,22 @@ const ProductDetailPage = () => {
             )}
           </div>
 
-          <button className="book-now-btn" onClick={() => navigate("/appointments")}>
-            BOOK NOW 
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
-          </button>
+          <div className="product-actions-row">
+            <button className="add-to-cart-btn" onClick={() => addItem(product)}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/>
+              </svg>
+              ADD TO CART
+            </button>
+            
+            <button className="buy-now-btn" onClick={() => { addItem(product); navigate("/cart"); }}>
+              BUY NOW
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div className="product-image-col">
