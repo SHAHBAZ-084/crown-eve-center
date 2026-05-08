@@ -20,7 +20,7 @@ const BranchRevenueCard = ({ branchId }) => {
         <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Branch Revenue</p>
         <DollarSign className="text-emerald-400" size={20} />
       </div>
-      <h3 className="text-3xl font-black mt-2 text-white">${data?.thisMonth.toLocaleString() || 0}</h3>
+      <h3 className="text-3xl font-black mt-2 text-orange-600">${data?.thisMonth.toLocaleString() || 0}</h3>
       <p className="text-[10px] text-slate-500 mt-2 font-bold uppercase tracking-tighter">Current Month Performance</p>
     </div>
   );

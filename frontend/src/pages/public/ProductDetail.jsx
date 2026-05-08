@@ -20,7 +20,7 @@ const ProductDetail = () => {
 
   return (
     <div className="max-w-7xl mx-auto space-y-12 pb-20">
-      <Link to="/shop" className="inline-flex items-center text-slate-400 hover:text-white transition-all">
+      <Link to="/shop" className="inline-flex items-center text-slate-400 hover:text-orange-600 transition-all">
         <ArrowLeft size={20} className="mr-2" /> Back to Catalog
       </Link>
 
@@ -83,7 +83,7 @@ const ProductDetail = () => {
               <span className="w-12 text-center font-bold text-xl">{quantity}</span>
               <button onClick={() => setQuantity(quantity + 1)} className="p-2 hover:text-blue-400">+</button>
             </div>
-            <button className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-5 rounded-2xl font-black text-xl shadow-2xl shadow-blue-500/20 transition-all flex items-center justify-center">
+            <button className="flex-1 bg-blue-600 hover:bg-blue-500 text-orange-600 py-5 rounded-2xl font-black text-xl shadow-2xl shadow-blue-500/20 transition-all flex items-center justify-center">
               ADD TO CART <ShoppingCart size={24} className="ml-3" />
             </button>
           </div>

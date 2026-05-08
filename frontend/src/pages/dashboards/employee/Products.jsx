@@ -324,7 +324,7 @@ export default function ProductsPage({ branchId }) {
                   <label>Compatible Models</label>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
                     {(form.partDetail.compatible_models || []).map((m, i) => (
-                      <div key={i} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid var(--bdr)", padding: "4px 10px", borderRadius: 20, fontSize: 11, display: "flex", alignItems: "center", gap: 6 }}>
+                      <div key={i} style={{ background: "rgba(0,0,0,0.03)", border: "1px solid var(--bdr)", padding: "4px 10px", borderRadius: 20, fontSize: 11, display: "flex", alignItems: "center", gap: 6 }}>
                         {m}
                         <button onClick={() => setForm(f => ({ ...f, partDetail: { ...f.partDetail, compatible_models: f.partDetail.compatible_models.filter((_, j) => j !== i) } }))} style={{ border: "none", background: "none", color: "var(--muted)", cursor: "pointer", padding: 0, display: "flex" }}><Icon n="close" size={10} /></button>
                       </div>

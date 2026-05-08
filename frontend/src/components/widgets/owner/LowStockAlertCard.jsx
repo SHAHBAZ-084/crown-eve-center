@@ -21,7 +21,7 @@ const LowStockAlertCard = () => {
         <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Stock Alerts</p>
         <AlertTriangle className={alertCount > 0 ? 'text-red-500' : 'text-slate-500'} size={20} />
       </div>
-      <h3 className="text-3xl font-black mt-2 text-white">{alertCount}</h3>
+      <h3 className="text-3xl font-black mt-2 text-orange-600">{alertCount}</h3>
       <p className="text-[10px] text-slate-500 mt-2 font-bold uppercase tracking-tighter">Critical Low Levels</p>
     </div>
   );

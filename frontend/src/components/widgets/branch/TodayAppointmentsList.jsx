@@ -33,7 +33,7 @@ const TodayAppointmentsList = ({ branchId }) => {
               </div>
             </div>
             <div className="text-right">
-              <p className="font-black text-white">{new Date(app.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+              <p className="font-black text-orange-600">{new Date(app.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
               <p className="text-[10px] text-blue-500 font-black uppercase tracking-widest">{app.status}</p>
             </div>
           </div>

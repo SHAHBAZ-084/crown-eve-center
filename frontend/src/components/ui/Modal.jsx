@@ -24,7 +24,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
         >
           <header className="px-10 py-8 border-b border-slate-800 flex justify-between items-center">
             <h3 className="text-2xl font-black italic uppercase tracking-tighter">{title}</h3>
-            <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full transition-colors text-slate-500 hover:text-white">
+            <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full transition-colors text-slate-500 hover:text-orange-600">
               <X size={24} />
             </button>
           </header>

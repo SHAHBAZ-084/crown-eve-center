@@ -90,7 +90,7 @@ const POS = () => {
                  <button 
                    key={t.val}
                    onClick={() => { setType(t.val); setPage(1); }}
-                   className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${type === t.val ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                   className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${type === t.val ? 'bg-blue-600 text-orange-600 shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
                  >
                    {t.label}
                  </button>
@@ -151,7 +151,7 @@ const POS = () => {
                         <span className="text-[8px] font-black uppercase tracking-widest text-blue-400">{modelName}</span>
                      </div>
                      <div className="absolute top-3 right-3 bg-blue-600/90 px-2.5 py-1 rounded-full shadow-lg">
-                        <span className="text-[11px] font-black text-white">PKR {p.price.toLocaleString()}</span>
+                        <span className="text-[11px] font-black text-orange-600">PKR {p.price.toLocaleString()}</span>
                      </div>
                   </div>
                   
@@ -166,7 +166,7 @@ const POS = () => {
                     </div>
                     <div className="flex justify-between items-center mt-3">
                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.1em]">{p.partDetail?.item_code || 'N/A'}</span>
-                       <div className="w-8 h-8 bg-blue-600/10 text-blue-500 rounded-xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
+                       <div className="w-8 h-8 bg-blue-600/10 text-blue-500 rounded-xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-orange-600 transition-all">
                           <Plus size={16} />
                        </div>
                     </div>
@@ -226,9 +226,9 @@ const POS = () => {
                 </div>
                 <div className="flex items-center space-x-3">
                   <div className="flex items-center bg-slate-900 rounded-lg p-1">
-                     <button onClick={() => updateQty(item.id, -1)} className="w-6 h-6 flex items-center justify-center hover:text-white text-slate-500"><Minus size={14} /></button>
+                     <button onClick={() => updateQty(item.id, -1)} className="w-6 h-6 flex items-center justify-center hover:text-orange-600 text-slate-500"><Minus size={14} /></button>
                      <span className="w-8 text-center text-xs font-black">{item.qty}</span>
-                     <button onClick={() => updateQty(item.id, 1)} className="w-6 h-6 flex items-center justify-center hover:text-white text-slate-500"><Plus size={14} /></button>
+                     <button onClick={() => updateQty(item.id, 1)} className="w-6 h-6 flex items-center justify-center hover:text-orange-600 text-slate-500"><Plus size={14} /></button>
                   </div>
                   <button onClick={() => removeFromCart(item.id)} className="text-red-900 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
                 </div>
@@ -249,7 +249,7 @@ const POS = () => {
                  <span>Subtotal</span>
                  <span>PKR {subtotal.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between text-2xl font-black italic text-white pt-2 border-t border-slate-800">
+              <div className="flex justify-between text-2xl font-black italic text-orange-600 pt-2 border-t border-slate-800">
                  <span>TOTAL</span>
                  <span className="text-blue-500">PKR {total.toLocaleString()}</span>
               </div>
@@ -264,14 +264,14 @@ const POS = () => {
                     placeholder="Customer Name" 
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
-                    className="bg-slate-900 border border-slate-800 rounded-xl py-2.5 px-3 text-[10px] font-bold text-white focus:ring-1 focus:ring-blue-500 outline-none"
+                    className="bg-slate-900 border border-slate-800 rounded-xl py-2.5 px-3 text-[10px] font-bold text-orange-600 focus:ring-1 focus:ring-blue-500 outline-none"
                   />
                   <input 
                     type="text" 
                     placeholder="Contact Number" 
                     value={customerPhone}
                     onChange={(e) => setCustomerPhone(e.target.value)}
-                    className="bg-slate-900 border border-slate-800 rounded-xl py-2.5 px-3 text-[10px] font-bold text-white focus:ring-1 focus:ring-blue-500 outline-none"
+                    className="bg-slate-900 border border-slate-800 rounded-xl py-2.5 px-3 text-[10px] font-bold text-orange-600 focus:ring-1 focus:ring-blue-500 outline-none"
                   />
                </div>
             </div>
@@ -301,7 +301,7 @@ const POS = () => {
                      placeholder="Enter Transaction ID..." 
                      value={transactionId}
                      onChange={(e) => setTransactionId(e.target.value)}
-                     className="w-full bg-slate-900 border border-slate-800 rounded-xl py-3 px-4 text-xs font-bold text-white focus:ring-1 focus:ring-blue-500 outline-none"
+                     className="w-full bg-slate-900 border border-slate-800 rounded-xl py-3 px-4 text-xs font-bold text-orange-600 focus:ring-1 focus:ring-blue-500 outline-none"
                    />
                  </motion.div>
                )}

@@ -1,0 +1,103 @@
+/* frontend/src/pages/auth/Auth.css */
+
+#page-login, #page-register {
+  min-height: 100vh;
+  background: var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 5vw 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+#page-login::before, #page-register::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 70% at 80% 50%, rgba(232, 71, 10, 0.07), transparent);
+  pointer-events: none;
+}
+
+.login-card, .register-card {
+  width: 100%;
+  background: var(--black2);
+  border: 1px solid rgba(232, 71, 10, 0.2);
+  padding: 56px 48px;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+  color: #111111;
+}
+
+.login-card h2, .register-card h2 {
+  color: #111111;
+  margin-bottom: 8px;
+}
+
+.login-card { max-width: 440px; }
+.register-card { max-width: 520px; }
+
+.login-card::before, .register-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(to right, transparent, var(--orange), transparent);
+}
+
+.form-group { margin-bottom: 24px; }
+
+.form-group label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.form-group input, .form-group select, .form-textarea {
+  width: 100%;
+  background: var(--orange)FFF;
+  border: 1px solid #E8E8E8;
+  color: var(--white);
+  padding: 14px 18px;
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color .3s;
+}
+
+.form-group input:focus, .form-group select:focus, .form-textarea:focus { border-color: var(--orange); }
+
+.form-submit {
+  width: 100%;
+  padding: 16px;
+  background: var(--orange);
+  color: var(--orange);
+  border: none;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  transition: background .3s;
+  margin-top: 12px;
+  cursor: pointer;
+}
+
+.form-submit:hover { background: var(--orange-light); }
+
+.form-divider { text-align: center; margin: 20px 0; color: var(--muted); font-size: 12px; }
+
+.form-link { color: var(--orange); text-decoration: none; font-size: 13px;  }
+
+.role-info { background: rgba(232, 71, 10, 0.08); border: 1px solid rgba(232, 71, 10, 0.2); padding: 14px 18px; margin-bottom: 28px; font-size: 12px; color: var(--white2); line-height: 1.6; }
+
+.role-info strong { color: var(--orange); }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }

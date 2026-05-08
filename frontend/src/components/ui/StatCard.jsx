@@ -17,7 +17,7 @@ const StatCard = ({ label, value, icon, color = 'blue', trend }) => {
           {icon}
         </div>
       </div>
-      <h3 className="text-3xl font-black mt-3 text-white">{value}</h3>
+      <h3 className="text-3xl font-black mt-3 text-orange-600">{value}</h3>
       {trend && (
         <p className={`text-[10px] font-bold mt-2 uppercase tracking-tighter ${trend.positive ? 'text-emerald-400' : 'text-red-400'}`}>
           {trend.positive ? '↑' : '↓'} {trend.value} <span className="text-slate-500 ml-1">vs last month</span>

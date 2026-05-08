@@ -132,7 +132,7 @@ export const Icon = ({ name, size = 18, className = "" }) => {
 };
 
 export const Sk = ({ h, w = '100%', r = 8 }) => (
-  <div className="skeleton" style={{ height: h, width: w, borderRadius: r, background: 'rgba(255,255,255,0.05)', animation: 'pulse 1.5s infinite ease-in-out' }} />
+  <div className="skeleton" style={{ height: h, width: w, borderRadius: r, background: 'rgba(0,0,0,0.03)', animation: 'pulse 1.5s infinite ease-in-out' }} />
 );
 
 export const toast = (msg, type = "success") => {

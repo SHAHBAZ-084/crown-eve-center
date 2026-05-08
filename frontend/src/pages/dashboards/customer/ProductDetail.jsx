@@ -1,9 +1,9 @@
 // frontend/src/pages/dashboards/customer/ProductDetail.jsx
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Badge } from "../../../components/customer/CustomerShared";
 import api from "../../../services/api";
 import { useCart } from "../../../context/CartContext";
+import "./ProductDetail.css";
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -11,131 +11,148 @@ const ProductDetailPage = () => {
   const { addItem } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [qty, setQty] = useState(1);
-  const [added, setAdded] = useState(false);
 
   useEffect(() => {
     api.get(`/products/${id}`)
       .then(r => setProduct(r.data))
       .catch(() => setProduct(null))
       .finally(() => setLoading(false));
+    window.scrollTo(0, 0);
   }, [id]);
 
-  const handleAddToCart = () => {
-    if (!product) return;
-    addItem({ id: product.id, name: product.name, price: product.price, category: product.category }, qty);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
+  if (loading) return <div style={{ padding: 100, textAlign: "center", fontSize: 20 }}>Loading...</div>;
+  if (!product) return <div style={{ padding: 100, textAlign: "center" }}><h3>Product not found</h3><button onClick={() => navigate("/")}>Back Home</button></div>;
+
+  const bike = product.bikeDetail || {};
+  const mainImg = product.images?.find(img => img.is_primary)?.url || product.images?.[0]?.url;
+  const getImgUrl = (url) => {
+    if (!url) return "";
+    if (url.startsWith('http')) return url;
+    return `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${url}`;
   };
 
-  if (loading) return <div style={{ padding: 80, textAlign: "center" }}>Loading...</div>;
-  if (!product) return (
-    <div className="empty-state">
-      <div className="ei">❌</div>
-      <h3>Product not found</h3>
-      <button className="btn btn-ghost btn-sm" onClick={() => navigate("/shop")}>Back to Shop</button>
-    </div>
-  );
-
-  const stockStatus = product.stock > 5 ? "In Stock" : product.stock > 0 ? "Low Stock" : "Out of Stock";
-
   return (
-    <div>
-      <button className="btn btn-ghost btn-sm" onClick={() => navigate(-1)} style={{ marginBottom: 20 }}>← Back</button>
-      <div className="g64">
-        <div>
-          <div className="card" style={{ marginBottom: 16 }}>
-            <div style={{ aspectRatio: "16/9", background: "var(--black3)", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-              {(() => {
-                const mainImg = product.images?.find(img => img.is_primary)?.url || product.images?.[0]?.url;
-                const imgSrc = mainImg 
-                  ? (mainImg.startsWith('http') ? mainImg : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${mainImg}`)
-                  : null;
-                
-                return imgSrc ? (
-                  <img src={imgSrc} alt={product.name} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-                ) : (
-                  <div style={{ fontSize: 72 }}>📦</div>
-                );
-              })()}
+    <div className="product-detail-page">
+      {/* TOP SECTION */}
+      <div className="product-top-section">
+        <div className="product-info-col">
+          <h1 className="product-name-large">{product.name}</h1>
+          
+          <ul className="spec-bullets">
+            {bike.speed_max_kmh && <li>Speed {bike.speed_min_kmh || 0}-{bike.speed_max_kmh} KM/hr</li>}
+            {bike.range_eco_max_km && <li>Range {bike.range_eco_min_km || 0}-{bike.range_eco_max_km}KM</li>}
+            {bike.battery_type && <li>Battery Type: {bike.battery_voltage}V {bike.battery_capacity_ah}AH {bike.battery_type}</li>}
+            {bike.motor_type && <li>Electric Motor Power: {bike.motor_type}</li>}
+            {bike.speed_modes && <li>{bike.speed_modes} Modes: Eco, Normal and Sports.</li>}
+          </ul>
+
+          <div className="price-options">
+            <div className="price-item">
+              <span className="price-label">{bike.battery_type || 'Standard'}:</span>
+              Rs. {Number(product.price).toLocaleString()}
             </div>
+            {product.sale_price && (
+              <div className="price-item" style={{ color: '#9BB854', fontSize: '24px' }}>
+                <span className="price-label">Sale:</span>
+                Rs. {Number(product.sale_price).toLocaleString()}
+              </div>
+            )}
           </div>
+
+          <button className="book-now-btn" onClick={() => navigate("/appointments")}>
+            BOOK NOW 
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
         </div>
 
-        <div>
-          <div className="card">
-            <div style={{ marginBottom: 8 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color: "#00a3ff" }}>{product.category || "Product"}</span>
-            </div>
-            <h2 style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 40, letterSpacing: -1, lineHeight: 0.95, marginBottom: 12 }}>{product.name}</h2>
-            <div style={{ marginBottom: 16 }}><Badge status={stockStatus} /></div>
-            <p style={{ fontSize: 13, color: "var(--white2)", lineHeight: 1.7, marginBottom: 20 }}>{product.description || "No description available."}</p>
-
-            <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 52, color: "#00a3ff", marginBottom: 20 }}>
-              PKR {Number(product.price).toLocaleString()}
-            </div>
-
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-              <div className="qty-ctrl">
-                <button className="qty-btn" onClick={() => setQty(q => Math.max(1, q - 1))}>−</button>
-                <span className="qty-num">{qty}</span>
-                <button className="qty-btn" onClick={() => setQty(q => q + 1)}>+</button>
-              </div>
-              <span style={{ fontSize: 12, color: "var(--muted2)" }}>{product.stock} in stock</span>
-            </div>
-
-            <div style={{ display: "flex", gap: 10 }}>
-              <button
-                className="btn btn-primary"
-                style={{ flex: 1 }}
-                onClick={handleAddToCart}
-                disabled={product.stock_qty === 0}
-              >
-                {added ? "✓ Added!" : "Add to Cart"}
-              </button>
-              <button className="btn btn-ghost" onClick={() => { handleAddToCart(); navigate("/my/cart"); }}>
-                Buy Now
-              </button>
-            </div>
-          </div>
+        <div className="product-image-col">
+          <div className="detail-image-blob"></div>
+          {mainImg ? (
+            <img src={getImgUrl(mainImg)} alt={product.name} className="detail-main-img" />
+          ) : (
+            <div className="placeholder-img">[ {product.name} ]</div>
+          )}
         </div>
       </div>
 
-      {/* Cross-Branch Availability Section */}
-      {product.otherBranches?.length > 0 && (
-        <div style={{ marginTop: 40 }}>
-          <div style={{ padding: "0 0 15px 0", borderBottom: "1px solid var(--border)", marginBottom: 20 }}>
-            <h3 style={{ fontSize: 18, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>Also Available at Other Branches</h3>
-            <p style={{ fontSize: 12, color: "var(--muted2)" }}>This product is also in stock at the following Crown Eve locations.</p>
+      {/* TECHNICAL SPECIFICATIONS */}
+      <section className="specs-section">
+        <h2 className="section-heading-orange">TECHNICAL SPECIFICATIONS</h2>
+        <div className="specs-icon-grid">
+          <div className="spec-icon-card">
+            <div className="spec-icon-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 16s0-2 1-3 3-1 3-1V9l2-2 2 2v3s2 0 3 1 1 3 1 3H5z"/><circle cx="8" cy="18" r="2"/><circle cx="16" cy="18" r="2"/></svg>
+            </div>
+            <div className="spec-icon-label">Lifespan</div>
+            <div className="spec-icon-value">{bike.warranty ? bike.warranty.split(',')[0] : "Extended Durability"}</div>
           </div>
-          <div className="g4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))" }}>
-            {product.otherBranches.map(ob => (
-              <div key={ob.id} className="card ci" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "15px 20px" }}>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: 14 }}>{ob.branch.name}</div>
-                  <div style={{ fontSize: 11, opacity: 0.5 }}>{ob.branch.location || "Pakistan"}</div>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: "var(--acc)" }}>PKR {Number(ob.sale_price || ob.price).toLocaleString()}</div>
-                  <div style={{ fontSize: 10, color: ob.stock_qty > 0 ? "var(--green)" : "var(--red)", fontWeight: 700 }}>
-                    {ob.stock_qty > 0 ? `${ob.stock_qty} IN STOCK` : "OUT OF STOCK"}
-                  </div>
-                  <button 
-                    className="btn btn-ghost btn-sm" 
-                    style={{ marginTop: 8, fontSize: 10, height: 28, padding: "0 12px" }}
-                    onClick={() => {
-                      window.scrollTo(0, 0);
-                      navigate(`/shop/${ob.id}`);
-                    }}
-                  >
-                    View this Branch →
-                  </button>
-                </div>
-              </div>
-            ))}
+          <div className="spec-icon-card">
+            <div className="spec-icon-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M22 11v2"/></svg>
+            </div>
+            <div className="spec-icon-label">Battery</div>
+            <div className="spec-icon-value">{bike.battery_type || "Standard Battery"}</div>
+          </div>
+          <div className="spec-icon-card">
+            <div className="spec-icon-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M11 2L3 14h8l-2 8 8-12h-8l2-8z"/></svg>
+            </div>
+            <div className="spec-icon-label">Charging</div>
+            <div className="spec-icon-value">{bike.charging_time_max_hrs || 0} Hours</div>
+          </div>
+          <div className="spec-icon-card">
+            <div className="spec-icon-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"/><path d="M12 8V12L15 15"/><circle cx="12" cy="12" r="1"/></svg>
+            </div>
+            <div className="spec-icon-label">Colors</div>
+            <div className="spec-icon-value">{bike.color_options && Array.isArray(bike.color_options) ? bike.color_options.join(', ') : "Available in Various Colors"}</div>
+          </div>
+          <div className="spec-icon-card">
+            <div className="spec-icon-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+            <div className="spec-icon-label">Range</div>
+            <div className="spec-icon-value">{bike.range_eco_max_km || 0} KM</div>
           </div>
         </div>
-      )}
+      </section>
+
+      {/* PERFORMANCE DETAILS */}
+      <section className="performance-section">
+        <div>
+          <h2 className="section-heading-orange" style={{ border: 'none', marginBottom: 20 }}>Performance Details of {product.name}</h2>
+          <p className="performance-text">
+            {product.description || `Unlock the thrill of urban exploration with our high-powered electric scooter, engineered to elevate your ride. Cruise through city streets at exhilarating speeds of up to ${bike.speed_max_kmh || 60} KM/hr, enjoying the freedom to roam with a range of up to ${bike.range_eco_max_km || 90} KM on a single charge.`}
+            <br /><br />
+            Designed for the modern explorer, our electric scooter merges sleek aesthetics with dynamic functionality, setting a new standard for urban mobility.
+          </p>
+        </div>
+        <div className="performance-table">
+          <div className="perf-row">
+            <span className="perf-label">Speed</span>
+            <span className="perf-value">{bike.speed_min_kmh}-{bike.speed_max_kmh} Km/h</span>
+          </div>
+          <div className="perf-row">
+            <span className="perf-label">Range</span>
+            <span className="perf-value">{bike.range_eco_min_km}-{bike.range_eco_max_km} KM</span>
+          </div>
+          <div className="perf-row">
+            <span className="perf-label">Battery Type</span>
+            <span className="perf-value">{bike.battery_voltage}V {bike.battery_capacity_ah}AH {bike.battery_type}</span>
+          </div>
+          <div className="perf-row">
+            <span className="perf-label">Electric Motor Power</span>
+            <span className="perf-value">{bike.motor_type}</span>
+          </div>
+          <div className="perf-row">
+            <span className="perf-label">Warranty Period</span>
+            <span className="perf-value">{bike.warranty || "24 Months Battery & Controller"}</span>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

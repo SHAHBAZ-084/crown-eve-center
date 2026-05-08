@@ -79,7 +79,7 @@ const EmployeeServices = () => {
                     <span>DONE</span>
                   </div>
                 )}
-                <button className="p-4 bg-slate-950 border border-slate-800 rounded-2xl text-slate-600 hover:text-white transition-all">
+                <button className="p-4 bg-slate-950 border border-slate-800 rounded-2xl text-slate-600 hover:text-orange-600 transition-all">
                   <ArrowRight size={20} />
                 </button>
               </div>

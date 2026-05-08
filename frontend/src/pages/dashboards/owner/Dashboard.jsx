@@ -35,7 +35,7 @@ const DashboardPage = () => {
 
       <div className="stat-grid">
         <div className="stat-card">
-          <div className="stat-card-icon" style={{ background: "rgba(255,77,0,0.1)", color: "var(--accent)" }}>
+          <div className="stat-card-icon" style={{ background: "rgba(232,71,10,0.1)", color: "var(--accent)" }}>
             <Icon name="dollar" size={20} />
           </div>
           <div className="stat-card-label">Global Revenue</div>

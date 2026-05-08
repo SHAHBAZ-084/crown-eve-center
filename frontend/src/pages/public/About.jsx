@@ -25,8 +25,8 @@ const About = () => {
             We believe every rider deserves access to premium bikes, genuine parts, and expert care — regardless of city or budget. Our mission is to be the most trusted name in Pakistan's motorcycle industry.
           </p>
         </div>
-        <div style={{ background: 'var(--black3)', padding: '72px 5vw', borderLeft: '1px solid rgba(255,77,0,0.1)', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '200px', height: '200px', background: 'radial-gradient(circle,rgba(255,77,0,0.1),transparent)', pointerEvents: 'none' }}></div>
+        <div style={{ background: 'var(--black3)', padding: '72px 5vw', borderLeft: '1px solid rgba(232,71,10,0.1)', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '200px', height: '200px', background: 'radial-gradient(circle,rgba(232,71,10,0.1),transparent)', pointerEvents: 'none' }}></div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
             <div><div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '64px', color: 'var(--orange)', lineHeight: 1 }}>12+</div><div style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginTop: '4px' }}>Branches</div></div>
             <div><div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '64px', color: 'var(--orange)', lineHeight: 1 }}>50K+</div><div style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginTop: '4px' }}>Customers</div></div>

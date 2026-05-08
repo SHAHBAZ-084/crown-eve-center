@@ -1,18 +1,18 @@
 #customer-dashboard-shell {
-  --orange: #FF4D00;
-  --orange2: #FF6B2B;
-  --og: rgba(255, 77, 0, 0.12);
-  --black: #0A0A0A;
-  --black2: #111111;
-  --black3: #161616;
-  --card: #1A1A1A;
-  --card2: #202020;
-  --border: rgba(255, 255, 255, 0.07);
-  --border2: rgba(255, 77, 0, 0.2);
-  --muted: #666;
-  --muted2: #888;
-  --white: #F0EFE8;
-  --white2: #B8B7B0;
+  --orange: #E8470A;
+  --orange2: #C73A08;
+  --og: rgba(232, 71, 10, 0.12);
+  --black: #FFFFFF;
+  --black2: #FFF3EE;
+  --black3: #F5F0E8;
+  --card: #FFF3EE;
+  --card2: #F5F0E8;
+  --border: #E8E8E8;
+  --border2: #FFD9C8;
+  --muted: #666666;
+  --muted2: #999999;
+  --white: #111111;
+  --white2: #666666;
   --green: #22C55E;
   --gbg: rgba(34, 197, 94, 0.1);
   --red: #EF4444;
@@ -47,8 +47,8 @@
   left: 0;
   right: 0;
   height: var(--nav);
-  background: rgba(10, 10, 10, 0.95);
-  backdrop-filter: blur(18px);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
   z-index: 100;
   display: flex;
@@ -114,12 +114,12 @@
 
 #customer-dashboard-shell .cnl:hover {
   color: var(--white);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(0, 0, 0, 0.04);
 }
 
 #customer-dashboard-shell .cnl.active {
   color: var(--orange);
-  background: rgba(255, 77, 0, 0.08);
+  background: rgba(232, 71, 10, 0.08);
 }
 
 #customer-dashboard-shell .cnav-right {
@@ -134,7 +134,7 @@
   align-items: center;
   gap: 7px;
   padding: 7px 16px;
-  background: rgba(255, 77, 0, 0.1);
+  background: rgba(232, 71, 10, 0.1);
   border: 1px solid var(--border2);
   border-radius: 4px;
   font-size: 11px;
@@ -147,7 +147,7 @@
 }
 
 #customer-dashboard-shell .cart-btn:hover {
-  background: rgba(255, 77, 0, 0.18);
+  background: rgba(232, 71, 10, 0.18);
 }
 
 #customer-dashboard-shell .cart-count {
@@ -222,7 +222,7 @@
 }
 
 #customer-dashboard-shell .card:hover {
-  border-color: rgba(255, 77, 0, 0.1);
+  border-color: rgba(232, 71, 10, 0.1);
 }
 
 #customer-dashboard-shell .ch {
@@ -347,7 +347,7 @@
 }
 
 #customer-dashboard-shell .bg-gray {
-  background: rgba(255, 255, 255, 0.07);
+  background: rgba(0, 0, 0, 0.07);
   color: var(--white2);
 }
 
@@ -462,7 +462,7 @@
 #customer-dashboard-shell .tbl td {
   padding: 13px 14px;
   font-size: 13px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
   color: var(--white2);
   vertical-align: middle;
 }
@@ -472,7 +472,7 @@
 }
 
 #customer-dashboard-shell .tbl tbody tr:hover td {
-  background: rgba(255, 255, 255, 0.018);
+  background: rgba(0, 0, 0, 0.018);
 }
 
 #customer-dashboard-shell .tm {
@@ -511,7 +511,7 @@
 }
 
 #customer-dashboard-shell .stat:hover {
-  border-color: rgba(255, 77, 0, 0.18);
+  border-color: rgba(232, 71, 10, 0.18);
 }
 
 #customer-dashboard-shell .stat::before {
@@ -637,7 +637,7 @@
 }
 
 #customer-dashboard-shell .fpill.on {
-  background: rgba(255, 77, 0, 0.1);
+  background: rgba(232, 71, 10, 0.1);
   border-color: var(--orange);
   color: var(--orange);
 }
@@ -712,7 +712,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(3px);
   padding: 20px;
 }
 
@@ -968,7 +968,7 @@
   align-items: center;
   gap: 14px;
   padding: 14px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(0,0,0,0.03);
 }
 
 #customer-dashboard-shell .ci:last-child {
@@ -1104,7 +1104,7 @@
 #customer-dashboard-shell .date-btn:hover,
 #customer-dashboard-shell .date-btn.on {
   border-color: var(--orange);
-  background: rgba(255, 77, 0, 0.08);
+  background: rgba(232, 71, 10, 0.08);
 }
 
 #customer-dashboard-shell .dn {
@@ -1155,7 +1155,7 @@
 #customer-dashboard-shell .time-btn:hover,
 #customer-dashboard-shell .time-btn.on {
   border-color: var(--orange);
-  background: rgba(255, 77, 0, 0.08);
+  background: rgba(232, 71, 10, 0.08);
   color: var(--orange);
 }
 
@@ -1168,7 +1168,7 @@
 /* PROGRESS BAR */
 #customer-dashboard-shell .pbar {
   height: 5px;
-  background: rgba(255, 255, 255, 0.07);
+  background: rgba(0, 0, 0, 0.07);
   border-radius: 99px;
   overflow: hidden;
   margin-top: 8px;
@@ -1263,7 +1263,7 @@
 #customer-dashboard-shell .tgl {
   width: 40px;
   height: 22px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0,0,0,0.05);
   border-radius: 99px;
   position: relative;
   cursor: pointer;
@@ -1298,7 +1298,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 #customer-dashboard-shell .trow:last-child {
@@ -1331,7 +1331,7 @@
 
 #customer-dashboard-shell .pgb:hover,
 #customer-dashboard-shell .pgb.on {
-  background: rgba(255, 77, 0, 0.1);
+  background: rgba(232, 71, 10, 0.1);
   border-color: var(--orange);
   color: var(--orange);
 }
@@ -1416,7 +1416,7 @@
 }
 
 .cart-btn:hover {
-  background: rgba(255, 77, 0, 0.18);
+  background: rgba(232, 71, 10, 0.18);
 }
 
 .cart-count {
@@ -1492,7 +1492,7 @@
 }
 
 .card:hover {
-  border-color: rgba(255, 77, 0, 0.1);
+  border-color: rgba(232, 71, 10, 0.1);
 }
 
 .ch {
@@ -1619,7 +1619,7 @@
 }
 
 .bg-gray {
-  background: rgba(255, 255, 255, 0.07);
+  background: rgba(0, 0, 0, 0.07);
   color: var(--white2);
 }
 
@@ -1702,7 +1702,7 @@
 .tbl td {
   padding: 13px 14px;
   font-size: 13px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
   color: var(--white2);
   vertical-align: middle;
 }
@@ -1712,7 +1712,7 @@
 }
 
 .tbl tbody tr:hover td {
-  background: rgba(255, 255, 255, 0.018);
+  background: rgba(0, 0, 0, 0.018);
 }
 
 .tm {
@@ -1751,7 +1751,7 @@
 }
 
 .stat:hover {
-  border-color: rgba(255, 77, 0, 0.18);
+  border-color: rgba(232, 71, 10, 0.18);
 }
 
 .stat::before {
@@ -1877,7 +1877,7 @@
 }
 
 .fpill.on {
-  background: rgba(255, 77, 0, 0.1);
+  background: rgba(232, 71, 10, 0.1);
   border-color: var(--orange);
   color: var(--orange);
 }
@@ -1948,7 +1948,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(3px);
   padding: 20px;
 }
 
@@ -2155,7 +2155,7 @@
   align-items: center;
   gap: 14px;
   padding: 14px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(0,0,0,0.03);
 }
 
 .ci-img {
@@ -2269,7 +2269,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 .divider {
@@ -2281,7 +2281,7 @@
 .tgl {
   width: 40px;
   height: 22px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0,0,0,0.05);
   border-radius: 99px;
   position: relative;
   cursor: pointer;

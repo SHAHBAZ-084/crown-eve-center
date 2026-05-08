@@ -35,7 +35,7 @@ const Contact = () => {
             <div className="form-group"><label>Email</label><input type="email" placeholder="ali@email.com" /></div>
           </div>
           <div className="form-group"><label>Subject</label>
-            <select style={{ width: '100%', background: 'var(--black)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--white)', padding: '14px 18px', fontFamily: "'Barlow',sans-serif", fontSize: '14px', outline: 'none' }}>
+            <select style={{ width: '100%', background: 'var(--black)', border: '1px solid rgba(0,0,0,0.05)', color: 'var(--white)', padding: '14px 18px', fontFamily: "'Barlow',sans-serif", fontSize: '14px', outline: 'none' }}>
               <option>General Enquiry</option>
               <option>Service Booking</option>
               <option>Parts Request</option>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import './Home.css';
 
 const Home = () => {
   const { user } = useAuth();
@@ -9,17 +10,16 @@ const Home = () => {
 
 
   const images = [
-    '/1-1.png',
-    '/1-2.png',
-    '/1-3.png',
-    '/1-4.png',
-    '/1-5.png',
-    '/1-6.png'
+    '/hero-1.png',
+    '/hero-2.png',
+    '/hero-3.png'
   ];
   
   const [currentImg, setCurrentImg] = useState(0);
   const [services, setServices] = useState([]);
   const [servicesLoading, setServicesLoading] = useState(true);
+  const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(true);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -43,7 +43,33 @@ const Home = () => {
       }
     };
     fetchServices();
+
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/products?product_type=bike&limit=2`
+        );
+        const result = await res.json();
+        // Extract array from { data: [...], meta: {...} } or handle raw array
+        const items = result.data || (Array.isArray(result) ? result : []);
+        setProducts(items);
+      } catch (err) {
+        console.error('Failed to load products:', err);
+      } finally {
+        setProductsLoading(false);
+      }
+    };
+    fetchProducts();
   }, []);
+
+  const getImgUrl = (url) => {
+    if (!url) return "";
+    if (url.startsWith('http')) return url;
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+    const base = apiUrl.replace('/api', '');
+    const path = url.startsWith('/') ? url : `/${url}`;
+    return `${base}${path}`;
+  };
 
   return (
     <div id="page-home" className="page">
@@ -128,111 +154,61 @@ const Home = () => {
         </div>
       </div>
 
-      {/* FEATURES */}
-      <section id="features">
-        <div className="section-label">
-          <div className="section-label-line"></div>
-          <span>Why Crown Eve</span>
-        </div>
-        <h2 className="section-title">Built for<br /><span style={{ color: 'var(--orange)' }}>Riders.</span></h2>
-        <div className="features-grid">
-          <div className="feature-card">
-            <div className="feature-num">01</div>
-            <div className="feature-icon">⚡</div>
-            <div className="feature-title">1700+ Genuine Parts</div>
-            <div className="feature-desc">Access the largest catalog of authentic motorcycle parts sourced directly from manufacturers.</div>
-          </div>
-          <div className="feature-card featured">
-            <div className="feature-num">02</div>
-            <div className="feature-icon" style={{ borderColor: 'rgba(0,0,0,0.2)' }}>🔧</div>
-            <div className="feature-title">Expert Technicians</div>
-            <div className="feature-desc">Certified mechanics trained to handle every make and model with precision and care.</div>
-          </div>
-          <div className="feature-card">
-            <div className="feature-num">03</div>
-            <div className="feature-icon">📍</div>
-            <div className="feature-title">12+ Branches</div>
-            <div className="feature-desc">Nationwide presence so you're never far from premium Crown Eve service and support.</div>
-          </div>
-          <div className="feature-card">
-            <div className="feature-num">04</div>
-            <div className="feature-icon">📱</div>
-            <div className="feature-title">Online Booking</div>
-            <div className="feature-desc">Book services, track orders, and manage appointments from anywhere, any time.</div>
-          </div>
-          <div className="feature-card">
-            <div className="feature-num">05</div>
-            <div className="feature-icon">🏆</div>
-            <div className="feature-title">Premium Quality</div>
-            <div className="feature-desc">Every product we carry is hand-selected for performance, durability, and excellence.</div>
-          </div>
-          <div className="feature-card">
-            <div className="feature-num">06</div>
-            <div className="feature-icon">🔄</div>
-            <div className="feature-title">Real-Time Tracking</div>
-            <div className="feature-desc">Live order and service status updates so you always know exactly what's happening.</div>
-          </div>
-        </div>
-      </section>
+
 
       {/* FEATURED PRODUCTS */}
       <section id="products">
         <div className="products-header">
           <div>
-            <div className="section-label">
-              <div className="section-label-line"></div>
-              <span>Featured Lineup</span>
-            </div>
-            <h2 className="section-title">Our<br /><span style={{ color: 'var(--orange)' }}>Bikes.</span></h2>
+            <h2 className="section-title" style={{ color: 'var(--orange)' }}>Choose from<br /><span style={{ color: '#111111' }}>Our Best Models.</span></h2>
           </div>
           <Link to="/shop" className="view-all">View all bikes →</Link>
         </div>
-        <div className="products-grid">
-          <div className="product-card">
-            <div className="product-card-img">[ BIKE IMAGE ]
-              <div className="product-card-overlay"></div>
-              <div className="product-card-quick">View Details</div>
-            </div>
-            <div className="product-card-body">
-              <div className="product-cat">Sport Series</div>
-              <div className="product-name">Crown GT 390</div>
-              <div style={{ fontSize: '13px', color: 'var(--white2)', marginTop: '4px' }}>450cc · Fuel Injected · ABS</div>
-              <div className="product-price-row">
-                <div className="product-price">PKR 485,000</div>
-                <div className="product-badge">In Stock</div>
+        <div className="products-grid three-cols">
+          {productsLoading ? (
+            [...Array(3)].map((_, i) => (
+              <div key={i} className="product-card skeleton-card">
+                <div className="product-card-img" style={{ height: '300px', background: 'var(--black3)' }}></div>
+                <div className="product-card-body">
+                  <div style={{ height: '20px', width: '60%', background: 'var(--black3)', marginBottom: '10px' }}></div>
+                  <div style={{ height: '30px', width: '80%', background: 'var(--black3)' }}></div>
+                </div>
               </div>
-            </div>
-          </div>
-          <div className="product-card">
-            <div className="product-card-img" style={{ background: 'var(--black2)' }}>[ BIKE IMAGE ]
-              <div className="product-card-overlay"></div>
-              <div className="product-card-quick">View Details</div>
-            </div>
-            <div className="product-card-body">
-              <div className="product-cat">Naked Series</div>
-              <div className="product-name">Crown Duke R</div>
-              <div style={{ fontSize: '13px', color: 'var(--white2)', marginTop: '4px' }}>250cc · Street Fighter · LED</div>
-              <div className="product-price-row">
-                <div className="product-price">PKR 310,000</div>
-                <div className="product-badge" style={{ background: 'rgba(255,100,0,0.15)' }}>New Arrival</div>
+            ))
+          ) : products.length > 0 ? (
+            products.slice(0, 3).map((p) => (
+              <div key={p.id} className="product-card bike-card-new" onClick={() => navigate(`/product/${p.id}`)}>
+                <div className="product-card-img">
+                  <div className="bike-card-blob"></div>
+                  {p.images && p.images.length > 0 ? (
+                    <img 
+                      src={getImgUrl(p.images[0].url)} 
+                      alt={p.name} 
+                      className="bike-main-img"
+                    />
+                  ) : (
+                    <div className="placeholder-img">[ {p.name} ]</div>
+                  )}
+                </div>
+                <div className="product-card-body">
+                  <h3 className="bike-name-new">{p.name}</h3>
+                  <div className="bike-price-new">PKR {Number(p.price).toLocaleString()}</div>
+                  
+                  <div className="bike-card-footer">
+                    <span className="check-details">Check details</span>
+                    <div className="arrow-circle">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-          <div className="product-card">
-            <div className="product-card-img">[ BIKE IMAGE ]
-              <div className="product-card-overlay"></div>
-              <div className="product-card-quick">View Details</div>
-            </div>
-            <div className="product-card-body">
-              <div className="product-cat">Adventure Series</div>
-              <div className="product-name">Crown Trail X</div>
-              <div style={{ fontSize: '13px', color: 'var(--white2)', marginTop: '4px' }}>650cc · Dual Sport · Long Range</div>
-              <div className="product-price-row">
-                <div className="product-price">PKR 720,000</div>
-                <div className="product-badge">In Stock</div>
-              </div>
-            </div>
-          </div>
+            ))
+          ) : (
+            <div className="no-products">Our latest collection is arriving soon.</div>
+          )}
         </div>
       </section>
 
@@ -252,8 +228,8 @@ const Home = () => {
                   <div className="service-item-left">
                     <span className="service-item-num">0{i + 1}</span>
                     <div>
-                      <div className="service-item-name" style={{ background: 'rgba(255,255,255,0.1)', height: '16px', width: '160px', borderRadius: '4px' }} />
-                      <div className="service-item-price" style={{ background: 'rgba(255,255,255,0.07)', height: '12px', width: '100px', borderRadius: '4px', marginTop: '6px' }} />
+                      <div className="service-item-name" style={{ background: 'rgba(0,0,0,0.05)', height: '16px', width: '160px', borderRadius: '4px' }} />
+                      <div className="service-item-price" style={{ background: 'rgba(0,0,0,0.04)', height: '12px', width: '100px', borderRadius: '4px', marginTop: '6px' }} />
                     </div>
                   </div>
                 </div>
@@ -299,6 +275,59 @@ const Home = () => {
             <p>Browse our full catalog of premium bikes, genuine parts, and accessories. Find your next ride today.</p>
           </div>
           <Link to="/shop" className="btn-booking">Shop The Collection →</Link>
+        </div>
+      </section>
+
+      {/* WHY EVEE SECTION */}
+      <section id="why-evee">
+        <div className="why-evee-container">
+          <div className="why-evee-content">
+            <h2 className="why-evee-title" style={{ color: 'var(--orange)' }}>WHY EVEE?</h2>
+            <p className="why-evee-desc">
+              Our high-quality, affordable rides empower you to reduce your carbon footprint while cruising in style and safety. 
+              Join us in transforming city travel, one electric ride at a time!
+            </p>
+            
+            <div className="why-evee-features">
+              <div className="why-evee-feat">
+                <div className="feat-icon-box">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <div className="feat-info">
+                  <h4>Quality</h4>
+                  <p>Durable Construction.</p>
+                </div>
+              </div>
+              <div className="why-evee-feat">
+                <div className="feat-icon-box">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                </div>
+                <div className="feat-info">
+                  <h4>Warranty</h4>
+                  <p>Stress Free Claims.</p>
+                </div>
+              </div>
+              <div className="why-evee-feat">
+                <div className="feat-icon-box">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <div className="feat-info">
+                  <h4>Service</h4>
+                  <p>Door to Door Service.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="why-evee-visual">
+            <div className="why-evee-img-wrapper">
+              <img src="/evee-scooter.png" alt="Evee Electric Scooter" className="scooter-visual" />
+              <div className="evee-visual-overlay">
+                <div className="evee-main-text-float">evee</div>
+                <div className="evee-sub-text-float">I am Evee. Are you?</div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

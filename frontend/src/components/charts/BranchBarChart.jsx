@@ -23,7 +23,7 @@ const BranchBarChart = ({ data, height = 300 }) => {
             tickFormatter={(val) => `$${val/1000}k`}
           />
           <Tooltip 
-            cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+            cursor={{ fill: 'rgba(0,0,0,0.03)' }}
             contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '12px', fontSize: '12px' }}
           />
           <Bar dataKey="revenue" radius={[10, 10, 0, 0]}>

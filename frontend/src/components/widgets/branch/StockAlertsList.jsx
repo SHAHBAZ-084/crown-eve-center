@@ -30,7 +30,7 @@ const StockAlertsList = ({ branchId }) => {
                 <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Alert at {item.alertAt} units</p>
               </div>
             </div>
-            <button className="p-3 bg-red-900/10 text-red-500 rounded-xl hover:bg-red-900 hover:text-white transition-all">
+            <button className="p-3 bg-red-900/10 text-red-500 rounded-xl hover:bg-red-900 hover:text-orange-600 transition-all">
               Reorder
             </button>
           </div>

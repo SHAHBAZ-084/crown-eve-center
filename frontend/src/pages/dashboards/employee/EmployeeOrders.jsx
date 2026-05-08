@@ -28,7 +28,7 @@ const EmployeeOrders = () => {
              <button 
               key={s}
               onClick={() => setStatus(s)}
-              className={`px-8 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${status === s ? 'bg-blue-600 text-white' : 'text-slate-500 hover:text-slate-300'}`}
+              className={`px-8 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${status === s ? 'bg-blue-600 text-orange-600' : 'text-slate-500 hover:text-slate-300'}`}
              >
                {s}
              </button>

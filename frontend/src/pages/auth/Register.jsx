@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import './Auth.css';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -42,8 +43,8 @@ const Register = () => {
           <div className="logo-icon"><span>CE</span></div>
           <span className="logo-text">Crown <em>Eve</em></span>
         </Link>
-        <h2 className="text-5xl font-family-bebas mb-2 tracking-tighter uppercase text-white">Create Account.</h2>
-        <p className="text-sm text-[#BDBDB8] mb-8">Join Crown Eve — browse bikes, book services, track your orders.</p>
+        <h2 className="text-5xl font-family-bebas mb-2 tracking-tighter uppercase text-black">Create Account.</h2>
+        <p className="text-sm text-muted mb-8">Join Crown Eve — browse bikes, book services, track your orders.</p>
         
         <form onSubmit={handleSubmit}>
           {/* Stacked Layout for cleaner vertical profile */}

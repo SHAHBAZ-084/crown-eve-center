@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import './auth/Auth.css';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -53,7 +54,7 @@ const Login = () => {
             onClick={() => navigate('/')}
             style={{
               display: 'flex', alignItems: 'center', gap: '6px',
-              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(0,0,0,0.05)',
               color: 'var(--white2)', borderRadius: '8px', padding: '7px 14px',
               fontSize: '12px', cursor: 'pointer', letterSpacing: '0.05em',
               fontWeight: 600, transition: 'all .2s'
@@ -64,7 +65,7 @@ const Login = () => {
             ← Home
           </button>
         </div>
-        <h2 className="text-5xl font-family-bebas mb-2 tracking-tighter uppercase text-white">Welcome Back.</h2>
+        <h2 className="text-5xl font-family-bebas mb-2 tracking-tighter uppercase text-orange-600">Welcome Back.</h2>
         <p className="text-sm text-[#BDBDB8] mb-8">Sign in to your Crown Eve portal to manage your hub.</p>
         
         <form onSubmit={handleSubmit}>

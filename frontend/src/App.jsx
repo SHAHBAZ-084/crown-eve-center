@@ -62,7 +62,7 @@ const CustomerShop = lazy(() => import('./pages/dashboards/customer/Shop'));
 const CustomerCart = lazy(() => import('./pages/dashboards/customer/Cart'));
 const CustomerCheckout = lazy(() => import('./pages/dashboards/customer/Checkout'));
 const CustomerTrack = lazy(() => import('./pages/dashboards/customer/TrackOrder'));
-const CustomerProductDetail = lazy(() => import('./pages/dashboards/customer/ProductDetail'));
+const ProductDetail = lazy(() => import('./pages/dashboards/customer/ProductDetail'));
 
 const FullPageSkeleton = () => (
   <div className="min-h-screen bg-black flex items-center justify-center">
@@ -79,6 +79,8 @@ const App = () => {
           <Routes>
             <Route element={<Layout isPublic />}>
               <Route path="/" element={<Home />} />
+              <Route path="/shop" element={<CustomerShop />} />
+              <Route path="/product/:id" element={<ProductDetail />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
               
@@ -124,8 +126,6 @@ const App = () => {
               <Route path="/my/orders"    element={<CustomerOrders />} />
               <Route path="/my/bookings"  element={<CustomerBookings />} />
               <Route path="/my/profile"   element={<CustomerProfile />} />
-              <Route path="/shop"         element={<CustomerShop />} />
-              <Route path="/shop/:id"     element={<CustomerProductDetail />} />
               <Route path="/my/cart"      element={<CustomerCart />} />
               <Route path="/my/checkout"  element={<CustomerCheckout />} />
               <Route path="/track/:id"    element={<CustomerTrack />} />

@@ -16,7 +16,7 @@ const GlobalRevenueCard = () => {
         <p className="text-[#888] text-[10px] font-bold uppercase tracking-[0.2em]">Global Revenue</p>
         <TrendingUp className="text-[#FF4D00]" size={16} />
       </div>
-      <h3 className="text-3xl font-family-bebas mt-4 text-[#F5F5F0] tracking-wider">PKR {data?.total.toLocaleString()}</h3>
+      <h3 className="text-3xl font-family-bebas mt-4 text-orange-600 tracking-wider">PKR {data?.total.toLocaleString()}</h3>
       <div className="flex items-center gap-2 mt-2">
         <span className="text-[10px] text-[#FF4D00] font-bold">+ {((data?.today / (data?.total || 1)) * 100).toFixed(1)}%</span>
         <span className="text-[10px] text-[#888] uppercase tracking-tighter">Growth Today</span>

@@ -105,7 +105,7 @@ const Profile = () => {
             <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: "var(--muted2)", letterSpacing: '2px', marginBottom: 24 }}>Member since {new Date(user?.createdAt || Date.now()).getFullYear()}</div>
             
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div className="trow" style={{ background: "rgba(255,77,0,0.05)", padding: "14px", borderRadius: 4, border: '1px solid rgba(255,77,0,0.1)' }}>
+              <div className="trow" style={{ background: "rgba(255,77,0,0.05)", padding: "14px", borderRadius: 4, border: '1px solid rgba(232,71,10,0.1)' }}>
                 <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: "var(--muted2)", letterSpacing: '1px' }}>Loyalty Tier</span>
                 <span className="badge bg-o" style={{ fontSize: 10 }}>Gold Member</span>
               </div>

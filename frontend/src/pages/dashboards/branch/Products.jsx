@@ -91,11 +91,28 @@ const Products = () => {
     if (!form.name || !form.price) return toast("Name and price required", "e");
     setSaving(true);
     try {
-      const body = { ...form };
-      if (editTarget) { await apiFetch(`/products/${editTarget.id}`, { method: "PUT", body }); toast("Product updated"); }
-      else { await apiFetch("/products", { method: "POST", body }); toast("Product created"); }
-      setShowModal(false); refetch();
-    } catch (e) { toast(e.message, "e"); }
+      const body = { 
+        ...form, 
+        branchId: Number(branchId),
+        price: parseFloat(form.price),
+        sale_price: form.sale_price ? parseFloat(form.sale_price) : null,
+        stock_qty: parseInt(form.stock_qty) || 0,
+        categoryId: form.categoryId || null, // UUIDs are strings
+        brandId: form.brandId || null // UUIDs are strings
+      };
+
+      if (editTarget) { 
+        await apiFetch(`/products/${editTarget.id}`, { method: "PUT", body }); 
+        toast("Product updated"); 
+      } else { 
+        await apiFetch("/products", { method: "POST", body }); 
+        toast("Product created"); 
+      }
+      setShowModal(false); 
+      refetch();
+    } catch (e) { 
+      toast(e.message, "e"); 
+    }
     setSaving(false);
   };
 
@@ -467,7 +484,7 @@ const Products = () => {
                 <label>Compatible Models (Text)</label>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
                   {(form.partDetail.compatible_models || []).map((m, i) => (
-                    <div key={i} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid var(--border)", padding: "4px 10px", borderRadius: 20, fontSize: 11, display: "flex", alignItems: "center", gap: 6 }}>
+                    <div key={i} style={{ background: "rgba(0,0,0,0.03)", border: "1px solid var(--border)", padding: "4px 10px", borderRadius: 20, fontSize: 11, display: "flex", alignItems: "center", gap: 6 }}>
                       {m}
                       <button onClick={() => setForm(f => ({ ...f, partDetail: { ...f.partDetail, compatible_models: f.partDetail.compatible_models.filter((_, j) => j !== i) } }))} style={{ border: "none", background: "none", color: "var(--muted)", cursor: "pointer", padding: 0, display: "flex" }}><Icon n="close" size={10} /></button>
                     </div>

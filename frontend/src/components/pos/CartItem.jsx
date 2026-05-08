@@ -17,9 +17,9 @@ const CartItem = ({ item, onUpdateQty, onRemove }) => {
       </div>
       <div className="flex items-center space-x-3">
         <div className="flex items-center bg-slate-900 rounded-lg p-1 border border-slate-800">
-           <button onClick={() => onUpdateQty(item.id, -1)} className="w-6 h-6 flex items-center justify-center hover:text-white text-slate-500 transition-colors"><Minus size={14} /></button>
+           <button onClick={() => onUpdateQty(item.id, -1)} className="w-6 h-6 flex items-center justify-center hover:text-orange-600 text-slate-500 transition-colors"><Minus size={14} /></button>
            <span className="w-8 text-center text-xs font-black">{item.qty}</span>
-           <button onClick={() => onUpdateQty(item.id, 1)} className="w-6 h-6 flex items-center justify-center hover:text-white text-slate-500 transition-colors"><Plus size={14} /></button>
+           <button onClick={() => onUpdateQty(item.id, 1)} className="w-6 h-6 flex items-center justify-center hover:text-orange-600 text-slate-500 transition-colors"><Plus size={14} /></button>
         </div>
         <button onClick={() => onRemove(item.id)} className="text-red-900 hover:text-red-500 transition-colors p-1"><Trash2 size={16} /></button>
       </div>

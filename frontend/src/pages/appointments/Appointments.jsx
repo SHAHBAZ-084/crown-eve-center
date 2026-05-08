@@ -92,7 +92,7 @@ const Appointments = () => {
             <select 
               value={selectedBranch}
               onChange={(e) => setSelectedBranch(e.target.value)}
-              style={{ width: '100%', background: 'var(--black3)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--white)', padding: '14px 18px', fontFamily: "'Barlow',sans-serif", fontSize: '14px', outline: 'none' }}
+              style={{ width: '100%', background: 'var(--black3)', border: '1px solid rgba(0,0,0,0.05)', color: 'var(--white)', padding: '14px 18px', fontFamily: "'Barlow',sans-serif", fontSize: '14px', outline: 'none' }}
             >
               <option value="">Select nearest branch</option>
               {branches.map(b => (

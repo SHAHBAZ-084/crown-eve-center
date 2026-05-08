@@ -25,7 +25,7 @@ const RecentActivityFeed = () => {
             }`} />
             <div>
               <p className="text-sm font-medium">
-                Order <span className="text-blue-400">#{order.id}</span> {order.status.toLowerCase()} by <span className="text-white">{order.customer?.name}</span>
+                Order <span className="text-blue-400">#{order.id}</span> {order.status.toLowerCase()} by <span className="text-orange-600">{order.customer?.name}</span>
               </p>
               <p className="text-[10px] text-slate-600 font-bold uppercase mt-1">
                 {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

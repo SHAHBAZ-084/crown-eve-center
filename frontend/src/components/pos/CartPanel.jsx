@@ -40,13 +40,13 @@ const CartPanel = ({ cart, onUpdateQty, onRemove, onCheckout, isProcessing }) =>
          <div className="space-y-2">
             <div className="flex justify-between text-[10px] font-black text-slate-500 uppercase tracking-widest">
                <span>Subtotal</span>
-               <span className="text-white">${subtotal.toLocaleString()}</span>
+               <span className="text-orange-600">${subtotal.toLocaleString()}</span>
             </div>
             <div className="flex justify-between text-[10px] font-black text-slate-500 uppercase tracking-widest">
                <span>Tax (8%)</span>
-               <span className="text-white">${tax.toLocaleString()}</span>
+               <span className="text-orange-600">${tax.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between text-2xl font-black italic text-white pt-4 mt-2 border-t border-slate-800/50">
+            <div className="flex justify-between text-2xl font-black italic text-orange-600 pt-4 mt-2 border-t border-slate-800/50">
                <span>TOTAL</span>
                <span className="text-blue-500">${total.toLocaleString()}</span>
             </div>

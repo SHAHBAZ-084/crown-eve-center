@@ -30,7 +30,7 @@ const Layout = ({ isPublic = false }) => {
 
   if (showNavbar) {
     return (
-      <div className="min-h-screen bg-black text-white font-sans">
+      <div className="min-h-screen bg-black text-orange-600 font-sans">
         <Navbar user={user} logout={logout} />
         <main>
           <div key={location.pathname} style={pageStyle}>
@@ -42,7 +42,7 @@ const Layout = ({ isPublic = false }) => {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans flex">
+    <div className="min-h-screen bg-black text-orange-600 font-sans flex">
       {!isMinimal && <Sidebar user={user} logout={logout} />}
 
       <div className={`flex-1 flex flex-col ${!isMinimal ? 'lg:ml-72' : ''}`}>

@@ -15,7 +15,7 @@ const Forgot = () => {
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-6">
       <div className="w-full max-w-md bg-slate-900 border border-slate-800 p-10 rounded-[3rem] shadow-2xl space-y-8">
-        <Link to="/login" className="inline-flex items-center text-slate-500 hover:text-white transition-all text-sm font-bold">
+        <Link to="/login" className="inline-flex items-center text-slate-500 hover:text-orange-600 transition-all text-sm font-bold">
           <ArrowLeft size={16} className="mr-2" /> Back to Login
         </Link>
 
@@ -42,7 +42,7 @@ const Forgot = () => {
                 className="w-full bg-slate-950 border border-slate-800 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all" 
               />
             </div>
-            <button className="w-full bg-white text-black py-5 rounded-2xl font-black text-xl hover:bg-blue-500 hover:text-white transition-all shadow-2xl">
+            <button className="w-full bg-white text-black py-5 rounded-2xl font-black text-xl hover:bg-blue-500 hover:text-orange-600 transition-all shadow-2xl">
               SEND LINK
             </button>
           </form>

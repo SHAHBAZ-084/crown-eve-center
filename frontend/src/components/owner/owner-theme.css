@@ -6,7 +6,7 @@
   --surface: #0F0F11;
   --surface2: #141416;
   --border: rgba(255,255,255,0.06);
-  --border2: rgba(255,255,255,0.1);
+  --border2: rgba(0,0,0,0.05);
   --text: #F0EFE9;
   --muted: #7A7977;
   --accent: #FF4D00;
@@ -121,9 +121,9 @@
 .owner-theme .btn-primary { background: var(--accent); color: #fff; }
 .owner-theme .btn-primary:hover { background: var(--accent2); }
 .owner-theme .btn-secondary { background: var(--surface2); border-color: var(--border2); color: var(--text); }
-.owner-theme .btn-secondary:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); }
+.owner-theme .btn-secondary:hover { border-color: rgba(255,255,255,0.2); background: rgba(0,0,0,0.03); }
 .owner-theme .btn-ghost { background: transparent; color: var(--muted); }
-.owner-theme .btn-ghost:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+.owner-theme .btn-ghost:hover { color: var(--text); background: rgba(0,0,0,0.03); }
 .owner-theme .btn-danger { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: var(--red); }
 .owner-theme .btn-danger:hover { background: var(--red); color:#fff; }
 .owner-theme .btn-sm { padding: 6px 14px; font-size: 12px; }

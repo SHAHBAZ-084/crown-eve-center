@@ -35,7 +35,7 @@ const Sidebar = ({ user, logout }) => {
       <div className="mb-12 flex items-center gap-4">
         <div className="logo-icon"><span>CE</span></div>
         <div>
-          <h1 className="text-xl font-bold tracking-tighter uppercase leading-none text-white">Crown <span className="text-[#FF4D00]">Eve</span></h1>
+          <h1 className="text-xl font-bold tracking-tighter uppercase leading-none text-orange-600">Crown <span className="text-[#FF4D00]">Eve</span></h1>
           <p className="text-[8px] uppercase tracking-[0.3em] text-[#888] font-black mt-1">Management Node</p>
         </div>
       </div>
@@ -47,8 +47,8 @@ const Sidebar = ({ user, logout }) => {
             to={item.path}
             className={`flex items-center space-x-4 p-4 rounded-lg transition-all ${
               location.pathname === item.path 
-                ? 'bg-[#FF4D00] text-white shadow-xl shadow-[#FF4D00]/20' 
-                : 'text-[#BDBDB8] hover:text-white hover:bg-white/5'
+                ? 'bg-[#FF4D00] text-orange-600 shadow-xl shadow-[#FF4D00]/20' 
+                : 'text-[#BDBDB8] hover:text-orange-600 hover:bg-white/5'
             }`}
           >
             {item.icon}
