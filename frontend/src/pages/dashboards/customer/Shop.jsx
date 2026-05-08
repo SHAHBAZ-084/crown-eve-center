@@ -15,6 +15,7 @@ const Shop = () => {
   
   // Filter States
   const [cat, setCat] = useState("All");
+  const [type, setType] = useState("All"); // bike or part
   const [search, setSearch] = useState("");
   const [branchId, setBranchId] = useState("");
   const [sortBy, setSortBy] = useState("stock_desc");
@@ -50,11 +51,12 @@ const Shop = () => {
     const params = {
       branchId: branchId || undefined,
       categoryId: cat === "All" ? undefined : cat,
+      product_type: type === "All" ? undefined : type,
       search: search || undefined,
       sortBy: sort,
       order: order || "desc",
       page: page,
-      limit: 12 // Standard grid size
+      limit: 12
     };
 
     api.get("/products", { params })
@@ -70,10 +72,11 @@ const Shop = () => {
       .catch(() => setProducts([]))
       .finally(() => setLoading(false));
     window.scrollTo(0, 0);
-  }, [branchId, cat, search, sortBy, page]);
+  }, [branchId, cat, type, search, sortBy, page]);
 
   const clearFilters = () => {
     setCat("All");
+    setType("All");
     setSearch("");
     setBranchId("");
     setSortBy("stock_desc");
@@ -87,7 +90,7 @@ const Shop = () => {
   };
 
   const getPaginationRange = () => {
-    const delta = 2; // Number of pages to show on each side of current page
+    const delta = 2;
     const range = [];
     for (let i = Math.max(2, page - delta); i <= Math.min(totalPages - 1, page + delta); i++) {
       range.push(i);
@@ -123,12 +126,11 @@ const Shop = () => {
       {/* Advanced Filters Bar */}
       <div className="filter-bar-premium">
         <div className="filter-group">
-          <label>Categories</label>
+          <label>Browse By Type</label>
           <div className="fbar-scrollable">
-            <button className={`fpill ${cat === "All" ? "on" : ""}`} onClick={() => { setCat("All"); setPage(1); }}>All Products</button>
-            {categories.map(c => (
-              <button key={c.id} className={`fpill ${cat === c.id ? "on" : ""}`} onClick={() => { setCat(c.id); setPage(1); }}>{c.name}</button>
-            ))}
+            <button className={`fpill ${type === "All" ? "on" : ""}`} onClick={() => { setType("All"); setPage(1); }}>All Products</button>
+            <button className={`fpill ${type === "bike" ? "on" : ""}`} onClick={() => { setType("bike"); setPage(1); }}>Electric Bikes</button>
+            <button className={`fpill ${type === "part" ? "on" : ""}`} onClick={() => { setType("part"); setPage(1); }}>Spare Parts</button>
           </div>
         </div>
 
@@ -173,7 +175,7 @@ const Shop = () => {
                     {p.stock_qty <= 0 && <div className="out-of-stock-tag">Out of Stock</div>}
                   </div>
                   <div className="product-card-body">
-                    <div className="product-cat">{p.category?.name || 'Model'}</div>
+                    <div className="product-cat">{p.category?.name || (p.product_type === 'bike' ? 'Bike' : 'Part')}</div>
                     <h3 className="bike-name-new">{p.name}</h3>
                     <div className="bike-price-new">
                       Rs. {Number(p.sale_price || p.price).toLocaleString()}

@@ -78,81 +78,111 @@ const ProductDetailPage = () => {
         </div>
       </div>
 
-      {/* TECHNICAL SPECIFICATIONS */}
-      <section className="specs-section">
-        <h2 className="section-heading-orange">TECHNICAL SPECIFICATIONS</h2>
-        <div className="specs-icon-grid">
-          <div className="spec-icon-card">
-            <div className="spec-icon-box">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 16s0-2 1-3 3-1 3-1V9l2-2 2 2v3s2 0 3 1 1 3 1 3H5z"/><circle cx="8" cy="18" r="2"/><circle cx="16" cy="18" r="2"/></svg>
+      {/* TECHNICAL SPECIFICATIONS - Only for Bikes */}
+      {product.product_type === 'bike' && (
+        <section className="specs-section">
+          <h2 className="section-heading-orange">TECHNICAL SPECIFICATIONS</h2>
+          <div className="specs-icon-grid">
+            <div className="spec-icon-card">
+              <div className="spec-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 16s0-2 1-3 3-1 3-1V9l2-2 2 2v3s2 0 3 1 1 3 1 3H5z"/><circle cx="8" cy="18" r="2"/><circle cx="16" cy="18" r="2"/></svg>
+              </div>
+              <div className="spec-icon-label">Lifespan</div>
+              <div className="spec-icon-value">{bike.warranty ? bike.warranty.split(',')[0] : "Extended Durability"}</div>
             </div>
-            <div className="spec-icon-label">Lifespan</div>
-            <div className="spec-icon-value">{bike.warranty ? bike.warranty.split(',')[0] : "Extended Durability"}</div>
-          </div>
-          <div className="spec-icon-card">
-            <div className="spec-icon-box">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M22 11v2"/></svg>
+            <div className="spec-icon-card">
+              <div className="spec-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M22 11v2"/></svg>
+              </div>
+              <div className="spec-icon-label">Battery</div>
+              <div className="spec-icon-value">{bike.battery_type || "Standard Battery"}</div>
             </div>
-            <div className="spec-icon-label">Battery</div>
-            <div className="spec-icon-value">{bike.battery_type || "Standard Battery"}</div>
-          </div>
-          <div className="spec-icon-card">
-            <div className="spec-icon-box">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M11 2L3 14h8l-2 8 8-12h-8l2-8z"/></svg>
+            <div className="spec-icon-card">
+              <div className="spec-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M11 2L3 14h8l-2 8 8-12h-8l2-8z"/></svg>
+              </div>
+              <div className="spec-icon-label">Charging</div>
+              <div className="spec-icon-value">{bike.charging_time_max_hrs || 0} Hours</div>
             </div>
-            <div className="spec-icon-label">Charging</div>
-            <div className="spec-icon-value">{bike.charging_time_max_hrs || 0} Hours</div>
-          </div>
-          <div className="spec-icon-card">
-            <div className="spec-icon-box">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"/><path d="M12 8V12L15 15"/><circle cx="12" cy="12" r="1"/></svg>
+            <div className="spec-icon-card">
+              <div className="spec-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"/><path d="M12 8V12L15 15"/><circle cx="12" cy="12" r="1"/></svg>
+              </div>
+              <div className="spec-icon-label">Colors</div>
+              <div className="spec-icon-value">{bike.color_options && Array.isArray(bike.color_options) ? bike.color_options.join(', ') : "Available in Various Colors"}</div>
             </div>
-            <div className="spec-icon-label">Colors</div>
-            <div className="spec-icon-value">{bike.color_options && Array.isArray(bike.color_options) ? bike.color_options.join(', ') : "Available in Various Colors"}</div>
-          </div>
-          <div className="spec-icon-card">
-            <div className="spec-icon-box">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            <div className="spec-icon-card">
+              <div className="spec-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              </div>
+              <div className="spec-icon-label">Range</div>
+              <div className="spec-icon-value">{bike.range_eco_max_km || 0} KM</div>
             </div>
-            <div className="spec-icon-label">Range</div>
-            <div className="spec-icon-value">{bike.range_eco_max_km || 0} KM</div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* PERFORMANCE DETAILS */}
-      <section className="performance-section">
-        <div>
-          <h2 className="section-heading-orange" style={{ border: 'none', marginBottom: 20 }}>Performance Details of {product.name}</h2>
-          <p className="performance-text">
-            {product.description || `Unlock the thrill of urban exploration with our high-powered electric scooter, engineered to elevate your ride. Cruise through city streets at exhilarating speeds of up to ${bike.speed_max_kmh || 60} KM/hr, enjoying the freedom to roam with a range of up to ${bike.range_eco_max_km || 90} KM on a single charge.`}
-            <br /><br />
-            Designed for the modern explorer, our electric scooter merges sleek aesthetics with dynamic functionality, setting a new standard for urban mobility.
-          </p>
-        </div>
-        <div className="performance-table">
-          <div className="perf-row">
-            <span className="perf-label">Speed</span>
-            <span className="perf-value">{bike.speed_min_kmh}-{bike.speed_max_kmh} Km/h</span>
+      {/* PERFORMANCE DETAILS - Only for Bikes */}
+      {product.product_type === 'bike' && (
+        <section className="performance-section">
+          <div>
+            <h2 className="section-heading-orange" style={{ border: 'none', marginBottom: 20 }}>Performance Details of {product.name}</h2>
+            <p className="performance-text">
+              {product.description || `Unlock the thrill of urban exploration with our high-powered electric scooter, engineered to elevate your ride. Cruise through city streets at exhilarating speeds of up to ${bike.speed_max_kmh || 60} KM/hr, enjoying the freedom to roam with a range of up to ${bike.range_eco_max_km || 90} KM on a single charge.`}
+              <br /><br />
+              Designed for the modern explorer, our electric scooter merges sleek aesthetics with dynamic functionality, setting a new standard for urban mobility.
+            </p>
           </div>
-          <div className="perf-row">
-            <span className="perf-label">Range</span>
-            <span className="perf-value">{bike.range_eco_min_km}-{bike.range_eco_max_km} KM</span>
+          <div className="performance-table">
+            <div className="perf-row">
+              <span className="perf-label">Speed</span>
+              <span className="perf-value">{bike.speed_min_kmh}-{bike.speed_max_kmh} Km/h</span>
+            </div>
+            <div className="perf-row">
+              <span className="perf-label">Range</span>
+              <span className="perf-value">{bike.range_eco_min_km}-{bike.range_eco_max_km} KM</span>
+            </div>
+            <div className="perf-row">
+              <span className="perf-label">Battery Type</span>
+              <span className="perf-value">{bike.battery_voltage}V {bike.battery_capacity_ah}AH {bike.battery_type}</span>
+            </div>
+            <div className="perf-row">
+              <span className="perf-label">Electric Motor Power</span>
+              <span className="perf-value">{bike.motor_type}</span>
+            </div>
+            <div className="perf-row">
+              <span className="perf-label">Warranty Period</span>
+              <span className="perf-value">{bike.warranty || "24 Months Battery & Controller"}</span>
+            </div>
           </div>
-          <div className="perf-row">
-            <span className="perf-label">Battery Type</span>
-            <span className="perf-value">{bike.battery_voltage}V {bike.battery_capacity_ah}AH {bike.battery_type}</span>
+        </section>
+      )}
+
+      {/* PART DESCRIPTION - Only for Spare Parts */}
+      {product.product_type === 'part' && (
+        <section className="performance-section">
+          <div>
+            <h2 className="section-heading-orange" style={{ border: 'none', marginBottom: 20 }}>Product Information</h2>
+            <p className="performance-text">
+              {product.description || "High-quality genuine spare part designed for durability and perfect fit."}
+            </p>
           </div>
-          <div className="perf-row">
-            <span className="perf-label">Electric Motor Power</span>
-            <span className="perf-value">{bike.motor_type}</span>
+          <div className="performance-table">
+            <div className="perf-row">
+              <span className="perf-label">Item Code</span>
+              <span className="perf-value">{product.partDetail?.item_code || 'N/A'}</span>
+            </div>
+            <div className="perf-row">
+              <span className="perf-label">Category</span>
+              <span className="perf-value">{product.category?.name || 'General Part'}</span>
+            </div>
+            <div className="perf-row">
+              <span className="perf-label">Availability</span>
+              <span className="perf-value">{product.stock_qty > 0 ? 'In Stock' : 'Out of Stock'}</span>
+            </div>
           </div>
-          <div className="perf-row">
-            <span className="perf-label">Warranty Period</span>
-            <span className="perf-value">{bike.warranty || "24 Months Battery & Controller"}</span>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 };
