@@ -1,5 +1,6 @@
 .product-detail-page {
-  padding: 120px 10% 60px; /* Increased top padding for navbar */
+  padding: 120px 10% 60px;
+  /* Increased top padding for navbar */
   background: #fff;
   color: #2D3436;
   font-family: 'Inter', sans-serif;
@@ -8,7 +9,8 @@
 .product-top-section {
   display: flex;
   gap: 60px;
-  align-items: center; /* Better alignment */
+  align-items: center;
+  /* Better alignment */
   margin-bottom: 100px;
 }
 
@@ -17,7 +19,7 @@
 }
 
 .product-image-col {
-  flex: 0.8; 
+  flex: 0.8;
   position: relative;
   display: flex;
   justify-content: center;
@@ -55,7 +57,8 @@
 .price-item {
   font-size: 38px;
   font-weight: 900;
-  color: #111111; /* Changed from green to black */
+  color: #111111;
+  /* Changed from green to black */
   margin-bottom: 10px;
   font-family: 'Barlow Condensed', sans-serif;
 }
@@ -74,7 +77,8 @@
   margin-top: 20px;
 }
 
-.add-to-cart-btn, .buy-now-btn {
+.add-to-cart-btn,
+.buy-now-btn {
   flex: 1;
   height: 60px;
   border-radius: 4px;
@@ -130,8 +134,9 @@
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 10px 30px rgba(0,0,0,0.05));
-  mix-blend-mode: multiply; /* Blends image background with page */
+  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.05));
+  mix-blend-mode: multiply;
+  /* Blends image background with page */
 }
 
 /* Technical Specifications Grid */
@@ -165,7 +170,7 @@
 
 .spec-icon-card:hover {
   background: #fff;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
   transform: translateY(-5px);
 }
 
@@ -173,7 +178,8 @@
   width: 60px;
   height: 60px;
   margin: 0 auto 20px;
-  color: #111111; /* Changed from green to black */
+  color: #111111;
+  /* Changed from green to black */
 }
 
 .spec-icon-label {
@@ -217,7 +223,8 @@
 
 .perf-label {
   font-weight: 700;
-  color: #111111; /* Changed from green to black */
+  color: #111111;
+  /* Changed from green to black */
   font-size: 18px;
 }
 
@@ -230,14 +237,18 @@
 }
 
 @media (max-width: 1024px) {
-  .product-top-section, .performance-section {
+
+  .product-top-section,
+  .performance-section {
     flex-direction: column;
     grid-template-columns: 1fr;
     gap: 40px;
   }
+
   .specs-icon-grid {
     grid-template-columns: repeat(3, 1fr);
   }
+
   .product-name-large {
     font-size: 60px;
   }

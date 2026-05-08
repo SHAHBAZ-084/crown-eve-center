@@ -91,8 +91,8 @@ const Products = () => {
     if (!form.name || !form.price) return toast("Name and price required", "e");
     setSaving(true);
     try {
-      const body = { 
-        ...form, 
+      const body = {
+        ...form,
         branchId: Number(branchId),
         price: parseFloat(form.price),
         sale_price: form.sale_price ? parseFloat(form.sale_price) : null,
@@ -101,17 +101,17 @@ const Products = () => {
         brandId: form.brandId || null // UUIDs are strings
       };
 
-      if (editTarget) { 
-        await apiFetch(`/products/${editTarget.id}`, { method: "PUT", body }); 
-        toast("Product updated"); 
-      } else { 
-        await apiFetch("/products", { method: "POST", body }); 
-        toast("Product created"); 
+      if (editTarget) {
+        await apiFetch(`/products/${editTarget.id}`, { method: "PUT", body });
+        toast("Product updated");
+      } else {
+        await apiFetch("/products", { method: "POST", body });
+        toast("Product created");
       }
-      setShowModal(false); 
+      setShowModal(false);
       refetch();
-    } catch (e) { 
-      toast(e.message, "e"); 
+    } catch (e) {
+      toast(e.message, "e");
     }
     setSaving(false);
   };
@@ -333,7 +333,7 @@ const Products = () => {
                       <td>{b.country || "International"}</td>
                       <td className="tda">
                         <button className="btn-ico" onClick={() => openEditBrand(b)}><Icon n="edit" size={12} /></button>
-                        <button className="btn-ico dng" onClick={async () => { if(confirm("Delete this supplier?")) { await apiFetch(`/brands/${b.id}`, { method: "DELETE" }); refetchBrands(); } }}><Icon n="trash" size={12} /></button>
+                        <button className="btn-ico dng" onClick={async () => { if (confirm("Delete this supplier?")) { await apiFetch(`/brands/${b.id}`, { method: "DELETE" }); refetchBrands(); } }}><Icon n="trash" size={12} /></button>
                       </td>
                     </tr>
                   ))}

@@ -96,6 +96,72 @@ const About = () => {
         </div>
       </section>
 
+      {/* RATE US SECTION */}
+      <section className="rate-us-section">
+        <div className="rate-us-container">
+          <div className="rate-us-header">
+            <h2>Rate Your Experience</h2>
+            <p>Your feedback helps us improve and serves our community of riders.</p>
+          </div>
+          
+          <form className="rate-us-form" onSubmit={async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {
+              name: formData.get('name'),
+              role: formData.get('role'),
+              stars: parseInt(formData.get('stars')),
+              text: formData.get('text')
+            };
+
+            try {
+              const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/testimonials`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+              });
+              if (res.ok) {
+                alert('Thank you for your rating!');
+                e.target.reset();
+              } else {
+                alert('Failed to submit rating. Please try again.');
+              }
+            } catch (err) {
+              console.error(err);
+              alert('Something went wrong.');
+            }
+          }}>
+            <div className="form-grid">
+              <div className="form-group">
+                <label>Your Name</label>
+                <input type="text" name="name" required placeholder="e.g. Ali Kamran" />
+              </div>
+              <div className="form-group">
+                <label>Your Bike/Role</label>
+                <input type="text" name="role" placeholder="e.g. KTM Duke Owner" />
+              </div>
+            </div>
+            
+            <div className="form-group">
+              <label>Rating</label>
+              <select name="stars" required>
+                <option value="5">5 Stars - Excellent</option>
+                <option value="4">4 Stars - Very Good</option>
+                <option value="3">3 Stars - Good</option>
+                <option value="2">2 Stars - Fair</option>
+                <option value="1">1 Star - Poor</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Your Experience</label>
+              <textarea name="text" required placeholder="Tell us about your journey with Crown Eve..." rows="4"></textarea>
+            </div>
+
+            <button type="submit" className="submit-rate-btn">Submit Rating</button>
+          </form>
+        </div>
+      </section>
     </div>
   );
 };

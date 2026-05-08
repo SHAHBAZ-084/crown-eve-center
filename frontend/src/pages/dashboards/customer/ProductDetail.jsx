@@ -37,7 +37,7 @@ const ProductDetailPage = () => {
       <div className="product-top-section">
         <div className="product-info-col">
           <h1 className="product-name-large">{product.name}</h1>
-          
+
           <ul className="spec-bullets">
             {bike.speed_max_kmh && <li>Speed {bike.speed_min_kmh || 0}-{bike.speed_max_kmh} KM/hr</li>}
             {bike.range_eco_max_km && <li>Range {bike.range_eco_min_km || 0}-{bike.range_eco_max_km}KM</li>}
@@ -62,11 +62,11 @@ const ProductDetailPage = () => {
           <div className="product-actions-row">
             <button className="add-to-cart-btn" onClick={() => addItem(product)}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/>
+                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4Z" /><path d="M3 6h18" /><path d="M16 10a4 4 0 01-8 0" />
               </svg>
               ADD TO CART
             </button>
-            
+
             <button className="buy-now-btn" onClick={() => { addItem(product); navigate("/cart"); }}>
               BUY NOW
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
@@ -94,35 +94,35 @@ const ProductDetailPage = () => {
           <div className="specs-icon-grid">
             <div className="spec-icon-card">
               <div className="spec-icon-box">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 16s0-2 1-3 3-1 3-1V9l2-2 2 2v3s2 0 3 1 1 3 1 3H5z"/><circle cx="8" cy="18" r="2"/><circle cx="16" cy="18" r="2"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 16s0-2 1-3 3-1 3-1V9l2-2 2 2v3s2 0 3 1 1 3 1 3H5z" /><circle cx="8" cy="18" r="2" /><circle cx="16" cy="18" r="2" /></svg>
               </div>
               <div className="spec-icon-label">Lifespan</div>
               <div className="spec-icon-value">{bike.warranty ? bike.warranty.split(',')[0] : "Extended Durability"}</div>
             </div>
             <div className="spec-icon-card">
               <div className="spec-icon-box">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M22 11v2"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="7" width="16" height="10" rx="2" /><path d="M22 11v2" /></svg>
               </div>
               <div className="spec-icon-label">Battery</div>
               <div className="spec-icon-value">{bike.battery_type || "Standard Battery"}</div>
             </div>
             <div className="spec-icon-card">
               <div className="spec-icon-box">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M11 2L3 14h8l-2 8 8-12h-8l2-8z"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M11 2L3 14h8l-2 8 8-12h-8l2-8z" /></svg>
               </div>
               <div className="spec-icon-label">Charging</div>
               <div className="spec-icon-value">{bike.charging_time_max_hrs || 0} Hours</div>
             </div>
             <div className="spec-icon-card">
               <div className="spec-icon-box">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"/><path d="M12 8V12L15 15"/><circle cx="12" cy="12" r="1"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" /><path d="M12 8V12L15 15" /><circle cx="12" cy="12" r="1" /></svg>
               </div>
               <div className="spec-icon-label">Colors</div>
               <div className="spec-icon-value">{bike.color_options && Array.isArray(bike.color_options) ? bike.color_options.join(', ') : "Available in Various Colors"}</div>
             </div>
             <div className="spec-icon-card">
               <div className="spec-icon-box">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
               </div>
               <div className="spec-icon-label">Range</div>
               <div className="spec-icon-value">{bike.range_eco_max_km || 0} KM</div>

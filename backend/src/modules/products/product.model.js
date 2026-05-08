@@ -3,18 +3,18 @@ const prisma = require('../../config/db');
 
 const getProducts = async ({ page = 1, limit = 20, branchId, categoryId, product_type, search, sortBy, order }) => {
   const skip = (page - 1) * limit;
-  
+
   const where = {
     ...(branchId && { branchId: Number(branchId) }),
     ...(categoryId && { categoryId }),
     ...(product_type && { product_type }),
-    ...(search && { 
+    ...(search && {
       OR: [
         { name: { contains: search, mode: 'insensitive' } },
         { partDetail: { item_code: { contains: search, mode: 'insensitive' } } },
         { partDetail: { model: { contains: search, mode: 'insensitive' } } },
         { partDetail: { description: { contains: search, mode: 'insensitive' } } }
-      ] 
+      ]
     })
   };
 

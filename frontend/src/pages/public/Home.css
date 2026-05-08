@@ -786,7 +786,8 @@ h1.hero-title .line3 {
 
 /* ── TESTIMONIALS ── */
 #testimonials {
-  background: #FFF8F5; /* Reverting to original brand light theme */
+  background: #FFF8F5;
+  /* Reverting to original brand light theme */
   padding: 140px 5vw;
   position: relative;
   overflow: hidden;

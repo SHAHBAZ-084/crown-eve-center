@@ -52,6 +52,7 @@ const categoryRoutes = require('./modules/categories/category.routes');
 const brandRoutes = require('./modules/brands/brand.routes');
 const uploadRoutes = require('./modules/uploads/upload.routes');
 const serviceCategoryRoutes = require('./modules/service-categories/service-category.routes');
+const testimonialRoutes = require('./modules/testimonials/testimonials.routes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/branches', branchRoutes);
@@ -70,6 +71,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/brands', brandRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/service-categories', serviceCategoryRoutes);
+app.use('/api/testimonials', testimonialRoutes);
 
 // Root route
 app.get('/', (req, res) => {

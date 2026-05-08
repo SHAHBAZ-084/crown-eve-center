@@ -1,14 +1,14 @@
 // frontend/src/components/layout/Sidebar.jsx
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  ShoppingCart, 
-  Package, 
-  Wrench, 
-  Settings, 
-  LogOut, 
-  FileText 
+import {
+  LayoutDashboard,
+  ShoppingCart,
+  Package,
+  Wrench,
+  Settings,
+  LogOut,
+  FileText
 } from 'lucide-react';
 
 const Sidebar = ({ user, logout }) => {
@@ -45,11 +45,10 @@ const Sidebar = ({ user, logout }) => {
           <Link
             key={idx}
             to={item.path}
-            className={`flex items-center space-x-4 p-4 rounded-lg transition-all ${
-              location.pathname === item.path 
-                ? 'bg-[#FF4D00] text-orange-600 shadow-xl shadow-[#FF4D00]/20' 
+            className={`flex items-center space-x-4 p-4 rounded-lg transition-all ${location.pathname === item.path
+                ? 'bg-[#FF4D00] text-orange-600 shadow-xl shadow-[#FF4D00]/20'
                 : 'text-[#BDBDB8] hover:text-orange-600 hover:bg-white/5'
-            }`}
+              }`}
           >
             {item.icon}
             <span className="font-bold text-sm tracking-wide">{item.name}</span>
@@ -58,7 +57,7 @@ const Sidebar = ({ user, logout }) => {
       </nav>
 
       <div className="pt-8 border-t border-white/5 space-y-4">
-        <button 
+        <button
           onClick={logout}
           className="w-full flex items-center space-x-4 p-4 rounded-lg text-[#888] hover:text-[#FF4D00] hover:bg-[#FF4D00]/5 transition-all"
         >

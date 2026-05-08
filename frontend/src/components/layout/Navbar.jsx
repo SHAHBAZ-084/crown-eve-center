@@ -3,8 +3,12 @@ import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
-const Navbar = () => {
-  const { user, logout } = useAuth();
+const Navbar = ({ user: propsUser, logout: propsLogout }) => {
+  const { user: authUser, logout: authLogout } = useAuth();
+
+  // Use props if available, otherwise fallback to context
+  const user = propsUser !== undefined ? propsUser : authUser;
+  const logout = propsLogout || authLogout;
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
@@ -26,7 +30,7 @@ const Navbar = () => {
         <div className="logo-icon"><span>CE</span></div>
         <span className="logo-text">Crown <em>Eve</em></span>
       </Link>
-      
+
       <ul className={`nav-links ${menuOpen ? 'active' : ''}`}>
         <li><Link to="/">Home</Link></li>
         <li className="dropdown-parent">
@@ -42,12 +46,12 @@ const Navbar = () => {
         <li><Link to="/contact">Contact</Link></li>
         {/* On mobile, show auth links inside menu if not in header */}
         <li className="mobile-auth-links">
-           {!user && (
-             <div className="flex flex-col gap-4 mt-8">
-               <Link to="/login" className="btn-nav-login w-full text-center">Login</Link>
-               <Link to="/register" className="btn-nav-register w-full text-center">Register</Link>
-             </div>
-           )}
+          {!user && (
+            <div className="flex flex-col gap-4 mt-8">
+              <Link to="/login" className="btn-nav-login w-full text-center">Login</Link>
+              <Link to="/register" className="btn-nav-register w-full text-center">Register</Link>
+            </div>
+          )}
         </li>
       </ul>
 
@@ -70,7 +74,7 @@ const Navbar = () => {
             {['EMPLOYEE', 'TECHNICIAN'].includes(user.role) && (
               <Link to="/emp/dashboard" className="btn-nav-register px-4 py-2">Terminal</Link>
             )}
-            <button 
+            <button
               onClick={logout}
               className="btn-nav-login"
             >

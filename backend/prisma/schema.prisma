@@ -236,6 +236,7 @@ model Service {
   branch            Branch           @relation(fields: [branchId], references: [id])
   serviceCategoryId String?
   serviceCategory   ServiceCategory? @relation(fields: [serviceCategoryId], references: [id])
+  checklist         Json?            @default("[]")
   bookings          ServiceBooking[]
 }
 
@@ -311,4 +312,14 @@ model StockAdjustment {
 
   @@index([branchId])
   @@index([createdAt])
+}
+
+model Testimonial {
+  id         String   @id @default(uuid())
+  name       String
+  role       String?
+  text       String
+  stars      Int      @default(5)
+  isApproved Boolean  @default(true) 
+  createdAt  DateTime @default(now())
 }

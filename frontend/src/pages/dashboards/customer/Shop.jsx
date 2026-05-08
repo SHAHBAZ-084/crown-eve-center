@@ -13,14 +13,14 @@ const Shop = () => {
   const [branches, setBranches] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Filter States
   const [cat, setCat] = useState("All");
   const [type, setType] = useState("All"); // bike or part
   const [search, setSearch] = useState("");
   const [branchId, setBranchId] = useState("");
   const [sortBy, setSortBy] = useState("stock_desc");
-  
+
   // Pagination State
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -173,7 +173,7 @@ const Shop = () => {
           <div className="products-grid">
             {products.map(p => {
               const mainImg = p.images?.find(img => img.is_primary)?.url || p.images?.[0]?.url;
-              
+
               return (
                 <Link to={`/product/${p.id}`} key={p.id} className="bike-card-new">
                   <div className="product-card-img">
@@ -191,7 +191,7 @@ const Shop = () => {
                     <div className="bike-price-new">
                       Rs. {Number(p.sale_price || p.price).toLocaleString()}
                     </div>
-                    
+
                     <div className="bike-card-footer">
                       <span className="check-details">Check Details</span>
                       <div className="arrow-circle">
@@ -210,21 +210,21 @@ const Shop = () => {
           {/* Pagination Controls */}
           {totalPages > 1 && (
             <div className="pagination-footer">
-              <button 
-                className="pag-btn" 
-                disabled={page === 1} 
+              <button
+                className="pag-btn"
+                disabled={page === 1}
                 onClick={() => handlePageChange(page - 1)}
               >
                 Previous
               </button>
-              
+
               <div className="pag-numbers">
                 {getPaginationRange().map((p, i) => (
                   <React.Fragment key={i}>
                     {p === "..." ? (
                       <span className="pag-ellipsis">...</span>
                     ) : (
-                      <button 
+                      <button
                         className={`pag-num ${page === p ? 'active' : ''}`}
                         onClick={() => handlePageChange(p)}
                       >
@@ -235,9 +235,9 @@ const Shop = () => {
                 ))}
               </div>
 
-              <button 
-                className="pag-btn" 
-                disabled={page === totalPages} 
+              <button
+                className="pag-btn"
+                disabled={page === totalPages}
                 onClick={() => handlePageChange(page + 1)}
               >
                 Next

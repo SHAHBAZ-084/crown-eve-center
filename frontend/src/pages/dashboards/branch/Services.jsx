@@ -18,14 +18,16 @@ const Services = () => {
 
   const [form, setForm] = useState({ 
     name: "", service_type: "maintenance", description: "", 
-    base_price: "", duration_minutes: 30, is_active: true, serviceCategoryId: "" 
+    base_price: "", duration_minutes: 30, is_active: true, serviceCategoryId: "",
+    checklist: []
   });
 
   const [catForm, setCatForm] = useState({ name: "", description: "" });
 
   const initialForm = { 
     name: "", service_type: "maintenance", description: "", 
-    base_price: "", duration_minutes: 30, is_active: true, serviceCategoryId: "" 
+    base_price: "", duration_minutes: 30, is_active: true, serviceCategoryId: "",
+    checklist: []
   };
 
   const openAdd  = () => { setForm(initialForm); setEditTarget(null); setShowModal(true); };
@@ -37,7 +39,8 @@ const Services = () => {
       base_price: s.base_price, 
       duration_minutes: s.duration_minutes || 30,
       is_active: s.is_active,
-      serviceCategoryId: s.serviceCategoryId || ""
+      serviceCategoryId: s.serviceCategoryId || "",
+      checklist: Array.isArray(s.checklist) ? s.checklist : []
     }); 
     setEditTarget(s); 
     setShowModal(true); 
@@ -47,8 +50,9 @@ const Services = () => {
     if (!form.name || !form.base_price) return toast("Name and price required", "e");
     setSaving(true);
     try {
+      const { tempItem, ...cleanForm } = form;
       const body = { 
-        ...form,
+        ...cleanForm,
         base_price: parseFloat(form.base_price),
         duration_minutes: Number(form.duration_minutes),
         branchId: Number(branchId) 
@@ -247,6 +251,31 @@ const Services = () => {
             <div className="fg" style={{ gridColumn: "1/-1" }}>
               <label>Detailed Description</label>
               <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} style={{ height: 100 }} />
+            </div>
+
+            {/* Checklist Section */}
+            <div className="fg" style={{ gridColumn: "1/-1", borderTop: "1px solid var(--border)", paddingTop: 20 }}>
+              <label style={{ color: "var(--acc)", fontWeight: 700 }}>SERVICE CHECKLIST / PROTOCOL ITEMS</label>
+              <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+                <input 
+                  placeholder="e.g. Engine Oil Flush..." 
+                  value={form.tempItem || ""} 
+                  onChange={e => setForm(f => ({ ...f, tempItem: e.target.value }))}
+                  onKeyDown={e => { if(e.key === 'Enter') { e.preventDefault(); setForm(f => { if(!f.tempItem) return f; const items = Array.isArray(f.checklist) ? f.checklist : []; return { ...f, checklist: [...items, f.tempItem], tempItem: "" }; }); }}}
+                />
+                <button className="btn btn-p" style={{ height: 44 }} onClick={(e) => { e.preventDefault(); setForm(f => { if(!f.tempItem) return f; const items = Array.isArray(f.checklist) ? f.checklist : []; return { ...f, checklist: [...items, f.tempItem], tempItem: "" }; }); }}>Add Item</button>
+              </div>
+              <div style={{ marginTop: 15, display: "flex", flexDirection: "column", gap: 6 }}>
+                {(Array.isArray(form.checklist) ? form.checklist : []).map((item, idx) => (
+                  <div key={idx} style={{ background: "rgba(255,255,255,0.03)", padding: "10px 15px", borderRadius: 10, display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid var(--border)" }}>
+                    <span style={{ fontSize: 13, fontWeight: 500 }}>{idx + 1}. {item}</span>
+                    <button className="btn-ico dng" onClick={() => setForm(f => ({ ...f, checklist: f.checklist.filter((_, i) => i !== idx) }))}><Icon n="trash" size={12} /></button>
+                  </div>
+                ))}
+                {(!form.checklist || form.checklist.length === 0) && (
+                  <div style={{ fontSize: 12, color: "var(--muted)", fontStyle: "italic" }}>No specific items added to this protocol yet.</div>
+                )}
+              </div>
             </div>
           </div>
         </Modal>

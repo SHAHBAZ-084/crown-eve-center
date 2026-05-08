@@ -20,6 +20,20 @@ const Home = () => {
   const [servicesLoading, setServicesLoading] = useState(true);
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
+  const [testimonials, setTestimonials] = useState([]);
+
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/testimonials`);
+        const data = await res.json();
+        setTestimonials(data);
+      } catch (err) {
+        console.error('Failed to load testimonials:', err);
+      }
+    };
+    fetchTestimonials();
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -330,39 +344,57 @@ const Home = () => {
         </div>
         <h2 className="section-title">Trusted by<br /><span style={{ color: 'var(--orange)' }}>Riders.</span></h2>
         <div className="testimonials-grid">
-          <div className="testimonial-card">
-            <div className="stars">★★★★★</div>
-            <p className="testimonial-text">"Crown Eve is the only place I trust with my Duke. The technicians are certified, the parts are genuine, and the service is fast. Nothing compares."</p>
-            <div className="testimonial-author">
-              <div className="author-avatar">AK</div>
-              <div>
-                <div className="author-name">Ali Kamran</div>
-                <div className="author-role">KTM Duke Owner, Lahore</div>
+          {testimonials.length > 0 ? (
+            testimonials.slice(0, 3).map((t, idx) => (
+              <div key={t.id || idx} className="testimonial-card">
+                <div className="stars">{'★'.repeat(t.stars)}{'☆'.repeat(5 - t.stars)}</div>
+                <p className="testimonial-text">"{t.text}"</p>
+                <div className="testimonial-author">
+                  <div className="author-avatar">{t.name ? t.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'AK'}</div>
+                  <div className="author-info">
+                    <div className="author-name">{t.name}</div>
+                    <div className="author-role">{t.role || 'Rider'}</div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-          <div className="testimonial-card">
-            <div className="stars">★★★★★</div>
-            <p className="testimonial-text">"Booked my full service online in 2 minutes. Got an update when the tech started and when it was done. This is how bike service should work."</p>
-            <div className="testimonial-author">
-              <div className="author-avatar">SH</div>
-              <div>
-                <div className="author-name">Sara Hussain</div>
-                <div className="author-role">Yamaha R15 Owner, Karachi</div>
+            ))
+          ) : (
+            <>
+              <div className="testimonial-card">
+                <div className="stars">★★★★★</div>
+                <p className="testimonial-text">"Crown Eve is the only place I trust with my Duke. The technicians are certified, the parts are genuine, and the service is fast. Nothing compares."</p>
+                <div className="testimonial-author">
+                  <div className="author-avatar">AK</div>
+                  <div className="author-info">
+                    <div className="author-name">Ali Kamran</div>
+                    <div className="author-role">KTM Duke Owner, Lahore</div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-          <div className="testimonial-card">
-            <div className="stars">★★★★★</div>
-            <p className="testimonial-text">"1700+ parts in stock — I found an obscure OEM part for my 2019 model within 20 minutes of walking in. Incredible inventory and knowledgeable staff."</p>
-            <div className="testimonial-author">
-              <div className="author-avatar">MR</div>
-              <div>
-                <div className="author-name">Muhammad Raza</div>
-                <div className="author-role">Honda CBR Owner, Islamabad</div>
+              <div className="testimonial-card">
+                <div className="stars">★★★★★</div>
+                <p className="testimonial-text">"Booked my full service online in 2 minutes. Got an update when the tech started and when it was done. This is how bike service should work."</p>
+                <div className="testimonial-author">
+                  <div className="author-avatar">SH</div>
+                  <div className="author-info">
+                    <div className="author-name">Sara Hussain</div>
+                    <div className="author-role">Yamaha R15 Owner, Karachi</div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+              <div className="testimonial-card">
+                <div className="stars">★★★★★</div>
+                <p className="testimonial-text">"1700+ parts in stock — I found an obscure OEM part for my 2019 model within 20 minutes of walking in. Incredible inventory and knowledgeable staff."</p>
+                <div className="testimonial-author">
+                  <div className="author-avatar">MR</div>
+                  <div className="author-info">
+                    <div className="author-name">Muhammad Raza</div>
+                    <div className="author-role">Honda CBR Owner, Islamabad</div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </section>
 
