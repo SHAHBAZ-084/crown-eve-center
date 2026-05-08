@@ -1,12 +1,13 @@
 // frontend/src/pages/dashboards/customer/Shop.jsx
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import api from "../../../services/api";
 import { useCart } from "../../../context/CartContext";
 import "../../public/Shop.css";
 
 const Shop = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { addItem, count } = useCart();
   const [products, setProducts] = useState([]);
   const [branches, setBranches] = useState([]);
@@ -43,6 +44,16 @@ const Shop = () => {
       setCategories(Array.isArray(categoryList) ? categoryList : []);
     });
   }, []);
+
+  // Handle URL Query Params (e.g. ?type=bike)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const typeParam = params.get("type");
+    if (typeParam) {
+      setType(typeParam);
+      setPage(1);
+    }
+  }, [location.search]);
 
   // Fetch products when filters change
   useEffect(() => {

@@ -29,7 +29,14 @@ const Navbar = () => {
       
       <ul className={`nav-links ${menuOpen ? 'active' : ''}`}>
         <li><Link to="/">Home</Link></li>
-        <li><Link to="/shop">Shop</Link></li>
+        <li className="dropdown-parent">
+          <Link to="/shop">Products <span className="dropdown-arrow">▾</span></Link>
+          <ul className="dropdown-menu-ultra">
+            <li><Link to="/shop?type=bike">Bikes</Link></li>
+            <li><Link to="/shop?type=part">Spare Parts</Link></li>
+          </ul>
+        </li>
+        <li><Link to="/#services">Services</Link></li>
         <li><Link to="/about">About</Link></li>
         {user && <li><Link to="/appointments">Book Service</Link></li>}
         <li><Link to="/contact">Contact</Link></li>

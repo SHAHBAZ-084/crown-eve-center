@@ -14,7 +14,7 @@ const Home = () => {
     '/hero-2.png',
     '/hero-3.png'
   ];
-  
+
   const [currentImg, setCurrentImg] = useState(0);
   const [services, setServices] = useState([]);
   const [servicesLoading, setServicesLoading] = useState(true);
@@ -77,7 +77,7 @@ const Home = () => {
       <section id="hero" className="full-screen-hero">
         <div className="hero-slideshow">
           {images.map((img, idx) => (
-            <div 
+            <div
               key={idx}
               className={`hero-slide ${idx === currentImg ? 'active' : ''}`}
               style={{ backgroundImage: `url('${img}')` }}
@@ -88,7 +88,7 @@ const Home = () => {
 
         <div className="hero-lines"></div>
         <div className="hero-number">01</div>
-        
+
         <div className="hero-content full-width">
           <div className="hero-badge">
             <div className="hero-badge-dot"></div>
@@ -112,7 +112,7 @@ const Home = () => {
               </Link>
             )}
           </div>
-          
+
           <div className="hero-stats horizontal">
             <div>
               <div className="stat-num">12+</div>
@@ -181,9 +181,9 @@ const Home = () => {
                 <div className="product-card-img">
                   <div className="bike-card-blob"></div>
                   {p.images && p.images.length > 0 ? (
-                    <img 
-                      src={getImgUrl(p.images[0].url)} 
-                      alt={p.name} 
+                    <img
+                      src={getImgUrl(p.images[0].url)}
+                      alt={p.name}
                       className="bike-main-img"
                     />
                   ) : (
@@ -193,7 +193,7 @@ const Home = () => {
                 <div className="product-card-body">
                   <h3 className="bike-name-new">{p.name}</h3>
                   <div className="bike-price-new">PKR {Number(p.price).toLocaleString()}</div>
-                  
+
                   <div className="bike-card-footer">
                     <span className="check-details">Check details</span>
                     <div className="arrow-circle">
@@ -284,14 +284,14 @@ const Home = () => {
           <div className="why-evee-content">
             <h2 className="why-evee-title" style={{ color: 'var(--orange)' }}>WHY EVEE?</h2>
             <p className="why-evee-desc">
-              Our high-quality, affordable rides empower you to reduce your carbon footprint while cruising in style and safety. 
+              Our high-quality, affordable rides empower you to reduce your carbon footprint while cruising in style and safety.
               Join us in transforming city travel, one electric ride at a time!
             </p>
-            
+
             <div className="why-evee-features">
               <div className="why-evee-feat">
                 <div className="feat-icon-box">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
                 </div>
                 <div className="feat-info">
                   <h4>Quality</h4>
@@ -300,7 +300,7 @@ const Home = () => {
               </div>
               <div className="why-evee-feat">
                 <div className="feat-icon-box">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>
                 </div>
                 <div className="feat-info">
                   <h4>Warranty</h4>
@@ -309,7 +309,7 @@ const Home = () => {
               </div>
               <div className="why-evee-feat">
                 <div className="feat-icon-box">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
                 </div>
                 <div className="feat-info">
                   <h4>Service</h4>
@@ -318,7 +318,7 @@ const Home = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="why-evee-visual">
             <div className="why-evee-img-wrapper">
               <img src="/1-3.png" alt="Evee Electric Scooter" className="scooter-visual" />
