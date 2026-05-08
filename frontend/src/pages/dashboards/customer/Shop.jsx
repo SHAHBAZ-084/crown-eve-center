@@ -86,6 +86,22 @@ const Shop = () => {
     }
   };
 
+  const getPaginationRange = () => {
+    const delta = 2; // Number of pages to show on each side of current page
+    const range = [];
+    for (let i = Math.max(2, page - delta); i <= Math.min(totalPages - 1, page + delta); i++) {
+      range.push(i);
+    }
+
+    if (page - delta > 2) range.unshift("...");
+    range.unshift(1);
+
+    if (page + delta < totalPages - 1) range.push("...");
+    if (totalPages > 1) range.push(totalPages);
+
+    return range;
+  };
+
   return (
     <div className="shop-container">
       <div className="pg-hd">
@@ -190,14 +206,19 @@ const Shop = () => {
               </button>
               
               <div className="pag-numbers">
-                {[...Array(totalPages)].map((_, i) => (
-                  <button 
-                    key={i + 1} 
-                    className={`pag-num ${page === i + 1 ? 'active' : ''}`}
-                    onClick={() => handlePageChange(i + 1)}
-                  >
-                    {i + 1}
-                  </button>
+                {getPaginationRange().map((p, i) => (
+                  <React.Fragment key={i}>
+                    {p === "..." ? (
+                      <span className="pag-ellipsis">...</span>
+                    ) : (
+                      <button 
+                        className={`pag-num ${page === p ? 'active' : ''}`}
+                        onClick={() => handlePageChange(p)}
+                      >
+                        {p}
+                      </button>
+                    )}
+                  </React.Fragment>
                 ))}
               </div>
 

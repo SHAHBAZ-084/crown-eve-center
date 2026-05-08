@@ -358,3 +358,13 @@
   color: #fff;
   box-shadow: 0 10px 20px var(--orange-glow);
 }
+
+.pag-ellipsis {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  color: #b2bec3;
+  font-weight: 700;
+  cursor: default;
+}
