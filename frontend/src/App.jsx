@@ -5,6 +5,7 @@ import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/layout/ProtectedRoute';
+import ScrollToTop from './components/layout/ScrollToTop';
 
 // Public Pages
 const Home = lazy(() => import('./pages/public/Home'));
@@ -75,7 +76,8 @@ const App = () => {
     <AuthProvider>
       <CartProvider>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <Suspense fallback={<FullPageSkeleton />}>
+          <ScrollToTop />
+          <Suspense fallback={<FullPageSkeleton />}>
           <Routes>
             <Route element={<Layout isPublic />}>
               <Route path="/" element={<Home />} />

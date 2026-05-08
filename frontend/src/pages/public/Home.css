@@ -311,33 +311,16 @@ h1.hero-title .line3 {
 
 /* ── MARQUEE ── */
 .marquee-section {
-  padding: 32px 0;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  overflow: hidden;
-  background: var(--black);
-  position: relative;
-}
-
-.marquee-section::before,
-.marquee-section::after {
-  content: '';
   position: absolute;
-  top: 0;
   bottom: 0;
-  width: 150px;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.marquee-section::before {
   left: 0;
-  background: linear-gradient(to right, var(--black), transparent);
-}
-
-.marquee-section::after {
-  right: 0;
-  background: linear-gradient(to left, var(--black), transparent);
+  width: 100%;
+  padding: 24px 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+  z-index: 10;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .marquee-track {
@@ -347,39 +330,28 @@ h1.hero-title .line3 {
   animation: marquee 30s linear infinite;
 }
 
-.marquee-track:hover {
-  animation-play-state: paused;
-}
-
 .marquee-item {
   display: inline-flex;
   align-items: center;
   gap: 24px;
-  padding: 0 48px;
+  padding: 0 40px;
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 32px;
-  letter-spacing: 6px;
-  color: var(--muted);
-  transition: all 0.4s ease;
-  opacity: 0.6;
+  font-size: 18px;
+  letter-spacing: 3px;
+  color: rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  transition: all 0.3s ease;
 }
 
 .marquee-item.highlight {
   color: var(--orange);
-  opacity: 1;
-  text-shadow: 0 0 20px rgba(232, 71, 10, 0.1);
-}
-
-.marquee-item:hover {
-  color: var(--orange);
-  transform: scale(1.1);
-  opacity: 1;
+  text-shadow: 0 0 20px rgba(232, 71, 10, 0.5);
+  font-weight: 500;
 }
 
 .marquee-sep {
-  color: var(--orange);
-  font-size: 28px;
-  line-height: 1;
+  color: #333;
+  font-size: 14px;
   opacity: 0.8;
 }
 
@@ -814,83 +786,137 @@ h1.hero-title .line3 {
 
 /* ── TESTIMONIALS ── */
 #testimonials {
-  background: var(--black2);
+  background: #FFF8F5; /* Reverting to original brand light theme */
+  padding: 140px 5vw;
+  position: relative;
+  overflow: hidden;
+}
+
+#testimonials::before {
+  content: 'TRUST';
+  position: absolute;
+  top: 5%;
+  right: -5%;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 25vw;
+  color: rgba(232, 71, 10, 0.04);
+  line-height: 1;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .testimonials-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 2px;
+  gap: 40px;
   margin-top: 80px;
+  position: relative;
+  z-index: 2;
 }
 
 .testimonial-card {
-  background: var(--black);
-  padding: 40px 32px;
-  border-top: 2px solid transparent;
-  transition: border-color .3s;
+  background: #FFFFFF;
+  border: 1px solid #F0F0F0;
+  padding: 60px 45px;
+  border-radius: 24px;
+  transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+  position: relative;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
 }
 
 .testimonial-card:hover {
-  border-top-color: var(--orange);
+  transform: translateY(-20px) scale(1.02);
+  background: #FFFFFF;
+  border-color: rgba(232, 71, 10, 0.2);
+  box-shadow: 0 40px 80px rgba(232, 71, 10, 0.08);
+}
+
+.testimonial-card::before {
+  content: '"';
+  position: absolute;
+  top: 30px;
+  left: 40px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 100px;
+  color: rgba(232, 71, 10, 0.08);
+  line-height: 1;
 }
 
 .stars {
-  color: var(--orange);
-  font-size: 14px;
-  letter-spacing: 4px;
-  margin-bottom: 20px;
+  color: #FFB800;
+  font-size: 18px;
+  letter-spacing: 6px;
+  margin-bottom: 24px;
+  text-shadow: 0 0 12px rgba(255, 184, 0, 0.2);
+  position: relative;
+  z-index: 2;
 }
 
 .testimonial-text {
-  font-size: 15px;
-  font-weight: 300;
-  color: var(--white2);
-  line-height: 1.8;
-  margin-bottom: 28px;
-  font-style: italic;
+  font-size: 18px;
+  font-weight: 400;
+  color: #444;
+  line-height: 1.9;
+  margin-bottom: 45px;
+  font-style: normal;
+  letter-spacing: 0.2px;
+  position: relative;
+  z-index: 2;
 }
 
 .testimonial-author {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 20px;
+  padding-top: 35px;
+  border-top: 1px solid #F0F0F0;
 }
 
 .author-avatar {
-  width: 44px;
-  height: 44px;
-  background: var(--orange);
-  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  width: 56px;
+  height: 56px;
+  background: #FFF;
+  border: 1px solid rgba(232, 71, 10, 0.2);
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--orange);
+  transition: all 0.4s ease;
+}
+
+.testimonial-card:hover .author-avatar {
+  background: var(--orange);
+  color: #fff;
+  border-color: var(--orange);
+  transform: rotate(-5deg);
 }
 
 .author-name {
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: .5px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #111;
+  margin-bottom: 4px;
 }
 
 .author-role {
-  font-size: 11px;
-  color: var(--muted);
-  margin-top: 2px;
+  font-size: 12px;
+  color: #777;
+  font-weight: 500;
 }
 
 /* DYNAMIC HERO IMPROVEMENTS */
 .full-screen-hero {
   grid-template-columns: 1fr !important;
-  padding: 140px 5vw 100px !important;
-  min-height: 100vh;
+  min-height: 120vh;
   display: flex !important;
   justify-content: center;
   text-align: center;
+  position: relative;
 }
 
 .hero-slideshow {

@@ -108,30 +108,31 @@ const Home = () => {
 
         </div>
 
+
         <div className="scroll-indicator">
           <div className="scroll-line"></div>
           <span className="scroll-text">Scroll</span>
         </div>
-      </section>
 
-      {/* MARQUEE */}
-      <div className="marquee-section">
-        <div className="marquee-track">
-          <span className="marquee-item"><span className="marquee-sep">✦</span> Crown Eve Bikes <span className="marquee-sep">✦</span></span>
-          <span className="marquee-item highlight">Premium Parts</span>
-          <span className="marquee-item"><span className="marquee-sep">✦</span> Expert Service <span className="marquee-sep">✦</span></span>
-          <span className="marquee-item highlight">Nationwide Branches</span>
-          <span className="marquee-item"><span className="marquee-sep">✦</span> Ride The Legacy <span className="marquee-sep">✦</span></span>
-          <span className="marquee-item highlight">1700+ Genuine Parts</span>
-          {/* Duplicate for infinite loop */}
-          <span className="marquee-item"><span className="marquee-sep">✦</span> Crown Eve Bikes <span className="marquee-sep">✦</span></span>
-          <span className="marquee-item highlight">Premium Parts</span>
-          <span className="marquee-item"><span className="marquee-sep">✦</span> Expert Service <span className="marquee-sep">✦</span></span>
-          <span className="marquee-item highlight">Nationwide Branches</span>
-          <span className="marquee-item"><span className="marquee-sep">✦</span> Ride The Legacy <span className="marquee-sep">✦</span></span>
-          <span className="marquee-item highlight">1700+ Genuine Parts</span>
+        {/* MARQUEE */}
+        <div className="marquee-section">
+          <div className="marquee-track">
+            <span className="marquee-item"><span className="marquee-sep">✦</span> Crown Eve Bikes <span className="marquee-sep">✦</span></span>
+            <span className="marquee-item highlight">Premium Parts</span>
+            <span className="marquee-item"><span className="marquee-sep">✦</span> Expert Service <span className="marquee-sep">✦</span></span>
+            <span className="marquee-item highlight">Nationwide Branches</span>
+            <span className="marquee-item"><span className="marquee-sep">✦</span> Ride The Legacy <span className="marquee-sep">✦</span></span>
+            <span className="marquee-item highlight">1700+ Genuine Parts</span>
+            {/* Duplicate for infinite loop */}
+            <span className="marquee-item"><span className="marquee-sep">✦</span> Crown Eve Bikes <span className="marquee-sep">✦</span></span>
+            <span className="marquee-item highlight">Premium Parts</span>
+            <span className="marquee-item"><span className="marquee-sep">✦</span> Expert Service <span className="marquee-sep">✦</span></span>
+            <span className="marquee-item highlight">Nationwide Branches</span>
+            <span className="marquee-item"><span className="marquee-sep">✦</span> Ride The Legacy <span className="marquee-sep">✦</span></span>
+            <span className="marquee-item highlight">1700+ Genuine Parts</span>
+          </div>
         </div>
-      </div>
+      </section>
 
 
 
@@ -247,7 +248,18 @@ const Home = () => {
       </section>
 
       {/* BOOKING CTA BANNER */}
-      <section id="booking" style={{ padding: '80px 5vw' }}>
+      <section id="booking" style={{ padding: '200px 5vw', position: 'relative', overflow: 'hidden' }}>
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="booking-video-bg"
+        >
+          <source src="/videos/ride-bg.webm" type="video/webm" />
+        </video>
+        <div className="booking-overlay"></div>
+
         <div className="booking-inner">
           <div className="booking-text">
             <h2>Ready to<br />Ride?</h2>
@@ -364,10 +376,18 @@ const Home = () => {
             </Link>
             <p>Pakistan's premier motorcycle destination. Premium bikes, genuine parts, expert service — all in one place.</p>
             <div className="footer-socials">
-              <a href="#" className="social-link">in</a>
-              <a href="#" className="social-link">fb</a>
-              <a href="#" className="social-link">ig</a>
-              <a href="#" className="social-link">yt</a>
+              <a href="#" className="social-link" aria-label="LinkedIn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" /><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" /></svg>
+              </a>
+              <a href="#" className="social-link" aria-label="Facebook">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" /></svg>
+              </a>
+              <a href="#" className="social-link" aria-label="Instagram">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" /></svg>
+              </a>
+              <a href="#" className="social-link" aria-label="YouTube">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.42a2.78 2.78 0 0 0-1.94 2C1 8.11 1 12 1 12s0 3.89.46 5.58a2.78 2.78 0 0 0 1.94 2c1.72.42 8.6.42 8.6.42s6.88 0 8.6-.42a2.78 2.78 0 0 0 1.94-2C23 15.89 23 12 23 12s0-3.89-.46-5.58z" /><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" /></svg>
+              </a>
             </div>
           </div>
           <div className="footer-col">
@@ -407,7 +427,7 @@ const Home = () => {
         </div>
         <div className="footer-bottom">
           <p>© 2025 <span>Crown Eve Bikes</span>. All rights reserved. Built with precision.</p>
-          <p style={{ fontSize: '11px', color: 'var(--muted)' }}>Lahore · Karachi · Islamabad · Faisalabad</p>
+          <p style={{ fontSize: '11px', color: 'var(--muted)' }}>Main Branch Chishtian </p>
         </div>
       </footer>
     </div>
