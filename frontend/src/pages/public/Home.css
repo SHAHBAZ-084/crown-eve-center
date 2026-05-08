@@ -680,6 +680,162 @@ h1.hero-title .line3 {
   }
 }
 
+/* ── WHY EVEE SECTION ── */
+#why-evee {
+  padding: 120px 5vw;
+  background: var(--black);
+  position: relative;
+  overflow: hidden;
+}
+
+.why-evee-container {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 100px;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.why-evee-content {
+  position: relative;
+  z-index: 2;
+}
+
+.why-evee-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(60px, 6vw, 90px);
+  line-height: 1;
+  margin-bottom: 24px;
+}
+
+.why-evee-desc {
+  font-size: 16px;
+  color: var(--white2);
+  line-height: 1.8;
+  margin-bottom: 60px;
+  max-width: 500px;
+}
+
+.why-evee-features {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.why-evee-feat {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  transition: transform 0.3s ease;
+}
+
+.why-evee-feat:hover {
+  transform: translateX(10px);
+}
+
+.feat-icon-box {
+  width: 56px;
+  height: 56px;
+  background: rgba(232, 71, 10, 0.1);
+  border: 1px solid rgba(232, 71, 10, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--orange);
+  flex-shrink: 0;
+  clip-path: polygon(15% 0%, 100% 0%, 85% 100%, 0% 100%);
+}
+
+.feat-info h4 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.feat-info p {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.why-evee-visual {
+  position: relative;
+  z-index: 1;
+}
+
+.why-evee-img-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1/1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.why-evee-img-wrapper::before {
+  content: '';
+  position: absolute;
+  width: 90%;
+  height: 90%;
+  background: radial-gradient(circle, rgba(232, 71, 10, 0.1) 0%, transparent 70%);
+  z-index: -1;
+  animation: pulseGlow 4s infinite alternate;
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(0.9); opacity: 0.5; }
+  100% { transform: scale(1.1); opacity: 1; }
+}
+
+.scooter-visual {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.4));
+  transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.why-evee-visual:hover .scooter-visual {
+  transform: translateY(-20px) rotate(-2deg);
+}
+
+.evee-visual-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.evee-main-text-float {
+  position: absolute;
+  top: 10%;
+  right: -5%;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 15vw;
+  color: rgba(232, 71, 10, 0.05);
+  line-height: 1;
+  z-index: -1;
+}
+
+.evee-sub-text-float {
+  position: absolute;
+  bottom: 15%;
+  right: 0;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: var(--orange);
+  background: var(--black);
+  padding: 8px 16px;
+  border: 1px solid var(--orange);
+}
+
 @media (max-width: 1024px) {
   .why-evee-container { grid-template-columns: 1fr; gap: 60px; text-align: center; }
   .why-evee-desc { margin: 0 auto 60px; }

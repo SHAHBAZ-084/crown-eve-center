@@ -31,121 +31,145 @@ const Cart = () => {
     .reduce((acc, i) => acc + (i.sale_price || i.price) * i.qty, 0);
 
   return (
-    <div className="cart-page-new">
-      <div className="cart-layout-new">
-        
-        {/* LEFT COLUMN: ITEMS */}
-        <div className="cart-main-col">
-          {items.length > 0 ? (
-            <>
-              {/* SELECT ALL HEADER */}
-              <div className="cart-header-bar">
-                <div className="chk-container">
-                  <input type="checkbox" checked={isAllSelected} onChange={toggleSelectAll} />
-                  <span>SELECT ALL ({items.length} ITEM(S))</span>
-                </div>
-                <button className="delete-all-btn" onClick={() => items.forEach(i => removeItem(i.id))}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
-                  DELETE
-                </button>
-              </div>
+    <div className="cart-page-ultra">
+      <div className="cart-page-container">
+        <div className="cart-page-header">
+          <h1 className="cart-title">Shopping Bag <span>({items.length} items)</span></h1>
+          <button className="back-btn" onClick={() => navigate("/shop")}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Continue Shopping
+          </button>
+        </div>
 
-              {/* SHOP HEADER */}
-              <div className="shop-header-bar">
-                <input type="checkbox" checked={isAllSelected} onChange={toggleSelectAll} />
-                <div className="shop-name">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--orange)" stroke="none"><path d="M20 7h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v3H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zM10 4h4v3h-4V4z"/></svg>
-                  Crown Eve Bikes <span>&gt;</span>
+        <div className="cart-main-grid">
+          <div className="cart-list-section">
+            {items.length > 0 ? (
+              <>
+                {/* GLOBAL ACTIONS BAR */}
+                <div className="cart-top-actions">
+                  <label className="premium-checkbox-label">
+                    <input type="checkbox" checked={isAllSelected} onChange={toggleSelectAll} />
+                    <span className="checkbox-ui"></span>
+                    <span className="checkbox-text">Select All Items</span>
+                  </label>
+                  <button className="bulk-delete-btn" onClick={() => items.forEach(i => removeItem(i.id))}>
+                    Remove Selected
+                  </button>
                 </div>
-              </div>
 
-              {/* ITEM LIST */}
-              <div className="cart-items-list">
-                {items.map(item => {
-                  const mainImg = item.images?.find(img => img.is_primary)?.url || item.images?.[0]?.url;
-                  return (
-                    <div key={item.id} className="cart-item-row">
-                      <div className="item-chk">
-                        <input type="checkbox" checked={selectedItems.includes(item.id)} onChange={() => toggleItem(item.id)} />
-                      </div>
-                      <div className="item-img-box">
-                        {mainImg ? (
-                          <img src={getImgUrl(mainImg)} alt={item.name} />
-                        ) : (
-                          <div className="item-placeholder">📦</div>
-                        )}
-                      </div>
-                      <div className="item-info">
-                        <div className="item-title-group">
-                          <h4 className="item-name">{item.name}</h4>
-                          <p className="item-meta">{item.category?.name || (item.product_type === 'bike' ? 'Bike' : 'Part')} Official</p>
+                {/* ITEMS LIST */}
+                <div className="cart-items-wrapper">
+                  {items.map(item => {
+                    const mainImg = item.images?.find(img => img.is_primary)?.url || item.images?.[0]?.url;
+                    return (
+                      <div key={item.id} className="cart-item-card-ultra">
+                        <div className="item-selection">
+                          <label className="premium-checkbox-label">
+                            <input type="checkbox" checked={selectedItems.includes(item.id)} onChange={() => toggleItem(item.id)} />
+                            <span className="checkbox-ui"></span>
+                          </label>
                         </div>
-                        <div className="item-price-actions">
-                          <div className="item-pricing">
-                            <div className="current-price">Rs. {Number(item.sale_price || item.price).toLocaleString()}</div>
-                            {item.sale_price && item.price !== item.sale_price && (
-                              <div className="old-price">Rs. {Number(item.price).toLocaleString()}</div>
-                            )}
+                        
+                        <div className="item-visual-box">
+                          {mainImg ? (
+                            <img src={getImgUrl(mainImg)} alt={item.name} />
+                          ) : (
+                            <div className="item-fallback-icon">📦</div>
+                          )}
+                        </div>
+
+                        <div className="item-core-info">
+                          <div className="item-brand">CROWN EVE OFFICIAL</div>
+                          <h3 className="item-display-name">{item.name}</h3>
+                          <p className="item-spec-text">{item.category?.name || 'GENUINE PART'} · BRANCH STOCK</p>
+                          
+                          <div className="item-mobile-price">
+                             Rs. {Number(item.sale_price || item.price).toLocaleString()}
                           </div>
-                          <div className="item-tools">
-                            <button className="tool-btn" onClick={() => removeItem(item.id)}>
-                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+
+                          <div className="item-footer-tools">
+                            <button className="tool-link-btn" onClick={() => removeItem(item.id)}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                              Remove
+                            </button>
+                            <button className="tool-link-btn">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78v0z"/></svg>
+                              Wishlist
                             </button>
                           </div>
                         </div>
-                      </div>
-                      <div className="item-qty-col">
-                        <div className="qty-picker-new">
-                          <button onClick={() => updateQty(item.id, item.qty - 1)} disabled={item.qty <= 1}>-</button>
-                          <input type="text" value={item.qty} readOnly />
-                          <button onClick={() => updateQty(item.id, item.qty + 1)}>+</button>
+
+                        <div className="item-quantity-section">
+                          <div className="stepper-ui">
+                            <button className="stepper-btn" onClick={() => updateQty(item.id, item.qty - 1)} disabled={item.qty <= 1}>−</button>
+                            <input className="stepper-input" type="text" value={item.qty} readOnly />
+                            <button className="stepper-btn" onClick={() => updateQty(item.id, item.qty + 1)}>+</button>
+                          </div>
+                        </div>
+
+                        <div className="item-total-section">
+                          <div className="item-price-col">
+                            <span className="price-tag-now">Rs. {Number(item.sale_price || item.price).toLocaleString()}</span>
+                            {item.sale_price && item.price !== item.sale_price && (
+                              <span className="price-tag-old">Rs. {Number(item.price).toLocaleString()}</span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
+              </>
+            ) : (
+              <div className="empty-bag-view">
+                <div className="empty-bag-icon">👜</div>
+                <h2>Your Bag is Empty</h2>
+                <p>Looks like you haven't added anything to your cart yet. Start exploring our premium collection.</p>
+                <button className="btn-shop-now" onClick={() => navigate("/shop")}>Shop Collection</button>
               </div>
-            </>
-          ) : (
-            <div className="empty-cart-state">
-              <div className="empty-icon">🛒</div>
-              <h3>Your shopping cart is empty</h3>
-              <p>Items added to your cart will appear here.</p>
-              <button className="btn-primary" onClick={() => navigate("/shop")}>CONTINUE SHOPPING</button>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
 
-        {/* RIGHT COLUMN: SUMMARY */}
-        <div className="cart-summary-col">
-          <div className="summary-card-new">
-            <h3 className="summary-title">Order Summary</h3>
-            
-            <div className="summary-row">
-              <span className="summary-label">Subtotal ({selectedItems.length} items)</span>
-              <span className="summary-value">Rs. {selectedTotal.toLocaleString()}</span>
-            </div>
-            
-            <div className="summary-row">
-              <span className="summary-label">Shipping Fee</span>
-              <span className="summary-value">Rs. 0</span>
-            </div>
+          <div className="cart-summary-section">
+            <div className="summary-card-ultra">
+              <h2 className="summary-heading">Order Summary</h2>
+              
+              <div className="summary-table">
+                <div className="summary-row-item">
+                  <span className="summary-label-txt">Subtotal ({selectedItems.length} items)</span>
+                  <span className="summary-value-txt">Rs. {selectedTotal.toLocaleString()}</span>
+                </div>
+                <div className="summary-row-item">
+                  <span className="summary-label-txt">Estimated Shipping</span>
+                  <span className="summary-value-txt highlight-green">FREE</span>
+                </div>
+              </div>
 
-            <div className="total-box">
-              <span className="total-label">Total</span>
-              <span className="total-value">Rs. {selectedTotal.toLocaleString()}</span>
-            </div>
+              <div className="summary-divider"></div>
 
-            <button 
-              className="checkout-btn-large" 
-              disabled={selectedItems.length === 0}
-              onClick={() => navigate("/my/checkout", { state: { selectedItems } })}
-            >
-              PROCEED TO CHECKOUT({selectedItems.length})
-            </button>
+              <div className="summary-total-block">
+                <div className="total-main-row">
+                  <span className="total-label-ultra">Total</span>
+                  <span className="total-value-ultra">Rs. {selectedTotal.toLocaleString()}</span>
+                </div>
+                <p className="summary-tax-note">Taxes and shipping calculated at checkout</p>
+              </div>
+
+              <button 
+                className="checkout-btn-ultra" 
+                disabled={selectedItems.length === 0}
+                onClick={() => navigate("/my/checkout", { state: { selectedItems } })}
+              >
+                PROCEED TO CHECKOUT
+              </button>
+
+              <div className="cart-security-footer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span>SECURE CHECKOUT GUARANTEED</span>
+              </div>
+            </div>
           </div>
         </div>
-
       </div>
     </div>
   );

@@ -321,7 +321,7 @@ const Home = () => {
           
           <div className="why-evee-visual">
             <div className="why-evee-img-wrapper">
-              <img src="/evee-scooter.png" alt="Evee Electric Scooter" className="scooter-visual" />
+              <img src="/1-3.png" alt="Evee Electric Scooter" className="scooter-visual" />
               <div className="evee-visual-overlay">
                 <div className="evee-main-text-float">evee</div>
                 <div className="evee-sub-text-float">I am Evee. Are you?</div>
