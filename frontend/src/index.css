@@ -2482,4 +2482,225 @@ footer {
     padding: 30px;
   }
 }
+
+/* ── ABOUT PAGE ── */
+#page-about {
+  padding-top: 72px;
+  background: #ffffff !important;
+  color: #111111 !important;
+  overflow-x: hidden;
+}
+
+.about-hero {
+  height: 90vh;
+  min-height: 700px;
+  background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1558981359-219d6364c9c8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  display: flex;
+  align-items: center;
+  padding: 0 10vw;
+  position: relative;
+}
+
+.about-hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(transparent, #ffffff);
+}
+
+.about-hero-content {
+  max-width: 800px;
+  z-index: 2;
+}
+
+.about-hero h1 {
+  font-family: 'Barlow', sans-serif;
+  font-size: clamp(60px, 10vw, 140px);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -4px;
+  color: #E8470A;
+  margin-bottom: 40px;
+  text-transform: uppercase;
+}
+
+
+.about-hero p {
+  font-size: 20px;
+  color: rgba(255,255,255,0.9);
+  line-height: 1.6;
+  max-width: 600px;
+}
+
+/* MISSION SECTION */
+.about-mission {
+  padding: 150px 10vw;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 100px;
+  align-items: center;
+}
+
+.mission-text h2 {
+  font-size: 56px;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 30px;
+  letter-spacing: -2px;
+  color: #E8470A;
+}
+
+.mission-text p {
+  font-size: 18px;
+  color: #555;
+  line-height: 1.8;
+  margin-bottom: 40px;
+}
+
+.mission-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.stat-item h3 {
+  font-size: 48px;
+  font-weight: 800;
+  color: #E8470A;
+  margin-bottom: 5px;
+}
+
+.stat-item p {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #888;
+}
+
+/* PHILOSOPHY SECTION */
+.about-philosophy {
+  background: #111;
+  color: #fff;
+  padding: 120px 10vw;
+  position: relative;
+}
+
+.philosophy-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.philosophy-image {
+  height: 600px;
+  background: url('https://images.unsplash.com/photo-1449491026643-fc852f9293ca?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80');
+  background-size: cover;
+  background-position: center;
+  border-radius: 4px;
+}
+
+.philosophy-content h2 {
+  font-size: 48px;
+  font-weight: 900;
+  margin-bottom: 40px;
+  color: #E8470A;
+}
+
+.value-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.value-item h4 {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.value-item h4::before {
+  content: '';
+  width: 20px;
+  height: 2px;
+  background: #E8470A;
+}
+
+.value-item p {
+  font-size: 15px;
+  color: #aaa;
+  line-height: 1.6;
+}
+
+/* TEAM / JOIN SECTION */
+.about-join {
+  padding: 150px 10vw;
+  text-align: center;
+}
+
+.about-join h2 {
+  font-size: 72px;
+  font-weight: 900;
+  letter-spacing: -3px;
+  margin-bottom: 30px;
+}
+
+.btn-join {
+  display: inline-flex;
+  align-items: center;
+  gap: 15px;
+  background: #E8470A;
+  color: #fff;
+  padding: 22px 50px;
+  border-radius: 50px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-decoration: none;
+  transition: all 0.3s;
+  margin-top: 40px;
+}
+
+.btn-join:hover {
+  background: #111;
+  transform: scale(1.05);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 1024px) {
+  .about-mission, .philosophy-grid {
+    grid-template-columns: 1fr;
+    gap: 60px;
+  }
+  .philosophy-image {
+    height: 400px;
+  }
+  .about-hero h1 {
+    font-size: 80px;
+  }
+}
+
+@media (max-width: 600px) {
+  .about-hero h1 {
+    font-size: 50px;
+    letter-spacing: -2px;
+  }
+  .mission-stats {
+    grid-template-columns: 1fr;
+  }
+  .about-join h2 {
+    font-size: 48px;
+  }
+}
+
 

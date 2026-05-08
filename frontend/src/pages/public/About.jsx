@@ -1,52 +1,104 @@
-// frontend/src/pages/public/About.jsx
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const About = () => {
   return (
     <div id="page-about" className="page">
-      <div className="about-hero">
+      {/* HERO SECTION */}
+      <section className="about-hero">
         <div className="about-hero-content">
-          <div className="section-label"><div className="section-label-line"></div><span>Our Story</span></div>
-          <h1 style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 'clamp(60px,8vw,120px)', lineHeight: '0.9', letterSpacing: '-2px', marginBottom: '32px' }}>
-            We Live<br />to <span style={{ color: 'var(--orange)' }}>Ride.</span>
-          </h1>
-          <p style={{ fontSize: '17px', fontWeight: '300', color: 'var(--white2)', lineHeight: '1.9', maxWidth: '580px' }}>
-            Crown Eve was founded by riders, for riders. What started as a single workshop in Lahore has grown into Pakistan's most trusted motorcycle destination — 12 branches, 50,000+ customers, and a relentless commitment to the ride.
+          <h1>Redefining<br />The Ride.</h1>
+          <p>
+            From our humble beginnings to becoming Pakistan's premier mobility destination, our journey has been fueled by one passion: the thrill of the road.
           </p>
-        </div>
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px', background: 'rgba(255,255,255,0.04)' }}>
-        <div style={{ background: 'var(--black2)', padding: '72px 5vw' }}>
-          <div className="section-label"><div className="section-label-line"></div><span>Our Mission</span></div>
-          <h2 style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '60px', lineHeight: '0.9', letterSpacing: '-1px', marginBottom: '24px' }}>
-            Elevating<br />Every<br /><span style={{ color: 'var(--orange)' }}>Ride.</span>
-          </h2>
-          <p style={{ fontSize: '15px', fontWeight: '300', color: 'var(--white2)', lineHeight: '1.9' }}>
-            We believe every rider deserves access to premium bikes, genuine parts, and expert care — regardless of city or budget. Our mission is to be the most trusted name in Pakistan's motorcycle industry.
-          </p>
-        </div>
-        <div style={{ background: 'var(--black3)', padding: '72px 5vw', borderLeft: '1px solid rgba(232,71,10,0.1)', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '200px', height: '200px', background: 'radial-gradient(circle,rgba(232,71,10,0.1),transparent)', pointerEvents: 'none' }}></div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
-            <div><div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '64px', color: 'var(--orange)', lineHeight: 1 }}>12+</div><div style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginTop: '4px' }}>Branches</div></div>
-            <div><div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '64px', color: 'var(--orange)', lineHeight: 1 }}>50K+</div><div style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginTop: '4px' }}>Customers</div></div>
-            <div><div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '64px', color: 'var(--orange)', lineHeight: 1 }}>1700+</div><div style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginTop: '4px' }}>Parts</div></div>
-            <div><div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '64px', color: 'var(--orange)', lineHeight: 1 }}>8+</div><div style={{ fontSize: '11px', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)', marginTop: '4px' }}>Years</div></div>
-          </div>
-        </div>
-      </div>
-      <section style={{ padding: '100px 5vw', background: 'var(--black)' }}>
-        <div className="section-label"><div className="section-label-line"></div><span>Our Values</span></div>
-        <h2 className="section-title">What<br />Drives <span style={{ color: 'var(--orange)' }}>Us.</span></h2>
-        <div className="about-values" style={{ marginTop: '60px' }}>
-          <div className="value-card"><div className="value-icon">⚡</div><div className="value-title">Performance First</div><div className="value-desc">Every product is selected for its performance credentials — no compromises.</div></div>
-          <div className="value-card"><div className="value-icon">🔒</div><div className="value-title">Trusted Quality</div><div className="value-desc">Only genuine parts. Only certified technicians. Only real results.</div></div>
-          <div className="value-card"><div className="value-icon">🤝</div><div className="value-title">Rider Community</div><div className="value-desc">We're riders too. We speak your language and understand your needs.</div></div>
-          <div className="value-card"><div className="value-icon">🌍</div><div className="value-title">Nationwide Access</div><div className="value-desc">12 branches and growing — Crown Eve is wherever you are.</div></div>
         </div>
       </section>
+
+      {/* MISSION SECTION */}
+      <section className="about-mission">
+        <div className="mission-text">
+          <h2>Our Legacy in Motion</h2>
+          <p>
+            Founded on the principles of engineering excellence and customer trust, Crown Eve has evolved from a single workshop into a nationwide network. We don't just sell bikes; we provide the freedom to explore, the tools to build, and the community to belong.
+          </p>
+          <div className="mission-stats">
+            <div className="stat-item">
+              <h3>12+</h3>
+              <p>Showrooms</p>
+            </div>
+            <div className="stat-item">
+              <h3>50K+</h3>
+              <p>Riders Served</p>
+            </div>
+            <div className="stat-item">
+              <h3>100%</h3>
+              <p>Genuine Parts</p>
+            </div>
+            <div className="stat-item">
+              <h3>8+</h3>
+              <p>Years Excellence</p>
+            </div>
+          </div>
+        </div>
+        <div className="philosophy-image" style={{ 
+          borderRadius: '12px', 
+          boxShadow: '0 30px 60px rgba(0,0,0,0.1)',
+          overflow: 'hidden',
+          display: 'flex'
+        }}>
+          <img 
+            src="https://images.unsplash.com/photo-1558981285-6f0c94958bb6?auto=format&fit=crop&w=1000&q=80" 
+            alt="Crown Eve Showroom" 
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        </div>
+      </section>
+
+      {/* PHILOSOPHY SECTION */}
+      <section className="about-philosophy">
+        <div className="philosophy-grid">
+          <div className="philosophy-video-wrapper" style={{ 
+            borderRadius: '12px', 
+            boxShadow: '0 30px 60px rgba(0,0,0,0.3)',
+            overflow: 'hidden',
+            height: '600px'
+          }}>
+            <video 
+              src="/about-philosophy.webm" 
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          </div>
+          <div className="philosophy-content">
+            <h2>The Crown Philosophy</h2>
+            <div className="value-grid">
+              <div className="value-item">
+                <h4>Uncompromising Quality</h4>
+                <p>We source only the highest grade components and partner with global manufacturers to ensure every bike meets our rigorous standards.</p>
+              </div>
+              <div className="value-item">
+                <h4>Innovation First</h4>
+                <p>We stay ahead of the curve, embracing electric mobility and smart technologies to reshape the future of transportation in Pakistan.</p>
+              </div>
+              <div className="value-item">
+                <h4>Rider Community</h4>
+                <p>We're more than a dealership. We're a hub for enthusiasts, providing expert maintenance and a platform for riders to connect.</p>
+              </div>
+              <div className="value-item">
+                <h4>Integrity & Trust</h4>
+                <p>Transparent pricing, honest advice, and lifelong support. That's our promise to every customer who joins the Crown family.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 };
 
 export default About;
+

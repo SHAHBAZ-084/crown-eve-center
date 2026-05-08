@@ -87,19 +87,11 @@ const Home = () => {
         </div>
 
         <div className="hero-lines"></div>
-        <div className="hero-number">01</div>
+
 
         <div className="hero-content full-width">
-          <div className="hero-badge">
-            <div className="hero-badge-dot"></div>
-            <span>Premium Bikes & Service — Pakistan</span>
-          </div>
-          <h1 className="hero-title">
-            Ride<br />
-            <span className="line2">The</span>
-            <span className="line3">Legacy.</span>
-          </h1>
-          <p className="hero-sub">Crown Eve delivers premium motorcycles, expert servicing, and genuine parts — engineered for the road, built for the rider.</p>
+
+          <p className="hero-sub">Crown Eve delivers premium motorcycles, expert servicing, and genuine parts  engineered for the road, built for the rider.</p>
           <div className="hero-ctas">
             <Link to="/shop" className="btn-primary">
               <span>Explore Bikes</span>
@@ -113,20 +105,7 @@ const Home = () => {
             )}
           </div>
 
-          <div className="hero-stats horizontal">
-            <div>
-              <div className="stat-num">12+</div>
-              <div className="stat-label">Branches</div>
-            </div>
-            <div>
-              <div className="stat-num">1700+</div>
-              <div className="stat-label">Genuine Parts</div>
-            </div>
-            <div>
-              <div className="stat-num">50K+</div>
-              <div className="stat-label">Customers</div>
-            </div>
-          </div>
+
         </div>
 
         <div className="scroll-indicator">
