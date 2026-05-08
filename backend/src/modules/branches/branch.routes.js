@@ -6,7 +6,7 @@ const { allow } = require('../../middleware/rbac');
 
 router.get('/count',      protect, allow('COMPANY_OWNER'), ctrl.getCount);
 router.get('/top',        protect, allow('COMPANY_OWNER'), ctrl.getTop);
-router.get('/',           protect, allow('COMPANY_OWNER', 'CUSTOMER', 'EMPLOYEE', 'BRANCH_OWNER'), ctrl.getAll);
+router.get('/',           ctrl.getAll);
 router.get('/:id',       protect, allow('COMPANY_OWNER', 'BRANCH_OWNER', 'CUSTOMER', 'EMPLOYEE'), ctrl.getById);
 router.post('/',          protect, allow('COMPANY_OWNER'), ctrl.create);
 router.put('/:id',       protect, allow('COMPANY_OWNER'), ctrl.update);
