@@ -128,8 +128,14 @@ const Shop = () => {
             <span>🔍</span>
             <input placeholder="Search models or parts..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} />
           </div>
-          <button className="btn-clear" onClick={() => navigate("/cart")} style={{ position: "relative", borderColor: 'var(--orange)', color: 'var(--orange)' }}>
-            🛒 Cart ({count})
+          <button className="premium-cart-btn" onClick={() => navigate("/my/cart")}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+              <path d="M3 6h18"></path>
+              <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+            <span>Cart</span>
+            {count > 0 && <span className="cart-badge">{count}</span>}
           </button>
         </div>
       </div>
@@ -177,7 +183,6 @@ const Shop = () => {
               return (
                 <Link to={`/product/${p.id}`} key={p.id} className="bike-card-new">
                   <div className="product-card-img">
-                    <div className="bike-card-blob"></div>
                     {mainImg ? (
                       <img src={getImgUrl(mainImg)} alt={p.name} className="bike-main-img" />
                     ) : (

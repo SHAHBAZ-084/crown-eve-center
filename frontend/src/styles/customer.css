@@ -54,7 +54,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 5vw;
+  padding: 0 2%;
 }
 
 #customer-dashboard-shell .cnav-logo {
@@ -208,9 +208,9 @@
 }
 
 #customer-dashboard-shell .page-wrap {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 32px 5vw;
+  max-width: 100%;
+  margin: 0;
+  padding: 24px 1.5%;
 }
 
 /* CARDS */

@@ -126,6 +126,7 @@ const App = () => {
               <Route path="/my/orders"    element={<CustomerOrders />} />
               <Route path="/my/bookings"  element={<CustomerBookings />} />
               <Route path="/my/profile"   element={<CustomerProfile />} />
+              <Route path="/my/shop"      element={<CustomerShop />} />
               <Route path="/my/cart"      element={<CustomerCart />} />
               <Route path="/my/checkout"  element={<CustomerCheckout />} />
               <Route path="/track/:id"    element={<CustomerTrack />} />

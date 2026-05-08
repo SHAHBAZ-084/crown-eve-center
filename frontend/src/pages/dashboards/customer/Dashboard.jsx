@@ -74,7 +74,7 @@ const Dashboard = () => {
             <div style={{ fontSize: 13, color: "var(--white2)" }}>{user?.email} · Member since {new Date(user?.createdAt || Date.now()).getFullYear()}</div>
           </div>
           <div style={{ display: "flex", gap: 10 }}>
-            <button className="btn btn-ghost btn-sm" onClick={() => navigate("/shop")}>Browse Shop</button>
+            <button className="btn btn-ghost btn-sm" onClick={() => navigate("/my/shop")}>Browse Shop</button>
             <button className="btn btn-primary btn-sm" onClick={() => navigate("/appointments")}>Book Service</button>
           </div>
         </div>
@@ -143,7 +143,7 @@ const Dashboard = () => {
             </>
           ) : (
             <div style={{ textAlign: "center", padding: "30px 0", color: "var(--muted2)", fontSize: 13 }}>
-              No active orders. <button className="ca" onClick={() => navigate("/shop")}>Browse shop →</button>
+              No active orders. <button className="ca" onClick={() => navigate("/my/shop")}>Browse shop →</button>
             </div>
           )}
         </div>
@@ -182,7 +182,7 @@ const Dashboard = () => {
       <div className="ch" style={{ marginTop: 32 }}><div className="ct">Quick Actions</div></div>
       <div className="g4">
         {[
-          { ico: "🛒", label: "Browse Shop", path: "/shop" },
+          { ico: "🛒", label: "Browse Shop", path: "/my/shop" },
           { ico: "📋", label: "My Orders", path: "/my/orders" },
           { ico: "📅", label: "My Bookings", path: "/my/bookings" },
           { ico: "🔧", label: "Book Service", path: "/appointments" },

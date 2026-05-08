@@ -13,7 +13,7 @@ const CustomerLayout = () => {
 
   const links = [
     { label: 'Overview', path: '/my/dashboard' },
-    { label: 'Shop', path: '/shop' },
+    { label: 'Shop', path: '/my/shop' },
     { label: 'My Orders', path: '/my/orders' },
     { label: 'My Bookings', path: '/my/bookings' },
     { label: 'Profile', path: '/my/profile' },
