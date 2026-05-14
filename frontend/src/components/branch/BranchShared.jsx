@@ -94,10 +94,11 @@ const ICON_PATHS = {
   menu: "M3 12h18 M3 6h18 M3 18h18",
 };
 
-export const Icon = ({ n, size = 16 }) => {
+export const Icon = ({ n, size = 16, className = "" }) => {
   const d = ICON_PATHS[n] || ICON_PATHS.dashboard;
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+      className={className}
       stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       {d.split(" M").map((seg, i) => <path key={i} d={(i > 0 ? "M" : "") + seg} />)}
     </svg>
