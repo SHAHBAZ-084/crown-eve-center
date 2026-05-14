@@ -43,6 +43,7 @@ const BranchAppointments = lazy(() => import('./pages/dashboards/branch/Appointm
 const BranchSuppliers = lazy(() => import('./pages/dashboards/branch/Suppliers'));
 const BranchEmployees = lazy(() => import('./pages/dashboards/branch/Employees'));
 const BranchReports = lazy(() => import('./pages/dashboards/branch/Reports'));
+const BranchPOS = lazy(() => import('./pages/dashboards/branch/POS'));
 
 // Dashboards - Employee & Technician
 const EmployeeLayout = lazy(() => import('./components/employee/EmployeeLayout'));
@@ -142,6 +143,8 @@ const App = () => {
               {/* Technician Routes */}
               <Route path="/tech/dashboard" element={<ProtectedRoute allowedRoles={['TECHNICIAN']}><TechnicianDashboard /></ProtectedRoute>} />
             </Route>
+
+            <Route path="/branch/pos" element={<ProtectedRoute allowedRoles={['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER']}><BranchPOS /></ProtectedRoute>} />
 
             <Route path="/unauthorized" element={<div>Unauthorized Access</div>} />
             <Route path="*" element={<NotFound />} />

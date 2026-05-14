@@ -25,7 +25,12 @@ const Dashboard = () => {
           <div className="ptitle">{branchName || "LOCAL"} STATION</div>
           <div className="psub">Daily operations and branch monitoring</div>
         </div>
-        <div className="live-pill"><span className="live-dot" />Station Active</div>
+        <div className="ph-r" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <button className="btn btn-p" onClick={() => window.open('/branch/pos', '_blank')}>
+            <Icon n="orders" /> QUICK POS
+          </button>
+          <div className="live-pill"><span className="live-dot" />Station Active</div>
+        </div>
       </div>
 
       {/* KPI Cards */}
