@@ -44,6 +44,8 @@ model Branch {
   services     Service[]
   purchases    Purchase[]
   adjustments  StockAdjustment[]
+  walkInCustomers WalkInCustomer[]
+  banks        Bank[]
   createdAt    DateTime      @default(now())
 }
 
@@ -195,6 +197,8 @@ model Order {
   id         Int         @id @default(autoincrement())
   customerId String?
   customer   User?       @relation(fields: [customerId], references: [id])
+  walkInCustomerId String?
+  walkInCustomer   WalkInCustomer? @relation("WalkInOrders", fields: [walkInCustomerId], references: [id])
   branchId   Int
   branch     Branch      @relation(fields: [branchId], references: [id])
   total      Float
@@ -322,4 +326,38 @@ model Testimonial {
   stars      Int      @default(5)
   isApproved Boolean  @default(true) 
   createdAt  DateTime @default(now())
+}
+
+model WalkInCustomer {
+  id         String   @id @default(uuid())
+  first_name String
+  last_name  String
+  cnic       String
+  phone      String
+  whatsapp   String?
+  address    String
+  email      String?
+  branchId   Int
+  branch     Branch   @relation(fields: [branchId], references: [id])
+  orders     Order[]  @relation("WalkInOrders")
+  createdAt  DateTime @default(now())
+
+  @@index([branchId])
+  @@index([phone])
+}
+
+model Bank {
+  id             String   @id @default(uuid())
+  name           String
+  account_title  String
+  account_number String
+  iban           String?
+  branch_name    String?
+  initial_balance Float    @default(0)
+  current_balance Float    @default(0)
+  branchId       Int
+  branch         Branch   @relation(fields: [branchId], references: [id])
+  createdAt      DateTime @default(now())
+
+  @@index([branchId])
 }

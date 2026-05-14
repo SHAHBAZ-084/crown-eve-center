@@ -13,6 +13,154 @@ const POS = () => {
   const [activeMenu, setActiveMenu] = useState("sale-invoices");
   const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024);
 
+  // Banks State
+  const [showBankForm, setShowBankForm] = useState(false);
+  const [bankForm, setBankForm] = useState({ 
+    name: "", account_title: "", account_number: "", iban: "", branch_name: "", initial_balance: "" 
+  });
+
+  const { data: banks, isLoading: loadingBanks, refetch: refetchBanks } = useQuery({
+    queryKey: ['pos-banks-list'],
+    queryFn: () => api.get('/banks', {
+      params: { branchId: user?.branchId }
+    }).then(r => r.data),
+    enabled: activeMenu === 'add-bank'
+  });
+
+  const handleAddBank = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post('/banks', { ...bankForm, branchId: user?.branchId });
+      alert("Bank account registered successfully!");
+      setShowBankForm(false);
+      setBankForm({ name: "", account_title: "", account_number: "", iban: "", branch_name: "", initial_balance: "" });
+      refetchBanks();
+    } catch (err) {
+      alert("Failed to register bank: " + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const renderBanks = () => (
+    <div className="flex flex-col h-full space-y-6">
+      <div className="flex items-center justify-between bg-white p-6 rounded-3xl border border-[#F3E5DC] shadow-sm">
+        <div>
+          <h2 className="text-xl font-black text-[#2D1A12]">BRANCH ACCOUNTS</h2>
+          <p className="text-[10px] font-bold text-[#8D7A71] uppercase tracking-[0.2em] mt-1">Management of bank & cash accounts</p>
+        </div>
+        <button 
+          onClick={() => setShowBankForm(true)}
+          className="bg-[#E65100] text-white px-8 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-3 shadow-lg shadow-[#E65100]/20 hover:scale-105 transition-all"
+        >
+          <Plus size={18} /> Add New Bank Account
+        </button>
+      </div>
+
+      <div className="flex-1 bg-white rounded-[2.5rem] border border-[#F3E5DC] shadow-sm overflow-hidden flex flex-col">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-[#FFFAF8] border-b border-[#F3E5DC]">
+                <th className="px-8 py-6 text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em]">Bank Identity</th>
+                <th className="px-8 py-6 text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em]">Account Info</th>
+                <th className="px-8 py-6 text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em]">Current Balance</th>
+                <th className="px-8 py-6 text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#F3E5DC]">
+              {loadingBanks ? (
+                <tr><td colSpan="4" className="px-8 py-12 text-center animate-pulse text-[#8D7A71]">Syncing with ledger...</td></tr>
+              ) : (banks?.data || []).length === 0 ? (
+                <tr><td colSpan="4" className="px-8 py-12 text-center text-[#8D7A71]">No bank accounts registered for this branch.</td></tr>
+              ) : (banks.data.map(b => (
+                <tr key={b.id} className="hover:bg-[#FFFAF8]/50 transition-colors">
+                  <td className="px-8 py-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl flex items-center justify-center text-[#E65100] font-black text-xs">
+                        {b.name?.substring(0,3).toUpperCase()}
+                      </div>
+                      <div>
+                        <div className="font-black text-[#2D1A12] text-sm">{b.name}</div>
+                        <div className="text-[10px] font-bold text-[#8D7A71] uppercase tracking-widest mt-0.5">{b.branch_name || "Main Branch"}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-8 py-6">
+                    <div className="space-y-1">
+                      <div className="text-xs font-bold text-[#2D1A12]">{b.account_title}</div>
+                      <div className="text-[10px] font-black text-[#E65100] tracking-widest uppercase">{b.account_number}</div>
+                      {b.iban && <div className="text-[9px] text-[#8D7A71] font-bold">IBAN: {b.iban}</div>}
+                    </div>
+                  </td>
+                  <td className="px-8 py-6">
+                    <div className="font-black text-[#2D1A12] text-sm">PKR {b.current_balance?.toLocaleString()}</div>
+                    <div className="text-[9px] text-[#8D7A71] font-bold uppercase mt-0.5">Initial: {b.initial_balance?.toLocaleString()}</div>
+                  </td>
+                  <td className="px-8 py-6 text-right">
+                    <span className="bg-emerald-50 text-emerald-600 text-[10px] font-black px-3 py-1 rounded-full uppercase">Active</span>
+                  </td>
+                </tr>
+              )))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Add Bank Modal */}
+      {showBankForm && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowBankForm(false)} />
+          <div className="relative bg-white w-full max-w-2xl rounded-[3rem] overflow-hidden shadow-2xl flex flex-col max-h-[95vh]">
+            <header className="px-12 py-8 border-b border-[#F3E5DC] flex justify-between items-center bg-[#FFFAF8]">
+              <div>
+                <h2 className="text-2xl font-black text-[#2D1A12]">REGISTER BANK ACCOUNT</h2>
+                <p className="text-[10px] font-bold text-[#8D7A71] uppercase tracking-[0.2em] mt-1">Branch Financial Identity</p>
+              </div>
+              <button className="w-10 h-10 bg-white border border-[#F3E5DC] rounded-full flex items-center justify-center text-[#8D7A71]" onClick={() => setShowBankForm(false)}>
+                <Icon n="close" size={20} />
+              </button>
+            </header>
+            
+            <form onSubmit={handleAddBank} className="p-12 overflow-y-auto space-y-8 custom-scrollbar">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Bank Name *</label>
+                  <input required type="text" value={bankForm.name} onChange={e => setBankForm({...bankForm, name: e.target.value})} placeholder="e.g. Meezan Bank" className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Branch Name</label>
+                  <input type="text" value={bankForm.branch_name} onChange={e => setBankForm({...bankForm, branch_name: e.target.value})} placeholder="e.g. DHA Branch" className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Account Title *</label>
+                <input required type="text" value={bankForm.account_title} onChange={e => setBankForm({...bankForm, account_title: e.target.value})} placeholder="e.g. Crown Eve Center" className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Account Number *</label>
+                  <input required type="text" value={bankForm.account_number} onChange={e => setBankForm({...bankForm, account_number: e.target.value})} placeholder="Account #" className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Initial Balance (PKR) *</label>
+                  <input required type="number" value={bankForm.initial_balance} onChange={e => setBankForm({...bankForm, initial_balance: e.target.value})} placeholder="0.00" className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">IBAN Number</label>
+                <input type="text" value={bankForm.iban} onChange={e => setBankForm({...bankForm, iban: e.target.value})} placeholder="PKXX XXXX XXXX XXXX XXXX XXXX" className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm" />
+              </div>
+
+              <button type="submit" className="w-full bg-[#E65100] text-white py-5 rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-xl shadow-[#E65100]/20 hover:scale-[1.02] active:scale-95 transition-all mt-4">Save Bank Account</button>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   // Products State
   const [search, setSearch] = useState("");
   const [type, setType] = useState("");
@@ -20,6 +168,215 @@ const POS = () => {
   const [selectedProduct, setSelectedProduct] = useState(null); // Detail Modal
   const [cart, setCart] = useState([]);
   const debouncedSearch = useDebounce(search, 300);
+
+  // Customers State
+  const [customerSearch, setCustomerSearch] = useState("");
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [custForm, setCustForm] = useState({ 
+    first_name: "", last_name: "", cnic: "", phone: "", whatsapp: "", address: "", email: "" 
+  });
+
+  const { data: customers, isLoading: loadingCustomers, refetch: refetchCustomers } = useQuery({
+    queryKey: ['pos-customers-list', customerSearch],
+    queryFn: () => api.get('/walk-in-customers', {
+      params: { branchId: user?.branchId, search: customerSearch }
+    }).then(r => r.data),
+    enabled: activeMenu === 'add-customer'
+  });
+
+  const handleAddCustomer = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post('/walk-in-customers', { 
+        ...custForm, 
+        branchId: user?.branchId
+      });
+      alert("Walk-in customer registered successfully!");
+      setShowAddForm(false);
+      setCustForm({ first_name: "", last_name: "", cnic: "", phone: "", whatsapp: "", address: "", email: "" });
+      refetchCustomers();
+    } catch (err) {
+      alert("Failed to register customer: " + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const renderCustomers = () => (
+    <div className="flex flex-col h-full space-y-6">
+      <div className="flex flex-wrap gap-4 items-center justify-between bg-white p-6 rounded-3xl border border-[#F3E5DC] shadow-sm">
+        <div className="flex items-center gap-4 flex-1">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8D7A71]" size={18} />
+            <input 
+              type="text"
+              placeholder="Search customers by name or phone..."
+              value={customerSearch}
+              onChange={(e) => setCustomerSearch(e.target.value)}
+              className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-3.5 pl-12 pr-4 focus:ring-2 focus:ring-[#E65100]/20 outline-none font-bold text-sm"
+            />
+          </div>
+        </div>
+        <button 
+          onClick={() => setShowAddForm(true)}
+          className="bg-[#E65100] text-white px-8 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-3 shadow-lg shadow-[#E65100]/20 hover:scale-105 transition-all"
+        >
+          <Plus size={18} /> Register Walk-in Customer
+        </button>
+      </div>
+
+      <div className="flex-1 bg-white rounded-[2.5rem] border border-[#F3E5DC] shadow-sm overflow-hidden flex flex-col">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-[#FFFAF8] border-b border-[#F3E5DC]">
+                <th className="px-8 py-6 text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em]">Customer Identity</th>
+                <th className="px-8 py-6 text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em]">Contact Details</th>
+                <th className="px-8 py-6 text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em]">Location</th>
+                <th className="px-8 py-6 text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#F3E5DC]">
+              {loadingCustomers ? (
+                <tr><td colSpan="4" className="px-8 py-12 text-center animate-pulse text-[#8D7A71]">Loading database...</td></tr>
+              ) : (customers?.data || []).length === 0 ? (
+                <tr><td colSpan="4" className="px-8 py-12 text-center text-[#8D7A71]">No customers found in record.</td></tr>
+              ) : (customers.data.map(c => (
+                <tr key={c.id} className="hover:bg-[#FFFAF8]/50 transition-colors group">
+                  <td className="px-8 py-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl flex items-center justify-center text-[#E65100] font-black text-lg">
+                        {c.name?.charAt(0) || 'C'}
+                      </div>
+                      <div>
+                        <div className="font-black text-[#2D1A12] text-sm">{c.first_name} {c.last_name}</div>
+                        <div className="text-[10px] font-bold text-[#8D7A71] uppercase tracking-widest mt-0.5">ID: {c.id.slice(0,8)}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-8 py-6">
+                    <div className="space-y-1">
+                      <div className="text-xs font-bold text-[#2D1A12] flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> {c.phone}
+                      </div>
+                      {c.whatsapp && (
+                        <div className="text-[10px] font-bold text-emerald-600 flex items-center gap-2">
+                           WA: {c.whatsapp}
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-8 py-6">
+                    <div className="text-xs font-bold text-[#8D7A71] uppercase tracking-widest">{c.address || "Walk-in"}</div>
+                  </td>
+                  <td className="px-8 py-6 text-right">
+                    <button className="text-[10px] font-black text-[#E65100] hover:underline uppercase tracking-widest">Select to Invoice</button>
+                  </td>
+                </tr>
+              )))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Add Customer Modal */}
+      {showAddForm && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowAddForm(false)} />
+          <div className="relative bg-white w-full max-w-2xl rounded-[3rem] overflow-hidden shadow-2xl flex flex-col max-h-[95vh]">
+            <header className="px-12 py-8 border-b border-[#F3E5DC] flex justify-between items-center bg-[#FFFAF8]">
+              <div>
+                <h2 className="text-2xl font-black text-[#2D1A12]">REGISTER CUSTOMER</h2>
+                <p className="text-[10px] font-bold text-[#8D7A71] uppercase tracking-[0.2em] mt-1">Walk-in Customer Profile</p>
+              </div>
+              <button className="w-10 h-10 bg-white border border-[#F3E5DC] rounded-full flex items-center justify-center text-[#8D7A71]" onClick={() => setShowAddForm(false)}>
+                <Icon n="close" size={20} />
+              </button>
+            </header>
+            
+            <form onSubmit={handleAddCustomer} className="p-12 overflow-y-auto space-y-8 custom-scrollbar">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">First Name *</label>
+                  <input 
+                    required
+                    type="text" 
+                    value={custForm.first_name} 
+                    onChange={e => setCustForm({...custForm, first_name: e.target.value})}
+                    placeholder="Enter first name"
+                    className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Last Name (Surname) *</label>
+                  <input 
+                    required
+                    type="text" 
+                    value={custForm.last_name} 
+                    onChange={e => setCustForm({...custForm, last_name: e.target.value})}
+                    placeholder="Enter last name"
+                    className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">CNIC (Identity Card) *</label>
+                <input 
+                  required
+                  type="text" 
+                  value={custForm.cnic} 
+                  onChange={e => setCustForm({...custForm, cnic: e.target.value})}
+                  placeholder="XXXXX-XXXXXXX-X"
+                  className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Phone Number *</label>
+                  <input 
+                    required
+                    type="text" 
+                    value={custForm.phone} 
+                    onChange={e => setCustForm({...custForm, phone: e.target.value})}
+                    placeholder="03XX-XXXXXXX"
+                    className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">WhatsApp Number</label>
+                  <input 
+                    type="text" 
+                    value={custForm.whatsapp} 
+                    onChange={e => setCustForm({...custForm, whatsapp: e.target.value})}
+                    placeholder="Optional"
+                    className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Current Address *</label>
+                <textarea 
+                  required
+                  value={custForm.address} 
+                  onChange={e => setCustForm({...custForm, address: e.target.value})}
+                  placeholder="Enter full residential address"
+                  className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm min-h-[100px]"
+                />
+              </div>
+
+              <button 
+                type="submit"
+                className="w-full bg-[#E65100] text-white py-5 rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-xl shadow-[#E65100]/20 hover:scale-[1.02] active:scale-95 transition-all mt-4"
+              >
+                Complete Registration
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
   const menuGroups = [
     {
@@ -242,6 +599,10 @@ const POS = () => {
 
   const renderContent = () => {
     switch (activeMenu) {
+      case "add-customer":
+        return renderCustomers();
+      case "add-bank":
+        return renderBanks();
       case "products":
         return renderProducts();
       case "sale-invoices":
