@@ -461,7 +461,11 @@ const POS = () => {
         payment_method: paymentMode,
         total: cartTotal,
         type: 'POS',
-        items: cart // backend handles qty -> quantity and id -> productId mapping
+        items: cart.map(item => ({
+          productId: item.id,
+          quantity: item.qty,
+          price: item.price
+        }))
       };
 
       const res = await api.post('/orders', payload);
