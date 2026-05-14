@@ -57,7 +57,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+      <div className="dash-row">
         {/* Revenue chart */}
         <div className="card ci">
           <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 16, display: "flex", justifyContent: "space-between" }}>
@@ -102,7 +102,7 @@ const Dashboard = () => {
       </div>
 
       {/* Recent orders + Stock alerts */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div className="dash-row">
         <div className="card">
           <div style={{ padding: "18px 18px 0", fontWeight: 700, fontSize: 14, marginBottom: 12 }}>Recent Orders</div>
           {!recentOrders ? <TblSk rows={4} /> : (

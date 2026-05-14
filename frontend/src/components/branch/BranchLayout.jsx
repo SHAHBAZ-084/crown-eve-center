@@ -19,6 +19,7 @@ const NAV = [
 const BranchLayout = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showSidebar, setShowSidebar] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -34,6 +35,10 @@ const BranchLayout = () => {
       .catch(() => navigate("/login"))
       .finally(() => setLoading(false));
   }, [navigate]);
+
+  useEffect(() => {
+    setShowSidebar(false);
+  }, [location.pathname]);
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -51,8 +56,11 @@ const BranchLayout = () => {
 
   return (
     <div id="branch-dashboard-shell">
+      {/* Mobile Overlay */}
+      {showSidebar && <div className="sidebar-overlay" onClick={() => setShowSidebar(false)} />}
+
       {/* Sidebar */}
-      <div id="branch-sidebar">
+      <div id="branch-sidebar" className={showSidebar ? "show" : ""}>
         <div className="sb-brand">
           <div className="sb-mark">CE</div>
           <div>
@@ -61,21 +69,23 @@ const BranchLayout = () => {
           </div>
         </div>
 
-        {["Overview", "Operations", "Service Bay", "Procurement", "Admin"].map(sec => (
-          <React.Fragment key={sec}>
-            <div className="sb-sec">{sec}</div>
-            {NAV.filter(n => n.section === sec).map(item => (
-              <Link 
-                key={item.id} 
-                to={item.path} 
-                className={`sb-item ${location.pathname === item.path ? "active" : ""}`}
-              >
-                <Icon n={item.icon} />
-                {item.label}
-              </Link>
-            ))}
-          </React.Fragment>
-        ))}
+        <div className="sidebar-scrollable">
+          {["Overview", "Operations", "Service Bay", "Procurement", "Admin"].map(sec => (
+            <React.Fragment key={sec}>
+              <div className="sb-sec">{sec}</div>
+              {NAV.filter(n => n.section === sec).map(item => (
+                <Link 
+                  key={item.id} 
+                  to={item.path} 
+                  className={`sb-item ${location.pathname === item.path ? "active" : ""}`}
+                >
+                  <Icon n={item.icon} />
+                  {item.label}
+                </Link>
+              ))}
+            </React.Fragment>
+          ))}
+        </div>
 
         <div style={{ marginTop: "auto" }}>
           <div className="sb-user">
@@ -94,7 +104,12 @@ const BranchLayout = () => {
       {/* Main Content */}
       <div className="main">
         <div className="branch-topbar">
-          <div className="topbar-title">{activeNav.label.toUpperCase()}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+            <button className="sidebar-toggle" onClick={() => setShowSidebar(true)}>
+              <Icon n="menu" />
+            </button>
+            <div className="topbar-title">{activeNav.label.toUpperCase()}</div>
+          </div>
           <div className="topbar-right">
             <div className="live-pill"><span className="live-dot" /> LIVE STATUS</div>
           </div>

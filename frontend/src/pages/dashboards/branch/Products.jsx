@@ -76,12 +76,12 @@ const Products = () => {
   const openAdd = () => { setForm(initialForm); setEditTarget(null); setShowModal(true); };
   const openEdit = p => {
     setForm({
-      name: p.name, product_type: p.product_type, description: p.description || "",
-      price: p.price, sale_price: p.sale_price || "", stock_qty: p.stock_qty,
-      categoryId: p.categoryId || "", brandId: p.brandId || "", is_active: p.is_active,
+      name: p.name || "", product_type: p.product_type || "bike", description: p.description || "",
+      price: p.price ?? "", sale_price: p.sale_price ?? "", stock_qty: p.stock_qty ?? 0,
+      categoryId: p.categoryId || "", brandId: p.brandId || "", is_active: p.is_active ?? true,
       images: p.images?.length ? p.images : [{ url: "", is_primary: true, sort_order: 0 }],
-      bikeDetail: p.bikeDetail || initialForm.bikeDetail,
-      partDetail: p.partDetail || initialForm.partDetail
+      bikeDetail: Object.keys(initialForm.bikeDetail).reduce((acc, key) => ({ ...acc, [key]: p.bikeDetail?.[key] ?? initialForm.bikeDetail[key] }), {}),
+      partDetail: Object.keys(initialForm.partDetail).reduce((acc, key) => ({ ...acc, [key]: p.partDetail?.[key] ?? initialForm.partDetail[key] }), {})
     });
     setEditTarget(p);
     setShowModal(true);
@@ -153,24 +153,34 @@ const Products = () => {
         </div>
       </div>
 
-      <div className="tabs" style={{ marginBottom: 30 }}>
+      {/* Mobile filter dropdown */}
+      <div className="mobile-filter">
+        <select value={activeTab} onChange={(e) => setActiveTab(e.target.value)}>
+          <option value="bikes">Bikes List</option>
+          <option value="parts">Spare Parts List</option>
+          <option value="categories">Categories List</option>
+          <option value="suppliers">Suppliers List</option>
+        </select>
+      </div>
+
+      <div className="tabs desktop-tabs" style={{ marginBottom: 30 }}>
         <div className={`tab ${activeTab === "bikes" ? "active" : ""}`} onClick={() => setActiveTab("bikes")}>
-          <Icon n="bike" size={14} /> Bikes List ({activeTab === "bikes" ? data?.meta?.total || 0 : "..."})
+          <Icon n="bike" size={14} /> Bikes List
         </div>
         <div className={`tab ${activeTab === "parts" ? "active" : ""}`} onClick={() => setActiveTab("parts")}>
-          <Icon n="settings" size={14} /> Spare Parts List ({activeTab === "parts" ? data?.meta?.total || 0 : "..."})
+          <Icon n="settings" size={14} /> Spare Parts List
         </div>
         <div className={`tab ${activeTab === "categories" ? "active" : ""}`} onClick={() => setActiveTab("categories")}>
-          <Icon n="settings" size={14} /> Categories List ({catsData?.length || 0})
+          <Icon n="settings" size={14} /> Categories List
         </div>
         <div className={`tab ${activeTab === "suppliers" ? "active" : ""}`} onClick={() => setActiveTab("suppliers")}>
-          <Icon n="tag" size={14} /> Suppliers List ({brandsData?.length || 0})
+          <Icon n="tag" size={14} /> Suppliers List
         </div>
       </div>
 
       <div className="tab-content">
         {(activeTab === "bikes" || activeTab === "parts") && (
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, gap: 15 }}>
+          <div className="p-fbar">
             <div style={{ fontWeight: 700, fontSize: 18 }}>
               {activeTab === "bikes" ? "Bikes Catalog" : "Spare Parts Catalog"}
             </div>

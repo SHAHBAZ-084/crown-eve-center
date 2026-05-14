@@ -38,8 +38,16 @@ const Orders = () => {
         </div>
       </div>
 
-      {/* Status tabs */}
-      <div className="tabs">
+      {/* Mobile filter dropdown */}
+      <div className="mobile-filter">
+        <select value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }}>
+          <option value="">All Orders</option>
+          {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
+      </div>
+
+      {/* Status tabs (Desktop) */}
+      <div className="tabs desktop-tabs">
         {["", ...STATUSES].map(s => (
           <div key={s} className={`tab ${status === s ? "active" : ""}`} onClick={() => { setStatus(s); setPage(1); }}>
             {s || "All"}

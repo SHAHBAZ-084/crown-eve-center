@@ -139,8 +139,11 @@
 .g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
 .g4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
 
+/* ── Dashboard Rows ── */
+.dash-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+
 /* ── Table ── */
-.tw { background: var(--surf); border: 1px solid var(--border); border-radius: var(--r-xl); overflow: hidden; }
+.tw { background: var(--surf); border: 1px solid var(--border); border-radius: var(--r-xl); overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
 thead tr { background: var(--surf2); border-bottom: 1px solid var(--border); }
 th { padding: 12px 18px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .15em; color: var(--muted); text-align: left; white-space: nowrap; }
@@ -262,6 +265,33 @@ td { padding: 12px 18px; font-size: 13px; color: var(--text); }
   border-radius: 100px;
   width: fit-content;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  max-width: 100%;
+}
+
+.mobile-filter {
+  display: none;
+  margin-bottom: 20px;
+}
+
+.mobile-filter select {
+  width: 100%;
+  padding: 14px;
+  background: var(--surf);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  font-weight: 600;
+  color: var(--text);
+  outline: none;
+  font-size: 14px;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 16px;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
 }
 .tab {
   padding: 10px 20px;
@@ -274,6 +304,8 @@ td { padding: 12px 18px; font-size: 13px; color: var(--text); }
   display: flex;
   align-items: center;
   gap: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .tab.active {
   background: var(--acc);
@@ -291,6 +323,50 @@ td { padding: 12px 18px; font-size: 13px; color: var(--text); }
 .conf-msg { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
 .conf-ftr { display: flex; justify-content: flex-end; gap: 8px; }
 
+/* ── Mobile Sidebar Logic ── */
+.sidebar-toggle { display: none; background: transparent; border: none; color: var(--text); cursor: pointer; padding: 5px; align-items: center; justify-content: center; }
+.sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99; animation: fadeIn .3s; }
+.sidebar-scrollable { flex: 1; overflow-y: auto; margin: 10px 0; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+.p-fbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 15px; }
+
 /* ── Responsive ── */
-@media(max-width:1024px) { .sg { grid-template-columns: repeat(2, 1fr); } #branch-sidebar { display: none; } }
-@media(max-width:640px)  { .sg { grid-template-columns: 1fr; } .branch-page { padding: 16px; } .inv-grid { grid-template-columns: repeat(2, 1fr); } }
+@media(max-width:1024px) { 
+  .sg { grid-template-columns: repeat(2, 1fr); } 
+  .g3 { grid-template-columns: repeat(2, 1fr); }
+  .g4 { grid-template-columns: repeat(2, 1fr); }
+  .dash-row { grid-template-columns: 1fr; }
+  .sidebar-toggle { display: flex; }
+  .desktop-tabs { display: none; }
+  .mobile-filter { display: block; }
+  .p-fbar { flex-direction: column; align-items: stretch; }
+  .p-fbar > div { max-width: none !important; }
+
+  #branch-sidebar { 
+    position: fixed;
+    left: -240px;
+    top: 0;
+    bottom: 0;
+    width: 240px;
+    z-index: 100;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex !important;
+    box-shadow: 20px 0 50px rgba(0,0,0,0.1);
+  }
+
+  #branch-sidebar.show {
+    left: 0;
+  }
+
+  .branch-topbar {
+    padding: 10px 16px;
+  }
+}
+
+@media(max-width:640px)  { 
+  .sg { grid-template-columns: 1fr; } 
+  .g4 { grid-template-columns: 1fr; }
+  .branch-page { padding: 16px; } 
+  .inv-grid { grid-template-columns: repeat(2, 1fr); } 
+}

@@ -109,13 +109,20 @@ const Services = () => {
           </button>
         </div>
       </div>
+      {/* Mobile filter dropdown */}
+      <div className="mobile-filter">
+        <select value={activeTab} onChange={(e) => setActiveTab(e.target.value)}>
+          <option value="services">Services List</option>
+          <option value="categories">Service Categories</option>
+        </select>
+      </div>
 
-      <div className="tabs" style={{ marginBottom: 30 }}>
+      <div className="tabs desktop-tabs" style={{ marginBottom: 30 }}>
         <div className={`tab ${activeTab === "services" ? "active" : ""}`} onClick={() => setActiveTab("services")}>
-          <Icon n="wrench" size={14} /> Services List ({services?.length || 0})
+          <Icon n="wrench" size={14} /> Services List
         </div>
         <div className={`tab ${activeTab === "categories" ? "active" : ""}`} onClick={() => setActiveTab("categories")}>
-          <Icon n="settings" size={14} /> Service Categories ({catData?.length || 0})
+          <Icon n="settings" size={14} /> Service Categories
         </div>
       </div>
 

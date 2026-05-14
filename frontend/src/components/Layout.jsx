@@ -30,7 +30,7 @@ const Layout = ({ isPublic = false }) => {
 
   if (showNavbar) {
     return (
-      <div className="min-h-screen bg-black text-orange-600 font-sans">
+      <div className="min-h-screen bg-black text-orange-600 font-sans public-layout-wrapper">
         <Navbar user={user} logout={logout} />
         <main>
           <div key={location.pathname} style={pageStyle}>

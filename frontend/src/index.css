@@ -2200,7 +2200,7 @@ footer::after {
 
 /* RESPONSIVE */
 @media(max-width:900px) {
-  body {
+  .public-layout-wrapper {
     padding-top: 72px !important;
   }
 
