@@ -5,7 +5,7 @@ import api from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
 import { useDebounce } from '../../../hooks/useDebounce';
 import { Icon } from "../../../components/branch/BranchShared";
-import { Package, Search, Filter, Tag, Plus } from "lucide-react";
+import { Package, Search, Filter, Tag, Plus, ShoppingCart } from "lucide-react";
 import "../../../styles/pos.css";
 
 const POS = () => {
@@ -167,7 +167,21 @@ const POS = () => {
   const [page, setPage] = useState(1);
   const [selectedProduct, setSelectedProduct] = useState(null); // Detail Modal
   const [cart, setCart] = useState([]);
+  const [selectedCustomer, setSelectedCustomer] = useState("");
+  const [paymentMode, setPaymentMode] = useState("CASH"); // CASH or BANK
+  const [selectedBank, setSelectedBank] = useState("");
   const debouncedSearch = useDebounce(search, 300);
+
+  // Fetch data for checkout
+  const { data: customersData } = useQuery({
+    queryKey: ['pos-customers-dropdown'],
+    queryFn: () => api.get('/walk-in-customers', { params: { branchId: user?.branchId } }).then(r => r.data)
+  });
+
+  const { data: banksData } = useQuery({
+    queryKey: ['pos-banks-dropdown'],
+    queryFn: () => api.get('/banks', { params: { branchId: user?.branchId } }).then(r => r.data)
+  });
 
   // Customers State
   const [customerSearch, setCustomerSearch] = useState("");
@@ -434,10 +448,27 @@ const POS = () => {
     alert(`${product.name} added to cart!`);
   };
 
+  const removeFromCart = (productId) => {
+    setCart(prev => prev.filter(item => item.id !== productId));
+  };
+
+  const updateCartQty = (productId, delta) => {
+    setCart(prev => prev.map(item => {
+      if (item.id === productId) {
+        const newQty = Math.max(1, item.qty + delta);
+        return { ...item, qty: newQty };
+      }
+      return item;
+    }));
+  };
+
+  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
   const renderProducts = () => (
-    <div className="flex flex-col h-full space-y-6">
-      <div className="flex flex-wrap gap-4 items-center justify-between bg-white p-6 rounded-3xl border border-[#F3E5DC] shadow-sm">
-        <div className="flex items-center gap-4 flex-1 min-w-[300px]">
+    <div className="flex h-full gap-6 overflow-hidden">
+      <div className="flex-1 flex flex-col space-y-6 overflow-hidden">
+        <div className="flex flex-wrap gap-4 items-center justify-between bg-white p-6 rounded-3xl border border-[#F3E5DC] shadow-sm">
+          <div className="flex items-center gap-4 flex-1 min-w-[300px]">
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8D7A71]" size={18} />
             <input 
@@ -527,14 +558,137 @@ const POS = () => {
         )}
       </div>
 
-      {/* Pagination Controls */}
-      {products?.meta?.totalPages > 1 && (
-        <div className="flex items-center justify-center gap-6 py-6 border-t border-[#F3E5DC]">
-          <button disabled={page === 1} onClick={() => setPage(p => p - 1)} className="px-6 py-2.5 bg-white border border-[#F3E5DC] rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-[#FFFAF8] disabled:opacity-30 transition-all">Previous</button>
-          <div className="text-[11px] font-black text-[#8D7A71] uppercase tracking-widest">Page <span className="text-[#E65100]">{page}</span> of {products.meta.totalPages}</div>
-          <button disabled={page === products.meta.totalPages} onClick={() => setPage(p => p + 1)} className="px-6 py-2.5 bg-white border border-[#F3E5DC] rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-[#FFFAF8] disabled:opacity-30 transition-all">Next</button>
+        {/* Pagination Controls */}
+        {products?.meta?.totalPages > 1 && (
+          <div className="flex items-center justify-center gap-6 py-6 border-t border-[#F3E5DC] mt-4">
+            <button disabled={page === 1} onClick={() => setPage(p => p - 1)} className="px-6 py-2.5 bg-white border border-[#F3E5DC] rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-[#FFFAF8] disabled:opacity-30 transition-all">Previous</button>
+            <div className="text-[11px] font-black text-[#8D7A71] uppercase tracking-widest">Page <span className="text-[#E65100]">{page}</span> of {products.meta.totalPages}</div>
+            <button disabled={page === products.meta.totalPages} onClick={() => setPage(p => p + 1)} className="px-6 py-2.5 bg-white border border-[#F3E5DC] rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-[#FFFAF8] disabled:opacity-30 transition-all">Next</button>
+          </div>
+        )}
+      </div>
+
+      {/* POS Cart Sidebar */}
+      <div className="w-[400px] bg-white border border-[#F3E5DC] rounded-[2.5rem] shadow-xl flex flex-col overflow-hidden">
+        <div className="p-8 border-b border-[#F3E5DC] flex justify-between items-center bg-[#FFFAF8]">
+          <div>
+            <h3 className="font-black text-[#2D1A12] text-lg uppercase tracking-tight">Current Order</h3>
+            <div className="text-[10px] font-bold text-[#8D7A71] uppercase tracking-widest mt-0.5">{cart.length} Items Selected</div>
+          </div>
+          <div className="w-10 h-10 bg-[#E65100]/10 rounded-2xl flex items-center justify-center text-[#E65100]">
+            <ShoppingCart size={20} />
+          </div>
         </div>
-      )}
+
+        <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+          {cart.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-center p-8 opacity-40">
+              <div className="w-20 h-20 bg-[#F3E5DC] rounded-full flex items-center justify-center mb-4">
+                <Package size={32} />
+              </div>
+              <p className="text-xs font-black text-[#2D1A12] uppercase tracking-widest">Cart is empty</p>
+              <p className="text-[10px] font-bold text-[#8D7A71] uppercase mt-2">Add products to start an invoice</p>
+            </div>
+          ) : (
+            cart.map(item => (
+              <div key={item.id} className="bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl p-4 flex gap-4 group">
+                <div className="w-16 h-16 bg-white rounded-2xl border border-[#F3E5DC] p-2 flex-shrink-0">
+                  {item.images?.[0] ? (
+                    <img src={item.images[0].url.startsWith('http') ? item.images[0].url : `http://localhost:5000${item.images[0].url}`} className="w-full h-full object-contain" />
+                  ) : <Package className="w-full h-full opacity-20" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-start mb-1">
+                    <h4 className="font-black text-[11px] text-[#2D1A12] uppercase truncate pr-2">{item.name}</h4>
+                    <button onClick={() => removeFromCart(item.id)} className="text-[#8D7A71] hover:text-red-500 transition-colors">
+                      <Icon n="close" size={14} />
+                    </button>
+                  </div>
+                  <div className="text-[10px] font-black text-[#E65100] mb-3">PKR {item.price.toLocaleString()}</div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center bg-white border border-[#F3E5DC] rounded-xl p-1 gap-3">
+                      <button onClick={() => updateCartQty(item.id, -1)} className="w-6 h-6 flex items-center justify-center text-[#8D7A71] hover:text-[#E65100]">-</button>
+                      <span className="text-[10px] font-black text-[#2D1A12] w-4 text-center">{item.qty}</span>
+                      <button onClick={() => updateCartQty(item.id, 1)} className="w-6 h-6 flex items-center justify-center text-[#8D7A71] hover:text-[#E65100]">+</button>
+                    </div>
+                    <div className="text-xs font-black text-[#2D1A12]">PKR {(item.price * item.qty).toLocaleString()}</div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div className="p-8 bg-[#FFFAF8] border-t border-[#F3E5DC] space-y-5">
+          {/* Customer Selection */}
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Assign Customer</label>
+            <select 
+              value={selectedCustomer} 
+              onChange={(e) => setSelectedCustomer(e.target.value)}
+              className="w-full bg-white border border-[#F3E5DC] rounded-2xl py-3 px-4 outline-none font-bold text-xs appearance-none"
+            >
+              <option value="">Select Walk-in Customer</option>
+              {(customersData?.data || []).map(c => (
+                <option key={c.id} value={c.id}>{c.first_name} {c.last_name} ({c.phone})</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Payment Method */}
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Payment Method</label>
+            <div className="flex gap-2 p-1 bg-white border border-[#F3E5DC] rounded-2xl">
+              <button 
+                onClick={() => setPaymentMode("CASH")}
+                className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${paymentMode === "CASH" ? 'bg-[#E65100] text-white shadow-md' : 'text-[#8D7A71]'}`}
+              >
+                Cash
+              </button>
+              <button 
+                onClick={() => setPaymentMode("BANK")}
+                className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${paymentMode === "BANK" ? 'bg-[#E65100] text-white shadow-md' : 'text-[#8D7A71]'}`}
+              >
+                Bank / Account
+              </button>
+            </div>
+          </div>
+
+          {/* Bank Selection (Conditional) */}
+          {paymentMode === "BANK" && (
+            <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+              <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Select Bank Account</label>
+              <select 
+                value={selectedBank} 
+                onChange={(e) => setSelectedBank(e.target.value)}
+                className="w-full bg-white border border-[#F3E5DC] rounded-2xl py-3 px-4 outline-none font-bold text-xs appearance-none"
+              >
+                <option value="">Choose Bank...</option>
+                {(banksData?.data || []).map(b => (
+                  <option key={b.id} value={b.id}>{b.name} - {b.account_number}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div className="pt-4 border-t border-[#F3E5DC] space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em]">Subtotal</span>
+              <span className="font-black text-[#2D1A12]">PKR {cartTotal.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between items-center text-[#E65100]">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em]">Grand Total</span>
+              <span className="text-xl font-black">PKR {cartTotal.toLocaleString()}</span>
+            </div>
+            <button 
+              disabled={cart.length === 0 || !selectedCustomer || (paymentMode === "BANK" && !selectedBank)}
+              className="w-full bg-[#E65100] text-white py-5 rounded-[2rem] font-black text-xs uppercase tracking-widest shadow-xl shadow-[#E65100]/20 hover:scale-[1.02] active:scale-95 disabled:opacity-30 disabled:hover:scale-100 transition-all flex items-center justify-center gap-3 mt-4"
+            >
+              Generate Invoice <Icon n="tag" size={16} />
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Product Detail Modal */}
       {selectedProduct && (
