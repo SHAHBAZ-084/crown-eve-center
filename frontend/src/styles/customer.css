@@ -400,6 +400,7 @@
   transition: border-color .2s;
   border-radius: 4px;
   -webkit-appearance: none;
+  appearance: none;
   cursor: pointer;
 }
 
@@ -1662,6 +1663,7 @@
 
 .fs {
   -webkit-appearance: none;
+  appearance: none;
   cursor: pointer;
 }
 
@@ -2315,7 +2317,6 @@
 
 @media(max-width: 900px) {
   .stats-row { grid-template-columns: repeat(2, 1fr); }
-margin-bottom: 6px;
 }
 
 .prod-name {

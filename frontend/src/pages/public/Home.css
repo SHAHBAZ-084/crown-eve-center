@@ -816,6 +816,13 @@ h1.hero-title .line3 {
   z-index: 2;
 }
 
+@media (max-width: 900px) {
+  .testimonials-grid {
+    grid-template-columns: 1fr !important;
+    gap: 30px !important;
+  }
+}
+
 .testimonial-card {
   background: #FFFFFF;
   border: 1px solid #F0F0F0;
@@ -855,15 +862,21 @@ h1.hero-title .line3 {
 }
 
 .testimonial-text {
-  font-size: 18px;
-  font-weight: 400;
+  font-size: 17px;
+  line-height: 1.7;
   color: #444;
-  line-height: 1.9;
-  margin-bottom: 45px;
-  font-style: normal;
-  letter-spacing: 0.2px;
-  position: relative;
-  z-index: 2;
+  margin: 30px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.testimonial-text.expanded {
+  -webkit-line-clamp: unset;
+  overflow: visible;
 }
 
 .testimonial-author {
@@ -1303,7 +1316,7 @@ h1.hero-title .line3 {
   border: 1px solid var(--orange);
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 900px) {
   .why-evee-container {
     grid-template-columns: 1fr;
     gap: 60px;
@@ -1320,5 +1333,20 @@ h1.hero-title .line3 {
 
   .why-evee-img-wrapper {
     margin: 0 auto;
+  }
+
+  /* SERVICES MOBILE FIX */
+  .services-layout {
+    grid-template-columns: 1fr !important;
+    gap: 40px !important;
+    margin-top: 40px !important;
+  }
+
+  .services-cta-panel {
+    padding: 30px !important;
+  }
+
+  .services-cta-panel h3 {
+    font-size: 38px !important;
   }
 }

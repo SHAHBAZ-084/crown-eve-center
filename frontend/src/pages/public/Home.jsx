@@ -21,6 +21,11 @@ const Home = () => {
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
   const [testimonials, setTestimonials] = useState([]);
+  const [expandedTestimonial, setExpandedTestimonial] = useState(null);
+
+  const toggleTestimonial = (id) => {
+    setExpandedTestimonial(expandedTestimonial === id ? null : id);
+  };
 
   useEffect(() => {
     const fetchTestimonials = async () => {
@@ -348,7 +353,12 @@ const Home = () => {
             testimonials.slice(0, 3).map((t, idx) => (
               <div key={t.id || idx} className="testimonial-card">
                 <div className="stars">{'★'.repeat(t.stars)}{'☆'.repeat(5 - t.stars)}</div>
-                <p className="testimonial-text">"{t.text}"</p>
+                <p 
+                  className={`testimonial-text ${expandedTestimonial === (t.id || idx) ? 'expanded' : ''}`}
+                  onClick={() => toggleTestimonial(t.id || idx)}
+                >
+                  "{t.text}"
+                </p>
                 <div className="testimonial-author">
                   <div className="author-avatar">{t.name ? t.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'AK'}</div>
                   <div className="author-info">
@@ -362,7 +372,12 @@ const Home = () => {
             <>
               <div className="testimonial-card">
                 <div className="stars">★★★★★</div>
-                <p className="testimonial-text">"Crown Eve is the only place I trust with my Duke. The technicians are certified, the parts are genuine, and the service is fast. Nothing compares."</p>
+                <p 
+                  className={`testimonial-text ${expandedTestimonial === 'fallback-1' ? 'expanded' : ''}`}
+                  onClick={() => toggleTestimonial('fallback-1')}
+                >
+                  "Crown Eve is the only place I trust with my Duke. The technicians are certified, the parts are genuine, and the service is fast. Nothing compares."
+                </p>
                 <div className="testimonial-author">
                   <div className="author-avatar">AK</div>
                   <div className="author-info">
@@ -373,7 +388,12 @@ const Home = () => {
               </div>
               <div className="testimonial-card">
                 <div className="stars">★★★★★</div>
-                <p className="testimonial-text">"Booked my full service online in 2 minutes. Got an update when the tech started and when it was done. This is how bike service should work."</p>
+                <p 
+                  className={`testimonial-text ${expandedTestimonial === 'fallback-2' ? 'expanded' : ''}`}
+                  onClick={() => toggleTestimonial('fallback-2')}
+                >
+                  "Booked my full service online in 2 minutes. Got an update when the tech started and when it was done. This is how bike service should work."
+                </p>
                 <div className="testimonial-author">
                   <div className="author-avatar">SH</div>
                   <div className="author-info">
@@ -384,7 +404,12 @@ const Home = () => {
               </div>
               <div className="testimonial-card">
                 <div className="stars">★★★★★</div>
-                <p className="testimonial-text">"1700+ parts in stock — I found an obscure OEM part for my 2019 model within 20 minutes of walking in. Incredible inventory and knowledgeable staff."</p>
+                <p 
+                  className={`testimonial-text ${expandedTestimonial === 'fallback-3' ? 'expanded' : ''}`}
+                  onClick={() => toggleTestimonial('fallback-3')}
+                >
+                  "1700+ parts in stock — I found an obscure OEM part for my 2019 model within 20 minutes of walking in. Incredible inventory and knowledgeable staff."
+                </p>
                 <div className="testimonial-author">
                   <div className="author-avatar">MR</div>
                   <div className="author-info">
