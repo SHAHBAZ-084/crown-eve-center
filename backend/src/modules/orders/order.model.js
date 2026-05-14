@@ -23,8 +23,8 @@ const createOrder = async (data) => {
         notes,
         items: {
           create: items.map(item => ({
-            productId: item.id, // items from POS have 'id'
-            quantity: Number(item.qty), // items from POS have 'qty'
+            productId: item.productId || item.id,
+            quantity: Number(item.quantity || item.qty),
             price: Number(item.price)
           }))
         }
@@ -100,6 +100,9 @@ const getOrders = async ({ page = 1, limit = 20, branchId, status, type, custome
         customer_phone: true,
         customer: {
           select: { id: true, name: true }
+        },
+        walkInCustomer: {
+          select: { id: true, first_name: true, last_name: true }
         },
         items: {
           select: {

@@ -117,7 +117,7 @@ const Dashboard = () => {
                 {recentOrders?.data?.slice(0, 5).map(o => (
                   <tr key={o.id}>
                     <td><span style={{ fontFamily: "var(--font-m)", fontSize: 11, fontWeight: 700 }}>#{o.id}</span></td>
-                    <td style={{ fontSize: 12 }}>{o.customer?.name || "—"}</td>
+                    <td style={{ fontSize: 12 }}>{o.customer?.name || (o.walkInCustomer ? `${o.walkInCustomer.first_name} ${o.walkInCustomer.last_name}` : "—")}</td>
                     <td style={{ fontWeight: 700, color: "var(--acc)" }}>PKR {o.total?.toFixed(2)}</td>
                     <td><span className={`badge ${ORDER_BADGE[o.status] || "bg-b"}`}>{o.status}</span></td>
                   </tr>

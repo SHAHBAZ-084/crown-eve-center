@@ -9,10 +9,11 @@ const Inventory = () => {
 
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [inventoryType, setInventoryType] = useState(""); // "" (All), "BIKE", "PART"
   const [showLowOnly, setShowLowOnly] = useState(false);
   const ds = useDebounce(search);
 
-  const params = new URLSearchParams({ branchId, page, limit: 20 }).toString();
+  const params = new URLSearchParams({ branchId, page, limit: 50, type: inventoryType }).toString();
   const { data, loading, refetch } = useFetch(`/inventory?${params}`, [page, branchId], 5000);
   const { data: summary, refetch: refetchSummary } = useFetch(`/inventory/summary?branchId=${branchId}`, [branchId], 5000);
 
@@ -93,11 +94,33 @@ const Inventory = () => {
           </div>
         </div>
       </div>
-      <div className="fbar" style={{ display: "flex", gap: 12, alignItems: "center" }}>
-        <div className="sw" style={{ flex: 1 }}>
+      <div className="fbar" style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+        <div className="sw" style={{ flex: 1, minWidth: 250 }}>
           <Icon n="search" />
-          <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Search parts by name…" />
+          <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Search inventory..." />
         </div>
+        
+        <div style={{ display: "flex", bg: "var(--surf)", p: 4, borderRadius: 12, border: "1px solid var(--border)", gap: 4 }}>
+          <button 
+            onClick={() => { setInventoryType(""); setPage(1); }}
+            className={`px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${inventoryType === "" ? 'bg-[#E65100] text-white shadow-md' : 'text-[#8D7A71] hover:bg-[#F3E5DC]/30'}`}
+          >
+            All
+          </button>
+          <button 
+            onClick={() => { setInventoryType("BIKE"); setPage(1); }}
+            className={`px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${inventoryType === "BIKE" ? 'bg-[#E65100] text-white shadow-md' : 'text-[#8D7A71] hover:bg-[#F3E5DC]/30'}`}
+          >
+            Bikes
+          </button>
+          <button 
+            onClick={() => { setInventoryType("PART"); setPage(1); }}
+            className={`px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${inventoryType === "PART" ? 'bg-[#E65100] text-white shadow-md' : 'text-[#8D7A71] hover:bg-[#F3E5DC]/30'}`}
+          >
+            Parts
+          </button>
+        </div>
+
         <button
           className={`btn ${showLowOnly ? "btn-p" : "btn-s"}`}
           onClick={() => { setShowLowOnly(!showLowOnly); setPage(1); }}
@@ -109,7 +132,7 @@ const Inventory = () => {
             fontSize: 11
           }}
         >
-          <Icon n="reports" size={14} /> {showLowOnly ? "Showing Low Stock" : "Filter Low Stock"}
+          <Icon n="reports" size={14} /> {showLowOnly ? "Low Stock" : "Filter Low"}
         </button>
       </div>
 

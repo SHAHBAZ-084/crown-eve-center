@@ -2,12 +2,12 @@
 const prisma = require('../../config/db');
 const { syncInventoryToPartsAndProducts } = require('./inventory.utils');
 
-const getBranchInventory = async ({ branchId, page = 1, limit = 20 }) => {
+const getBranchInventory = async ({ branchId, page = 1, limit = 20, type = "" }) => {
   const skip = (page - 1) * limit;
   const where = { branchId: Number(branchId) };
 
-  const [data, total] = await Promise.all([
-    prisma.inventory.findMany({
+  const [invData, invTotal, bikes] = await Promise.all([
+    (type === "" || type === "PART") ? prisma.inventory.findMany({
       where,
       skip,
       take: Number(limit),
@@ -19,26 +19,62 @@ const getBranchInventory = async ({ branchId, page = 1, limit = 20 }) => {
           select: { id: true, name: true, category: true, price: true }
         }
       }
-    }),
-    prisma.inventory.count({ where })
+    }) : Promise.resolve([]),
+    (type === "" || type === "PART") ? prisma.inventory.count({ where }) : Promise.resolve(0),
+    (type === "" || type === "BIKE") ? prisma.product.findMany({
+      where: {
+        branchId: Number(branchId),
+        product_type: 'bike'
+      },
+      select: {
+        id: true,
+        name: true,
+        stock_qty: true
+      }
+    }) : Promise.resolve([])
   ]);
 
+  // Merge standalone bikes into the inventory list
+  const bikeData = bikes.map(b => ({
+    id: `bike_${b.id}`, // Virtual ID to distinguish from inventory records
+    stock: b.stock_qty,
+    alertAt: 2, // Default alert for bikes
+    isBike: true,
+    part: {
+      name: b.name,
+      category: 'BIKE',
+      id: b.id
+    }
+  }));
+
+  const combinedData = [...invData, ...bikeData].slice(skip, skip + Number(limit));
+
   return {
-    data,
+    data: combinedData,
     meta: {
-      total,
+      total: invTotal + bikes.length,
       page: Number(page),
       limit: Number(limit),
-      totalPages: Math.ceil(total / limit)
+      totalPages: Math.ceil((invTotal + bikes.length) / limit)
     }
   };
 };
 
 const updateStockById = async (id, data) => {
+  // Check if it's a virtual bike ID
+  if (typeof id === 'string' && id.startsWith('bike_')) {
+    const productId = id.replace('bike_', '');
+    return prisma.product.update({
+      where: { id: productId },
+      data: { stock_qty: Number(data.stock) },
+      select: { id: true, stock_qty: true }
+    }).then(p => ({ id: `bike_${p.id}`, stock: p.stock_qty }));
+  }
+
   return prisma.$transaction(async (tx) => {
     // 1. Get current stock for adjustment calculation
     const currentInv = await tx.inventory.findUnique({
-      where: { id },
+      where: { id: Number(id) },
       select: { stock: true, branchId: true, partId: true }
     });
 
@@ -50,7 +86,7 @@ const updateStockById = async (id, data) => {
 
     // 2. Update the inventory stock
     const inventory = await tx.inventory.update({
-      where: { id },
+      where: { id: Number(id) },
       data: {
         stock: nStock,
         alertAt: nAlert

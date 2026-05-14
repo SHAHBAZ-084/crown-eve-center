@@ -431,7 +431,7 @@ const POS = () => {
     }
   ];
 
-  const { data: products, isLoading } = useQuery({
+  const { data: products, isLoading, refetch: refetchProducts } = useQuery({
     queryKey: ['pos-products-list', debouncedSearch, type, page],
     queryFn: () => api.get('/products', {
       params: { branchId: user?.branchId, search: debouncedSearch, product_type: type, limit: 20, page }
@@ -441,12 +441,20 @@ const POS = () => {
 
   const addToCart = (e, product) => {
     e.stopPropagation(); // Prevent detail modal from opening
+    if (product.stock_qty <= 0) {
+      return alert("Insufficient stock! This product is currently out of stock.");
+    }
     setCart(prev => {
       const exists = prev.find(item => item.id === product.id);
-      if (exists) return prev.map(item => item.id === product.id ? { ...item, qty: item.qty + 1 } : item);
+      if (exists) {
+        if (exists.qty >= product.stock_qty) {
+          alert("Cannot add more than available stock!");
+          return prev;
+        }
+        return prev.map(item => item.id === product.id ? { ...item, qty: item.qty + 1 } : item);
+      }
       return [...prev, { ...product, qty: 1 }];
     });
-    alert(`${product.name} added to cart!`);
   };
 
   const handleCheckout = async () => {
@@ -470,6 +478,7 @@ const POS = () => {
 
       const res = await api.post('/orders', payload);
       setGeneratedInvoice(res.data);
+      refetchProducts();
       setCart([]);
       setSelectedCustomer("");
       setSelectedBank("");
@@ -819,7 +828,7 @@ const POS = () => {
               disabled={cart.length === 0 || !selectedCustomer || (paymentMode === "BANK" && !selectedBank)}
               className="w-full bg-[#E65100] text-white py-5 rounded-[2rem] font-black text-xs uppercase tracking-widest shadow-xl shadow-[#E65100]/20 hover:scale-[1.02] active:scale-95 disabled:opacity-30 disabled:hover:scale-100 transition-all flex items-center justify-center gap-3 mt-4"
             >
-              Generate Invoice <Icon n="tag" size={16} />
+              Generate Invoice & Sell <Icon n="tag" size={16} />
             </button>
           </div>
         </div>
