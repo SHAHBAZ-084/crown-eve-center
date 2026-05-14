@@ -201,6 +201,8 @@ model Order {
   walkInCustomer   WalkInCustomer? @relation("WalkInOrders", fields: [walkInCustomerId], references: [id])
   branchId   Int
   branch     Branch      @relation(fields: [branchId], references: [id])
+  bankId     String?
+  bank       Bank?       @relation(fields: [bankId], references: [id])
   total      Float
   status         String @default("PENDING")
   type           String      @default("POS") // POS or ONLINE
@@ -357,6 +359,7 @@ model Bank {
   current_balance Float    @default(0)
   branchId       Int
   branch         Branch   @relation(fields: [branchId], references: [id])
+  orders         Order[]
   createdAt      DateTime @default(now())
 
   @@index([branchId])

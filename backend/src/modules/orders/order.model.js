@@ -3,7 +3,7 @@ const prisma = require('../../config/db');
 const { syncInventoryToPartsAndProducts } = require('../inventory/inventory.utils');
 
 const createOrder = async (data) => {
-  const { branchId, customerId, total, type, payment_method, transaction_id, customer_name, customer_phone, notes, items } = data;
+  const { branchId, customerId, walkInCustomerId, bankId, total, type, payment_method, transaction_id, customer_name, customer_phone, notes, items } = data;
 
   return prisma.$transaction(async (tx) => {
     // 1. Create the order
@@ -11,6 +11,8 @@ const createOrder = async (data) => {
       data: {
         branchId: Number(branchId),
         customerId: customerId || undefined,
+        walkInCustomerId: walkInCustomerId || undefined,
+        bankId: bankId || undefined,
         total: Number(total),
         type: type || 'POS',
         status: type === 'POS' ? 'COMPLETED' : 'PENDING',
@@ -21,8 +23,8 @@ const createOrder = async (data) => {
         notes,
         items: {
           create: items.map(item => ({
-            productId: item.productId,
-            quantity: Number(item.quantity),
+            productId: item.id, // items from POS have 'id'
+            quantity: Number(item.qty), // items from POS have 'qty'
             price: Number(item.price)
           }))
         }
@@ -32,6 +34,8 @@ const createOrder = async (data) => {
 
     // 2. Deduct inventory for each item's parts
     for (const item of order.items) {
+      if (!item.product) continue;
+      
       for (const productPart of item.product.productParts) {
         const qtyToDeduct = productPart.quantity * item.quantity;
         
@@ -42,22 +46,26 @@ const createOrder = async (data) => {
               branchId: Number(branchId),
               partId: Number(productPart.partId)
             }
-          },
-          include: { part: true }
+          }
         });
 
-        if (!inv || inv.stock < qtyToDeduct) {
-          throw new Error(`Insufficient stock for: ${inv?.part?.name || 'Item'}. Available: ${inv?.stock || 0}`);
+        if (inv) {
+          await tx.inventory.update({
+            where: { id: inv.id },
+            data: { stock: { decrement: qtyToDeduct } }
+          });
+          // Sync stocks to Parts and Products
+          await syncInventoryToPartsAndProducts(tx, branchId, productPart.partId);
         }
-        
-        await tx.inventory.update({
-          where: { id: inv.id },
-          data: { stock: { decrement: qtyToDeduct } }
-        });
-
-        // Sync stocks to Parts and Products
-        await syncInventoryToPartsAndProducts(tx, branchId, productPart.partId);
       }
+    }
+
+    // 3. Update Bank Balance if applicable
+    if (bankId) {
+      await tx.bank.update({
+        where: { id: bankId },
+        data: { current_balance: { increment: Number(total) } }
+      });
     }
 
     return order;
