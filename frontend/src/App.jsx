@@ -78,7 +78,6 @@ const App = () => {
               
               {/* Semi-protected routes: Guest cannot access, but they use the public layout */}
               <Route path="/track/:id" element={<ProtectedRoute><TrackOrder /></ProtectedRoute>} />
-              <Route path="/appointments" element={<ProtectedRoute><Appointments /></ProtectedRoute>} />
               <Route path="/cart" element={<PublicCart />} />
               <Route path="/checkout" element={<PublicCheckout />} />
             </Route>
@@ -121,6 +120,7 @@ const App = () => {
               <Route path="/my/cart"      element={<CustomerCart />} />
               <Route path="/my/checkout"  element={<CustomerCheckout />} />
               <Route path="/track/:id"    element={<CustomerTrack />} />
+              <Route path="/appointments" element={<Appointments />} />
             </Route>
 
 

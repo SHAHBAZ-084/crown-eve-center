@@ -251,8 +251,11 @@ const Home = () => {
                 </div>
               ))
             ) : (
-              // Fallback if no services in DB yet
-              <p style={{ color: 'var(--muted)', padding: '20px 0' }}>Services coming soon.</p>
+              <div className="services-paragraph-box" style={{ padding: '40px 0', borderTop: '1px solid #F3E5DC' }}>
+                <p style={{ fontSize: '1.1rem', color: 'var(--muted)', lineHeight: '1.8', fontWeight: 500, maxWidth: '800px' }}>
+                  At <span style={{ color: 'var(--orange)', fontWeight: 900 }}>Crown Eve</span>, we provide a comprehensive ecosystem for the modern rider, offering precision-engineered electric motorcycles, advanced battery health diagnostics, and a massive inventory of over 1,700 genuine OEM parts to ensure your ride always stays in its original condition. Our certified technicians provide expert maintenance and performance tuning from <span style={{ color: 'var(--white)', fontWeight: 800 }}>10:00 AM to 8:00 PM</span> daily, all backed by a hassle-free warranty to ensure your ultimate peace of mind and an unbeatable riding experience.
+                </p>
+              </div>
             )}
           </div>
           <div className="services-cta-panel">

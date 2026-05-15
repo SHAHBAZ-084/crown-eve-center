@@ -35,6 +35,8 @@ model Branch {
   id           Int           @id @default(autoincrement())
   name         String
   location     String
+  phone        String?
+  whatsapp     String?
   users        User[]
   products     Product[]
   inventory    Inventory[]

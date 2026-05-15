@@ -97,7 +97,7 @@ const Dashboard = () => {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 600 }}>{a.service?.name}</div>
-                  <div style={{ fontSize: 11, color: "var(--muted)" }}>{a.customer?.name} · {new Date(a.scheduledAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>
+                  <div style={{ fontSize: 11, color: "var(--muted)" }}>{a.customer?.name} · {a.booking_time || "TBD"}</div>
                 </div>
                 <span className={`badge ${APPT_BADGE[a.status] || "bg-b"}`}>{a.status}</span>
               </div>

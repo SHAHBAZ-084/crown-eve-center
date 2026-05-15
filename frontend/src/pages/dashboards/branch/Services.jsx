@@ -7,122 +7,46 @@ const Services = () => {
   const { user } = useOutletContext();
   const branchId = user?.branchId;
 
-  const { data: services, loading, refetch } = useFetch(`/services?branchId=${branchId}`, [branchId]);
-  const { data: catData, refetch: refetchCats } = useFetch("/service-categories");
+  const { data: bookings, loading, refetch } = useFetch(`/appointments?branchId=${branchId}&limit=100`, [branchId]);
 
-  const [activeTab, setActiveTab] = useState("services");
-  const [showModal, setShowModal] = useState(false);
-  const [editTarget, setEditTarget] = useState(null);
-  const [confirmId, setConfirmId]   = useState(null);
-  const [saving, setSaving]         = useState(false);
-
-  const [form, setForm] = useState({ 
-    name: "", service_type: "maintenance", description: "", 
-    base_price: "", duration_minutes: 30, is_active: true, serviceCategoryId: "",
-    checklist: []
-  });
-
-  const [catForm, setCatForm] = useState({ name: "", description: "" });
-
-  const initialForm = { 
-    name: "", service_type: "maintenance", description: "", 
-    base_price: "", duration_minutes: 30, is_active: true, serviceCategoryId: "",
-    checklist: []
-  };
-
-  const openAdd  = () => { setForm(initialForm); setEditTarget(null); setShowModal(true); };
-  const openEdit = s  => { 
-    setForm({ 
-      name: s.name, 
-      service_type: s.service_type || "maintenance", 
-      description: s.description || "", 
-      base_price: s.base_price, 
-      duration_minutes: s.duration_minutes || 30,
-      is_active: s.is_active,
-      serviceCategoryId: s.serviceCategoryId || "",
-      checklist: Array.isArray(s.checklist) ? s.checklist : []
-    }); 
-    setEditTarget(s); 
-    setShowModal(true); 
-  };
-
-  const submit = async () => {
-    if (!form.name || !form.base_price) return toast("Name and price required", "e");
-    setSaving(true);
-    try {
-      const { tempItem, ...cleanForm } = form;
-      const body = { 
-        ...cleanForm,
-        base_price: parseFloat(form.base_price),
-        duration_minutes: Number(form.duration_minutes),
-        branchId: Number(branchId) 
-      };
-      if (editTarget) { await apiFetch(`/services/${editTarget.id}`, { method: "PUT", body }); toast("Service updated"); }
-      else { await apiFetch("/services", { method: "POST", body }); toast("Service created"); }
-      setShowModal(false); refetch();
-    } catch (e) { toast(e.message, "e"); }
-    setSaving(false);
-  };
-
-  const saveCat = async () => {
-    if (!catForm.name) return toast("Category name required", "e");
-    try {
-      await apiFetch("/service-categories", { method: "POST", body: catForm });
-      toast("Category created");
-      setCatForm({ name: "", description: "" });
-      refetchCats();
-    } catch (e) { toast(e.message, "e"); }
-  };
+  const [activeTab, setActiveTab] = useState("bookings");
+  const [editAppt, setEditAppt] = useState(null);
+  const [billAppt, setBillAppt] = useState(null);
+  const [confirmId, setConfirmId] = useState(null);
+  const [saving, setSaving]     = useState(false);
+  const [invoice, setInvoice]   = useState(null);
 
   const remove = async id => {
-    try { await apiFetch(`/services/${id}`, { method: "DELETE" }); toast("Service deleted"); refetch(); }
+    try { await apiFetch(`/appointments/${id}`, { method: "DELETE" }); toast("Booking deleted"); refetch(); }
     catch (e) { toast(e.message, "e"); }
     setConfirmId(null);
   };
 
-  const removeCat = async id => {
-    try { await apiFetch(`/service-categories/${id}`, { method: "DELETE" }); toast("Category deleted"); refetchCats(); }
-    catch (e) { toast(e.message, "e"); }
+  const updateAppt = async () => {
+    if (!editAppt) return;
+    setSaving(true);
+    try {
+      await apiFetch(`/appointments/${editAppt.id}`, { method: "PUT", body: { status: editAppt.status } });
+      toast("Status updated");
+      setEditAppt(null); refetch();
+    } catch (e) { toast(e.message, "e"); }
+    setSaving(false);
   };
 
-  const getSvcIcon = (type) => {
-    if (type === "maintenance") return "wrench";
-    if (type === "repair") return "settings";
-    if (type === "installation") return "plus";
-    return "wrench";
-  };
+  // Handle both direct array or object-wrapped data
+  const bookingList = Array.isArray(bookings) ? bookings : (bookings?.data || []);
+  
+  // Sort bookings oldest first
+  const sortedBookings = [...bookingList].sort((a, b) => new Date(a.booking_date) - new Date(b.booking_date));
+  const APPT_STATUSES  = ["BOOKED", "IN_PROGRESS", "COMPLETED", "CANCELLED"];
 
   return (
     <div className="branch-page">
       <div className="ph">
         <div className="ph-l">
           <div className="eyebrow">Service Lab</div>
-          <div className="ptitle">SERVICE ARCHIVE</div>
-          <div className="psub">Full control over protocols and category architecture</div>
-        </div>
-        <div className="ph-r" style={{ display: "flex", gap: 8 }}>
-          <button className={`btn ${activeTab === "services" ? "btn-p" : "btn-s"}`} onClick={() => setActiveTab("services")}>
-            <Icon n="inventory" /> Manage Protocols
-          </button>
-          <button className={`btn ${activeTab === "categories" ? "btn-p" : "btn-s"}`} onClick={() => setActiveTab("categories")}>
-            <Icon n="settings" /> Manage Categories
-          </button>
-        </div>
-      </div>
-      {/* Mobile filter dropdown */}
-      <div className="mobile-filter">
-        <select value={activeTab} onChange={(e) => setActiveTab(e.target.value)}>
-          <option value="services">Services List</option>
-          <option value="categories">Service Categories</option>
-        </select>
-      </div>
-
-      <div className="tabs desktop-tabs" style={{ marginBottom: 30 }}>
-        <div className={`tab ${activeTab === "services" ? "active" : ""}`} onClick={() => setActiveTab("services")}>
-          <Icon n="wrench" size={14} /> Services List
-        </div>
-        <div className={`tab ${activeTab === "categories" ? "active" : ""}`} onClick={() => setActiveTab("categories")}>
-          <Icon n="settings" size={14} /> Service Categories
+          <div className="ptitle">BOOKED SERVICES</div>
+          <div className="psub">Overview of customer service requests</div>
         </div>
       </div>
 
@@ -132,162 +56,126 @@ const Services = () => {
         </div>
       ) : (
         <div className="tab-content">
-          {activeTab === "services" && (
-            <>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                <div style={{ fontWeight: 700, fontSize: 18 }}>Active Protocols</div>
-                <button className="btn btn-p" onClick={openAdd}><Icon n="plus" /> New Protocol</button>
-              </div>
-              <div className="g4">
-                {(Array.isArray(services) ? services : []).map(s => (
-                  <div key={s.id} className="card ci" style={{ padding: 24, transition: "all .3s ease", border: "1px solid var(--border)", position: "relative" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20, alignItems: "flex-start" }}>
-                      <div style={{ width: 48, height: 48, borderRadius: 14, background: "rgba(14,165,233,.08)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--acc)" }}>
-                        <Icon n={getSvcIcon(s.service_type)} size={22} />
-                      </div>
-                      <div style={{ display: "flex", gap: 8 }}>
-                        <button className="btn-ico" onClick={() => openEdit(s)}><Icon n="edit" size={14} /></button>
-                        <button className="btn-ico dng" onClick={() => setConfirmId(s.id)}><Icon n="trash" size={14} /></button>
-                      </div>
-                    </div>
-
-                    <div style={{ marginBottom: 15 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                        <span className={`badge badge-${s.service_type === "repair" ? "orange" : "blue"}`} style={{ fontSize: 9 }}>{s.service_type?.toUpperCase()}</span>
-                        {s.serviceCategory && <span className="badge badge-s" style={{ fontSize: 9 }}>{s.serviceCategory.name}</span>}
-                      </div>
-                      <div style={{ fontWeight: 800, fontSize: 18, color: "var(--text)" }}>{s.name}</div>
-                    </div>
-                    
-                    <div style={{ fontFamily: "var(--font-d)", fontSize: 26, color: "var(--acc)", fontWeight: 700 }}>PKR {parseFloat(s.base_price).toLocaleString()}</div>
-                    <div style={{ fontSize: 10, color: "var(--muted)", fontWeight: 600, marginTop: 4 }}>EST. TIME: {s.duration_minutes} MINS</div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+            <div style={{ fontWeight: 700, fontSize: 18 }}>Active Requests</div>
+          </div>
+          <div className="g4">
+            {sortedBookings.map(b => (
+              <div key={b.id} className="card ci" style={{ padding: 24, transition: "all .3s ease", border: "1px solid var(--border)", position: "relative", background: "var(--card)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20, alignItems: "flex-start" }}>
+                  <div style={{ width: 48, height: 48, borderRadius: 14, background: "rgba(14,165,233,.08)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--acc)" }}>
+                    <Icon n="wrench" size={22} />
                   </div>
-                ))}
-                {(Array.isArray(services) ? services : []).length === 0 && <div className="empty" style={{ gridColumn: "1/-1" }}><Icon n="wrench" size={48} opacity={0.2} /><div className="empty-t">No service protocols defined yet</div></div>}
-              </div>
-            </>
-          )}
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button className="btn-ico" onClick={() => setEditAppt({ id: b.id, status: b.status })}><Icon n="edit" size={14} /></button>
+                    <button className="btn-ico dng" onClick={() => setConfirmId(b.id)}><Icon n="trash" size={14} /></button>
+                  </div>
+                </div>
 
-          {activeTab === "categories" && (
-            <div className="card" style={{ overflow: "hidden" }}>
-              <div className="ci" style={{ background: "var(--surf2)", borderBottom: "1px solid var(--border)" }}>
-                <div style={{ fontWeight: 700, fontSize: 18 }}>Service Architecture</div>
-              </div>
-              <div className="ci" style={{ display: "flex", gap: 10, flexWrap: "wrap", background: "rgba(255,255,255,0.02)" }}>
-                <div style={{ flex: 1, minWidth: 200 }}>
-                  <label style={{ fontSize: 10, color: "var(--muted)", marginBottom: 4, display: "block" }}>CATEGORY NAME</label>
-                  <input placeholder="e.g. Electrical Diagnostics" value={catForm.name} onChange={e => setCatForm(c => ({ ...c, name: e.target.value }))} />
+                <div style={{ marginBottom: 15 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                    <span className="badge badge-blue" style={{ fontSize: 9 }}>{new Date(b.booking_date).toLocaleDateString()}</span>
+                    <span className="badge badge-orange" style={{ fontSize: 9 }}>{b.status?.toUpperCase()}</span>
+                  </div>
+                  <div style={{ fontWeight: 800, fontSize: 18, color: "var(--text)" }}>{b.customer?.name}</div>
+                  <div style={{ fontSize: 13, color: "var(--acc)", fontWeight: 700, marginTop: 4 }}>{b.service?.name}</div>
                 </div>
-                <div style={{ flex: 2, minWidth: 200 }}>
-                  <label style={{ fontSize: 10, color: "var(--muted)", marginBottom: 4, display: "block" }}>DESCRIPTION</label>
-                  <input placeholder="Short category description..." value={catForm.description} onChange={e => setCatForm(c => ({ ...c, description: e.target.value }))} />
+                
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, background: 'rgba(255,255,255,0.03)', padding: '10px 14px', borderRadius: '14px', border: '1px solid var(--border)' }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 10, color: "var(--muted)", fontWeight: 700, textTransform: 'uppercase', marginBottom: 2 }}>Phone / Cell</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>
+                      {b.customer_notes?.split('|')[0]?.replace('Cell:', '')?.trim() || "N/A"}
+                    </div>
+                  </div>
+                  {b.customer_notes?.includes('WhatsApp:') && (
+                    <a 
+                      href={`https://wa.me/${b.customer_notes.split('WhatsApp:')[1].trim().replace(/\D/g, '')}`} 
+                      target="_blank" 
+                      rel="noreferrer"
+                      className="btn-ico"
+                      style={{ background: '#25D366', color: 'white', borderRadius: '10px', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(37, 211, 102, 0.2)' }}
+                    >
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.964 9.964 0 001.333 4.993L2 22l5.233-1.237a9.994 9.994 0 004.773 1.217h.004c5.505 0 9.988-4.478 9.989-9.984 0-2.669-1.037-5.176-2.922-7.062A9.935 9.935 0 0012.012 2zM6.869 16.907l-.288-.454a8.255 8.255 0 01-1.265-4.467c0-4.547 3.702-8.249 8.253-8.249a8.196 8.196 0 015.835 2.419 8.196 8.196 0 012.422 5.835c0 4.547-3.702 8.249-8.253 8.249h-.003a8.223 8.223 0 01-4.215-1.164l-.304-.18-3.132.741.75-3.03z"/></svg>
+                    </a>
+                  )}
                 </div>
-                <div style={{ display: "flex", alignItems: "flex-end" }}>
-                  <button className="btn btn-p" onClick={saveCat} style={{ height: 40 }}><Icon n="plus" /> Add Category</button>
+
+                <div style={{ marginTop: 20, display: 'flex', gap: 10 }}>
+                  <button className="btn btn-s" style={{ flex: 1, justifyContent: 'center', height: 44 }} onClick={() => setEditAppt({ id: b.id, status: b.status })}>
+                    <Icon n="edit" /> STATUS
+                  </button>
+                  <button className="btn btn-p" style={{ flex: 1, justifyContent: 'center', height: 44, background: '#111' }} onClick={() => setBillAppt({ ...b, labor: 0, parts: 0 })}>
+                    <Icon n="reports" /> BILLING
+                  </button>
                 </div>
               </div>
-              <div className="tw">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Category Name</th>
-                      <th>Description</th>
-                      <th>Services Linked</th>
-                      <th style={{ textAlign: "right" }}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {catData?.map(c => (
-                      <tr key={c.id}>
-                        <td style={{ fontWeight: 600 }}>{c.name}</td>
-                        <td style={{ color: "var(--muted)", fontSize: 12 }}>{c.description || "—"}</td>
-                        <td><span className="badge badge-blue">{c._count?.services || 0} Protocols</span></td>
-                        <td className="tda">
-                          <button className="btn-ico dng" onClick={() => removeCat(c.id)}><Icon n="trash" size={12} /></button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
+            ))}
+            {sortedBookings.length === 0 && <div className="empty" style={{ gridColumn: "1/-1" }}><Icon n="wrench" size={48} opacity={0.2} /><div className="empty-t">No service requests found</div></div>}
+          </div>
         </div>
       )}
-
-      {showModal && (
-        <Modal title={editTarget ? "EDIT PROTOCOL" : "NEW SERVICE PROTOCOL"} onClose={() => setShowModal(false)} wide
+      {editAppt && (
+        <Modal title="UPDATE STATUS" onClose={() => setEditAppt(null)}
           footer={<>
-            <button className="btn btn-s btn-sm" onClick={() => setShowModal(false)}>Discard</button>
-            <button className="btn btn-p btn-sm" onClick={submit} disabled={saving}>{saving ? "Processing…" : "Save Protocol"}</button>
+            <button className="btn btn-s btn-sm" onClick={() => setEditAppt(null)}>Cancel</button>
+            <button className="btn btn-p btn-sm" onClick={updateAppt} disabled={saving}>{saving ? "Updating…" : "Save Changes"}</button>
           </>}
         >
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-            <div className="fg" style={{ gridColumn: "1/-1" }}>
-              <label>Service Name *</label>
-              <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Full Battery Diagnostics" />
+          <div className="fg"><label>Service Status</label>
+            <select value={editAppt.status} onChange={e => setEditAppt(v => ({ ...v, status: e.target.value }))}>
+              {APPT_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
+        </Modal>
+      )}
+      {billAppt && (
+        <Modal title="GENERATE SERVICE BILL" onClose={() => setBillAppt(null)}
+          footer={<>
+            <button className="btn btn-s btn-sm" onClick={() => setBillAppt(null)}>Cancel</button>
+            <button className="btn btn-p btn-sm" style={{ background: '#111' }} onClick={async () => {
+              setSaving(true);
+              try {
+                const total = (Number(billAppt.labor) || 0) + (Number(billAppt.parts) || 0);
+                await apiFetch(`/appointments/${billAppt.id}`, { 
+                  method: "PUT", 
+                  body: { 
+                    final_price: total,
+                    status: "COMPLETED",
+                    customer_notes: `${billAppt.customer_notes || ""} | Bill: Labor ${billAppt.labor}, Parts ${billAppt.parts}`
+                  } 
+                });
+                toast("Bill generated & Status completed");
+                setBillAppt(null); refetch();
+              } catch (e) { toast(e.message, "e"); }
+              setSaving(false);
+            }} disabled={saving}>{saving ? "Generating…" : "Generate & Complete"}</button>
+          </>}
+        >
+          <div style={{ marginBottom: 20, padding: 16, background: 'var(--surf2)', borderRadius: 12, border: '1px solid var(--border)' }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 4 }}>Customer</div>
+            <div style={{ fontSize: 16, fontWeight: 800 }}>{billAppt.customer?.name}</div>
+            <div style={{ fontSize: 12, color: 'var(--acc)', fontWeight: 600 }}>{billAppt.service?.name}</div>
+          </div>
+          
+          <div className="fr" style={{ marginBottom: 16 }}>
+            <div className="fg"><label>Labor Charges (PKR)</label>
+              <input type="number" value={billAppt.labor} onChange={e => setBillAppt({...billAppt, labor: e.target.value})} placeholder="0" />
             </div>
-            
-            <div className="fg">
-              <label>Service Type</label>
-              <select value={form.service_type} onChange={e => setForm(f => ({ ...f, service_type: e.target.value }))}>
-                <option value="maintenance">Maintenance</option>
-                <option value="repair">Repair</option>
-                <option value="installation">Installation</option>
-              </select>
+            <div className="fg"><label>Parts Charges (PKR)</label>
+              <input type="number" value={billAppt.parts} onChange={e => setBillAppt({...billAppt, parts: e.target.value})} placeholder="0" />
             </div>
+          </div>
 
-            <div className="fg">
-              <label>Assigned Category</label>
-              <select value={form.serviceCategoryId} onChange={e => setForm(f => ({ ...f, serviceCategoryId: e.target.value }))}>
-                <option value="">— Uncategorized —</option>
-                {catData?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-            </div>
-
-            <div className="fg">
-              <label>Estimated Duration (Minutes)</label>
-              <input type="number" value={form.duration_minutes} onChange={e => setForm(f => ({ ...f, duration_minutes: e.target.value }))} />
-            </div>
-
-            <div className="fg">
-              <label>Base Price (PKR) *</label>
-              <input type="number" value={form.base_price} onChange={e => setForm(f => ({ ...f, base_price: e.target.value }))} />
-            </div>
-
-            <div className="fg" style={{ gridColumn: "1/-1" }}>
-              <label>Detailed Description</label>
-              <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} style={{ height: 100 }} />
-            </div>
-
-            {/* Checklist Section */}
-            <div className="fg" style={{ gridColumn: "1/-1", borderTop: "1px solid var(--border)", paddingTop: 20 }}>
-              <label style={{ color: "var(--acc)", fontWeight: 700 }}>SERVICE CHECKLIST / PROTOCOL ITEMS</label>
-              <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-                <input 
-                  placeholder="e.g. Engine Oil Flush..." 
-                  value={form.tempItem || ""} 
-                  onChange={e => setForm(f => ({ ...f, tempItem: e.target.value }))}
-                  onKeyDown={e => { if(e.key === 'Enter') { e.preventDefault(); setForm(f => { if(!f.tempItem) return f; const items = Array.isArray(f.checklist) ? f.checklist : []; return { ...f, checklist: [...items, f.tempItem], tempItem: "" }; }); }}}
-                />
-                <button className="btn btn-p" style={{ height: 44 }} onClick={(e) => { e.preventDefault(); setForm(f => { if(!f.tempItem) return f; const items = Array.isArray(f.checklist) ? f.checklist : []; return { ...f, checklist: [...items, f.tempItem], tempItem: "" }; }); }}>Add Item</button>
-              </div>
-              <div style={{ marginTop: 15, display: "flex", flexDirection: "column", gap: 6 }}>
-                {(Array.isArray(form.checklist) ? form.checklist : []).map((item, idx) => (
-                  <div key={idx} style={{ background: "rgba(255,255,255,0.03)", padding: "10px 15px", borderRadius: 10, display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid var(--border)" }}>
-                    <span style={{ fontSize: 13, fontWeight: 500 }}>{idx + 1}. {item}</span>
-                    <button className="btn-ico dng" onClick={() => setForm(f => ({ ...f, checklist: f.checklist.filter((_, i) => i !== idx) }))}><Icon n="trash" size={12} /></button>
-                  </div>
-                ))}
-                {(!form.checklist || form.checklist.length === 0) && (
-                  <div style={{ fontSize: 12, color: "var(--muted)", fontStyle: "italic" }}>No specific items added to this protocol yet.</div>
-                )}
-              </div>
+          <div style={{ padding: 20, background: '#111', borderRadius: 16, color: 'white', textAlign: 'center' }}>
+            <div style={{ fontSize: 10, fontWeight: 700, opacity: 0.6, textTransform: 'uppercase', marginBottom: 4 }}>Total Payable Amount</div>
+            <div style={{ fontFamily: 'var(--font-d)', fontSize: 32, letterSpacing: 1 }}>
+              PKR {((Number(billAppt.labor) || 0) + (Number(billAppt.parts) || 0)).toLocaleString()}
             </div>
           </div>
         </Modal>
       )}
-      {confirmId && <Confirm msg="Remove this protocol permanently?" onYes={() => remove(confirmId)} onNo={() => setConfirmId(null)} />}
+      {confirmId && <Confirm msg="Remove this booking record?" onYes={() => remove(confirmId)} onNo={() => setConfirmId(null)} />}
     </div>
   );
 };

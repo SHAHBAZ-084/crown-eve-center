@@ -90,9 +90,9 @@ const Dashboard = () => {
         </div>
         <div className="stat">
           <div className="si">📅</div>
-          <div className="sl">Upcoming Booking</div>
-          <div className="sv">{loadingBookings ? "—" : upcomingBookings.length}</div>
-          <span className="sc up">{nextBooking ? new Date(nextBooking.scheduledAt).toLocaleDateString("en-PK", { dateStyle: "medium" }) : "None scheduled"}</span>
+          <div className="sl">Total Bookings</div>
+          <div className="sv">{loadingBookings ? "—" : (Array.isArray(bookings) ? bookings : []).length}</div>
+          <span className="sc neu">{(Array.isArray(bookings) ? bookings : []).length > 0 ? "Lifetime requests" : "No bookings yet"}</span>
         </div>
         <div className="stat">
           <div className="si">₨</div>
@@ -104,11 +104,11 @@ const Dashboard = () => {
           <div className="si">🏍️</div>
           <div className="sl">Services Done</div>
           <div className="sv">{loadingBookings ? "—" : (Array.isArray(bookings) ? bookings : []).filter(b => b && (b.status || "").toLowerCase() === "completed").length}</div>
-          <span className="sc up">{(Array.isArray(bookings) ? bookings : []).length > 0 ? `↑ ${(Array.isArray(bookings) ? bookings : []).length} total` : "No services yet"}</span>
+          <span className="sc up">Completed services</span>
         </div>
       </div>
 
-      {/* Active Order + Upcoming Booking */}
+      {/* Active Order + Booking Status */}
       <div className="g2" style={{ marginBottom: 20 }}>
         <div className="card">
           <div className="ch"><div className="ct">Active Order</div><button className="ca" onClick={() => navigate("/my/orders")}>View all →</button></div>
@@ -149,30 +149,36 @@ const Dashboard = () => {
         </div>
 
         <div className="card">
-          <div className="ch"><div className="ct">Upcoming Booking</div><button className="ca" onClick={() => navigate("/my/bookings")}>View all →</button></div>
-          {nextBooking ? (
-            <>
-              <div style={{ background: "var(--black3)", border: "1px solid var(--border)", borderRadius: 6, padding: "20px", display: "flex", gap: 16, alignItems: "flex-start" }}>
-                <div style={{ width: 44, height: 44, background: "var(--card2)", borderRadius: 5, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🔧</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 2 }}>{nextBooking.service?.name || "Service"}</div>
-                  <div style={{ fontSize: 12, color: "var(--muted2)" }}>{nextBooking.branch?.name || "—"}</div>
-                </div>
-              </div>
-              <div className="g2" style={{ marginTop: 14 }}>
-                <div style={{ background: "var(--black3)", padding: "12px", borderRadius: 4, border: "1px solid var(--border)" }}>
-                  <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", color: "var(--muted)", marginBottom: 4 }}>Date</div>
-                  <div style={{ fontSize: 13, fontWeight: 600 }}>{new Date(nextBooking.scheduledAt).toLocaleDateString("en-PK", { dateStyle: "medium" })}</div>
-                </div>
-                <div style={{ background: "var(--black3)", padding: "12px", borderRadius: 4, border: "1px solid var(--border)" }}>
-                  <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", color: "var(--muted)", marginBottom: 4 }}>Time</div>
-                  <div style={{ fontSize: 13, fontWeight: 600 }}>{new Date(nextBooking.scheduledAt).toLocaleTimeString("en-PK", { timeStyle: "short" })}</div>
-                </div>
-              </div>
-            </>
+          <div className="ch"><div className="ct">Booking Status</div><button className="ca" onClick={() => navigate("/my/bookings")}>View all →</button></div>
+          {bookings && bookings.length > 0 ? (
+            (() => {
+              const latest = bookings[0]; // Already sorted by desc in model
+              return (
+                <>
+                  <div style={{ background: "var(--black3)", border: "1px solid var(--border)", borderRadius: 6, padding: "20px", display: "flex", gap: 16, alignItems: "flex-start" }}>
+                    <div style={{ width: 44, height: 44, background: "rgba(14,165,233,.1)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, color: "var(--acc)" }}>🔧</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 2 }}>{latest.service?.name || "General Maintenance"}</div>
+                      <div style={{ fontSize: 12, color: "var(--muted2)" }}>{latest.branch?.name || "Main Branch"}</div>
+                    </div>
+                    <span className="badge badge-orange" style={{ fontSize: 9 }}>{latest.status}</span>
+                  </div>
+                  <div className="g2" style={{ marginTop: 14 }}>
+                    <div style={{ background: "var(--black3)", padding: "12px", borderRadius: 4, border: "1px solid var(--border)" }}>
+                      <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", color: "var(--muted)", marginBottom: 4 }}>Requested Date</div>
+                      <div style={{ fontSize: 13, fontWeight: 600 }}>{new Date(latest.booking_date).toLocaleDateString("en-PK", { dateStyle: "medium" })}</div>
+                    </div>
+                    <div style={{ background: "var(--black3)", padding: "12px", borderRadius: 4, border: "1px solid var(--border)" }}>
+                      <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", color: "var(--muted)", marginBottom: 4 }}>Current Status</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: "var(--orange)" }}>{latest.status}</div>
+                    </div>
+                  </div>
+                </>
+              );
+            })()
           ) : (
             <div style={{ textAlign: "center", padding: "30px 0", color: "var(--muted2)", fontSize: 13 }}>
-              No upcoming bookings. <button className="ca" onClick={() => navigate("/appointments")}>Book service →</button>
+              No service requests. <button className="ca" onClick={() => navigate("/appointments")}>Book service →</button>
             </div>
           )}
         </div>

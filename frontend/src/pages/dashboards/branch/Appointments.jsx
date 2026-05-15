@@ -69,7 +69,14 @@ const Appointments = () => {
                 {data?.data?.map(a => (
                   <tr key={a.id}>
                     <td style={{ fontWeight: 600 }}>{a.service?.name}</td>
-                    <td style={{ fontSize: 12 }}>{a.customer?.name}</td>
+                    <td style={{ fontSize: 12 }}>
+                      <div style={{ fontWeight: 700 }}>{a.customer?.name}</div>
+                      {a.customer_notes && (
+                        <div style={{ color: 'var(--muted)', fontSize: 10, marginTop: 4 }}>
+                          {a.customer_notes}
+                        </div>
+                      )}
+                    </td>
                     <td style={{ fontSize: 12, color: a.technician ? "inherit" : "var(--muted)" }}>{a.technician?.name || "Unassigned"}</td>
                     <td style={{ fontSize: 11, color: "var(--muted)", fontFamily: "var(--font-m)" }}>
                       {new Date(a.scheduledAt).toLocaleDateString()} {new Date(a.scheduledAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}

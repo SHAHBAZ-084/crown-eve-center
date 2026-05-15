@@ -96,6 +96,20 @@ const About = () => {
         </div>
       </section>
 
+      {/* SERVICES SUMMARY SECTION */}
+      <section className="about-services-summary" style={{ padding: '100px 5vw', background: '#FFFAF8' }}>
+        <div className="section-header" style={{ marginBottom: '60px' }}>
+          <h2 style={{ fontSize: '3rem', fontWeight: 900, color: 'var(--black)' }}>What We<br /><span style={{ color: 'var(--orange)' }}>Provide.</span></h2>
+          <p style={{ maxWidth: '600px', color: 'var(--muted)', marginTop: '20px', fontWeight: 600 }}>At Crown Eve, we don't just sell products; we deliver a complete ecosystem for the modern rider.</p>
+        </div>
+
+        <div className="services-paragraph-container" style={{ padding: '60px', background: 'white', borderRadius: '32px', border: '1px solid #F3E5DC', boxShadow: '0 30px 60px rgba(0,0,0,0.02)' }}>
+          <p style={{ fontSize: '1.2rem', color: 'var(--muted)', lineHeight: '1.8', fontWeight: 500 }}>
+            <span style={{ color: 'var(--orange)', fontWeight: 900 }}>Crown Eve</span> provides an all-in-one destination for motorcycle enthusiasts across Pakistan, delivering precision-engineered bikes that undergo a rigorous 50-point safety inspection before hitting the road. We provide complete lifecycle support, offering everything from advanced battery health diagnostics and motor tuning to a massive inventory of over 1,700 genuine OEM parts. Our commitment to the rider community includes expert maintenance services available from <span style={{ color: 'var(--white)', fontWeight: 800 }}>10:00 AM to 8:00 PM</span> and hassle-free warranty claims, ensuring that we provide the freedom to explore with total confidence and peace of mind.
+          </p>
+        </div>
+      </section>
+
       {/* RATE US SECTION */}
       <section className="rate-us-section">
         <div className="rate-us-container">

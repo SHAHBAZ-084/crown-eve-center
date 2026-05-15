@@ -3,7 +3,9 @@ const prisma = require('../../config/db');
 
 const getAllBookings = (filters = {}) => {
   const where = {};
-  if (filters.branchId) where.branchId = Number(filters.branchId);
+  if (filters.branchId && !isNaN(Number(filters.branchId))) {
+    where.branchId = Number(filters.branchId);
+  }
   if (filters.customerId) where.customerId = filters.customerId;
   if (filters.status) where.status = filters.status;
 
@@ -26,22 +28,23 @@ const getBookingById = (id) => prisma.serviceBooking.findUnique({
   }
 });
 
-const createBooking = (data) => prisma.serviceBooking.create({ 
-  data: {
-    ...data,
-    booking_date: new Date(data.booking_date)
-  } 
-});
-
 const updateBooking = (id, data) => {
   const updateData = { ...data };
   if (data.booking_date) updateData.booking_date = new Date(data.booking_date);
   
   return prisma.serviceBooking.update({
     where: { id },
-    data: updateData
+    data: updateData,
+    include: { customer: true, service: true, branch: true }
   });
 };
+
+const createBooking = (data) => prisma.serviceBooking.create({ 
+  data: {
+    ...data,
+    booking_date: new Date(data.booking_date)
+  } 
+});
 
 const deleteBooking = (id) => prisma.serviceBooking.delete({ where: { id } });
 
