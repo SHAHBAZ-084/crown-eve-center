@@ -32,36 +32,74 @@ const createOrder = async (data) => {
       include: { items: { include: { product: { include: { productParts: true } } } } }
     });
 
-    // 2. Deduct inventory for each item's parts
+    // 2. Update stock for each item
     for (const item of order.items) {
       if (!item.product) continue;
       
-      for (const productPart of item.product.productParts) {
-        const qtyToDeduct = productPart.quantity * item.quantity;
-        
-        // Find current stock
-        const inv = await tx.inventory.findUnique({
-          where: {
-            branchId_partId: {
-              branchId: Number(branchId),
-              partId: Number(productPart.partId)
-            }
-          }
-        });
+      const quantitySold = Number(item.quantity);
 
-        if (inv) {
-          await tx.inventory.update({
-            where: { id: inv.id },
-            data: { stock: { decrement: qtyToDeduct } }
+      // A. Always decrement the Product's own stock_qty first
+      await tx.product.update({
+        where: { id: item.productId },
+        data: { stock_qty: { decrement: quantitySold } }
+      });
+
+      // B. If it has parts, deduct from their inventory too
+      if (item.product.productParts && item.product.productParts.length > 0) {
+        for (const productPart of item.product.productParts) {
+          const qtyToDeduct = productPart.quantity * quantitySold;
+          
+          // Find or create inventory record to ensure deduction happens
+          const inv = await tx.inventory.findUnique({
+            where: {
+              branchId_partId: {
+                branchId: Number(branchId),
+                partId: Number(productPart.partId)
+              }
+            }
           });
-          // Sync stocks to Parts and Products
+
+          if (inv) {
+            await tx.inventory.update({
+              where: { id: inv.id },
+              data: { stock: { decrement: qtyToDeduct } }
+            });
+          } else {
+            // If no inventory record exists, create one with negative stock (or 0 - deduction)
+            // This ensures we track that we are out of sync/negative
+            await tx.inventory.create({
+              data: {
+                branchId: Number(branchId),
+                partId: Number(productPart.partId),
+                stock: -qtyToDeduct
+              }
+            });
+          }
+          
+          // Sync stocks back to Product (re-calculates based on all parts)
           await syncInventoryToPartsAndProducts(tx, branchId, productPart.partId);
         }
       }
     }
 
-    // 3. Update Bank Balance if applicable
-    if (bankId) {
+    // 3. Handle Customer Debit (Credit Sale)
+    if (order.walkInCustomerId) {
+      await tx.walkInCustomer.update({
+        where: { id: order.walkInCustomerId },
+        data: { balance: { increment: Number(total) } }
+      });
+
+      await tx.walkInCustomerLedger.create({
+        data: {
+          customerId: order.walkInCustomerId,
+          amount: Number(total),
+          type: 'DEBIT',
+          description: `Sale Invoice #${order.id} - ${type === 'POS' ? 'POS Terminal' : 'Online Order'}`,
+          orderId: order.id
+        }
+      });
+    } else if (bankId) {
+      // 4. Update Bank Balance only for non-walkin (or if explicitly provided without walkin)
       await tx.bank.update({
         where: { id: bankId },
         data: { current_balance: { increment: Number(total) } }

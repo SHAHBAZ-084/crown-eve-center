@@ -25,7 +25,6 @@ model User {
   branch       Branch?          @relation(fields: [branchId], references: [id])
   orders       Order[]
   serviceBookings ServiceBooking[] @relation("CustomerBookings")
-  tasks        ServiceBooking[] @relation("TechnicianTasks")
   createdAt    DateTime         @default(now())
 
   @@index([email])
@@ -212,6 +211,7 @@ model Order {
   customer_phone String?
   notes          String?
   items          OrderItem[]
+  ledgerEntries  WalkInCustomerLedger[]
   createdAt      DateTime    @default(now())
 
   @@index([branchId])
@@ -262,8 +262,6 @@ model ServiceBooking {
   service        Service  @relation(fields: [serviceId], references: [id])
   branchId       Int
   branch         Branch   @relation(fields: [branchId], references: [id])
-  techId         String?
-  technician     User?    @relation("TechnicianTasks", fields: [techId], references: [id])
   bike_product_id String?
   booking_date   DateTime
   booking_time   String
@@ -273,7 +271,6 @@ model ServiceBooking {
   createdAt      DateTime @default(now())
 
   @@index([branchId])
-  @@index([techId])
   @@index([booking_date])
 }
 
@@ -341,6 +338,8 @@ model WalkInCustomer {
   email      String?
   branchId   Int
   branch     Branch   @relation(fields: [branchId], references: [id])
+  balance    Float    @default(0) // Total outstanding debit
+  ledger     WalkInCustomerLedger[]
   orders     Order[]  @relation("WalkInOrders")
   createdAt  DateTime @default(now())
 
@@ -363,4 +362,19 @@ model Bank {
   createdAt      DateTime @default(now())
 
   @@index([branchId])
+}
+
+model WalkInCustomerLedger {
+  id               String         @id @default(uuid())
+  customerId       String
+  customer         WalkInCustomer @relation(fields: [customerId], references: [id])
+  amount           Float          // Positive for Debit (Increase Balance), Negative for Credit (Decrease Balance)
+  type             String         // DEBIT or CREDIT
+  description      String?        // e.g. "Invoice #123", "Payment Received"
+  orderId          Int?
+  order            Order?         @relation(fields: [orderId], references: [id])
+  createdAt        DateTime       @default(now())
+
+  @@index([customerId])
+  @@index([createdAt])
 }

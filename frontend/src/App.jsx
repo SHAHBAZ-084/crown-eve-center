@@ -41,17 +41,8 @@ const BranchOrders = lazy(() => import('./pages/dashboards/branch/Orders'));
 const BranchServices = lazy(() => import('./pages/dashboards/branch/Services'));
 const BranchAppointments = lazy(() => import('./pages/dashboards/branch/Appointments'));
 const BranchSuppliers = lazy(() => import('./pages/dashboards/branch/Suppliers'));
-const BranchEmployees = lazy(() => import('./pages/dashboards/branch/Employees'));
 const BranchReports = lazy(() => import('./pages/dashboards/branch/Reports'));
 const BranchPOS = lazy(() => import('./pages/dashboards/branch/POS'));
-
-// Dashboards - Employee & Technician
-const EmployeeLayout = lazy(() => import('./components/employee/EmployeeLayout'));
-const EmployeeDashboard = lazy(() => import('./pages/dashboards/employee/Dashboard'));
-const POS = lazy(() => import('./pages/dashboards/employee/POS'));
-const EmployeeOrders = lazy(() => import('./pages/dashboards/employee/EmployeeOrders'));
-const EmployeeServices = lazy(() => import('./pages/dashboards/employee/EmployeeServices'));
-const TechnicianDashboard = lazy(() => import('./pages/dashboards/technician/Dashboard'));
 
 // Customer Portal
 const CustomerLayout = lazy(() => import('./components/customer/CustomerLayout'));
@@ -117,7 +108,6 @@ const App = () => {
               <Route path="/branch/services"     element={<BranchServices />} />
               <Route path="/branch/appointments" element={<BranchAppointments />} />
               <Route path="/branch/suppliers"    element={<BranchSuppliers />} />
-              <Route path="/branch/employees"    element={<BranchEmployees />} />
               <Route path="/branch/reports"      element={<BranchReports />} />
             </Route>
 
@@ -133,16 +123,7 @@ const App = () => {
               <Route path="/track/:id"    element={<CustomerTrack />} />
             </Route>
 
-            <Route element={<ProtectedRoute allowedRoles={['EMPLOYEE', 'TECHNICIAN']}><EmployeeLayout /></ProtectedRoute>}>
-              {/* Employee Routes */}
-              <Route path="/emp/dashboard" element={<ProtectedRoute allowedRoles={['EMPLOYEE']}><EmployeeDashboard /></ProtectedRoute>} />
-              <Route path="/emp/pos"       element={<ProtectedRoute allowedRoles={['EMPLOYEE']}><POS /></ProtectedRoute>} />
-              <Route path="/emp/orders"    element={<ProtectedRoute allowedRoles={['EMPLOYEE']}><EmployeeOrders /></ProtectedRoute>} />
-              <Route path="/emp/services"  element={<ProtectedRoute allowedRoles={['EMPLOYEE', 'TECHNICIAN']}><EmployeeServices /></ProtectedRoute>} />
-              
-              {/* Technician Routes */}
-              <Route path="/tech/dashboard" element={<ProtectedRoute allowedRoles={['TECHNICIAN']}><TechnicianDashboard /></ProtectedRoute>} />
-            </Route>
+
 
             <Route path="/branch/pos" element={<ProtectedRoute allowedRoles={['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER']}><BranchPOS /></ProtectedRoute>} />
 

@@ -12,7 +12,6 @@ const NAV = [
   { id: "services",     label: "Services",       icon: "services",     path: "/branch/services",     section: "Service Bay" },
   { id: "appointments", label: "Appointments",   icon: "appointments", path: "/branch/appointments", section: "Service Bay" },
   { id: "suppliers",    label: "Suppliers",      icon: "suppliers",    path: "/branch/suppliers",    section: "Procurement" },
-  { id: "employees",    label: "Staff",          icon: "employees",    path: "/branch/employees",    section: "Admin" },
   { id: "reports",      label: "Reports",        icon: "reports",      path: "/branch/reports",      section: "Admin" },
 ];
 

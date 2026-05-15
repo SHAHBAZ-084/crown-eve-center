@@ -12,7 +12,6 @@ const getAllBookings = (filters = {}) => {
     include: {
       customer: { select: { name: true, email: true, phone: true } },
       service: { select: { name: true, base_price: true } },
-      technician: { select: { name: true } },
       branch: { select: { name: true } }
     },
     orderBy: { booking_date: 'desc' }
@@ -24,7 +23,6 @@ const getBookingById = (id) => prisma.serviceBooking.findUnique({
   include: {
     customer: true,
     service: true,
-    technician: true
   }
 });
 
