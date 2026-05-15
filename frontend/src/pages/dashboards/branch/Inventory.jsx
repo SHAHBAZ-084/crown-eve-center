@@ -100,7 +100,7 @@ const Inventory = () => {
           <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Search inventory..." />
         </div>
         
-        <div style={{ display: "flex", bg: "var(--surf)", p: 4, borderRadius: 12, border: "1px solid var(--border)", gap: 4 }}>
+        <div style={{ display: "flex", background: "var(--surf)", padding: 4, borderRadius: 12, border: "1px solid var(--border)", gap: 4 }}>
           <button 
             onClick={() => { setInventoryType(""); setPage(1); }}
             className={`px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${inventoryType === "" ? 'bg-[#E65100] text-white shadow-md' : 'text-[#8D7A71] hover:bg-[#F3E5DC]/30'}`}
