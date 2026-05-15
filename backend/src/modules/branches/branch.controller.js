@@ -27,6 +27,62 @@ exports.getTop = async (req, res) => {
   }
 };
 
+exports.getAvailable = async (req, res) => {
+  try {
+    const { slugs } = req.query; // Expecting comma separated slugs
+    if (!slugs) return res.json([]);
+    const slugList = slugs.split(',');
+
+    const branches = await prisma.branch.findMany({
+      where: {
+        products: {
+          some: {
+            slug: { in: slugList },
+            stock_qty: { gt: 0 }
+          }
+        }
+      },
+      include: {
+        products: {
+          where: {
+            slug: { in: slugList },
+            stock_qty: { gt: 0 }
+          },
+          select: { slug: true, name: true, stock_qty: true }
+        }
+      }
+    });
+
+    const results = branches.map(b => {
+      const branchSlugs = b.products.map(p => p.slug);
+      const missing = slugList.filter(s => !branchSlugs.includes(s));
+      const available = slugList.filter(s => branchSlugs.includes(s));
+      
+      return {
+        ...b,
+        availability: {
+          isFull: missing.length === 0,
+          availableCount: available.length,
+          totalRequested: slugList.length,
+          missingSlugs: missing,
+          availableSlugs: available
+        }
+      };
+    });
+
+    // Sort: Full availability first, then by available count
+    results.sort((a, b) => {
+      if (a.availability.isFull && !b.availability.isFull) return -1;
+      if (!a.availability.isFull && b.availability.isFull) return 1;
+      return b.availability.availableCount - a.availability.availableCount;
+    });
+
+    res.json(results);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
 exports.getAll = async (req, res) => {
   try {
     const page = Number(req.query.page) || 1;
@@ -69,6 +125,17 @@ exports.getById = async (req, res) => {
   }
 };
 
+exports.getBanks = async (req, res) => {
+  try {
+    const banks = await prisma.bank.findMany({
+      where: { branchId: Number(req.params.id) }
+    });
+    res.json(banks);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
 exports.create = async (req, res) => {
   try {
     const branch = await prisma.branch.create({ data: req.body });
@@ -80,8 +147,12 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
+    const id = Number(req.params.id);
+    if (req.user.role === 'BRANCH_OWNER' && req.user.branchId !== id) {
+      return res.status(403).json({ message: "You can only update your own branch" });
+    }
     const branch = await prisma.branch.update({
-      where: { id: Number(req.params.id) },
+      where: { id },
       data: req.body
     });
     res.json(branch);

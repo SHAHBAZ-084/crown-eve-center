@@ -17,12 +17,16 @@ exports.getAll = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    const { supplierId, branchId, total, items } = req.body;
+    const { supplierId, branchId, total, items, remarks, documentNo, purchaseNo, partyInvoiceNo } = req.body;
     const purchase = await Purchase.createPurchase({
       supplierId: Number(supplierId),
       branchId: Number(branchId),
       total,
-      items
+      items,
+      remarks,
+      documentNo,
+      purchaseNo,
+      partyInvoiceNo
     });
     res.status(201).json(purchase);
   } catch (e) {

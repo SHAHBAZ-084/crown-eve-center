@@ -232,6 +232,268 @@ const POS = () => {
     enabled: activeMenu === 'add-customer'
   });
 
+  // Purchase Invoices State
+  const [piForm, setPiForm] = useState({
+    supplierId: "",
+    documentNo: "",
+    purchaseNo: "",
+    partyInvoiceNo: "",
+    remarks: "",
+    items: [] // { id, name, brand, category, model, color, engineNo, chassisNo, stockType, qty, rate, amount }
+  });
+  const [piType, setPiType] = useState(""); // "" (All), "bike", "part"
+  const [piSearch, setPiSearch] = useState("");
+  const [piSupplierSearch, setPiSupplierSearch] = useState("");
+  const debouncedPiSearch = useDebounce(piSearch, 300);
+  const debouncedPiSupplierSearch = useDebounce(piSupplierSearch, 300);
+
+  const { data: piSuppliers } = useQuery({
+    queryKey: ['pos-suppliers', debouncedPiSupplierSearch],
+    queryFn: () => api.get('/suppliers', { params: { search: debouncedPiSupplierSearch } }).then(r => r.data),
+    enabled: activeMenu === 'purchase-invoices'
+  });
+
+  const { data: piProducts } = useQuery({
+    queryKey: ['pos-pi-products', debouncedPiSearch, piType],
+    queryFn: () => api.get('/products', { params: { branchId: user?.branchId, search: debouncedPiSearch, product_type: piType, limit: 10 } }).then(r => r.data),
+    enabled: activeMenu === 'purchase-invoices' && debouncedPiSearch.length > 1
+  });
+
+  const renderPurchaseInvoices = () => {
+    const handlePiSubmit = async (e) => {
+      e.preventDefault();
+      if (!piForm.supplierId) return alert("Please select a supplier");
+      if (piForm.items.length === 0) return alert("Please add at least one item");
+
+      try {
+        const payload = {
+          branchId: user?.branchId,
+          supplierId: piForm.supplierId,
+          total: piForm.items.reduce((s, i) => s + i.amount, 0),
+          remarks: piForm.remarks,
+          documentNo: piForm.documentNo,
+          purchaseNo: piForm.purchaseNo,
+          partyInvoiceNo: piForm.partyInvoiceNo,
+          items: piForm.items.map(i => ({
+            productId: i.id,
+            quantity: i.qty,
+            cost: i.rate,
+            engineNo: i.engineNo,
+            chassisNo: i.chassisNo,
+            stockType: i.stockType
+          }))
+        };
+        await api.post('/purchases', payload);
+        alert("Purchase invoice generated successfully!");
+        setPiForm({ supplierId: "", documentNo: "", purchaseNo: "", partyInvoiceNo: "", remarks: "", items: [] });
+        setPiSupplierSearch("");
+      } catch (err) {
+        alert("Failed to save purchase: " + (err.response?.data?.message || err.message));
+      }
+    };
+
+    const addItemToPi = (p) => {
+      const newItem = {
+        id: p.id,
+        name: p.name,
+        brand: p.brand?.name || "N/A",
+        category: p.category?.name || "N/A",
+        model: p.partDetail?.model || p.bikeDetail?.motor_type || "N/A",
+        color: "N/A",
+        engineNo: "",
+        chassisNo: "",
+        stockType: "New",
+        qty: 1,
+        rate: p.price || 0,
+        amount: p.price || 0
+      };
+      setPiForm(prev => ({ ...prev, items: [...prev.items, newItem] }));
+      setPiSearch("");
+    };
+
+    const updatePiItem = (idx, field, val) => {
+      setPiForm(prev => {
+        const items = [...prev.items];
+        items[idx][field] = val;
+        if (field === 'qty' || field === 'rate') {
+          items[idx].amount = (Number(items[idx].qty) || 0) * (Number(items[idx].rate) || 0);
+        }
+        return { ...prev, items };
+      });
+    };
+
+    const removePiItem = (idx) => {
+      setPiForm(prev => ({ ...prev, items: prev.items.filter((_, i) => i !== idx) }));
+    };
+
+    return (
+      <div className="flex flex-col h-full space-y-6">
+        <div className="bg-white p-8 rounded-[2.5rem] border border-[#F3E5DC] shadow-sm w-full">
+          <div className="mb-8 flex justify-between items-center">
+            <div>
+              <h2 className="text-3xl font-black text-[#2D1A12] uppercase tracking-tight">Purchase Invoice</h2>
+              <p className="text-[10px] font-bold text-[#8D7A71] uppercase tracking-[0.3em] mt-2">Inventory Procurement Terminal</p>
+            </div>
+            <div className="flex gap-4">
+               <div className="text-right">
+                 <div className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest">Date</div>
+                 <div className="font-black text-sm text-[#2D1A12]">{new Date().toLocaleDateString()}</div>
+               </div>
+            </div>
+          </div>
+
+          <form onSubmit={handlePiSubmit} className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-[#FFFAF8] p-6 rounded-3xl border border-[#F3E5DC]">
+              <div className="space-y-2 relative">
+                <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Supplier Selection *</label>
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8D7A71]" size={14} />
+                  <input 
+                    type="text" 
+                    placeholder="Search Supplier..." 
+                    value={piSupplierSearch}
+                    onChange={(e) => {
+                      setPiSupplierSearch(e.target.value);
+                      if(piForm.supplierId) setPiForm({...piForm, supplierId: ""});
+                    }}
+                    className="w-full bg-white border border-[#F3E5DC] rounded-xl py-2.5 pl-10 pr-4 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-xs" 
+                  />
+                </div>
+                {piSupplierSearch && !piForm.supplierId && (
+                  <div className="absolute z-30 left-0 right-0 mt-1 bg-white border border-[#F3E5DC] rounded-xl shadow-xl max-h-40 overflow-y-auto">
+                    {piSuppliers?.map(s => (
+                      <div key={s.id} onClick={() => { setPiForm({...piForm, supplierId: s.id}); setPiSupplierSearch(s.name); }} className="px-4 py-2 hover:bg-[#FFFAF8] cursor-pointer text-xs font-bold border-b border-[#F3E5DC] last:border-none">
+                        {s.name} ({s.contact})
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Document #</label>
+                <input type="text" value={piForm.documentNo} onChange={e => setPiForm({...piForm, documentNo: e.target.value})} className="w-full bg-white border border-[#F3E5DC] rounded-xl py-2.5 px-4 outline-none font-bold text-xs" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Party Invoice #</label>
+                <input type="text" value={piForm.partyInvoiceNo} onChange={e => setPiForm({...piForm, partyInvoiceNo: e.target.value})} className="w-full bg-white border border-[#F3E5DC] rounded-xl py-2.5 px-4 outline-none font-bold text-xs" />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex flex-wrap justify-between items-center px-2 gap-4">
+                <div className="flex items-center gap-6">
+                  <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest">Inventory Items</label>
+                  <div className="flex bg-[#FFFAF8] p-1 rounded-full border border-[#F3E5DC]">
+                    <button type="button" onClick={() => setPiType("")} className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${piType === "" ? 'bg-[#E65100] text-white shadow-md' : 'text-[#8D7A71]'}`}>All</button>
+                    <button type="button" onClick={() => setPiType("bike")} className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${piType === "bike" ? 'bg-[#E65100] text-white shadow-md' : 'text-[#8D7A71]'}`}>Bikes</button>
+                    <button type="button" onClick={() => setPiType("part")} className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${piType === "part" ? 'bg-[#E65100] text-white shadow-md' : 'text-[#8D7A71]'}`}>Parts</button>
+                  </div>
+                </div>
+                <div className="relative w-72">
+                  <Plus className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8D7A71]" size={14} />
+                  <input 
+                    type="text" 
+                    placeholder={`Search ${piType || 'all products'}...`} 
+                    value={piSearch}
+                    onChange={(e) => setPiSearch(e.target.value)}
+                    className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-full py-2 pl-10 pr-4 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-[10px]" 
+                  />
+                  {piSearch && (
+                    <div className="absolute z-20 left-0 right-0 mt-1 bg-white border border-[#F3E5DC] rounded-xl shadow-xl max-h-60 overflow-y-auto">
+                      {piProducts?.data?.map(p => (
+                        <div key={p.id} onClick={() => addItemToPi(p)} className="px-4 py-2 hover:bg-[#FFFAF8] cursor-pointer text-[10px] font-bold border-b border-[#F3E5DC] last:border-none flex justify-between">
+                          <span>{p.name}</span>
+                          <span className="text-[#E65100]">PKR {p.price}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="overflow-x-auto rounded-3xl border border-[#F3E5DC] bg-white">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-[#FFFAF8] border-b border-[#F3E5DC]">
+                      <th className="px-4 py-3 text-[9px] font-black text-[#8D7A71] uppercase tracking-widest">Item / Brand</th>
+                      <th className="px-4 py-3 text-[9px] font-black text-[#8D7A71] uppercase tracking-widest">Engine #</th>
+                      <th className="px-4 py-3 text-[9px] font-black text-[#8D7A71] uppercase tracking-widest">Chassis #</th>
+                      <th className="px-4 py-3 text-[9px] font-black text-[#8D7A71] uppercase tracking-widest text-center">Type</th>
+                      <th className="px-4 py-3 text-[9px] font-black text-[#8D7A71] uppercase tracking-widest text-center">Qty</th>
+                      <th className="px-4 py-3 text-[9px] font-black text-[#8D7A71] uppercase tracking-widest text-right">Rate</th>
+                      <th className="px-4 py-3 text-[9px] font-black text-[#8D7A71] uppercase tracking-widest text-right">Amount</th>
+                      <th className="px-4 py-3 text-[9px] font-black text-[#8D7A71] uppercase tracking-widest text-center"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#F3E5DC]">
+                    {piForm.items.map((item, idx) => (
+                      <tr key={idx} className="hover:bg-[#FFFAF8]/50 transition-colors">
+                        <td className="px-4 py-3">
+                          <div className="font-black text-[#2D1A12] text-[10px] uppercase">{item.name}</div>
+                          <div className="text-[8px] font-bold text-[#8D7A71] uppercase">{item.brand} • {item.model}</div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <input type="text" value={item.engineNo} onChange={e => updatePiItem(idx, 'engineNo', e.target.value)} className="w-full bg-transparent border-b border-transparent focus:border-[#E65100] outline-none text-[10px] font-bold py-1" placeholder="Engine #" />
+                        </td>
+                        <td className="px-4 py-3">
+                          <input type="text" value={item.chassisNo} onChange={e => updatePiItem(idx, 'chassisNo', e.target.value)} className="w-full bg-transparent border-b border-transparent focus:border-[#E65100] outline-none text-[10px] font-bold py-1" placeholder="Chassis #" />
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <select value={item.stockType} onChange={e => updatePiItem(idx, 'stockType', e.target.value)} className="bg-transparent text-[9px] font-black uppercase outline-none">
+                            <option value="New">New</option>
+                            <option value="Old">Old</option>
+                          </select>
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <input type="number" value={item.qty} onChange={e => updatePiItem(idx, 'qty', e.target.value)} className="w-12 bg-transparent text-center text-[10px] font-black outline-none" />
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <input type="number" value={item.rate} onChange={e => updatePiItem(idx, 'rate', e.target.value)} className="w-20 bg-transparent text-right text-[10px] font-black outline-none" />
+                        </td>
+                        <td className="px-4 py-3 text-right font-black text-[10px] text-[#E65100]">
+                          {(item.amount).toLocaleString()}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <button type="button" onClick={() => removePiItem(idx)} className="text-red-400 hover:text-red-600 transition-colors"><Trash2 size={14} /></button>
+                        </td>
+                      </tr>
+                    ))}
+                    {piForm.items.length === 0 && (
+                      <tr><td colSpan="8" className="px-4 py-12 text-center text-[10px] font-bold text-[#8D7A71] uppercase tracking-widest">No items added to invoice yet</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Remarks / Internal Notes</label>
+                <textarea value={piForm.remarks} onChange={e => setPiForm({...piForm, remarks: e.target.value})} className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-xs min-h-[100px]" placeholder="Enter any specific details about this purchase..."></textarea>
+              </div>
+              <div className="bg-[#2D1A12] p-8 rounded-[2.5rem] text-white shadow-2xl">
+                <div className="flex justify-between items-center mb-6">
+                  <span className="text-[10px] font-bold text-white/60 uppercase tracking-[0.2em]">Total Items</span>
+                  <span className="font-black">{piForm.items.reduce((s, i) => s + (Number(i.qty) || 0), 0)}</span>
+                </div>
+                <div className="flex justify-between items-center mb-8 pb-8 border-b border-white/10">
+                  <span className="text-[10px] font-bold text-white/60 uppercase tracking-[0.2em]">Net Amount Payable</span>
+                  <div className="text-right">
+                    <div className="text-[10px] font-bold text-[#E65100] uppercase tracking-widest mb-1">Grand Total</div>
+                    <div className="text-3xl font-black">PKR {piForm.items.reduce((s, i) => s + i.amount, 0).toLocaleString()}</div>
+                  </div>
+                </div>
+                <button type="submit" className="w-full bg-[#E65100] text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-[#E65100]/20 flex items-center justify-center gap-3">
+                  <Icon n="check" size={18} /> Save Purchase Invoice
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
   const handleAddCustomer = async (e) => {
     e.preventDefault();
     try {
@@ -1212,8 +1474,8 @@ const POS = () => {
         return renderCustomers();
       case "add-bank":
         return renderBanks();
-      case "sale-invoices":
-        return renderSaleInvoices();
+      case "purchase-invoices":
+        return renderPurchaseInvoices();
       default:
         return <div className="card ci"><h2>{activeMenu.replace("-", " ").toUpperCase()}</h2><p>Feature coming soon...</p></div>;
     }

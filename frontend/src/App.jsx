@@ -43,6 +43,7 @@ const BranchAppointments = lazy(() => import('./pages/dashboards/branch/Appointm
 const BranchSuppliers = lazy(() => import('./pages/dashboards/branch/Suppliers'));
 const BranchReports = lazy(() => import('./pages/dashboards/branch/Reports'));
 const BranchPOS = lazy(() => import('./pages/dashboards/branch/POS'));
+const BranchSettings = lazy(() => import('./pages/dashboards/branch/Settings'));
 
 // Customer Portal
 const CustomerLayout = lazy(() => import('./components/customer/CustomerLayout'));
@@ -100,6 +101,7 @@ const App = () => {
             
             {/* Branch Routes - Outside main Layout to avoid double sidebar */}
             <Route element={<ProtectedRoute allowedRoles={['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER']}><BranchLayout /></ProtectedRoute>}>
+              <Route path="/branch"              element={<Navigate to="/branch/dashboard" replace />} />
               <Route path="/branch/dashboard"    element={<BranchDashboard />} />
               <Route path="/branch/products"     element={<BranchProducts />} />
               <Route path="/branch/inventory"    element={<BranchInventory />} />
@@ -108,6 +110,7 @@ const App = () => {
               <Route path="/branch/appointments" element={<BranchAppointments />} />
               <Route path="/branch/suppliers"    element={<BranchSuppliers />} />
               <Route path="/branch/reports"      element={<BranchReports />} />
+              <Route path="/branch/settings"     element={<BranchSettings />} />
             </Route>
 
             {/* Customer Portal - Premium Dashboard Shell */}

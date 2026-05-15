@@ -9,7 +9,10 @@ const createOrderSchema = z.object({
     bankId: z.string().optional().nullable(),
     type: z.enum(['POS', 'ONLINE']),
     payment_method: z.string().optional(),
+    payment_status: z.string().optional(),
+    payment_screenshot: z.string().optional().nullable(),
     transaction_id: z.string().optional().nullable(),
+    tracking_id: z.string().optional().nullable(),
     customer_name: z.string().optional().nullable(),
     customer_phone: z.string().optional().nullable(),
     notes: z.string().optional().nullable(),
@@ -26,7 +29,9 @@ const createOrderSchema = z.object({
 
 const updateStatusSchema = z.object({
   body: z.object({
-    status: z.enum(['PENDING', 'PROCESSING', 'COMPLETED', 'CANCELLED'])
+    status: z.enum(['PENDING', 'PROCESSING', 'SHIPPED', 'COMPLETED', 'CANCELLED']).optional(),
+    payment_status: z.enum(['PENDING', 'PAID', 'REJECTED']).optional(),
+    tracking_id: z.string().optional().nullable()
   })
 });
 

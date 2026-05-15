@@ -169,6 +169,6 @@ export const TblSk = ({ rows = 5 }) => (
 );
 
 // ─── BADGE MAP ────────────────────────────────────────────────────────────────
-export const ORDER_BADGE = { PENDING: "bg-y", PROCESSING: "bg-b", COMPLETED: "bg-g", CANCELLED: "bg-r" };
+export const ORDER_BADGE = { PENDING: "bg-y", PROCESSING: "bg-b", SHIPPED: "bg-o", COMPLETED: "bg-g", CANCELLED: "bg-r" };
 export const APPT_BADGE = { BOOKED: "bg-b", IN_PROGRESS: "bg-o", COMPLETED: "bg-g", CANCELLED: "bg-r" };
 export const ROLE_BADGE = { BRANCH_OWNER: "bg-b", EMPLOYEE: "bg-g", TECHNICIAN: "bg-p", CUSTOMER: "bg-y", MANAGER: "bg-o", COMPANY_OWNER: "bg-o" };

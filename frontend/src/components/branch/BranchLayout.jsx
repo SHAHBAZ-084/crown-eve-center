@@ -13,6 +13,7 @@ const NAV = [
   { id: "appointments", label: "Appointments",   icon: "appointments", path: "/branch/appointments", section: "Service Bay" },
   { id: "suppliers",    label: "Suppliers",      icon: "suppliers",    path: "/branch/suppliers",    section: "Procurement" },
   { id: "reports",      label: "Reports",        icon: "reports",      path: "/branch/reports",      section: "Admin" },
+  { id: "settings",     label: "System Settings",  icon: "settings",     path: "/branch/settings",     section: "Admin" },
 ];
 
 const BranchLayout = () => {

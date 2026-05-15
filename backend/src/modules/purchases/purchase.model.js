@@ -35,7 +35,7 @@ const getPurchases = async ({ page = 1, limit = 20, branchId, supplierId }) => {
 };
 
 const createPurchase = async (data) => {
-  const { supplierId, branchId, total, items } = data;
+  const { supplierId, branchId, total, items, remarks, documentNo, purchaseNo, partyInvoiceNo } = data;
 
   return prisma.$transaction(async (tx) => {
     // 1. Create the purchase record
@@ -44,41 +44,65 @@ const createPurchase = async (data) => {
         supplierId,
         branchId,
         total,
+        remarks,
+        documentNo,
+        purchaseNo,
+        partyInvoiceNo,
         items: {
           create: items.map(item => ({
-            partId: item.partId,
+            productId: item.productId,
             quantity: item.quantity,
-            cost: item.cost
+            cost: item.cost,
+            engineNo: item.engineNo,
+            chassisNo: item.chassisNo,
+            stockType: item.stockType
           }))
         }
       }
     });
 
-    // 2. Update/Upsert inventory for each part
+    // 2. Update inventory for each product/part
     for (const item of items) {
-      await tx.inventory.upsert({
-        where: {
-          branchId_partId: {
-            branchId,
-            partId: item.partId
-          }
-        },
-        update: {
-          stock: { increment: item.quantity }
-        },
-        create: {
-          branchId,
-          partId: item.partId,
-          stock: item.quantity,
-          alertAt: 10
-        }
+      // Find parts associated with this product
+      const product = await tx.product.findUnique({
+        where: { id: item.productId },
+        include: { productParts: true }
       });
 
-      // Sync stocks to Parts and Products
-      await syncInventoryToPartsAndProducts(tx, branchId, item.partId);
+      if (product && product.productParts.length > 0) {
+        for (const pp of product.productParts) {
+          await tx.inventory.upsert({
+            where: {
+              branchId_partId: {
+                branchId,
+                partId: pp.partId
+              }
+            },
+            update: {
+              stock: { increment: item.quantity * pp.quantity }
+            },
+            create: {
+              branchId,
+              partId: pp.partId,
+              stock: item.quantity * pp.quantity,
+              alertAt: 10
+            }
+          });
+          // Sync stocks
+          await syncInventoryToPartsAndProducts(tx, branchId, pp.partId);
+        }
+      } else {
+        // If product has no parts, just increment its stock_qty directly
+        await tx.product.update({
+          where: { id: item.productId },
+          data: { stock_qty: { increment: item.quantity } }
+        });
+      }
     }
 
     return purchase;
+  }, {
+    timeout: 10000 // Increase timeout for complex transactions
   });
 };
 

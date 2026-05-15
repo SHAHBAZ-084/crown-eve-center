@@ -3,7 +3,7 @@ const prisma = require('../../config/db');
 const { syncInventoryToPartsAndProducts } = require('../inventory/inventory.utils');
 
 const createOrder = async (data) => {
-  const { branchId, customerId, walkInCustomerId, bankId, total, type, payment_method, transaction_id, customer_name, customer_phone, notes, items } = data;
+  const { branchId, customerId, walkInCustomerId, bankId, total, type, payment_method, payment_status, payment_screenshot, transaction_id, tracking_id, customer_name, customer_phone, notes, items } = data;
 
   return prisma.$transaction(async (tx) => {
     // 1. Create the order
@@ -17,7 +17,10 @@ const createOrder = async (data) => {
         type: type || 'POS',
         status: type === 'POS' ? 'COMPLETED' : 'PENDING',
         payment_method: payment_method || 'CASH',
+        payment_status: payment_status || 'PENDING',
+        payment_screenshot,
         transaction_id,
+        tracking_id,
         customer_name,
         customer_phone,
         notes,
@@ -129,11 +132,14 @@ const getOrders = async ({ page = 1, limit = 20, branchId, status, type, custome
       select: {
         id: true,
         status: true,
+        payment_status: true,
+        payment_screenshot: true,
         total: true,
         createdAt: true,
         type: true,
         payment_method: true,
         transaction_id: true,
+        tracking_id: true,
         customer_name: true,
         customer_phone: true,
         customer: {
@@ -172,9 +178,25 @@ const getOrderById = (id) => prisma.order.findUnique({
   select: {
     id: true,
     status: true,
+    payment_status: true,
+    payment_screenshot: true,
+    transaction_id: true,
+    tracking_id: true,
     total: true,
     createdAt: true,
-    branch: { select: { name: true } },
+    branch: { 
+      select: { 
+        id: true, 
+        name: true, 
+        phone: true, 
+        whatsapp: true, 
+        location: true,
+        banks: {
+          select: { name: true, account_number: true, account_title: true },
+          take: 1
+        }
+      } 
+    },
     customer: { select: { id: true, name: true, email: true } },
     items: {
       select: {
@@ -186,10 +208,10 @@ const getOrderById = (id) => prisma.order.findUnique({
   }
 });
 
-const updateOrderStatus = (id, status) => prisma.order.update({ 
+const updateOrder = (id, data) => prisma.order.update({ 
   where: { id }, 
-  data: { status },
-  select: { id: true, status: true }
+  data,
+  select: { id: true, status: true, payment_status: true, tracking_id: true }
 });
 
-module.exports = { createOrder, getOrders, countOrders, getOrderById, updateOrderStatus };
+module.exports = { createOrder, getOrders, countOrders, getOrderById, updateOrder };

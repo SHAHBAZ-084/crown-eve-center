@@ -11,19 +11,22 @@ const Orders = () => {
   const [status, setStatus] = useState("");
   const params = new URLSearchParams({ branchId, page, limit: 12, ...(status && { status }) }).toString();
   const { data, loading, refetch } = useFetch(`/orders?${params}`, [page, status, branchId]);
+  const [viewing, setViewing] = useState(null);
+  const [trackId, setTrackId] = useState("");
   const [updating, setUpdating] = useState(null);
 
-  const updateStatus = async (id, newStatus) => {
+  const updateOrderData = async (id, payload) => {
     setUpdating(id);
     try {
-      await apiFetch(`/orders/${id}/status`, { method: "PUT", body: { status: newStatus } });
-      toast("Order status updated");
+      await apiFetch(`/orders/${id}/status`, { method: "PUT", body: payload });
+      toast("Order updated");
       refetch();
+      if (viewing?.id === id) setViewing(null);
     } catch (e) { toast(e.message, "e"); }
     setUpdating(null);
   };
 
-  const STATUSES = ["PENDING", "PROCESSING", "COMPLETED", "CANCELLED"];
+  const STATUSES = ["PENDING", "PROCESSING", "SHIPPED", "COMPLETED", "CANCELLED"];
 
   return (
     <div className="branch-page">
@@ -58,24 +61,33 @@ const Orders = () => {
       <div className="tw">
         {loading ? <TblSk rows={8} /> : (
           <table>
-            <thead><tr><th>Ref</th><th>Type</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th><th style={{ textAlign: "right" }}>Update</th></tr></thead>
+            <thead><tr><th>Ref</th><th>Type</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Payment</th><th style={{ textAlign: "right" }}>Actions</th></tr></thead>
             <tbody>
               {data?.data?.map(o => (
                 <tr key={o.id}>
                   <td><span style={{ fontFamily: "var(--font-m)", fontSize: 11, fontWeight: 700 }}>#{o.id}</span></td>
                   <td><span className={`badge ${o.type === "ONLINE" ? "bg-b" : "bg-p"}`}>{o.type}</span></td>
-                  <td style={{ fontSize: 12 }}>{o.customer?.name || "—"}</td>
+                  <td style={{ fontSize: 12 }}>{o.customer?.name || o.customer_name || "—"}</td>
                   <td style={{ fontSize: 11, color: "var(--muted)" }}>{o.items?.length || 0} items</td>
-                  <td style={{ fontWeight: 700, color: "var(--acc)" }}>${o.total?.toFixed(2)}</td>
+                  <td style={{ fontWeight: 700, color: "var(--acc)" }}>Rs. {o.total?.toLocaleString()}</td>
                   <td><span className={`badge ${ORDER_BADGE[o.status] || "bg-b"}`}>{o.status}</span></td>
-                  <td style={{ fontSize: 11, color: "var(--muted)", fontFamily: "var(--font-m)" }}>{new Date(o.createdAt).toLocaleDateString()}</td>
                   <td>
-                    <div className="tda">
+                    {o.type === "ONLINE" ? (
+                      <span className={`badge ${o.payment_status === "PAID" ? "bg-s" : o.payment_status === "REJECTED" ? "bg-r" : "bg-p"}`}>
+                        {o.payment_status}
+                      </span>
+                    ) : <span style={{ color: "var(--muted2)", fontSize: 11 }}>CASH</span>}
+                  </td>
+                  <td>
+                    <div className="tda" style={{ justifyContent: "flex-end", gap: 8 }}>
+                      {o.type === "ONLINE" && (
+                        <button className="btn btn-ghost btn-sm" onClick={() => { setViewing(o); setTrackId(o.tracking_id || ""); }}>Verify</button>
+                      )}
                       <select
                         value={o.status}
-                        onChange={e => updateStatus(o.id, e.target.value)}
+                        onChange={e => updateOrderData(o.id, { status: e.target.value })}
                         disabled={updating === o.id}
-                        style={{ width: 130, padding: "5px 8px", fontSize: 11 }}
+                        style={{ width: 110, padding: "5px 8px", fontSize: 11 }}
                       >
                         {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
@@ -95,8 +107,48 @@ const Orders = () => {
           </div>
         </div>
       </div>
+
+      {/* Verification Modal */}
+      {viewing && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: 600 }}>
+            <div className="modal-header">
+              <h3>Verify Payment #{viewing.id}</h3>
+              <button className="close-btn" onClick={() => setViewing(null)}>×</button>
+            </div>
+            <div style={{ padding: 20 }}>
+              <div className="fgrid" style={{ marginBottom: 20 }}>
+                <div className="fg"><label>Transaction ID</label><div className="fi" style={{ background: "var(--black2)" }}>{viewing.transaction_id || "None"}</div></div>
+                <div className="fg"><label>Payment Status</label><div style={{ fontWeight: 700, color: viewing.payment_status === 'PAID' ? '#22c55e' : '#eab308' }}>{viewing.payment_status}</div></div>
+              </div>
+              
+              <label>Payment Proof</label>
+              {viewing.payment_screenshot ? (
+                <div style={{ margin: "10px 0", borderRadius: 8, overflow: "hidden", border: "1px solid var(--border)" }}>
+                  <img 
+                    src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${viewing.payment_screenshot}`} 
+                    alt="Proof" 
+                    style={{ width: "100%", display: "block" }} 
+                  />
+                </div>
+              ) : <div style={{ padding: 20, textAlign: "center", background: "var(--black3)", borderRadius: 8, color: "var(--muted2)" }}>No screenshot uploaded</div>}
+
+              <div className="fg" style={{ marginTop: 20 }}>
+                <label>Tracking ID (Optional)</label>
+                <input className="fi" placeholder="Enter tracking number" value={trackId} onChange={e => setTrackId(e.target.value)} />
+              </div>
+
+              <div style={{ display: "flex", gap: 10, marginTop: 30 }}>
+                <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => updateOrderData(viewing.id, { payment_status: "REJECTED" })} disabled={updating}>Reject Payment</button>
+                <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => updateOrderData(viewing.id, { payment_status: "PAID", tracking_id: trackId, status: trackId ? "SHIPPED" : viewing.status })} disabled={updating}>Approve & Update</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default Orders;
+

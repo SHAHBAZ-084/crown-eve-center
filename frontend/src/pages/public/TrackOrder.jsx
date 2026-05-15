@@ -31,8 +31,25 @@ const PublicTrackOrder = () => {
     if (searchId.trim()) fetchOrder(searchId.trim());
   };
 
-  const steps = order ? (STATUS_TIMELINE[order.status] || STATUS_TIMELINE.PENDING) : [];
+  const getSteps = (o) => {
+    const isPaid = o.payment_status === 'PAID';
+    const s = o.status;
+    return [
+      { label: "Order Placed", done: true, active: s === 'PENDING' && !isPaid },
+      { label: "Payment Verified", done: isPaid, active: s === 'PENDING' && isPaid },
+      { label: "Being Prepared", done: ['PROCESSING', 'SHIPPED', 'COMPLETED'].includes(s), active: s === 'PROCESSING' },
+      { label: "Shipped", done: ['SHIPPED', 'COMPLETED'].includes(s), active: s === 'SHIPPED' },
+      { label: "Delivered", done: s === 'COMPLETED', active: s === 'COMPLETED' }
+    ];
+  };
+
+  const steps = order ? getSteps(order) : [];
   const total = order?.total ?? order?.items?.reduce((s, i) => s + (i.price ?? 0) * (i.quantity ?? 1), 0) ?? 0;
+
+  const handleWhatsApp = () => {
+    const msg = encodeURIComponent(`Hi, I need help with my Order #${order.id}. Current status: ${order.status}`);
+    window.open(`https://wa.me/923219240325?text=${msg}`, '_blank');
+  };
 
   return (
     <div id="customer-dashboard-shell">
@@ -84,9 +101,7 @@ const PublicTrackOrder = () => {
                       <div className="tl-content">
                         <div className="tl-title" style={{ fontSize: '14px', fontWeight: 700 }}>{s.label}</div>
                         <div className="tl-date" style={{ fontSize: '11px' }}>
-                          {s.done && i === 0
-                            ? new Date(order.createdAt).toLocaleString("en-PK", { dateStyle: "medium", timeStyle: "short" })
-                            : s.done ? "Completed" : "Pending"}
+                          {s.done ? "Completed" : s.active ? "Current Action" : "Pending"}
                         </div>
                       </div>
                     </div>
@@ -115,18 +130,62 @@ const PublicTrackOrder = () => {
                     <span style={{ fontSize: 12, color: "var(--muted2)" }}>Placed</span>
                     <span style={{ fontSize: 12 }}>{new Date(order.createdAt).toLocaleDateString("en-PK", { dateStyle: "medium" })}</span>
                   </div>
+                  {order.tracking_id && (
+                    <div className="trow">
+                      <span style={{ fontSize: 12, color: "var(--muted2)" }}>Tracking ID</span>
+                      <span className="mono" style={{ color: "var(--orange)", fontWeight: 700 }}>{order.tracking_id}</span>
+                    </div>
+                  )}
                   <div className="trow" style={{ marginTop: 10 }}>
                     <span style={{ fontSize: 14, fontWeight: 700 }}>Total</span>
                     <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 24, color: "var(--orange)" }}>PKR {total.toLocaleString()}</span>
                   </div>
                 </div>
 
+                <div className="card" style={{ marginBottom: '20px' }}>
+                  <div className="ch"><div className="ct">Branch Info</div></div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    <div style={{ fontSize: 13 }}>
+                      <strong style={{ color: "var(--muted2)", fontSize: 11, display: "block", marginBottom: 2 }}>Branch Name</strong>
+                      {order.branch?.name}
+                    </div>
+                    <div style={{ fontSize: 13 }}>
+                      <strong style={{ color: "var(--muted2)", fontSize: 11, display: "block", marginBottom: 2 }}>Contact Number</strong>
+                      {order.branch?.phone || "N/A"}
+                    </div>
+                    {order.branch?.whatsapp && (
+                      <div style={{ fontSize: 13 }}>
+                        <strong style={{ color: "var(--muted2)", fontSize: 11, display: "block", marginBottom: 2 }}>WhatsApp</strong>
+                        {order.branch?.whatsapp}
+                      </div>
+                    )}
+                    <div style={{ fontSize: 13 }}>
+                      <strong style={{ color: "var(--muted2)", fontSize: 11, display: "block", marginBottom: 2 }}>Location</strong>
+                      {order.branch?.location}
+                    </div>
+                    {order.branch?.banks?.[0] && (
+                      <div style={{ background: "rgba(232, 71, 10, 0.03)", padding: 10, borderRadius: 8, marginTop: 5, border: "1px dashed var(--orange)" }}>
+                        <strong style={{ color: "var(--orange)", fontSize: 10, textTransform: "uppercase" }}>Primary Bank</strong>
+                        <div style={{ fontWeight: 700, fontSize: 12 }}>{order.branch.banks[0].name}</div>
+                        <div className="mono" style={{ fontSize: 12 }}>{order.branch.banks[0].account_number}</div>
+                        <div style={{ fontSize: 11, color: "var(--muted)" }}>{order.branch.banks[0].account_title}</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 <div className="card">
                   <div className="ch"><div className="ct">Need Help?</div></div>
                   <p style={{ fontSize: '12px', color: 'var(--muted2)', lineHeight: 1.6, marginBottom: '16px' }}>
-                    Contact our support team for help with your order.
+                    Click below to chat with the **{order.branch?.name}** support team on WhatsApp.
                   </p>
-                  <button className="btn btn-ghost btn-xs" style={{ width: '100%' }}>Contact Support</button>
+                  <button className="btn btn-primary" style={{ width: '100%', background: '#25D366', borderColor: '#25D366', color: '#fff' }} onClick={() => {
+                    const wa = order.branch?.whatsapp || "923219240325";
+                    const msg = encodeURIComponent(`Hi ${order.branch?.name}, I need help with my Order #${order.id}. Current status: ${order.status}`);
+                    window.open(`https://wa.me/${wa}?text=${msg}`, '_blank');
+                  }}>
+                    Contact via WhatsApp
+                  </button>
                 </div>
               </div>
             </div>

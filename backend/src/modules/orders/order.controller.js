@@ -74,8 +74,8 @@ exports.getByCustomer = async (req, res) => {
 
 exports.updateStatus = async (req, res) => {
   try {
-    const updated = await Order.updateOrderStatus(Number(req.params.id), req.body.status);
-    res.json({ message: `Order status updated to ${req.body.status}`, order: updated });
+    const updated = await Order.updateOrder(Number(req.params.id), req.body);
+    res.json({ message: 'Order updated successfully', order: updated });
   } catch (e) {
     res.status(500).json({ message: e.message });
   }
