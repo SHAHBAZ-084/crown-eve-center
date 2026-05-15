@@ -112,7 +112,7 @@ const Settings = () => {
             <table>
               <thead><tr><th>Bank Name</th><th>Account Title</th><th>Account Number</th><th style={{ textAlign: "right" }}>Actions</th></tr></thead>
               <tbody>
-                {banks?.map(b => (
+                {banks?.data?.map(b => (
                   <tr key={b.id}>
                     <td style={{ fontWeight: 700 }}>{b.name}</td>
                     <td>{b.account_title}</td>
@@ -125,7 +125,7 @@ const Settings = () => {
                     </td>
                   </tr>
                 ))}
-                {(!banks || banks.length === 0) && <tr><td colSpan={4}><div className="empty">No bank accounts added.</div></td></tr>}
+                {(!banks?.data || banks?.data?.length === 0) && <tr><td colSpan={4}><div className="empty">No bank accounts added.</div></td></tr>}
               </tbody>
             </table>
           )}
