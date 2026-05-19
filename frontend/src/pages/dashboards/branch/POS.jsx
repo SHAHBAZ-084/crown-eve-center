@@ -65,7 +65,7 @@ const POS = () => {
     queryFn: () => api.get('/banks', {
       params: { branchId: user?.branchId }
     }).then(r => r.data),
-    enabled: activeMenu === 'add-bank'
+    enabled: activeMenu === 'add-account'
   });
 
   const handleAddBank = async (e) => {
@@ -212,6 +212,7 @@ const POS = () => {
   const [paymentMode, setPaymentMode] = useState("CASH"); // CASH or BANK
   const [selectedBank, setSelectedBank] = useState("");
   const [generatedInvoice, setGeneratedInvoice] = useState(null);
+  const [serviceReceiptData, setServiceReceiptData] = useState(null);
   const debouncedSearch = useDebounce(search, 300);
 
   // Sale Invoice Form State
@@ -1164,71 +1165,7 @@ const POS = () => {
 
   const renderServiceInvoices = () => {
     const handlePrintServiceReceipt = (item, type) => {
-      const name = getWalkInCustomerName(item.customer_notes);
-      const phone = getWalkInCustomerPhone(item.customer_notes);
-      const serviceName = item.service?.name || "Maintenance & Tuning";
-      const displayId = generateServiceId(item.id);
-      const formattedDate = formatDate(item.booking_date);
-      const formattedTime = formatTime12Hour(item.booking_time);
-      
-      let laborStr = "0";
-      let partsStr = "0";
-      const billMatch = item.customer_notes?.match(/Bill:\s*Labor\s*([^,]+),\s*Parts\s*([^\s\[]+)/i);
-      if (billMatch) {
-        laborStr = billMatch[1].trim();
-        partsStr = billMatch[2].trim();
-      }
-
-      const printContents = `
-        <div style="font-family: monospace; width: 300px; padding: 20px; color: #000; text-align: center;">
-          <h2 style="margin: 0 0 10px; font-size: 24px;">CROWN EVE</h2>
-          <p style="margin: 0 0 20px; font-size: 12px; border-bottom: 1px dashed #000; padding-bottom: 10px;">
-            ${type === 'TICKET' ? 'SERVICE BOOKING TICKET' : 'SERVICE FINAL BILL'}
-          </p>
-          
-          <div style="text-align: left; font-size: 14px; margin-bottom: 15px;">
-            <p style="margin: 5px 0;"><b>TICKET ID:</b> #${displayId}</p>
-            <p style="margin: 5px 0;"><b>DATE:</b> ${formattedDate}</p>
-            <p style="margin: 5px 0;"><b>TIME:</b> ${formattedTime}</p>
-            <p style="margin: 5px 0;"><b>STATUS:</b> ${item.status}</p>
-          </div>
-
-          <div style="border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 10px 0; text-align: left; font-size: 14px; margin-bottom: 15px;">
-            <p style="margin: 5px 0;"><b>CUSTOMER:</b> ${name}</p>
-            <p style="margin: 5px 0;"><b>PHONE:</b> ${phone || 'N/A'}</p>
-            <p style="margin: 5px 0;"><b>SERVICE:</b> ${serviceName}</p>
-          </div>
-
-          ${type === 'BILL' ? `
-          <div style="text-align: left; font-size: 14px; margin-bottom: 15px;">
-            <p style="margin: 5px 0; display: flex; justify-content: space-between;"><span>LABOR CHARGES:</span> <span>PKR ${laborStr}</span></p>
-            <p style="margin: 5px 0; display: flex; justify-content: space-between;"><span>PARTS TOTAL:</span> <span>PKR ${partsStr}</span></p>
-            <div style="border-top: 1px dashed #000; margin: 10px 0;"></div>
-            <h3 style="margin: 5px 0; display: flex; justify-content: space-between; font-size: 18px;">
-              <span>TOTAL:</span> <span>PKR ${item.final_price?.toLocaleString() || 0}</span>
-            </h3>
-          </div>
-          ` : ''}
-
-          <p style="margin: 30px 0 0; font-size: 12px; text-align: center;">
-            Thank you for choosing Crown Eve Center!<br/>
-            Please bring this ticket for collection.
-          </p>
-        </div>
-      `;
-
-      const printWindow = window.open('', '_blank');
-      if (printWindow) {
-        printWindow.document.write('<html><head><title>Print Receipt</title></head><body style="margin:0;display:flex;justify-content:center;">');
-        printWindow.document.write(printContents);
-        printWindow.document.write('</body></html>');
-        printWindow.document.close();
-        printWindow.onload = () => {
-          printWindow.print();
-        };
-      } else {
-        alert("Please allow popups to print receipts.");
-      }
+      setServiceReceiptData({ item, type });
     };
 
     const handleSvDelete = async (id) => {
@@ -1780,7 +1717,7 @@ const POS = () => {
       title: "GENERAL",
       items: [
         { id: "add-customer", label: "Add Customer", icon: "user" },
-        { id: "add-bank", label: "Add Bank", icon: "dollar" },
+        { id: "add-account", label: "Add Account", icon: "dollar" },
       ]
     },
     {
@@ -1961,6 +1898,106 @@ const POS = () => {
             <div className="pt-12 text-center">
               <div className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.3em]">Thank you for shopping with us!</div>
               <div className="text-[8px] text-[#8D7A71] mt-2 font-bold uppercase">This is a computer generated invoice and does not require a signature.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderServiceReceiptModal = () => {
+    if (!serviceReceiptData) return null;
+    const { item, type } = serviceReceiptData;
+
+    const name = getWalkInCustomerName(item.customer_notes);
+    const phone = getWalkInCustomerPhone(item.customer_notes);
+    const serviceName = item.service?.name || "Maintenance & Tuning";
+    const displayId = generateServiceId(item.id);
+    const formattedDate = formatDate(item.booking_date);
+    const formattedTime = formatTime12Hour(item.booking_time);
+    
+    let laborStr = "0";
+    let partsStr = "0";
+    const billMatch = item.customer_notes?.match(/Bill:\s*Labor\s*([^,]+),\s*Parts\s*([^\s\[]+)/i);
+    if (billMatch) {
+      laborStr = billMatch[1].trim();
+      partsStr = billMatch[2].trim();
+    }
+
+    return (
+      <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 print:p-0 print:static">
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-md print:hidden" onClick={() => setServiceReceiptData(null)} />
+        <div className="relative bg-white w-full max-w-lg rounded-[3rem] overflow-hidden shadow-2xl flex flex-col max-h-[95vh] print:shadow-none print:rounded-none print:max-h-none print:w-full">
+          <header className="px-10 py-7 border-b border-[#F3E5DC] flex justify-between items-center bg-[#FFFAF8] print:hidden">
+            <div>
+              <h2 className="text-xl font-black text-[#2D1A12]">{type === 'TICKET' ? 'SERVICE BOOKING TICKET' : 'SERVICE FINAL BILL'}</h2>
+              <p className="text-[10px] font-bold text-[#8D7A71] uppercase tracking-[0.2em] mt-1">Ready for Print</p>
+            </div>
+            <div className="flex gap-4">
+              <button onClick={printInvoice} className="bg-white border border-[#F3E5DC] px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-[#FFFAF8]">
+                 Print Ticket
+              </button>
+              <button className="w-10 h-10 bg-white border border-[#F3E5DC] rounded-full flex items-center justify-center text-[#8D7A71]" onClick={() => setServiceReceiptData(null)}>
+                <Icon n="close" size={20} />
+              </button>
+            </div>
+          </header>
+
+          <div id="printable-service-receipt" className="p-10 overflow-y-auto space-y-8 custom-scrollbar print:p-8 print:overflow-visible text-center">
+            {/* Header */}
+            <div>
+              <div className="text-3xl font-black text-[#E65100]">CROWN EVE</div>
+              <div className="text-[10px] font-bold text-[#8D7A71] uppercase tracking-[0.2em] mt-1">{type === 'TICKET' ? 'SERVICE BOOKING TICKET' : 'SERVICE FINAL BILL'}</div>
+            </div>
+
+            {/* Ticket Info */}
+            <div className="bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl p-6 text-left space-y-3">
+              <div className="flex justify-between items-center border-b border-dashed border-[#F3E5DC] pb-3">
+                <span className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest">TICKET ID</span>
+                <span className="text-sm font-black text-[#2D1A12]">#{displayId}</span>
+              </div>
+              <div className="flex justify-between items-center border-b border-dashed border-[#F3E5DC] pb-3">
+                <span className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest">DATE & TIME</span>
+                <span className="text-xs font-bold text-[#2D1A12]">{formattedDate} @ {formattedTime}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest">STATUS</span>
+                <span className="text-xs font-black text-[#E65100] uppercase tracking-widest">{item.status}</span>
+              </div>
+            </div>
+
+            {/* Customer Info */}
+            <div className="text-left space-y-1 py-4 border-y border-dashed border-[#F3E5DC]">
+              <div className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest mb-2">Customer & Service</div>
+              <div className="font-black text-[#2D1A12] text-lg">{name}</div>
+              <div className="text-xs font-bold text-[#8D7A71]">{phone || 'N/A'}</div>
+              <div className="text-sm font-black text-[#E65100] mt-2">{serviceName}</div>
+            </div>
+
+            {/* Bill Info */}
+            {type === 'BILL' && (
+              <div className="text-left space-y-3 pt-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest">LABOR CHARGES</span>
+                  <span className="text-xs font-black text-[#2D1A12]">PKR {laborStr}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest">PARTS TOTAL</span>
+                  <span className="text-xs font-black text-[#2D1A12]">PKR {partsStr}</span>
+                </div>
+                <div className="flex justify-between items-center pt-4 border-t border-[#F3E5DC] text-[#E65100]">
+                  <span className="text-sm font-black uppercase tracking-widest">GRAND TOTAL</span>
+                  <span className="text-xl font-black">PKR {item.final_price?.toLocaleString() || 0}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Footer */}
+            <div className="pt-6 text-center">
+              <div className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] leading-relaxed">
+                Thank you for choosing<br/>Crown Eve Center!
+              </div>
+              <div className="text-[8px] text-[#8D7A71] mt-3 font-bold uppercase">Please bring this ticket for collection.</div>
             </div>
           </div>
         </div>
@@ -2276,7 +2313,7 @@ const POS = () => {
     switch (activeMenu) {
       case "add-customer":
         return renderCustomers();
-      case "add-bank":
+      case "add-account":
         return renderBanks();
       case "sale-invoices":
         return renderSaleInvoices();
@@ -2369,6 +2406,7 @@ const POS = () => {
         </main>
       </div>
       {renderInvoiceModal()}
+      {renderServiceReceiptModal()}
     </div>
   );
 };
