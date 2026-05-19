@@ -111,7 +111,7 @@ const PaymentVoucher = ({ user }) => {
   };
 
   return (
-    <div className="flex flex-col gap-6 w-full h-full p-2">
+    <div className="flex flex-col gap-6 w-full p-2 pb-10">
       
       {/* Main Voucher Form Card - Full Width */}
       <div className="w-full bg-white border border-[#E5E7EB] rounded-2xl shadow-sm overflow-hidden flex flex-col font-sans">

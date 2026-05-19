@@ -2,12 +2,13 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../../services/api';
-import { Icon } from '../../../../components/branch/BranchShared';
-import { FileText, Send, List, ShieldCheck } from 'lucide-react';
+import { Search, FileText, Send, List, ShieldCheck } from 'lucide-react';
 import './Vouchers.css';
 
 const JournalVoucher = ({ user }) => {
   const [formData, setFormData] = useState({
+    debit_type: 'Asset',
+    credit_type: 'Liability',
     debitAccountId: '',
     creditAccountId: '',
     amount: '',
@@ -17,15 +18,16 @@ const JournalVoucher = ({ user }) => {
   });
 
   const [submitting, setSubmitting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Fetch Accounts list
-  const { data: accountsData, isLoading: loadingAccounts, refetch: refetchAccounts } = useQuery({
+  const { data: accountsData, refetch: refetchAccounts } = useQuery({
     queryKey: ['accounts-list', user?.branchId],
     queryFn: () => api.get('/accounts', { params: { branchId: user?.branchId } }).then(r => r.data),
     enabled: !!user?.branchId
   });
 
-  // Fetch Journal Vouchers History
+  // Fetch Journal Vouchers History (for next voucher number calculation & history table)
   const { data: historyData, isLoading: loadingHistory, refetch: refetchHistory } = useQuery({
     queryKey: ['vouchers-history-journal', user?.branchId],
     queryFn: () => api.get('/vouchers', { params: { branchId: user?.branchId, voucher_type: 'JOURNAL' } }).then(r => r.data),
@@ -34,15 +36,37 @@ const JournalVoucher = ({ user }) => {
 
   const accounts = accountsData?.data || [];
   const vouchersHistory = historyData?.data || [];
+  const nextVoucherNo = vouchersHistory.length > 0 ? (vouchersHistory.length + 1).toString().padStart(4, '0') : '0001';
 
+  // Filter accounts
   const activeAccounts = accounts.filter(acc => acc.status === 'ACTIVE');
 
-  // Calculate current balances
+  // Calculate balances
   const selectedDebitAccount = accounts.find(acc => acc.id === formData.debitAccountId);
   const currentDebitBalance = selectedDebitAccount ? selectedDebitAccount.current_balance : 0;
 
   const selectedCreditAccount = accounts.find(acc => acc.id === formData.creditAccountId);
   const currentCreditBalance = selectedCreditAccount ? selectedCreditAccount.current_balance : 0;
+
+  // Formatting helper for Dr / Cr display
+  const formatBalance = (bal, side) => {
+    if (bal === 0) return '0.00';
+    return `${Math.abs(bal).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${side}`;
+  };
+
+  // Filter History by Search
+  const filteredHistory = vouchersHistory.filter(v => {
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
+    return (
+      v.voucher_no.toLowerCase().includes(term) ||
+      (v.ref_no && v.ref_no.toLowerCase().includes(term)) ||
+      (v.description && v.description.toLowerCase().includes(term)) ||
+      (v.fromAccount?.account_name?.toLowerCase().includes(term)) || // Credit account
+      (v.toAccount?.account_name?.toLowerCase().includes(term)) ||   // Debit account
+      v.amount.toString().includes(term)
+    );
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -71,6 +95,8 @@ const JournalVoucher = ({ user }) => {
 
       alert("Journal Voucher posted successfully! Live balances updated.");
       setFormData({
+        debit_type: 'Asset',
+        credit_type: 'Liability',
         debitAccountId: '',
         creditAccountId: '',
         amount: '',
@@ -88,184 +114,263 @@ const JournalVoucher = ({ user }) => {
   };
 
   return (
-    <div className="voucher-view-container flex flex-col gap-8 p-1">
-      {/* Gray Header Form Container */}
-      <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden flex flex-col">
-        {/* Gray Header */}
-        <header className="px-8 py-6 bg-gradient-to-r from-[#616161] to-[#424242] text-white flex justify-between items-center">
+    <div className="flex flex-col gap-6 w-full p-2 pb-10">
+      
+      {/* Main Voucher Form Card - Full Width */}
+      <div className="w-full bg-white border border-[#E5E7EB] rounded-2xl shadow-sm overflow-hidden flex flex-col font-sans">
+        
+        {/* Professional Gray Header */}
+        <div className="bg-gradient-to-r from-[#757575] to-[#424242] px-8 py-5 flex justify-between items-center shadow-inner">
           <div>
-            <span className="text-[10px] font-black text-gray-200 uppercase tracking-widest">Internal Adjustments / Transfer</span>
-            <h2 className="text-xl font-black uppercase tracking-tight flex items-center gap-2 mt-0.5">
-              <FileText size={20} className="text-gray-200" /> Journal Voucher
-            </h2>
+            <span className="text-[10px] font-black text-gray-200 uppercase tracking-widest">Internal Adjustments</span>
+            <h1 className="text-white text-2xl font-black italic tracking-wide drop-shadow-md flex items-center gap-2 mt-0.5">
+              <FileText size={24} className="text-gray-200" /> Journal Voucher
+            </h1>
           </div>
-          <div className="bg-white/10 px-4 py-2 rounded-2xl border border-white/20 text-xs font-black uppercase tracking-wider">
-            Voucher# JV-Auto
+        </div>
+
+        {/* Form Body Container */}
+        <form onSubmit={handleSubmit} className="p-8 flex flex-col gap-6">
+          
+          {/* Top Two Frames: Debit Side & Credit Side */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-12 gap-y-6">
+            
+            {/* --- DEBIT SIDE FRAME --- */}
+            <fieldset className="border-2 border-gray-200 rounded-xl p-6 bg-[#FAFAFA] relative">
+              <legend className="px-3 text-sm font-bold text-[#424242] tracking-wide ml-2 bg-[#FAFAFA] whitespace-nowrap">
+                Debit Side <span className="font-serif"> [بنام]</span>
+              </legend>
+              
+              <div className="flex flex-col gap-5 mt-2">
+                <div className="flex items-center">
+                  <label className="w-40 whitespace-nowrap text-right pr-4 font-bold text-[#424242] text-xs uppercase tracking-wider">Debit Type:</label>
+                  <select 
+                    value={formData.debit_type}
+                    onChange={e => setFormData({ ...formData, debit_type: e.target.value })}
+                    className="flex-1 bg-white border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm font-bold text-[#2D1A12] shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400/20 focus:border-gray-400 transition-all"
+                  >
+                    <option value="Asset">Asset</option>
+                    <option value="Expenses">Expenses</option>
+                    <option value="Bank">Bank</option>
+                    <option value="Cash">Cash</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center">
+                  <label className="w-40 whitespace-nowrap text-right pr-4 font-bold text-[#424242] text-xs uppercase tracking-wider">Debit Account:</label>
+                  <select 
+                    required
+                    value={formData.debitAccountId}
+                    onChange={e => setFormData({ ...formData, debitAccountId: e.target.value })}
+                    className="flex-1 bg-white border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm font-bold text-[#2D1A12] shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400/20 focus:border-gray-400 transition-all"
+                  >
+                    <option value="">Select Account...</option>
+                    {activeAccounts.map(acc => (
+                      <option key={acc.id} value={acc.id}>{acc.account_name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex items-center">
+                  <label className="w-40 whitespace-nowrap text-right pr-4 font-bold text-[#424242] text-xs uppercase tracking-wider">Balance:</label>
+                  <input 
+                    type="text" 
+                    disabled 
+                    value={formatBalance(currentDebitBalance, 'Dr')} 
+                    className="flex-1 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm text-right text-emerald-700 font-black shadow-inner"
+                  />
+                </div>
+              </div>
+            </fieldset>
+
+            {/* --- CREDIT SIDE FRAME --- */}
+            <fieldset className="border-2 border-gray-200 rounded-xl p-6 bg-[#FAFAFA] relative">
+              <legend className="px-3 text-sm font-bold text-[#424242] tracking-wide ml-2 bg-[#FAFAFA] whitespace-nowrap">
+                Credit Side <span className="font-serif"> [جمع]</span>
+              </legend>
+              
+              <div className="flex flex-col gap-5 mt-2">
+                <div className="flex items-center">
+                  <label className="w-40 whitespace-nowrap text-right pr-4 font-bold text-[#424242] text-xs uppercase tracking-wider">Credit Type:</label>
+                  <select 
+                    value={formData.credit_type}
+                    onChange={e => setFormData({ ...formData, credit_type: e.target.value })}
+                    className="flex-1 bg-white border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm font-bold text-[#2D1A12] shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400/20 focus:border-gray-400 transition-all"
+                  >
+                    <option value="Liability">Liability</option>
+                    <option value="Owner's Equity">Owner's Equity</option>
+                    <option value="Revenue">Revenue</option>
+                    <option value="Bank">Bank</option>
+                    <option value="Cash">Cash</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center">
+                  <label className="w-40 whitespace-nowrap text-right pr-4 font-bold text-[#424242] text-xs uppercase tracking-wider">Credit Account:</label>
+                  <select 
+                    required
+                    value={formData.creditAccountId}
+                    onChange={e => setFormData({ ...formData, creditAccountId: e.target.value })}
+                    className="flex-1 bg-white border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm font-bold text-[#2D1A12] shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400/20 focus:border-gray-400 transition-all"
+                  >
+                    <option value="">Select Account...</option>
+                    {activeAccounts.map(acc => (
+                      <option key={acc.id} value={acc.id}>{acc.account_name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex items-center">
+                  <label className="w-40 whitespace-nowrap text-right pr-4 font-bold text-[#424242] text-xs uppercase tracking-wider">Balance:</label>
+                  <input 
+                    type="text" 
+                    disabled 
+                    value={formatBalance(currentCreditBalance, 'Cr')} 
+                    className="flex-1 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm text-right text-red-700 font-black shadow-inner"
+                  />
+                </div>
+              </div>
+            </fieldset>
+
           </div>
-        </header>
 
-        <form onSubmit={handleSubmit} className="p-8 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Voucher Date */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Voucher Date</label>
-              <input
-                required
-                type="date"
-                value={formData.date}
-                onChange={e => setFormData({ ...formData, date: e.target.value })}
-                className="w-full bg-[#FFFAF8] border border-gray-200 rounded-2xl py-3.5 px-4 outline-none focus:ring-2 focus:ring-gray-400/20 font-bold text-xs"
-              />
-            </div>
-
-            {/* Ref# */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Reference# / Slip#</label>
-              <input
-                type="text"
-                value={formData.ref_no}
-                onChange={e => setFormData({ ...formData, ref_no: e.target.value })}
-                placeholder="e.g. Adj-2992, Tfr-9922"
-                className="w-full bg-[#FFFAF8] border border-gray-200 rounded-2xl py-3.5 px-4 outline-none focus:ring-2 focus:ring-gray-400/20 font-bold text-xs"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Debit Side (To Account) */}
-            <div className="p-5 bg-gray-50/50 border border-gray-200/50 rounded-[2rem] space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest text-[#424242]">Debit Account (To)</span>
-                {formData.debitAccountId && (
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-gray-200 text-[#424242]">
-                    Live Balance: PKR {currentDebitBalance.toLocaleString()}
-                  </span>
-                )}
-              </div>
-              <div className="space-y-2">
-                <label className="text-[9px] font-bold text-[#8D7A71] uppercase tracking-widest ml-1">Select Debit Account *</label>
-                <select
-                  required
-                  value={formData.debitAccountId}
-                  onChange={e => setFormData({ ...formData, debitAccountId: e.target.value })}
-                  className="w-full bg-white border border-gray-200 rounded-2xl py-3.5 px-4 outline-none focus:ring-2 focus:ring-gray-400/20 font-bold text-xs"
-                >
-                  <option value="">Select account to debit...</option>
-                  {activeAccounts.map(acc => (
-                    <option key={acc.id} value={acc.id}>
-                      {acc.account_name} ({acc.category?.name}) - PKR {acc.current_balance?.toLocaleString()}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Credit Side (From Account) */}
-            <div className="p-5 bg-gray-50/50 border border-gray-200/50 rounded-[2rem] space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest text-[#424242]">Credit Account (From)</span>
-                {formData.creditAccountId && (
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-gray-200 text-[#424242]">
-                    Live Balance: PKR {currentCreditBalance.toLocaleString()}
-                  </span>
-                )}
-              </div>
-              <div className="space-y-2">
-                <label className="text-[9px] font-bold text-[#8D7A71] uppercase tracking-widest ml-1">Select Credit Account *</label>
-                <select
-                  required
-                  value={formData.creditAccountId}
-                  onChange={e => setFormData({ ...formData, creditAccountId: e.target.value })}
-                  className="w-full bg-white border border-gray-200 rounded-2xl py-3.5 px-4 outline-none focus:ring-2 focus:ring-gray-400/20 font-bold text-xs"
-                >
-                  <option value="">Select account to credit...</option>
-                  {activeAccounts.map(acc => (
-                    <option key={acc.id} value={acc.id}>
-                      {acc.account_name} ({acc.category?.name}) - PKR {acc.current_balance?.toLocaleString()}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Amount */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Amount (PKR) *</label>
-              <input
-                required
-                type="number"
-                value={formData.amount}
-                onChange={e => setFormData({ ...formData, amount: e.target.value })}
-                placeholder="0.00"
-                className="w-full bg-[#FFFAF8] border border-gray-200 rounded-2xl py-3.5 px-4 outline-none focus:ring-2 focus:ring-gray-400/20 font-bold text-xs"
-              />
-            </div>
-
-            {/* Description */}
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Description / Remarks *</label>
-              <input
-                required
-                type="text"
+          {/* Bottom Fields Layout */}
+          <div className="flex flex-col gap-6 mt-2">
+            
+            {/* Description Row - Full Width */}
+            <div className="flex items-center">
+              <label className="w-32 xl:w-40 whitespace-nowrap text-right pr-4 font-bold text-[#424242] text-xs uppercase tracking-wider">Description:</label>
+              <input 
+                type="text" 
                 value={formData.description}
                 onChange={e => setFormData({ ...formData, description: e.target.value })}
-                placeholder="e.g. Cash transfer to petty cash, account adjustments"
-                className="w-full bg-[#FFFAF8] border border-gray-200 rounded-2xl py-3.5 px-4 outline-none focus:ring-2 focus:ring-gray-400/20 font-bold text-xs"
+                className="flex-1 bg-white border border-[#E5E7EB] rounded-xl px-4 py-3 text-sm font-bold text-[#2D1A12] shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400/20 focus:border-gray-400 transition-all"
               />
+            </div>
+
+            {/* Metrics Row: Amount, Date, Ref#, Voucher# */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 xl:pl-4">
+              
+              <div className="flex items-center">
+                <label className="w-auto whitespace-nowrap text-right pr-3 font-bold text-[#424242] text-xs uppercase tracking-wider">Amount:</label>
+                <input 
+                  required
+                  type="number" 
+                  value={formData.amount}
+                  onChange={e => setFormData({ ...formData, amount: e.target.value })}
+                  placeholder="0.00"
+                  className="flex-1 min-w-[80px] bg-white border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm text-right font-black text-[#2D1A12] shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400/20 transition-all"
+                />
+              </div>
+
+              <div className="flex items-center">
+                <label className="w-auto whitespace-nowrap text-right pr-3 font-bold text-[#424242] text-xs uppercase tracking-wider">Date:</label>
+                <input 
+                  required
+                  type="date" 
+                  value={formData.date}
+                  onChange={e => setFormData({ ...formData, date: e.target.value })}
+                  className="flex-1 min-w-[120px] bg-white border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm font-bold text-[#2D1A12] shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400/20 transition-all"
+                />
+              </div>
+
+              <div className="flex items-center">
+                <label className="w-auto whitespace-nowrap text-right pr-3 font-bold text-[#424242] text-xs uppercase tracking-wider">Ref #:</label>
+                <input 
+                  type="text" 
+                  value={formData.ref_no}
+                  onChange={e => setFormData({ ...formData, ref_no: e.target.value })}
+                  className="flex-1 min-w-[80px] bg-white border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm font-bold text-[#2D1A12] shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400/20 transition-all"
+                />
+              </div>
+
+              <div className="flex items-center">
+                <label className="w-auto whitespace-nowrap text-right pr-3 font-bold text-[#424242] text-xs uppercase tracking-wider">Voucher#:</label>
+                <input 
+                  type="text" 
+                  disabled 
+                  value={nextVoucherNo} 
+                  className="flex-1 min-w-[80px] bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm font-bold text-gray-500 shadow-inner"
+                />
+              </div>
+
             </div>
           </div>
 
-          <div className="flex justify-end pt-4">
-            <button
-              type="submit"
-              disabled={submitting}
-              className="bg-[#616161] text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-gray-500/20 hover:scale-102 active:scale-95 transition-all flex items-center gap-2"
+          {/* Bottom Action Bar */}
+          <div className="mt-4 border-t border-[#F3E5DC] pt-6 flex justify-end gap-4">
+            <button 
+              type="button" 
+              className="px-8 py-3.5 rounded-xl font-black text-xs uppercase tracking-widest text-[#8D7A71] bg-[#F9FAFB] border border-[#E5E7EB] hover:bg-gray-100 transition-colors shadow-sm"
             >
-              {submitting ? 'Posting...' : <><Send size={14} /> Post Journal Voucher</>}
+              Close
+            </button>
+            <button 
+              type="submit" 
+              disabled={submitting}
+              className="px-10 py-3.5 rounded-xl font-black text-xs uppercase tracking-widest text-white bg-[#616161] hover:bg-[#424242] shadow-lg shadow-gray-500/30 transition-all active:scale-95 flex items-center gap-2"
+            >
+              {submitting ? 'Saving...' : <><Send size={16} /> Save Voucher</>}
             </button>
           </div>
+
         </form>
       </div>
 
-      {/* Journal Vouchers History */}
-      <div className="bg-white p-6 rounded-[2.5rem] border border-[#F3E5DC] shadow-sm flex flex-col">
-        <h3 className="text-md font-black text-[#2D1A12] uppercase tracking-tight mb-4 flex items-center gap-2">
-          <List size={18} className="text-[#616161]" /> Recent Journal Vouchers
-        </h3>
+      {/* Journal Vouchers History Section */}
+      <div className="w-full bg-white border border-[#E5E7EB] rounded-2xl shadow-sm flex flex-col overflow-hidden">
+        
+        {/* History Header & Search Bar */}
+        <div className="px-8 py-5 border-b border-[#E5E7EB] flex justify-between items-center bg-[#FAFAFA]">
+          <h3 className="text-md font-black text-[#2D1A12] uppercase tracking-tight flex items-center gap-2">
+            <List size={18} className="text-[#616161]" /> Recent Journal Vouchers
+          </h3>
+          
+          <div className="relative w-72">
+            <input 
+              type="text" 
+              placeholder="Search vouchers..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-white border border-[#E5E7EB] rounded-full pl-10 pr-4 py-2.5 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-gray-400/20 transition-all shadow-inner"
+            />
+            <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+          </div>
+        </div>
 
         {loadingHistory ? (
-          <div className="text-center py-8 text-[#8D7A71] font-bold animate-pulse text-xs">Loading history...</div>
-        ) : vouchersHistory.length === 0 ? (
-          <div className="text-center py-8 text-[#8D7A71] text-xs font-bold border border-dashed border-[#F3E5DC] bg-[#FFFAF8] rounded-2xl">
-            No journal vouchers recorded.
+          <div className="text-center py-10 text-[#8D7A71] font-bold animate-pulse text-xs">Loading history...</div>
+        ) : filteredHistory.length === 0 ? (
+          <div className="text-center py-10 m-6 text-[#8D7A71] text-xs font-bold border border-dashed border-[#E5E7EB] bg-[#F9FAFB] rounded-2xl">
+            {searchTerm ? 'No vouchers found matching your search.' : 'No journal vouchers recorded.'}
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto p-4">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-[#F3E5DC] text-[9px] font-black text-[#8D7A71] uppercase tracking-wider">
-                  <th className="px-4 py-3">Voucher#</th>
-                  <th className="px-4 py-3">Date</th>
-                  <th className="px-4 py-3">Debit Side (To)</th>
-                  <th className="px-4 py-3">Credit Side (From)</th>
-                  <th className="px-4 py-3 text-right">Amount</th>
-                  <th className="px-4 py-3">Ref#</th>
-                  <th className="px-4 py-3">Ledger Posting</th>
+                <tr className="border-b-2 border-[#E5E7EB] text-[10px] font-black text-[#8D7A71] uppercase tracking-widest bg-gray-50/50">
+                  <th className="px-4 py-4 rounded-tl-xl">Voucher#</th>
+                  <th className="px-4 py-4">Date</th>
+                  <th className="px-4 py-4">Debit Side (To)</th>
+                  <th className="px-4 py-4">Credit Side (From)</th>
+                  <th className="px-4 py-4 text-right">Amount</th>
+                  <th className="px-4 py-4">Ref#</th>
+                  <th className="px-4 py-4 rounded-tr-xl">Status</th>
                 </tr>
               </thead>
               <tbody>
-                {vouchersHistory.map(v => (
-                  <tr key={v.id} className="border-b border-[#F3E5DC] last:border-none text-xs hover:bg-[#FFFAF8]/40 transition-colors">
-                    <td className="px-4 py-3.5 font-black text-[#616161] uppercase">{v.voucher_no}</td>
-                    <td className="px-4 py-3.5 text-[#8D7A71] font-bold">{new Date(v.date || v.createdAt).toLocaleDateString()}</td>
-                    <td className="px-4 py-3.5 font-bold">{v.toAccount?.account_name}</td>
-                    <td className="px-4 py-3.5 font-bold">{v.fromAccount?.account_name}</td>
-                    <td className="px-4 py-3.5 text-right font-black text-[#616161]">PKR {v.amount?.toLocaleString()}</td>
-                    <td className="px-4 py-3.5 text-[#8D7A71]">{v.ref_no || '-'}</td>
-                    <td className="px-4 py-3.5 text-emerald-600 font-bold uppercase text-[9px] flex items-center gap-1">
-                      <ShieldCheck size={12} /> Double Posted
+                {filteredHistory.map(v => (
+                  <tr key={v.id} className="border-b border-[#E5E7EB] last:border-none text-xs hover:bg-[#F9FAFB]/60 transition-colors">
+                    <td className="px-4 py-4 font-black text-[#616161] uppercase whitespace-nowrap">{v.voucher_no}</td>
+                    <td className="px-4 py-4 text-[#8D7A71] font-bold whitespace-nowrap">{new Date(v.date || v.createdAt).toLocaleDateString()}</td>
+                    <td className="px-4 py-4 font-bold text-emerald-700 whitespace-nowrap">{v.toAccount?.account_name}</td>
+                    <td className="px-4 py-4 font-bold text-red-700 whitespace-nowrap">{v.fromAccount?.account_name}</td>
+                    <td className="px-4 py-4 text-right font-black text-[#616161] whitespace-nowrap">PKR {v.amount?.toLocaleString()}</td>
+                    <td className="px-4 py-4 text-[#8D7A71] whitespace-nowrap">{v.ref_no || '-'}</td>
+                    <td className="px-4 py-4 text-emerald-600 font-bold uppercase text-[9px] whitespace-nowrap">
+                      <span className="flex items-center gap-1 bg-emerald-50 px-2 py-1 rounded-full w-max border border-emerald-100">
+                        <ShieldCheck size={12} /> Double Posted
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -274,6 +379,7 @@ const JournalVoucher = ({ user }) => {
           </div>
         )}
       </div>
+      
     </div>
   );
 };
