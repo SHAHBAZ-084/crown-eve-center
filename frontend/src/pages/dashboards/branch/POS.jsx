@@ -16,8 +16,18 @@ const getWalkInCustomerName = (notes) => {
 
 const getWalkInCustomerPhone = (notes) => {
   if (!notes) return "";
-  const match = notes.match(/\(([^)]+)\)/);
-  return match ? match[1].trim() : "";
+  const match = notes.match(/Walk-in Service:\s*[^(|]+\(([^)]*)\)/i) || notes.match(/Walk-in:\s*[^(|]+\(([^)]*)\)/i);
+  return match && match[1] ? match[1].trim() : "";
+};
+
+const generateServiceId = (uuidStr) => {
+  if (!uuidStr) return "000000";
+  let hash = 0;
+  for (let i = 0; i < uuidStr.length; i++) {
+    hash = (hash << 5) - hash + uuidStr.charCodeAt(i);
+    hash |= 0;
+  }
+  return (Math.abs(hash) % 900000 + 100000).toString();
 };
 
 const POS = () => {
@@ -1136,15 +1146,25 @@ const POS = () => {
   const renderServiceInvoices = () => {
     const handleSvSubmit = async (e) => {
       e.preventDefault();
-      if (!svForm.customerId) return alert("Please select a customer");
+      if (!svForm.customerId && !svCustomerSearch.trim()) return alert("Please select or type a customer name");
       if (!svForm.serviceId) return alert("Please select a service type");
 
       try {
         const selectedServiceObj = (svServices || []).find(s => s.id === svForm.serviceId);
         const serviceName = selectedServiceObj ? selectedServiceObj.name : "Bike Maintenance";
-        const selectedCustObj = (svCustomers?.data || []).find(c => c.id === svForm.customerId);
-        const customerName = selectedCustObj ? `${selectedCustObj.first_name} ${selectedCustObj.last_name}` : "Walk-in Customer";
-        const customerPhone = selectedCustObj ? selectedCustObj.phone : "";
+        let customerName = "Walk-in Customer";
+        let customerPhone = "";
+        
+        // Extract from svCustomerSearch string since svCustomers.data might have been cleared by a refetch
+        if (svCustomerSearch.trim()) {
+          const match = svCustomerSearch.match(/(.*?)\s*\(([^)]+)\)/);
+          if (match) {
+            customerName = match[1].trim();
+            customerPhone = match[2].trim();
+          } else {
+            customerName = svCustomerSearch.trim();
+          }
+        }
 
         const partsTotal = svForm.selectedParts.reduce((sum, p) => sum + (p.price * p.qty), 0);
         const grandTotal = (parseFloat(svForm.labor) || 0) + partsTotal;
@@ -1280,7 +1300,7 @@ const POS = () => {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-[#F3E5DC] text-[9px] font-black text-[#8D7A71] uppercase tracking-[0.2em]">
-                    <th className="px-6 py-4">Ticket</th>
+                    <th className="px-6 py-4">Service ID</th>
                     <th className="px-6 py-4">Customer</th>
                     <th className="px-6 py-4">Service</th>
                     <th className="px-6 py-4">Date & Time</th>
@@ -1293,9 +1313,10 @@ const POS = () => {
                     const name = getWalkInCustomerName(item.customer_notes);
                     const phone = getWalkInCustomerPhone(item.customer_notes);
                     const serviceName = item.service?.name || "Maintenance & Tuning";
+                    const displayId = generateServiceId(item.id);
                     return (
                       <tr key={item.id} className="border-b border-[#F3E5DC] last:border-none hover:bg-[#FFFAF8] transition-colors">
-                        <td className="px-6 py-5 font-black text-xs text-[#2D1A12] uppercase">#{item.id.slice(-6).toUpperCase()}</td>
+                        <td className="px-6 py-5 font-black text-xs text-[#2D1A12] uppercase">#{displayId}</td>
                         <td className="px-6 py-5">
                           <div className="font-black text-xs text-[#2D1A12] uppercase">{name}</div>
                           {phone && <div className="text-[10px] font-bold text-[#8D7A71]">{phone}</div>}
