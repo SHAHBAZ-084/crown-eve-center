@@ -1,5 +1,5 @@
 // frontend/src/pages/dashboards/branch/pos/PaymentVoucher.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../../services/api';
 import { Search, FileText, Send, List, ShieldCheck } from 'lucide-react';
@@ -7,8 +7,8 @@ import './Vouchers.css';
 
 const PaymentVoucher = ({ user }) => {
   const [formData, setFormData] = useState({
-    from_type: 'Cash',
-    to_type: 'Expenses',
+    fromCategoryId: '',
+    toCategoryId: '',
     fromAccountId: '',
     toAccountId: '',
     amount: '',
@@ -20,6 +20,13 @@ const PaymentVoucher = ({ user }) => {
   const [submitting, setSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Fetch Categories list
+  const { data: categoriesData } = useQuery({
+    queryKey: ['categories-list', user?.branchId],
+    queryFn: () => api.get('/accounts/categories', { params: { branchId: user?.branchId } }).then(r => r.data),
+    enabled: !!user?.branchId
+  });
+
   // Fetch Accounts list
   const { data: accountsData, refetch: refetchAccounts } = useQuery({
     queryKey: ['accounts-list', user?.branchId],
@@ -27,20 +34,49 @@ const PaymentVoucher = ({ user }) => {
     enabled: !!user?.branchId
   });
 
-  // Fetch Payment Vouchers History (for next voucher number calculation & history table)
+  // Fetch Payment Vouchers History
   const { data: historyData, isLoading: loadingHistory, refetch: refetchHistory } = useQuery({
     queryKey: ['vouchers-history-payment', user?.branchId],
     queryFn: () => api.get('/vouchers', { params: { branchId: user?.branchId, voucher_type: 'PAYMENT' } }).then(r => r.data),
     enabled: !!user?.branchId
   });
 
+  const categories = categoriesData?.data || [];
   const accounts = accountsData?.data || [];
   const vouchersHistory = historyData?.data || [];
   const nextVoucherNo = vouchersHistory.length > 0 ? (vouchersHistory.length + 1).toString().padStart(4, '0') : '0001';
 
-  // Filter accounts
-  const fromAccountsFiltered = accounts.filter(acc => acc.status === 'ACTIVE');
-  const toAccountsFiltered = accounts.filter(acc => acc.status === 'ACTIVE' && acc.id !== formData.fromAccountId);
+  // Filter accounts based on selected category
+  const fromAccountsFiltered = accounts.filter(acc => 
+    acc.status === 'ACTIVE' && 
+    (formData.fromCategoryId ? acc.categoryId === formData.fromCategoryId : true)
+  );
+  
+  const toAccountsFiltered = accounts.filter(acc => 
+    acc.status === 'ACTIVE' && 
+    acc.id !== formData.fromAccountId &&
+    (formData.toCategoryId ? acc.categoryId === formData.toCategoryId : true)
+  );
+
+  // Auto-clear selected account if its category changes and it no longer matches
+  useEffect(() => {
+    if (formData.fromAccountId) {
+      const acc = accounts.find(a => a.id === formData.fromAccountId);
+      if (acc && formData.fromCategoryId && acc.categoryId !== formData.fromCategoryId) {
+        setFormData(prev => ({ ...prev, fromAccountId: '' }));
+      }
+    }
+  }, [formData.fromCategoryId, accounts, formData.fromAccountId]);
+
+  useEffect(() => {
+    if (formData.toAccountId) {
+      const acc = accounts.find(a => a.id === formData.toAccountId);
+      if (acc && formData.toCategoryId && acc.categoryId !== formData.toCategoryId) {
+        setFormData(prev => ({ ...prev, toAccountId: '' }));
+      }
+    }
+  }, [formData.toCategoryId, accounts, formData.toAccountId]);
+
 
   // Calculate balances
   const selectedFromAccount = accounts.find(acc => acc.id === formData.fromAccountId);
@@ -75,12 +111,16 @@ const PaymentVoucher = ({ user }) => {
     if (!formData.toAccountId) return alert("Please select a To Account");
     if (!formData.amount || parseFloat(formData.amount) <= 0) return alert("Please enter a positive amount");
 
+    // Get category names to save in voucher metadata
+    const fromCat = categories.find(c => c.id === formData.fromCategoryId)?.name || 'N/A';
+    const toCat = categories.find(c => c.id === formData.toCategoryId)?.name || 'N/A';
+
     setSubmitting(true);
     try {
       await api.post('/vouchers', {
         voucher_type: 'PAYMENT',
-        category: formData.from_type,
-        to_type: formData.to_type,
+        category: fromCat,
+        to_type: toCat,
         fromAccountId: formData.fromAccountId,
         toAccountId: formData.toAccountId,
         amount: parseFloat(formData.amount),
@@ -92,8 +132,8 @@ const PaymentVoucher = ({ user }) => {
 
       alert("Payment Voucher posted successfully! Live balances updated.");
       setFormData({
-        from_type: 'Cash',
-        to_type: 'Expenses',
+        fromCategoryId: '',
+        toCategoryId: '',
         fromAccountId: '',
         toAccountId: '',
         amount: '',
@@ -151,13 +191,14 @@ const PaymentVoucher = ({ user }) => {
               <div className="flex items-center">
                 <label className="w-32 text-right pr-4 font-bold text-[#8D7A71] text-xs uppercase tracking-wider">From Type:</label>
                 <select 
-                  value={formData.from_type}
-                  onChange={e => setFormData({ ...formData, from_type: e.target.value })}
+                  value={formData.fromCategoryId}
+                  onChange={e => setFormData({ ...formData, fromCategoryId: e.target.value })}
                   className="flex-1 bg-white border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm font-bold text-[#2D1A12] shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all"
                 >
-                  <option value="Cash">Cash</option>
-                  <option value="Bank">Bank</option>
-                  <option value="Owner’s Equity">Owner’s Equity</option>
+                  <option value="">-- Select Cash/Bank --</option>
+                  {categories.filter(cat => cat.name.toLowerCase().includes('cash') || cat.name.toLowerCase().includes('bank')).map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
                 </select>
               </div>
 
@@ -216,14 +257,14 @@ const PaymentVoucher = ({ user }) => {
               <div className="flex items-center">
                 <label className="w-32 text-right pr-4 font-bold text-[#8D7A71] text-xs uppercase tracking-wider">To Type:</label>
                 <select 
-                  value={formData.to_type}
-                  onChange={e => setFormData({ ...formData, to_type: e.target.value })}
+                  value={formData.toCategoryId}
+                  onChange={e => setFormData({ ...formData, toCategoryId: e.target.value })}
                   className="flex-1 bg-white border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm font-bold text-[#2D1A12] shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all"
                 >
-                  <option value="Expenses">Expenses</option>
-                  <option value="Ext. Purchase Party">Ext. Purchase Party</option>
-                  <option value="Liability">Liability</option>
-                  <option value="Asset">Asset</option>
+                  <option value="">-- All Categories --</option>
+                  {categories.map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
                 </select>
               </div>
 

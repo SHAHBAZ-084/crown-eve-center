@@ -1,5 +1,5 @@
 // frontend/src/pages/dashboards/branch/pos/JournalVoucher.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../../services/api';
 import { Search, FileText, Send, List, ShieldCheck } from 'lucide-react';
@@ -7,8 +7,8 @@ import './Vouchers.css';
 
 const JournalVoucher = ({ user }) => {
   const [formData, setFormData] = useState({
-    debit_type: 'Asset',
-    credit_type: 'Liability',
+    debitCategoryId: '',
+    creditCategoryId: '',
     debitAccountId: '',
     creditAccountId: '',
     amount: '',
@@ -20,6 +20,13 @@ const JournalVoucher = ({ user }) => {
   const [submitting, setSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Fetch Categories list
+  const { data: categoriesData } = useQuery({
+    queryKey: ['categories-list', user?.branchId],
+    queryFn: () => api.get('/accounts/categories', { params: { branchId: user?.branchId } }).then(r => r.data),
+    enabled: !!user?.branchId
+  });
+
   // Fetch Accounts list
   const { data: accountsData, refetch: refetchAccounts } = useQuery({
     queryKey: ['accounts-list', user?.branchId],
@@ -27,19 +34,47 @@ const JournalVoucher = ({ user }) => {
     enabled: !!user?.branchId
   });
 
-  // Fetch Journal Vouchers History (for next voucher number calculation & history table)
+  // Fetch Journal Vouchers History
   const { data: historyData, isLoading: loadingHistory, refetch: refetchHistory } = useQuery({
     queryKey: ['vouchers-history-journal', user?.branchId],
     queryFn: () => api.get('/vouchers', { params: { branchId: user?.branchId, voucher_type: 'JOURNAL' } }).then(r => r.data),
     enabled: !!user?.branchId
   });
 
+  const categories = categoriesData?.data || [];
   const accounts = accountsData?.data || [];
   const vouchersHistory = historyData?.data || [];
   const nextVoucherNo = vouchersHistory.length > 0 ? (vouchersHistory.length + 1).toString().padStart(4, '0') : '0001';
 
-  // Filter accounts
-  const activeAccounts = accounts.filter(acc => acc.status === 'ACTIVE');
+  // Filter accounts based on selected category
+  const activeDebitAccounts = accounts.filter(acc => 
+    acc.status === 'ACTIVE' && 
+    (formData.debitCategoryId ? acc.categoryId === formData.debitCategoryId : true)
+  );
+
+  const activeCreditAccounts = accounts.filter(acc => 
+    acc.status === 'ACTIVE' && 
+    (formData.creditCategoryId ? acc.categoryId === formData.creditCategoryId : true)
+  );
+
+  // Auto-clear selected account if its category changes and it no longer matches
+  useEffect(() => {
+    if (formData.debitAccountId) {
+      const acc = accounts.find(a => a.id === formData.debitAccountId);
+      if (acc && formData.debitCategoryId && acc.categoryId !== formData.debitCategoryId) {
+        setFormData(prev => ({ ...prev, debitAccountId: '' }));
+      }
+    }
+  }, [formData.debitCategoryId, accounts, formData.debitAccountId]);
+
+  useEffect(() => {
+    if (formData.creditAccountId) {
+      const acc = accounts.find(a => a.id === formData.creditAccountId);
+      if (acc && formData.creditCategoryId && acc.categoryId !== formData.creditCategoryId) {
+        setFormData(prev => ({ ...prev, creditAccountId: '' }));
+      }
+    }
+  }, [formData.creditCategoryId, accounts, formData.creditAccountId]);
 
   // Calculate balances
   const selectedDebitAccount = accounts.find(acc => acc.id === formData.debitAccountId);
@@ -77,15 +112,18 @@ const JournalVoucher = ({ user }) => {
     }
     if (!formData.amount || parseFloat(formData.amount) <= 0) return alert("Please enter a positive amount");
 
+    // Get category names to save in voucher metadata
+    const toCat = categories.find(c => c.id === formData.debitCategoryId)?.name || 'N/A'; // Debit
+    const fromCat = categories.find(c => c.id === formData.creditCategoryId)?.name || 'N/A'; // Credit
+
     setSubmitting(true);
     try {
-      // In our unified backend model:
-      // fromAccountId = Credit account (pays/gives value, credited in ledger)
-      // toAccountId = Debit account (receives value, debited in ledger)
       await api.post('/vouchers', {
         voucher_type: 'JOURNAL',
         fromAccountId: formData.creditAccountId, // Credit
         toAccountId: formData.debitAccountId,    // Debit
+        category: fromCat,
+        to_type: toCat,
         amount: parseFloat(formData.amount),
         ref_no: formData.ref_no,
         description: formData.description,
@@ -95,8 +133,8 @@ const JournalVoucher = ({ user }) => {
 
       alert("Journal Voucher posted successfully! Live balances updated.");
       setFormData({
-        debit_type: 'Asset',
-        credit_type: 'Liability',
+        debitCategoryId: '',
+        creditCategoryId: '',
         debitAccountId: '',
         creditAccountId: '',
         amount: '',
@@ -145,14 +183,14 @@ const JournalVoucher = ({ user }) => {
                 <div className="flex items-center">
                   <label className="w-40 whitespace-nowrap text-right pr-4 font-bold text-[#424242] text-xs uppercase tracking-wider">Debit Type:</label>
                   <select 
-                    value={formData.debit_type}
-                    onChange={e => setFormData({ ...formData, debit_type: e.target.value })}
+                    value={formData.debitCategoryId}
+                    onChange={e => setFormData({ ...formData, debitCategoryId: e.target.value })}
                     className="flex-1 bg-white border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm font-bold text-[#2D1A12] shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400/20 focus:border-gray-400 transition-all"
                   >
-                    <option value="Asset">Asset</option>
-                    <option value="Expenses">Expenses</option>
-                    <option value="Bank">Bank</option>
-                    <option value="Cash">Cash</option>
+                    <option value="">-- All Categories --</option>
+                    {categories.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -165,7 +203,7 @@ const JournalVoucher = ({ user }) => {
                     className="flex-1 bg-white border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm font-bold text-[#2D1A12] shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400/20 focus:border-gray-400 transition-all"
                   >
                     <option value="">Select Account...</option>
-                    {activeAccounts.map(acc => (
+                    {activeDebitAccounts.map(acc => (
                       <option key={acc.id} value={acc.id}>{acc.account_name}</option>
                     ))}
                   </select>
@@ -193,15 +231,14 @@ const JournalVoucher = ({ user }) => {
                 <div className="flex items-center">
                   <label className="w-40 whitespace-nowrap text-right pr-4 font-bold text-[#424242] text-xs uppercase tracking-wider">Credit Type:</label>
                   <select 
-                    value={formData.credit_type}
-                    onChange={e => setFormData({ ...formData, credit_type: e.target.value })}
+                    value={formData.creditCategoryId}
+                    onChange={e => setFormData({ ...formData, creditCategoryId: e.target.value })}
                     className="flex-1 bg-white border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm font-bold text-[#2D1A12] shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400/20 focus:border-gray-400 transition-all"
                   >
-                    <option value="Liability">Liability</option>
-                    <option value="Owner's Equity">Owner's Equity</option>
-                    <option value="Revenue">Revenue</option>
-                    <option value="Bank">Bank</option>
-                    <option value="Cash">Cash</option>
+                    <option value="">-- All Categories --</option>
+                    {categories.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -214,7 +251,7 @@ const JournalVoucher = ({ user }) => {
                     className="flex-1 bg-white border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm font-bold text-[#2D1A12] shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400/20 focus:border-gray-400 transition-all"
                   >
                     <option value="">Select Account...</option>
-                    {activeAccounts.map(acc => (
+                    {activeCreditAccounts.map(acc => (
                       <option key={acc.id} value={acc.id}>{acc.account_name}</option>
                     ))}
                   </select>
