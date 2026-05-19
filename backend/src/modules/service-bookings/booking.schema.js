@@ -12,7 +12,7 @@ const createAppointmentSchema = z.object({
 
 const updateAppointmentStatusSchema = z.object({
   body: z.object({
-    status: z.enum(['BOOKED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']).optional(),
+    status: z.enum(['PENDING', 'BOOKED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']).optional(),
     techId: z.number().int().positive().optional(),
   })
 });

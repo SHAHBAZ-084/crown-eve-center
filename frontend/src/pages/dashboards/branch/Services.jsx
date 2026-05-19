@@ -1,7 +1,347 @@
-// frontend/src/pages/dashboards/branch/Services.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
-import { useFetch, apiFetch, toast, Icon, Modal, Confirm } from "../../../components/branch/BranchShared";
+import { useFetch, apiFetch, toast, Icon, Modal, Confirm, useDebounce, APPT_BADGE } from "../../../components/branch/BranchShared";
+
+const get6DigitId = (idString) => {
+  if (!idString) return "000000";
+  let hash = 0;
+  for (let i = 0; i < idString.length; i++) {
+    hash = idString.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const code = (Math.abs(hash) % 900000) + 100000;
+  return String(code);
+};
+
+const ThermalReceipt = ({ type, booking, onClose }) => {
+  const isBill = type === "BILL";
+  const bookingId = get6DigitId(booking.id);
+  
+  const format12Hour = (timeStr) => {
+    if (!timeStr) return "";
+    if (timeStr === "ASAP") return "ASAP";
+    const [hoursStr, minutesStr] = timeStr.split(":");
+    let hours = parseInt(hoursStr, 10);
+    const minutes = minutesStr || "00";
+    if (isNaN(hours)) return timeStr;
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const hoursFormatted = hours < 10 ? `0${hours}` : hours;
+    return `${hoursFormatted}:${minutes} ${ampm}`;
+  };
+
+  const formattedToday = new Date().toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }) + " " + new Date().toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  
+  const [resolvedParts, setResolvedParts] = useState([]);
+  let laborCost = 0;
+  let partsCost = 0;
+  
+  if (isBill) {
+    const notes = booking.customer_notes || "";
+    const laborMatch = notes.match(/Labor\s+(\d+)/i);
+    const partsMatch = notes.match(/Parts\s+(\d+)/i);
+    laborCost = laborMatch ? parseInt(laborMatch[1], 10) : (booking.final_price || 0);
+    partsCost = partsMatch ? parseInt(partsMatch[1], 10) : 0;
+  }
+
+  useEffect(() => {
+    let initialList = [];
+    if (isBill) {
+      const notes = booking.customer_notes || "";
+      const listMatch = notes.match(/\[(.*?)\]/);
+      if (listMatch && listMatch[1]) {
+        initialList = listMatch[1].split(", ").map(item => {
+          if (item.includes("|")) {
+            const [name, model, priceStr, qtyStr] = item.split("|");
+            return {
+              name,
+              model,
+              price: parseFloat(priceStr) || 0,
+              qty: parseInt(qtyStr, 10) || 1
+            };
+          } else {
+            const qtyMatch = item.match(/\(x(\d+)\)/);
+            const name = item.replace(/\(x\d+\)/, "").trim();
+            return {
+              name,
+              model: "",
+              price: 0,
+              qty: qtyMatch ? parseInt(qtyMatch[1], 10) : 1
+            };
+          }
+        });
+      }
+    }
+    setResolvedParts(initialList);
+
+    const legacyParts = initialList.filter(p => p.price === 0);
+    if (legacyParts.length > 0) {
+      const resolveLegacy = async () => {
+        const updatedList = [...initialList];
+        for (let i = 0; i < updatedList.length; i++) {
+          if (updatedList[i].price === 0) {
+            try {
+              const res = await apiFetch(`/products?branchId=${booking.branchId}&search=${encodeURIComponent(updatedList[i].name)}&limit=1`);
+              if (res.data && res.data.length > 0) {
+                const prod = res.data[0];
+                updatedList[i] = {
+                  ...updatedList[i],
+                  model: prod.partDetail?.model || prod.model || "",
+                  price: prod.price || 0
+                };
+              }
+            } catch (err) {
+              console.error("Failed to resolve legacy product:", err);
+            }
+          }
+        }
+        setResolvedParts(updatedList);
+      };
+      resolveLegacy();
+    }
+  }, [booking.customer_notes, isBill, booking.branchId]);
+
+  const subtotal = laborCost + partsCost;
+  const tax = Math.round(subtotal * 0.06);
+  const total = subtotal + tax;
+  const cashPaid = Math.ceil(total / 500) * 500;
+  const changeDue = cashPaid - total;
+
+  return (
+    <Modal title={`${type === "BILL" ? "FINAL INVOICE BILL" : "BOOKING CONFIRMATION"} RECEIPT`} onClose={onClose}
+      footer={<>
+        <button className="btn btn-s btn-sm" onClick={onClose}>Close</button>
+        <button className="btn btn-p btn-sm" style={{ background: '#FF4D00', color: '#FFF' }} onClick={() => window.print()}>Print Thermal Ticket</button>
+      </>}
+    >
+      <div className="printable-receipt-modal" style={{
+        background: '#FFF',
+        color: '#111',
+        padding: '36px 28px',
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+        boxShadow: '0 20px 50px rgba(0,0,0,0.08)',
+        border: '1px solid #E4E4E7',
+        borderRadius: 16,
+        maxWidth: 390,
+        margin: '0 auto',
+        textAlign: 'left',
+        fontSize: 12,
+        lineHeight: '1.5',
+        position: 'relative'
+      }}>
+        <div style={{
+          position: 'absolute',
+          top: -8,
+          left: 0,
+          right: 0,
+          height: 8,
+          background: 'linear-gradient(-135deg, #FFF 5px, transparent 0), linear-gradient(135deg, #FFF 5px, transparent 0)',
+          backgroundSize: '10px 10px',
+          transform: 'rotate(180deg)'
+        }} />
+
+        {(() => {
+          const fullLocation = booking.branch?.location || "";
+          const [addressText] = fullLocation.split("|");
+          return (
+            <div style={{ textAlign: 'center', marginBottom: 12 }}>
+              <div style={{ fontSize: 18, fontWeight: 900, letterSpacing: '1px', textTransform: 'uppercase', color: '#000' }}>
+                {booking.branch?.name 
+                  ? (booking.branch.name.toLowerCase().includes("crown") 
+                      ? booking.branch.name 
+                      : `CROWN EVE - ${booking.branch.name}`)
+                  : "CROWN EVE - MAIN BRANCH"}
+              </div>
+              <div style={{ fontSize: 10, color: '#666', marginTop: 4, fontWeight: 500, lineHeight: '1.4', maxWidth: '80%', margin: '4px auto 0 auto' }}>
+                {addressText?.trim() || "225 E STATE ST, MONTROSE, MI 48457"}
+              </div>
+            </div>
+          );
+        })()}
+
+        <div style={{ borderBottom: '1px dashed #E4E4E7', margin: '14px 0' }} />
+
+        <div style={{ textAlign: 'center', fontWeight: 800, fontSize: 12, letterSpacing: '1px', textTransform: 'uppercase', color: '#000', margin: '16px 0 14px 0' }}>
+          — {isBill ? "FINAL SERVICE INVOICE" : "CONFIRMATION VOUCHER"} —
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '12px 16px', margin: '14px 0' }}>
+          <div>
+            <span style={{ fontSize: 8, fontWeight: 800, color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: 2 }}>BOOKING ID</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#000', fontFamily: 'monospace' }}>#{bookingId}</span>
+          </div>
+          <div>
+            <span style={{ fontSize: 8, fontWeight: 800, color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: 2 }}>SERVICE STATUS</span>
+            <span style={{ 
+              fontSize: 8, 
+              fontWeight: 800, 
+              textTransform: 'uppercase',
+              padding: '2px 6px', 
+              borderRadius: 4,
+              background: isBill ? 'rgba(16,185,129,0.08)' : 'rgba(245,158,11,0.08)',
+              color: isBill ? '#10B981' : '#F59E0B',
+              display: 'inline-block'
+            }}>
+              {booking.status?.toUpperCase()}
+            </span>
+          </div>
+          <div>
+            <span style={{ fontSize: 8, fontWeight: 800, color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: 2 }}>CUSTOMER</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#000' }}>{booking.customer?.name}</span>
+          </div>
+          <div>
+            <span style={{ fontSize: 8, fontWeight: 800, color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: 2 }}>BOOKING DATE</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#000', fontFamily: 'monospace' }}>
+              {new Date(booking.booking_date).toLocaleDateString('en-GB')}
+            </span>
+          </div>
+          <div>
+            <span style={{ fontSize: 8, fontWeight: 800, color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: 2 }}>SERVICE TYPE</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#000' }}>{booking.service?.name}</span>
+          </div>
+          <div>
+            <span style={{ fontSize: 8, fontWeight: 800, color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: 2 }}>BOOKING TIME</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#000', fontFamily: 'monospace' }}>
+              {booking.booking_time ? format12Hour(booking.booking_time) : "ASAP"}
+            </span>
+          </div>
+        </div>
+
+        <div style={{ borderBottom: '1px dashed #E4E4E7', margin: '14px 0' }} />
+
+        {isBill ? (
+          <div>
+            <div style={{ fontWeight: 800, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#888', marginBottom: 8 }}>Itemized Bill Detail</div>
+            <table style={{ width: '100%', fontSize: 11, borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid #E4E4E7' }}>
+                  <th style={{ textAlign: 'left', paddingBottom: 6, fontSize: 9, color: '#888', fontWeight: 800 }}>QTY</th>
+                  <th style={{ textAlign: 'left', paddingBottom: 6, fontSize: 9, color: '#888', fontWeight: 800 }}>ITEM / DESCRIPTION</th>
+                  <th style={{ textAlign: 'right', paddingBottom: 6, fontSize: 9, color: '#888', fontWeight: 800 }}>TOTAL</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style={{ borderBottom: '1px solid #F4F4F5' }}>
+                  <td style={{ padding: '8px 0', color: '#555' }}>1</td>
+                  <td style={{ padding: '8px 0', fontWeight: 600 }}>LABOR / SERVICE FEE</td>
+                  <td style={{ padding: '8px 0', textAlign: 'right', fontWeight: 700, fontFamily: 'monospace' }}>PKR {laborCost.toLocaleString()}</td>
+                </tr>
+                 {resolvedParts.map((item, index) => {
+                  const unitPrice = item.price || 0;
+                  const itemTotal = unitPrice * item.qty;
+                  return (
+                    <tr key={index} style={{ borderBottom: '1px solid #F4F4F5' }}>
+                      <td style={{ padding: '8px 0', color: '#555', verticalAlign: 'top' }}>{item.qty}</td>
+                      <td style={{ padding: '8px 0', verticalAlign: 'top', textAlign: 'left' }}>
+                        <div style={{ fontWeight: 600, textTransform: 'uppercase' }}>{item.name}</div>
+                        {item.model && (
+                          <div style={{ fontSize: 9, color: 'var(--acc)', fontWeight: 700, marginTop: 2, background: 'rgba(230,81,0,0.06)', display: 'inline-block', padding: '1px 5px', borderRadius: 4 }}>
+                            {item.model}
+                          </div>
+                        )}
+                        {unitPrice > 0 && (
+                          <div style={{ fontSize: 9, color: '#777', marginTop: 2 }}>
+                            PKR {unitPrice.toLocaleString()} / unit
+                          </div>
+                        )}
+                      </td>
+                      <td style={{ padding: '8px 0', textAlign: 'right', fontWeight: 700, fontFamily: 'monospace', verticalAlign: 'top' }}>
+                        {itemTotal > 0 ? `PKR ${itemTotal.toLocaleString()}` : "MATERIAL PART"}
+                      </td>
+                    </tr>
+                  );
+                })}
+                {partsCost > 0 && resolvedParts.length === 0 && (
+                  <tr style={{ borderBottom: '1px solid #F4F4F5' }}>
+                    <td style={{ padding: '8px 0', color: '#555' }}>1</td>
+                    <td style={{ padding: '8px 0', textTransform: 'uppercase', fontWeight: 600 }}>SPARES & PARTS CHARGES</td>
+                    <td style={{ padding: '8px 0', textAlign: 'right', fontWeight: 700, fontFamily: 'monospace' }}>PKR {partsCost.toLocaleString()}</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+
+            {/* Totals Block */}
+            <div style={{ background: '#F8F9FA', borderRadius: 12, padding: '16px 20px', border: '1px solid #E4E4E7', marginTop: 14 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: 11, fontWeight: 800, color: '#000', textTransform: 'uppercase', letterSpacing: '0.5px' }}>TOTAL SERVICE BILL</span>
+                <span style={{ fontSize: 16, fontWeight: 900, color: 'var(--acc)', fontFamily: 'monospace' }}>PKR {subtotal.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div style={{ 
+            padding: '12px 16px', 
+            background: 'rgba(230,81,0,0.03)', 
+            borderRadius: 12, 
+            border: '1px solid rgba(230,81,0,0.15)', 
+            fontSize: 10,
+            lineHeight: '1.5',
+            color: '#555'
+          }}>
+            <div style={{ fontWeight: 800, textTransform: 'uppercase', color: 'var(--acc)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+              Terminal Notice
+            </div>
+            Please present this booking receipt ticket at the service terminal counter for quick customer registration.
+          </div>
+        )}
+
+        <div style={{ borderBottom: '1px dashed #E4E4E7', margin: '18px 0 14px 0' }} />
+
+        <div style={{ textAlign: 'center', fontSize: 10, color: '#000' }}>
+          <div style={{ fontWeight: 'bold', fontSize: 11, marginBottom: 6, fontFamily: 'monospace' }}>
+            {formattedToday.toUpperCase()}
+          </div>
+          <div style={{ letterSpacing: '0.5px', marginTop: 10, fontWeight: 900, textTransform: 'uppercase' }}>
+            THANK YOU FOR YOUR PATRONAGE!
+          </div>
+          <div style={{ fontSize: 9, color: '#666', marginTop: 4, fontWeight: 500 }}>
+            CROWN EVE WISHES YOU A SAFE DRIVE.
+          </div>
+        </div>
+
+        <style>{`
+          @media print {
+            body * {
+              visibility: hidden !important;
+            }
+            .printable-receipt-modal, .printable-receipt-modal * {
+              visibility: visible !important;
+            }
+            .printable-receipt-modal {
+              position: fixed !important;
+              left: 50% !important;
+              top: 0 !important;
+              transform: translateX(-50%) !important;
+              width: 100% !important;
+              max-width: 380px !important;
+              box-shadow: none !important;
+              border: none !important;
+              background: white !important;
+              color: black !important;
+              padding: 0 !important;
+              margin: 0 !important;
+              z-index: 99999 !important;
+            }
+            .branch-modal, .mbk, .mf, .mh {
+              background: transparent !important;
+              box-shadow: none !important;
+              border: none !important;
+            }
+          }
+        `}</style>
+      </div>
+    </Modal>
+  );
+};
 
 const Services = () => {
   const { user } = useOutletContext();
@@ -15,6 +355,102 @@ const Services = () => {
   const [confirmId, setConfirmId] = useState(null);
   const [saving, setSaving]     = useState(false);
   const [invoice, setInvoice]   = useState(null);
+  const [activeReceipt, setActiveReceipt] = useState(null);
+
+  // Parts Search States
+  const [partSearch, setPartSearch] = useState("");
+  const [partResults, setPartResults] = useState([]);
+  const debouncedPartSearch = useDebounce(partSearch, 300);
+
+  // Filter States
+  const [filterStatus, setFilterStatus] = useState("ALL");
+  const [filterDate, setFilterDate] = useState("");
+  const [filterTime, setFilterTime] = useState("");
+
+  const format12Hour = (timeStr) => {
+    if (!timeStr) return "";
+    if (timeStr === "ASAP") return "ASAP";
+    const [hoursStr, minutesStr] = timeStr.split(":");
+    let hours = parseInt(hoursStr, 10);
+    const minutes = minutesStr || "00";
+    if (isNaN(hours)) return timeStr;
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const hoursFormatted = hours < 10 ? `0${hours}` : hours;
+    return `${hoursFormatted}:${minutes} ${ampm}`;
+  };
+
+  useEffect(() => {
+    const searchParts = async () => {
+      if (!debouncedPartSearch || debouncedPartSearch.trim().length < 2) {
+        setPartResults([]);
+        return;
+      }
+      try {
+        const res = await apiFetch(`/products?branchId=${branchId}&search=${encodeURIComponent(debouncedPartSearch)}&limit=10`);
+        setPartResults(res.data || []);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    searchParts();
+  }, [debouncedPartSearch, branchId]);
+
+  const addPartToBill = (product) => {
+    if (!billAppt) return;
+    const selectedParts = billAppt.selectedParts || [];
+    const existingIndex = selectedParts.findIndex(p => p.id === product.id);
+    let newParts = [];
+    if (existingIndex > -1) {
+      newParts = [...selectedParts];
+      newParts[existingIndex].qty += 1;
+    } else {
+      newParts = [
+        ...selectedParts,
+        {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          model: product.partDetail?.model || "",
+          item_code: product.partDetail?.item_code || "",
+          qty: 1
+        }
+      ];
+    }
+    const partsTotal = newParts.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    setBillAppt({
+      ...billAppt,
+      selectedParts: newParts,
+      parts: partsTotal
+    });
+    setPartSearch("");
+    setPartResults([]);
+  };
+
+  const updatePartQty = (index, newQty) => {
+    if (!billAppt) return;
+    const selectedParts = [...(billAppt.selectedParts || [])];
+    if (newQty < 1) return;
+    selectedParts[index].qty = Number(newQty);
+    const partsTotal = selectedParts.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    setBillAppt({
+      ...billAppt,
+      selectedParts,
+      parts: partsTotal
+    });
+  };
+
+  const removePartFromBill = (index) => {
+    if (!billAppt) return;
+    const selectedParts = (billAppt.selectedParts || []).filter((_, i) => i !== index);
+    const partsTotal = selectedParts.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    setBillAppt({
+      ...billAppt,
+      selectedParts,
+      parts: partsTotal
+    });
+  };
 
   const remove = async id => {
     try { await apiFetch(`/appointments/${id}`, { method: "DELETE" }); toast("Booking deleted"); refetch(); }
@@ -24,10 +460,41 @@ const Services = () => {
 
   const updateAppt = async () => {
     if (!editAppt) return;
+    
+    // Past scheduling validation
+    if (editAppt.booking_date) {
+      const selectedDate = new Date(editAppt.booking_date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      if (selectedDate < today) {
+        toast("Cannot schedule appointments in a past date", "e");
+        return;
+      }
+      
+      if (selectedDate.getTime() === today.getTime() && editAppt.booking_time) {
+        const [h, m] = editAppt.booking_time.split(":");
+        const selectedDateTime = new Date();
+        selectedDateTime.setHours(parseInt(h, 10), parseInt(m, 10), 0, 0);
+        
+        if (selectedDateTime < new Date()) {
+          toast("Cannot schedule appointments in a past time for today", "e");
+          return;
+        }
+      }
+    }
+
     setSaving(true);
     try {
-      await apiFetch(`/appointments/${editAppt.id}`, { method: "PUT", body: { status: editAppt.status } });
-      toast("Status updated");
+      await apiFetch(`/appointments/${editAppt.id}`, { 
+        method: "PUT", 
+        body: { 
+          status: editAppt.status,
+          booking_date: editAppt.booking_date,
+          booking_time: editAppt.booking_time
+        } 
+      });
+      toast("Appointment updated successfully");
       setEditAppt(null); refetch();
     } catch (e) { toast(e.message, "e"); }
     setSaving(false);
@@ -38,7 +505,28 @@ const Services = () => {
   
   // Sort bookings oldest first
   const sortedBookings = [...bookingList].sort((a, b) => new Date(a.booking_date) - new Date(b.booking_date));
-  const APPT_STATUSES  = ["BOOKED", "IN_PROGRESS", "COMPLETED", "CANCELLED"];
+  const APPT_STATUSES  = ["PENDING", "BOOKED", "IN_PROGRESS", "COMPLETED", "CANCELLED"];
+
+  const filteredBookings = sortedBookings.filter(b => {
+    // 1. Status Filter
+    if (filterStatus !== "ALL" && b.status?.toUpperCase() !== filterStatus) return false;
+    
+    // 2. Date Filter
+    if (filterDate) {
+      const bDateStr = new Date(b.booking_date).toISOString().split('T')[0];
+      if (bDateStr !== filterDate) return false;
+    }
+    
+    // 3. Time Filter
+    if (filterTime) {
+      const time12 = format12Hour(b.booking_time).toLowerCase();
+      const time24 = (b.booking_time || "").toLowerCase();
+      const searchTime = filterTime.toLowerCase();
+      if (!time12.includes(searchTime) && !time24.includes(searchTime)) return false;
+    }
+    
+    return true;
+  });
 
   return (
     <div className="branch-page">
@@ -59,30 +547,150 @@ const Services = () => {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <div style={{ fontWeight: 700, fontSize: 18 }}>Active Requests</div>
           </div>
+
+          {/* Advanced Filtering Control Panel */}
+          <div style={{ 
+            background: 'var(--surf1)', 
+            border: '1px solid var(--border)', 
+            borderRadius: 20, 
+            padding: 20, 
+            marginBottom: 24,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16
+          }}>
+            {/* Status Tabs Row */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted)', letterSpacing: '0.05em' }}>Filter by Status</label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {["ALL", ...APPT_STATUSES].map(s => (
+                  <button 
+                    key={s} 
+                    type="button"
+                    onClick={() => setFilterStatus(s)}
+                    className={`btn btn-sm ${filterStatus === s ? "btn-p" : "btn-s"}`}
+                    style={{ 
+                      borderRadius: 12, 
+                      fontWeight: 700, 
+                      fontSize: 11,
+                      padding: '6px 14px',
+                      ...(filterStatus === s ? { background: 'var(--acc)', color: '#FFF', border: '1px solid var(--acc)' } : {})
+                    }}
+                  >
+                    {s === "ALL" ? "All Requests" : s.replace('_', ' ')}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Date & Time Filters Row */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+              <div className="fg" style={{ marginBottom: 0 }}>
+                <label style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>Filter by Date</label>
+                <div style={{ position: 'relative' }}>
+                  <input 
+                    type="date" 
+                    value={filterDate}
+                    onChange={e => setFilterDate(e.target.value)}
+                    style={{ width: '100%', borderRadius: 12, paddingRight: 40 }}
+                  />
+                  {filterDate && (
+                    <button 
+                      type="button" 
+                      onClick={() => setFilterDate("")}
+                      style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontWeight: 'bold' }}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="fg" style={{ marginBottom: 0 }}>
+                <label style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>Filter by Time (e.g. 05:00 PM)</label>
+                <div style={{ position: 'relative' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Search time (e.g. AM, PM, 17:53...)" 
+                    value={filterTime}
+                    onChange={e => setFilterTime(e.target.value)}
+                    style={{ width: '100%', borderRadius: 12, paddingRight: 40 }}
+                  />
+                  {filterTime && (
+                    <button 
+                      type="button" 
+                      onClick={() => setFilterTime("")}
+                      style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontWeight: 'bold' }}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="g4">
-            {sortedBookings.map(b => (
+            {filteredBookings.map(b => (
               <div key={b.id} className="card ci" style={{ padding: 24, transition: "all .3s ease", border: "1px solid var(--border)", position: "relative", background: "var(--card)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20, alignItems: "flex-start" }}>
                   <div style={{ width: 48, height: 48, borderRadius: 14, background: "rgba(14,165,233,.08)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--acc)" }}>
                     <Icon n="wrench" size={22} />
                   </div>
                   <div style={{ display: "flex", gap: 8 }}>
-                    <button className="btn-ico" onClick={() => setEditAppt({ id: b.id, status: b.status })}><Icon n="edit" size={14} /></button>
+                    <button className="btn-ico" onClick={() => setEditAppt({ 
+                      id: b.id, 
+                      status: b.status, 
+                      booking_date: b.booking_date ? new Date(b.booking_date).toISOString().split('T')[0] : "", 
+                      booking_time: b.booking_time || "" 
+                    })}><Icon n="edit" size={14} /></button>
                     <button className="btn-ico dng" onClick={() => setConfirmId(b.id)}><Icon n="trash" size={14} /></button>
                   </div>
                 </div>
 
                 <div style={{ marginBottom: 15 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                    <span className="badge badge-blue" style={{ fontSize: 9 }}>{new Date(b.booking_date).toLocaleDateString()}</span>
-                    <span className="badge badge-orange" style={{ fontSize: 9 }}>{b.status?.toUpperCase()}</span>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                    <span className={`badge ${APPT_BADGE[b.status] || "bg-y"}`} style={{ fontSize: 9, fontWeight: 700 }}>{b.status?.toUpperCase()}</span>
+                    <span style={{ fontSize: 11, fontFamily: "var(--font-m)", fontWeight: 900, color: "var(--acc)", background: "rgba(230,81,0,0.06)", padding: "2px 8px", borderRadius: 6, letterSpacing: 0.5 }}>
+                      #{get6DigitId(b.id)}
+                    </span>
                   </div>
                   <div style={{ fontWeight: 800, fontSize: 18, color: "var(--text)" }}>{b.customer?.name}</div>
-                  <div style={{ fontSize: 13, color: "var(--acc)", fontWeight: 700, marginTop: 4 }}>{b.service?.name}</div>
+                  <div style={{ fontSize: 13, color: "var(--acc)", fontWeight: 700, marginTop: 4, marginBottom: 12 }}>{b.service?.name}</div>
+                  
+                  {/* Clickable Appointment Schedule Banner */}
+                  <div 
+                    onClick={() => setEditAppt({ 
+                      id: b.id, 
+                      status: b.status, 
+                      booking_date: b.booking_date ? new Date(b.booking_date).toISOString().split('T')[0] : "", 
+                      booking_time: b.booking_time || "" 
+                    })}
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 8, 
+                      padding: '8px 12px', 
+                      background: 'rgba(230, 81, 0, 0.05)', 
+                      border: '1px dashed rgba(230, 81, 0, 0.2)', 
+                      borderRadius: '10px', 
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      textAlign: 'left'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(230, 81, 0, 0.08)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'rgba(230, 81, 0, 0.05)'}
+                  >
+                    <Icon n="calendar" size={14} style={{ color: 'var(--acc)' }} />
+                    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text)' }}>
+                      {new Date(b.booking_date).toLocaleDateString('en-GB')} {b.booking_time ? `@ ${format12Hour(b.booking_time)}` : "— Click to Schedule Time —"}
+                    </div>
+                    <Icon n="edit" size={10} style={{ marginLeft: 'auto', opacity: 0.5 }} />
+                  </div>
                 </div>
                 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, background: 'rgba(255,255,255,0.03)', padding: '10px 14px', borderRadius: '14px', border: '1px solid var(--border)' }}>
-                  <div style={{ flex: 1 }}>
+                  <div style={{ flex: 1, textAlign: 'left' }}>
                     <div style={{ fontSize: 10, color: "var(--muted)", fontWeight: 700, textTransform: 'uppercase', marginBottom: 2 }}>Phone / Cell</div>
                     <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>
                       {b.customer_notes?.split('|')[0]?.replace('Cell:', '')?.trim() || "N/A"}
@@ -102,47 +710,97 @@ const Services = () => {
                 </div>
 
                 <div style={{ marginTop: 20, display: 'flex', gap: 10 }}>
-                  <button className="btn btn-s" style={{ flex: 1, justifyContent: 'center', height: 44 }} onClick={() => setEditAppt({ id: b.id, status: b.status })}>
-                    <Icon n="edit" /> STATUS
+                  <button className="btn btn-s" style={{ flex: 1, justifyContent: 'center', height: 44 }} onClick={() => setEditAppt({ 
+                    id: b.id, 
+                    status: b.status, 
+                    booking_date: b.booking_date ? new Date(b.booking_date).toISOString().split('T')[0] : "", 
+                    booking_time: b.booking_time || "" 
+                  })}>
+                    <Icon n="calendar" /> SCHEDULE
                   </button>
-                  <button className="btn btn-p" style={{ flex: 1, justifyContent: 'center', height: 44, background: '#111' }} onClick={() => setBillAppt({ ...b, labor: 0, parts: 0 })}>
+                  <button className="btn btn-p" style={{ flex: 1, justifyContent: 'center', height: 44, background: '#111' }} onClick={() => setBillAppt({ ...b, labor: 0, parts: 0, selectedParts: [] })}>
                     <Icon n="reports" /> BILLING
                   </button>
                 </div>
+
+                <div style={{ marginTop: 10, display: 'flex', gap: 8 }}>
+                  <button 
+                    className="btn btn-s" 
+                    style={{ flex: 1, justifyContent: 'center', height: 36, fontSize: 10, border: '1px solid #FF4D00', color: '#FF4D00', background: 'transparent', borderRadius: 10, padding: 0 }} 
+                    onClick={() => setActiveReceipt({ type: "BOOKING", booking: b })}
+                  >
+                    📅 BOOKING TICKET
+                  </button>
+                  {b.status === "COMPLETED" && (
+                    <button 
+                      className="btn btn-s" 
+                      style={{ flex: 1, justifyContent: 'center', height: 36, fontSize: 10, background: 'rgba(37, 211, 102, 0.08)', color: '#25D366', border: '1px solid #25D366', borderRadius: 10, padding: 0 }} 
+                      onClick={() => setActiveReceipt({ type: "BILL", booking: b })}
+                    >
+                      🧾 COMPLETE BILL
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
-            {sortedBookings.length === 0 && <div className="empty" style={{ gridColumn: "1/-1" }}><Icon n="wrench" size={48} opacity={0.2} /><div className="empty-t">No service requests found</div></div>}
+            {filteredBookings.length === 0 && <div className="empty" style={{ gridColumn: "1/-1" }}><Icon n="wrench" size={48} opacity={0.2} /><div className="empty-t">No service requests found</div></div>}
           </div>
         </div>
       )}
       {editAppt && (
-        <Modal title="UPDATE STATUS" onClose={() => setEditAppt(null)}
+        <Modal title="UPDATE STATUS & SCHEDULE" onClose={() => setEditAppt(null)}
           footer={<>
             <button className="btn btn-s btn-sm" onClick={() => setEditAppt(null)}>Cancel</button>
             <button className="btn btn-p btn-sm" onClick={updateAppt} disabled={saving}>{saving ? "Updating…" : "Save Changes"}</button>
           </>}
         >
-          <div className="fg"><label>Service Status</label>
+          <div className="fg" style={{ marginBottom: 16 }}><label>Service Status</label>
             <select value={editAppt.status} onChange={e => setEditAppt(v => ({ ...v, status: e.target.value }))}>
               {APPT_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
+          <div className="fg" style={{ marginBottom: 16 }}><label>Scheduled Date</label>
+            <input 
+              type="date" 
+              value={editAppt.booking_date} 
+              onChange={e => setEditAppt(v => ({ ...v, booking_date: e.target.value }))}
+              style={{ width: '100%', borderRadius: '12px' }}
+              min={new Date().toISOString().split('T')[0]}
+            />
+          </div>
+          <div className="fg"><label>Scheduled Time</label>
+            <input 
+              type="time" 
+              value={editAppt.booking_time} 
+              onChange={e => setEditAppt(v => ({ ...v, booking_time: e.target.value }))}
+              style={{ width: '100%', borderRadius: '12px' }}
+            />
+          </div>
         </Modal>
       )}
       {billAppt && (
-        <Modal title="GENERATE SERVICE BILL" onClose={() => setBillAppt(null)}
+        <Modal title="GENERATE SERVICE BILL" onClose={() => setBillAppt(null)} wide={true}
           footer={<>
             <button className="btn btn-s btn-sm" onClick={() => setBillAppt(null)}>Cancel</button>
             <button className="btn btn-p btn-sm" style={{ background: '#111' }} onClick={async () => {
               setSaving(true);
               try {
                 const total = (Number(billAppt.labor) || 0) + (Number(billAppt.parts) || 0);
+                const partsListStr = (billAppt.selectedParts || []).map(p => {
+                  const cleanedName = (p.name || "").replace(/[|,[\]]/g, "");
+                  const cleanedModel = (p.model || "").replace(/[|,[\]]/g, "");
+                  return `${cleanedName}|${cleanedModel}|${p.price || 0}|${p.qty || 1}`;
+                }).join(", ");
+                const finalNotes = partsListStr 
+                  ? `${billAppt.customer_notes || ""} | Bill: Labor ${billAppt.labor}, Parts ${billAppt.parts} [${partsListStr}]`
+                  : `${billAppt.customer_notes || ""} | Bill: Labor ${billAppt.labor}, Parts ${billAppt.parts}`;
+
                 await apiFetch(`/appointments/${billAppt.id}`, { 
                   method: "PUT", 
                   body: { 
                     final_price: total,
                     status: "COMPLETED",
-                    customer_notes: `${billAppt.customer_notes || ""} | Bill: Labor ${billAppt.labor}, Parts ${billAppt.parts}`
+                    customer_notes: finalNotes
                   } 
                 });
                 toast("Bill generated & Status completed");
@@ -152,30 +810,227 @@ const Services = () => {
             }} disabled={saving}>{saving ? "Generating…" : "Generate & Complete"}</button>
           </>}
         >
-          <div style={{ marginBottom: 20, padding: 16, background: 'var(--surf2)', borderRadius: 12, border: '1px solid var(--border)' }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 4 }}>Customer</div>
-            <div style={{ fontSize: 16, fontWeight: 800 }}>{billAppt.customer?.name}</div>
-            <div style={{ fontSize: 12, color: 'var(--acc)', fontWeight: 600 }}>{billAppt.service?.name}</div>
-          </div>
-          
-          <div className="fr" style={{ marginBottom: 16 }}>
-            <div className="fg"><label>Labor Charges (PKR)</label>
-              <input type="number" value={billAppt.labor} onChange={e => setBillAppt({...billAppt, labor: e.target.value})} placeholder="0" />
-            </div>
-            <div className="fg"><label>Parts Charges (PKR)</label>
-              <input type="number" value={billAppt.parts} onChange={e => setBillAppt({...billAppt, parts: e.target.value})} placeholder="0" />
-            </div>
-          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth > 768 ? '1.2fr 1fr' : '1fr', gap: 24 }}>
+            {/* Left Column: Product Search and Parts List */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {/* Product search box */}
+              <div className="fg" style={{ position: 'relative' }}>
+                <label style={{ fontWeight: 700, fontSize: 11, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>Search Parts or Products Used</label>
+                <div style={{ position: 'relative' }}>
+                  <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)', pointerEvents: 'none' }}>
+                    <Icon n="search" size={16} />
+                  </span>
+                  <input 
+                    type="text" 
+                    placeholder="Type to search spark plug, engine oil, tires..." 
+                    value={partSearch}
+                    onChange={e => setPartSearch(e.target.value)}
+                    style={{ paddingLeft: 40, width: '100%', borderRadius: 14 }}
+                  />
+                </div>
+                {/* Search results dropdown */}
+                {partResults.length > 0 && (
+                  <div style={{ 
+                    position: 'absolute', 
+                    top: '100%', 
+                    left: 0, 
+                    right: 0, 
+                    zIndex: 1000, 
+                    background: '#FFF', 
+                    border: '1px solid var(--border)', 
+                    borderRadius: 14, 
+                    boxShadow: '0 12px 30px rgba(0,0,0,0.15)', 
+                    maxHeight: 250, 
+                    overflowY: 'auto',
+                    marginTop: 4
+                  }}>
+                    {partResults.map(p => (
+                      <div 
+                        key={p.id} 
+                        onClick={() => addPartToBill(p)}
+                        style={{ 
+                          padding: '12px 16px', 
+                          borderBottom: '1px solid var(--border)', 
+                          cursor: 'pointer',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          transition: 'all 0.2s',
+                          background: '#FFF'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--surf2)'}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = '#FFF'}
+                      >
+                        <div style={{ flex: 1, paddingRight: 16, textAlign: 'left' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                            <span style={{ fontWeight: 800, color: '#111', fontSize: 13 }}>{p.name}</span>
+                            {p.partDetail?.item_code && (
+                              <span style={{ fontSize: 9, fontWeight: 700, background: 'rgba(0,0,0,0.05)', padding: '2px 6px', borderRadius: 4, color: 'var(--muted)' }}>
+                                {p.partDetail.item_code}
+                              </span>
+                            )}
+                            {p.partDetail?.model && (
+                              <span style={{ fontSize: 9, fontWeight: 700, background: 'rgba(230,81,0,0.08)', padding: '2px 6px', borderRadius: 4, color: 'var(--acc)' }}>
+                                {p.partDetail.model}
+                              </span>
+                            )}
+                          </div>
+                          {(p.description || p.partDetail?.description) && (
+                            <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4, fontWeight: 500, lineHeight: '1.3' }}>
+                              {p.description || p.partDetail?.description}
+                            </div>
+                          )}
+                          <div style={{ fontSize: 10, color: 'var(--muted)', marginTop: 2, fontWeight: 700, textTransform: 'uppercase' }}>
+                            Category: {p.category?.name || 'General'}
+                          </div>
+                        </div>
+                        <div style={{ textAlign: 'right', minWidth: 100 }}>
+                          <div style={{ color: 'var(--acc)', fontWeight: 900, fontSize: 14 }}>
+                            PKR {p.price.toLocaleString()}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-          <div style={{ padding: 20, background: '#111', borderRadius: 16, color: 'white', textAlign: 'center' }}>
-            <div style={{ fontSize: 10, fontWeight: 700, opacity: 0.6, textTransform: 'uppercase', marginBottom: 4 }}>Total Payable Amount</div>
-            <div style={{ fontFamily: 'var(--font-d)', fontSize: 32, letterSpacing: 1 }}>
-              PKR {((Number(billAppt.labor) || 0) + (Number(billAppt.parts) || 0)).toLocaleString()}
+              {/* Selected parts listing */}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <label style={{ fontWeight: 700, fontSize: 11, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 8 }}>Selected Parts</label>
+                <div style={{ 
+                  flex: 1, 
+                  border: '1px solid var(--border)', 
+                  borderRadius: 16, 
+                  overflow: 'hidden', 
+                  background: 'var(--surf1)',
+                  minHeight: 180,
+                  maxHeight: 280,
+                  overflowY: 'auto'
+                }}>
+                  {(!billAppt.selectedParts || billAppt.selectedParts.length === 0) ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', padding: 24, color: 'var(--muted)' }}>
+                      <Icon n="inventory" size={28} style={{ marginBottom: 8, opacity: 0.4 }} />
+                      <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase' }}>No parts added yet</div>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', divideY: '1px solid var(--border)' }}>
+                      {(billAppt.selectedParts || []).map((item, idx) => (
+                        <div key={item.id} style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'space-between', 
+                          padding: '12px 16px',
+                          borderBottom: '1px solid var(--border)',
+                          fontSize: 12,
+                          background: 'var(--card)'
+                        }}>
+                          <div style={{ flex: 1, marginRight: 12, textAlign: 'left' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                              <span style={{ fontWeight: 800, color: 'var(--text)' }}>{item.name}</span>
+                              {item.model && (
+                                <span style={{ fontSize: 8, fontWeight: 700, background: 'rgba(230,81,0,0.08)', padding: '1px 4px', borderRadius: 4, color: 'var(--acc)' }}>
+                                  {item.model}
+                                </span>
+                              )}
+                              {item.item_code && (
+                                <span style={{ fontSize: 8, fontWeight: 700, background: 'rgba(0,0,0,0.05)', padding: '1px 4px', borderRadius: 4, color: 'var(--muted)' }}>
+                                  {item.item_code}
+                                </span>
+                              )}
+                            </div>
+                            <div style={{ fontSize: 10, color: 'var(--muted)', marginTop: 2 }}>PKR {item.price.toLocaleString()} / unit</div>
+                          </div>
+                          
+                          {/* Quantity control */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginRight: 16 }}>
+                            <button 
+                              type="button" 
+                              onClick={() => updatePartQty(idx, item.qty - 1)}
+                              style={{ width: 24, height: 24, borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surf2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 900 }}
+                            >-</button>
+                            <input 
+                              type="number" 
+                              value={item.qty} 
+                              onChange={e => updatePartQty(idx, Number(e.target.value))}
+                              style={{ width: 36, textAlign: 'center', padding: '2px 0', border: '1px solid var(--border)', borderRadius: 8, fontSize: 11, fontWeight: 800 }}
+                            />
+                            <button 
+                              type="button" 
+                              onClick={() => updatePartQty(idx, item.qty + 1)}
+                              style={{ width: 24, height: 24, borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surf2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 900 }}
+                            >+</button>
+                          </div>
+
+                          <div style={{ textAlign: 'right', marginRight: 16, minWidth: 80 }}>
+                            <div style={{ fontWeight: 800, color: 'var(--acc)' }}>PKR {(item.price * item.qty).toLocaleString()}</div>
+                          </div>
+
+                          <button 
+                            type="button" 
+                            onClick={() => removePartFromBill(idx)}
+                            className="btn-ico dng" 
+                            style={{ padding: 6, borderRadius: 8 }}
+                          >
+                            <Icon n="trash" size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Customer Details, Labor & Totals */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ padding: 16, background: 'var(--surf2)', borderRadius: 16, border: '1px solid var(--border)' }}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 4 }}>Customer Details</div>
+                <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--text)' }}>{billAppt.customer?.name}</div>
+                <div style={{ fontSize: 13, color: 'var(--acc)', fontWeight: 700, marginTop: 2 }}>{billAppt.service?.name}</div>
+              </div>
+              
+              <div className="fg">
+                <label style={{ fontWeight: 700, fontSize: 11, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>Labor Charges (PKR)</label>
+                <input 
+                  type="number" 
+                  value={billAppt.labor} 
+                  onChange={e => setBillAppt({...billAppt, labor: e.target.value})} 
+                  placeholder="Enter labor/service fee..." 
+                  style={{ width: '100%', borderRadius: 14 }}
+                />
+              </div>
+
+              <div className="fg">
+                <label style={{ fontWeight: 700, fontSize: 11, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>Parts / Material Charges (PKR)</label>
+                <input 
+                  type="number" 
+                  value={billAppt.parts} 
+                  disabled={billAppt.selectedParts && billAppt.selectedParts.length > 0} 
+                  onChange={e => setBillAppt({...billAppt, parts: e.target.value})} 
+                  placeholder="Auto-calculated from selected parts..." 
+                  style={{ width: '100%', borderRadius: 14, background: (billAppt.selectedParts && billAppt.selectedParts.length > 0) ? 'var(--surf2)' : 'inherit' }}
+                />
+              </div>
+
+              <div style={{ padding: 24, background: '#111', borderRadius: 24, color: 'white', textAlign: 'center', boxShadow: '0 8px 24px rgba(0,0,0,0.15)', marginTop: 'auto' }}>
+                <div style={{ fontSize: 9, fontWeight: 700, opacity: 0.5, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Total Service Bill</div>
+                <div style={{ fontFamily: 'var(--font-d)', fontSize: 36, letterSpacing: 1, fontWeight: 900 }}>
+                  PKR {((Number(billAppt.labor) || 0) + (Number(billAppt.parts) || 0)).toLocaleString()}
+                </div>
+              </div>
             </div>
           </div>
         </Modal>
       )}
       {confirmId && <Confirm msg="Remove this booking record?" onYes={() => remove(confirmId)} onNo={() => setConfirmId(null)} />}
+      {activeReceipt && (
+        <ThermalReceipt 
+          type={activeReceipt.type} 
+          booking={activeReceipt.booking} 
+          onClose={() => setActiveReceipt(null)} 
+        />
+      )}
     </div>
   );
 };

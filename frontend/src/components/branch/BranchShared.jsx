@@ -62,6 +62,7 @@ export function useDebounce(val, ms = 400) {
 const ICON_PATHS = {
   dashboard: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10",
   orders: "M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z M3 6h18 M16 10a4 4 0 0 1-8 0",
+  pos: "M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M2 9h20 M5 15h2 M11 15h4",
   inventory: "M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z",
   products: "M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z M3 6h18 M16 10a4 4 0 0 1-8 0",
   services: "M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z",
@@ -170,5 +171,5 @@ export const TblSk = ({ rows = 5 }) => (
 
 // ─── BADGE MAP ────────────────────────────────────────────────────────────────
 export const ORDER_BADGE = { PENDING: "bg-y", PROCESSING: "bg-b", SHIPPED: "bg-o", COMPLETED: "bg-g", CANCELLED: "bg-r" };
-export const APPT_BADGE = { BOOKED: "bg-b", IN_PROGRESS: "bg-o", COMPLETED: "bg-g", CANCELLED: "bg-r" };
+export const APPT_BADGE = { PENDING: "bg-y", BOOKED: "bg-b", IN_PROGRESS: "bg-o", COMPLETED: "bg-g", CANCELLED: "bg-r" };
 export const ROLE_BADGE = { BRANCH_OWNER: "bg-b", EMPLOYEE: "bg-g", TECHNICIAN: "bg-p", CUSTOMER: "bg-y", MANAGER: "bg-o", COMPANY_OWNER: "bg-o" };

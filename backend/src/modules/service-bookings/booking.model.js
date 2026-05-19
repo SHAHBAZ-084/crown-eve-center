@@ -14,7 +14,7 @@ const getAllBookings = (filters = {}) => {
     include: {
       customer: { select: { name: true, email: true, phone: true } },
       service: { select: { name: true, base_price: true } },
-      branch: { select: { name: true } }
+      branch: { select: { name: true, location: true, phone: true } }
     },
     orderBy: { booking_date: 'desc' }
   });

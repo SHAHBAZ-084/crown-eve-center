@@ -18,7 +18,7 @@ const Appointments = () => {
 
   const rawUsers = Array.isArray(employees) ? employees : (employees?.data || []);
   const technicianList = rawUsers.filter(u => u.role === "TECHNICIAN");
-  const APPT_STATUSES  = ["BOOKED", "IN_PROGRESS", "COMPLETED", "CANCELLED"];
+  const APPT_STATUSES  = ["PENDING", "BOOKED", "IN_PROGRESS", "COMPLETED", "CANCELLED"];
 
   const updateAppt = async () => {
     if (!editAppt) return;

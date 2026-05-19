@@ -206,6 +206,75 @@ const POS = () => {
     enabled: activeMenu === 'sale-invoices'
   });
 
+  // Purchase Invoice State
+  const [piForm, setPiForm] = useState({
+    supplierId: '',
+    remarks: '',
+    documentNo: '',
+    purchaseNo: '',
+    partyInvoiceNo: '',
+    items: []
+  });
+  const [piProductSearch, setPiProductSearch] = useState("");
+  const [showAddSupplierModal, setShowAddSupplierModal] = useState(false);
+  const [newSupplierForm, setNewSupplierForm] = useState({ name: "", contact: "" });
+  const debouncedPiProductSearch = useDebounce(piProductSearch, 300);
+
+  // Service Invoice State
+  const [svForm, setSvForm] = useState({
+    customerId: '',
+    serviceId: '',
+    basePrice: 0,
+    labor: 0,
+    parts: 0,
+    selectedParts: [],
+    customerNotes: '',
+    bookingDate: new Date().toISOString().split('T')[0],
+    bookingTime: new Date().toTimeString().slice(0, 5)
+  });
+  const [svPartSearch, setSvPartSearch] = useState("");
+  const [svPartResults, setSvPartResults] = useState([]);
+  const [svCustomerSearch, setSvCustomerSearch] = useState("");
+  const debouncedSvPartSearch = useDebounce(svPartSearch, 300);
+  const debouncedSvCustomerSearch = useDebounce(svCustomerSearch, 300);
+
+  // Queries for Purchase & Service Invoices
+  const { data: piSuppliers } = useQuery({
+    queryKey: ['pi-suppliers'],
+    queryFn: () => api.get('/suppliers').then(r => r.data),
+    enabled: activeMenu === 'purchase-invoices'
+  });
+
+  const { data: piProducts, isLoading: loadingPiProducts } = useQuery({
+    queryKey: ['pi-products', debouncedPiProductSearch],
+    queryFn: () => api.get('/products', {
+      params: { branchId: user?.branchId, search: debouncedPiProductSearch, limit: 50 }
+    }).then(r => r.data),
+    enabled: activeMenu === 'purchase-invoices' && !!debouncedPiProductSearch
+  });
+
+  const { data: svServices } = useQuery({
+    queryKey: ['sv-services', user?.branchId],
+    queryFn: () => api.get('/services', { params: { branchId: user?.branchId } }).then(r => r.data),
+    enabled: activeMenu === 'service-invoices'
+  });
+
+  const { data: svCustomers, isLoading: loadingSvCustomers } = useQuery({
+    queryKey: ['sv-customers', debouncedSvCustomerSearch],
+    queryFn: () => api.get('/walk-in-customers', {
+      params: { branchId: user?.branchId, search: debouncedSvCustomerSearch, limit: 50 }
+    }).then(r => r.data),
+    enabled: activeMenu === 'service-invoices'
+  });
+
+  const { data: svParts, isLoading: loadingSvParts } = useQuery({
+    queryKey: ['sv-parts', debouncedSvPartSearch],
+    queryFn: () => api.get('/products', {
+      params: { branchId: user?.branchId, search: debouncedSvPartSearch, limit: 10 }
+    }).then(r => r.data),
+    enabled: activeMenu === 'service-invoices' && !!debouncedSvPartSearch
+  });
+
   // Fetch data for checkout
   const { data: customersData } = useQuery({
     queryKey: ['pos-customers-dropdown'],
@@ -232,267 +301,7 @@ const POS = () => {
     enabled: activeMenu === 'add-customer'
   });
 
-  // Purchase Invoices State
-  const [piForm, setPiForm] = useState({
-    supplierId: "",
-    documentNo: "",
-    purchaseNo: "",
-    partyInvoiceNo: "",
-    remarks: "",
-    items: [] // { id, name, brand, category, model, color, engineNo, chassisNo, stockType, qty, rate, amount }
-  });
-  const [piType, setPiType] = useState(""); // "" (All), "bike", "part"
-  const [piSearch, setPiSearch] = useState("");
-  const [piSupplierSearch, setPiSupplierSearch] = useState("");
-  const debouncedPiSearch = useDebounce(piSearch, 300);
-  const debouncedPiSupplierSearch = useDebounce(piSupplierSearch, 300);
 
-  const { data: piSuppliers } = useQuery({
-    queryKey: ['pos-suppliers', debouncedPiSupplierSearch],
-    queryFn: () => api.get('/suppliers', { params: { search: debouncedPiSupplierSearch } }).then(r => r.data),
-    enabled: activeMenu === 'purchase-invoices'
-  });
-
-  const { data: piProducts } = useQuery({
-    queryKey: ['pos-pi-products', debouncedPiSearch, piType],
-    queryFn: () => api.get('/products', { params: { branchId: user?.branchId, search: debouncedPiSearch, product_type: piType, limit: 10 } }).then(r => r.data),
-    enabled: activeMenu === 'purchase-invoices' && debouncedPiSearch.length > 1
-  });
-
-  const renderPurchaseInvoices = () => {
-    const handlePiSubmit = async (e) => {
-      e.preventDefault();
-      if (!piForm.supplierId) return alert("Please select a supplier");
-      if (piForm.items.length === 0) return alert("Please add at least one item");
-
-      try {
-        const payload = {
-          branchId: user?.branchId,
-          supplierId: piForm.supplierId,
-          total: piForm.items.reduce((s, i) => s + i.amount, 0),
-          remarks: piForm.remarks,
-          documentNo: piForm.documentNo,
-          purchaseNo: piForm.purchaseNo,
-          partyInvoiceNo: piForm.partyInvoiceNo,
-          items: piForm.items.map(i => ({
-            productId: i.id,
-            quantity: i.qty,
-            cost: i.rate,
-            engineNo: i.engineNo,
-            chassisNo: i.chassisNo,
-            stockType: i.stockType
-          }))
-        };
-        await api.post('/purchases', payload);
-        alert("Purchase invoice generated successfully!");
-        setPiForm({ supplierId: "", documentNo: "", purchaseNo: "", partyInvoiceNo: "", remarks: "", items: [] });
-        setPiSupplierSearch("");
-      } catch (err) {
-        alert("Failed to save purchase: " + (err.response?.data?.message || err.message));
-      }
-    };
-
-    const addItemToPi = (p) => {
-      const newItem = {
-        id: p.id,
-        name: p.name,
-        brand: p.brand?.name || "N/A",
-        category: p.category?.name || "N/A",
-        model: p.partDetail?.model || p.bikeDetail?.motor_type || "N/A",
-        color: "N/A",
-        engineNo: "",
-        chassisNo: "",
-        stockType: "New",
-        qty: 1,
-        rate: p.price || 0,
-        amount: p.price || 0
-      };
-      setPiForm(prev => ({ ...prev, items: [...prev.items, newItem] }));
-      setPiSearch("");
-    };
-
-    const updatePiItem = (idx, field, val) => {
-      setPiForm(prev => {
-        const items = [...prev.items];
-        items[idx][field] = val;
-        if (field === 'qty' || field === 'rate') {
-          items[idx].amount = (Number(items[idx].qty) || 0) * (Number(items[idx].rate) || 0);
-        }
-        return { ...prev, items };
-      });
-    };
-
-    const removePiItem = (idx) => {
-      setPiForm(prev => ({ ...prev, items: prev.items.filter((_, i) => i !== idx) }));
-    };
-
-    return (
-      <div className="flex flex-col h-full space-y-6">
-        <div className="bg-white p-8 rounded-[2.5rem] border border-[#F3E5DC] shadow-sm w-full">
-          <div className="mb-8 flex justify-between items-center">
-            <div>
-              <h2 className="text-3xl font-black text-[#2D1A12] uppercase tracking-tight">Purchase Invoice</h2>
-              <p className="text-[10px] font-bold text-[#8D7A71] uppercase tracking-[0.3em] mt-2">Inventory Procurement Terminal</p>
-            </div>
-            <div className="flex gap-4">
-               <div className="text-right">
-                 <div className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest">Date</div>
-                 <div className="font-black text-sm text-[#2D1A12]">{new Date().toLocaleDateString()}</div>
-               </div>
-            </div>
-          </div>
-
-          <form onSubmit={handlePiSubmit} className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-[#FFFAF8] p-6 rounded-3xl border border-[#F3E5DC]">
-              <div className="space-y-2 relative">
-                <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Supplier Selection *</label>
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8D7A71]" size={14} />
-                  <input 
-                    type="text" 
-                    placeholder="Search Supplier..." 
-                    value={piSupplierSearch}
-                    onChange={(e) => {
-                      setPiSupplierSearch(e.target.value);
-                      if(piForm.supplierId) setPiForm({...piForm, supplierId: ""});
-                    }}
-                    className="w-full bg-white border border-[#F3E5DC] rounded-xl py-2.5 pl-10 pr-4 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-xs" 
-                  />
-                </div>
-                {piSupplierSearch && !piForm.supplierId && (
-                  <div className="absolute z-30 left-0 right-0 mt-1 bg-white border border-[#F3E5DC] rounded-xl shadow-xl max-h-40 overflow-y-auto">
-                    {piSuppliers?.map(s => (
-                      <div key={s.id} onClick={() => { setPiForm({...piForm, supplierId: s.id}); setPiSupplierSearch(s.name); }} className="px-4 py-2 hover:bg-[#FFFAF8] cursor-pointer text-xs font-bold border-b border-[#F3E5DC] last:border-none">
-                        {s.name} ({s.contact})
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Document #</label>
-                <input type="text" value={piForm.documentNo} onChange={e => setPiForm({...piForm, documentNo: e.target.value})} className="w-full bg-white border border-[#F3E5DC] rounded-xl py-2.5 px-4 outline-none font-bold text-xs" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Party Invoice #</label>
-                <input type="text" value={piForm.partyInvoiceNo} onChange={e => setPiForm({...piForm, partyInvoiceNo: e.target.value})} className="w-full bg-white border border-[#F3E5DC] rounded-xl py-2.5 px-4 outline-none font-bold text-xs" />
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex flex-wrap justify-between items-center px-2 gap-4">
-                <div className="flex items-center gap-6">
-                  <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest">Inventory Items</label>
-                  <div className="flex bg-[#FFFAF8] p-1 rounded-full border border-[#F3E5DC]">
-                    <button type="button" onClick={() => setPiType("")} className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${piType === "" ? 'bg-[#E65100] text-white shadow-md' : 'text-[#8D7A71]'}`}>All</button>
-                    <button type="button" onClick={() => setPiType("bike")} className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${piType === "bike" ? 'bg-[#E65100] text-white shadow-md' : 'text-[#8D7A71]'}`}>Bikes</button>
-                    <button type="button" onClick={() => setPiType("part")} className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${piType === "part" ? 'bg-[#E65100] text-white shadow-md' : 'text-[#8D7A71]'}`}>Parts</button>
-                  </div>
-                </div>
-                <div className="relative w-72">
-                  <Plus className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8D7A71]" size={14} />
-                  <input 
-                    type="text" 
-                    placeholder={`Search ${piType || 'all products'}...`} 
-                    value={piSearch}
-                    onChange={(e) => setPiSearch(e.target.value)}
-                    className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-full py-2 pl-10 pr-4 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-[10px]" 
-                  />
-                  {piSearch && (
-                    <div className="absolute z-20 left-0 right-0 mt-1 bg-white border border-[#F3E5DC] rounded-xl shadow-xl max-h-60 overflow-y-auto">
-                      {piProducts?.data?.map(p => (
-                        <div key={p.id} onClick={() => addItemToPi(p)} className="px-4 py-2 hover:bg-[#FFFAF8] cursor-pointer text-[10px] font-bold border-b border-[#F3E5DC] last:border-none flex justify-between">
-                          <span>{p.name}</span>
-                          <span className="text-[#E65100]">PKR {p.price}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="overflow-x-auto rounded-3xl border border-[#F3E5DC] bg-white">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-[#FFFAF8] border-b border-[#F3E5DC]">
-                      <th className="px-4 py-3 text-[9px] font-black text-[#8D7A71] uppercase tracking-widest">Item / Brand</th>
-                      <th className="px-4 py-3 text-[9px] font-black text-[#8D7A71] uppercase tracking-widest">Engine #</th>
-                      <th className="px-4 py-3 text-[9px] font-black text-[#8D7A71] uppercase tracking-widest">Chassis #</th>
-                      <th className="px-4 py-3 text-[9px] font-black text-[#8D7A71] uppercase tracking-widest text-center">Type</th>
-                      <th className="px-4 py-3 text-[9px] font-black text-[#8D7A71] uppercase tracking-widest text-center">Qty</th>
-                      <th className="px-4 py-3 text-[9px] font-black text-[#8D7A71] uppercase tracking-widest text-right">Rate</th>
-                      <th className="px-4 py-3 text-[9px] font-black text-[#8D7A71] uppercase tracking-widest text-right">Amount</th>
-                      <th className="px-4 py-3 text-[9px] font-black text-[#8D7A71] uppercase tracking-widest text-center"></th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#F3E5DC]">
-                    {piForm.items.map((item, idx) => (
-                      <tr key={idx} className="hover:bg-[#FFFAF8]/50 transition-colors">
-                        <td className="px-4 py-3">
-                          <div className="font-black text-[#2D1A12] text-[10px] uppercase">{item.name}</div>
-                          <div className="text-[8px] font-bold text-[#8D7A71] uppercase">{item.brand} • {item.model}</div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <input type="text" value={item.engineNo} onChange={e => updatePiItem(idx, 'engineNo', e.target.value)} className="w-full bg-transparent border-b border-transparent focus:border-[#E65100] outline-none text-[10px] font-bold py-1" placeholder="Engine #" />
-                        </td>
-                        <td className="px-4 py-3">
-                          <input type="text" value={item.chassisNo} onChange={e => updatePiItem(idx, 'chassisNo', e.target.value)} className="w-full bg-transparent border-b border-transparent focus:border-[#E65100] outline-none text-[10px] font-bold py-1" placeholder="Chassis #" />
-                        </td>
-                        <td className="px-4 py-3 text-center">
-                          <select value={item.stockType} onChange={e => updatePiItem(idx, 'stockType', e.target.value)} className="bg-transparent text-[9px] font-black uppercase outline-none">
-                            <option value="New">New</option>
-                            <option value="Old">Old</option>
-                          </select>
-                        </td>
-                        <td className="px-4 py-3 text-center">
-                          <input type="number" value={item.qty} onChange={e => updatePiItem(idx, 'qty', e.target.value)} className="w-12 bg-transparent text-center text-[10px] font-black outline-none" />
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <input type="number" value={item.rate} onChange={e => updatePiItem(idx, 'rate', e.target.value)} className="w-20 bg-transparent text-right text-[10px] font-black outline-none" />
-                        </td>
-                        <td className="px-4 py-3 text-right font-black text-[10px] text-[#E65100]">
-                          {(item.amount).toLocaleString()}
-                        </td>
-                        <td className="px-4 py-3 text-center">
-                          <button type="button" onClick={() => removePiItem(idx)} className="text-red-400 hover:text-red-600 transition-colors"><Trash2 size={14} /></button>
-                        </td>
-                      </tr>
-                    ))}
-                    {piForm.items.length === 0 && (
-                      <tr><td colSpan="8" className="px-4 py-12 text-center text-[10px] font-bold text-[#8D7A71] uppercase tracking-widest">No items added to invoice yet</td></tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Remarks / Internal Notes</label>
-                <textarea value={piForm.remarks} onChange={e => setPiForm({...piForm, remarks: e.target.value})} className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-xs min-h-[100px]" placeholder="Enter any specific details about this purchase..."></textarea>
-              </div>
-              <div className="bg-[#2D1A12] p-8 rounded-[2.5rem] text-white shadow-2xl">
-                <div className="flex justify-between items-center mb-6">
-                  <span className="text-[10px] font-bold text-white/60 uppercase tracking-[0.2em]">Total Items</span>
-                  <span className="font-black">{piForm.items.reduce((s, i) => s + (Number(i.qty) || 0), 0)}</span>
-                </div>
-                <div className="flex justify-between items-center mb-8 pb-8 border-b border-white/10">
-                  <span className="text-[10px] font-bold text-white/60 uppercase tracking-[0.2em]">Net Amount Payable</span>
-                  <div className="text-right">
-                    <div className="text-[10px] font-bold text-[#E65100] uppercase tracking-widest mb-1">Grand Total</div>
-                    <div className="text-3xl font-black">PKR {piForm.items.reduce((s, i) => s + i.amount, 0).toLocaleString()}</div>
-                  </div>
-                </div>
-                <button type="submit" className="w-full bg-[#E65100] text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-[#E65100]/20 flex items-center justify-center gap-3">
-                  <Icon n="check" size={18} /> Save Purchase Invoice
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-    );
-  };
 
   const handleAddCustomer = async (e) => {
     e.preventDefault();
@@ -972,6 +781,677 @@ const POS = () => {
     );
   };
 
+  const renderPurchaseInvoices = () => {
+    const handlePiSubmit = async (e) => {
+      e.preventDefault();
+      if (!piForm.supplierId) return alert("Please select a supplier");
+      if (piForm.items.length === 0) return alert("Please add at least one product");
+
+      const invalidItem = piForm.items.find(i => !i.cost || i.cost <= 0);
+      if (invalidItem) return alert(`Please enter a valid cost for ${invalidItem.name}`);
+
+      try {
+        const total = piForm.items.reduce((sum, item) => sum + (parseFloat(item.cost) * parseInt(item.quantity)), 0);
+        const payload = {
+          supplierId: Number(piForm.supplierId),
+          branchId: Number(user?.branchId),
+          total,
+          remarks: piForm.remarks || null,
+          documentNo: piForm.documentNo || null,
+          purchaseNo: piForm.purchaseNo || null,
+          partyInvoiceNo: piForm.partyInvoiceNo || null,
+          items: piForm.items.map(item => ({
+            productId: item.productId,
+            quantity: Number(item.quantity),
+            cost: parseFloat(item.cost),
+            engineNo: item.engineNo || null,
+            chassisNo: item.chassisNo || null,
+            stockType: item.productType === 'bike' ? 'New' : 'Standard'
+          }))
+        };
+
+        await api.post('/purchases', payload);
+        alert("Purchase invoice registered and stock successfully updated!");
+        setPiForm({
+          supplierId: '',
+          remarks: '',
+          documentNo: '',
+          purchaseNo: '',
+          partyInvoiceNo: '',
+          items: []
+        });
+        setPiProductSearch("");
+        queryClient.invalidateQueries(['pos-products-list']);
+      } catch (err) {
+        alert("Failed to create purchase invoice: " + (err.response?.data?.message || err.message));
+      }
+    };
+
+    const addProductToPi = (product) => {
+      setPiForm(prev => {
+        const exists = prev.items.find(i => i.productId === product.id);
+        if (exists) {
+          return {
+            ...prev,
+            items: prev.items.map(i => i.productId === product.id ? { ...i, quantity: i.quantity + 1 } : i)
+          };
+        }
+        return {
+          ...prev,
+          items: [...prev.items, {
+            productId: product.id,
+            name: product.name,
+            model: product.partDetail?.model || product.bikeDetail?.motor_type || "N/A",
+            quantity: 1,
+            cost: product.partDetail?.cp_price || product.price * 0.7, // fallback default cost
+            engineNo: "",
+            chassisNo: "",
+            productType: product.product_type
+          }]
+        };
+      });
+      setPiProductSearch("");
+    };
+
+    const updatePiItem = (productId, key, val) => {
+      setPiForm(prev => ({
+        ...prev,
+        items: prev.items.map(i => i.productId === productId ? { ...i, [key]: val } : i)
+      }));
+    };
+
+    const removePiItem = (productId) => {
+      setPiForm(prev => ({
+        ...prev,
+        items: prev.items.filter(i => i.productId !== productId)
+      }));
+    };
+
+    const handleCreateSupplier = async (e) => {
+      e.preventDefault();
+      if (!newSupplierForm.name || !newSupplierForm.contact) return alert("Name and contact are required");
+      try {
+        const res = await api.post('/suppliers', newSupplierForm);
+        alert("Supplier registered successfully!");
+        setPiForm(prev => ({ ...prev, supplierId: res.data.id }));
+        setNewSupplierForm({ name: "", contact: "" });
+        setShowAddSupplierModal(false);
+        queryClient.invalidateQueries(['pi-suppliers']);
+      } catch (err) {
+        alert("Failed to register supplier: " + (err.response?.data?.message || err.message));
+      }
+    };
+
+    const piTotal = piForm.items.reduce((sum, item) => sum + ((parseFloat(item.cost) || 0) * parseInt(item.quantity || 1)), 0);
+
+    return (
+      <div className="flex flex-col h-full space-y-6">
+        <div className="bg-white p-8 rounded-[2.5rem] border border-[#F3E5DC] shadow-sm max-w-5xl mx-auto w-full">
+          <div className="mb-10 text-center">
+            <h2 className="text-3xl font-black text-[#2D1A12] uppercase tracking-tight">Purchase Invoice & Stock Inflow</h2>
+            <p className="text-[10px] font-bold text-[#8D7A71] uppercase tracking-[0.3em] mt-2">Procure electric bikes & spare parts</p>
+          </div>
+
+          <form onSubmit={handlePiSubmit} className="space-y-10">
+            {/* Supplier & Details Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center ml-2">
+                  <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em]">Select Supplier *</label>
+                  <button 
+                    type="button" 
+                    onClick={() => setShowAddSupplierModal(true)} 
+                    className="text-[10px] font-black text-[#E65100] hover:underline uppercase tracking-widest"
+                  >
+                    + Register New
+                  </button>
+                </div>
+                <select 
+                  required
+                  value={piForm.supplierId} 
+                  onChange={e => setPiForm({ ...piForm, supplierId: e.target.value })}
+                  className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl py-4.5 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm"
+                >
+                  <option value="">Choose Supplier...</option>
+                  {(piSuppliers || []).map(s => (
+                    <option key={s.id} value={s.id}>{s.name} ({s.contact})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Document No</label>
+                  <input 
+                    type="text" 
+                    value={piForm.documentNo} 
+                    onChange={e => setPiForm({ ...piForm, documentNo: e.target.value })}
+                    placeholder="e.g. DOC-123"
+                    className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Party Invoice No</label>
+                  <input 
+                    type="text" 
+                    value={piForm.partyInvoiceNo} 
+                    onChange={e => setPiForm({ ...piForm, partyInvoiceNo: e.target.value })}
+                    placeholder="e.g. INV-998"
+                    className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Product Search */}
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Search Products to Purchase</label>
+              <div className="relative">
+                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[#8D7A71]" size={18} />
+                <input 
+                  type="text" 
+                  value={piProductSearch} 
+                  onChange={e => setPiProductSearch(e.target.value)}
+                  placeholder="Search branch bikes or parts by name or model..."
+                  className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl py-5 pl-16 pr-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm"
+                />
+                {piProductSearch && (
+                  <div className="absolute z-20 left-0 right-0 mt-2 bg-white border border-[#F3E5DC] rounded-3xl shadow-2xl overflow-hidden max-h-80 overflow-y-auto custom-scrollbar">
+                    {loadingPiProducts ? (
+                      <div className="p-6 text-center animate-pulse text-[#8D7A71] text-xs font-bold uppercase">Searching products...</div>
+                    ) : piProducts?.data?.length === 0 ? (
+                      <div className="p-6 text-center text-[#8D7A71] text-xs font-bold uppercase">No matching products found</div>
+                    ) : (
+                      (piProducts?.data || []).map(p => (
+                        <div 
+                          key={p.id} 
+                          onClick={() => addProductToPi(p)}
+                          className="px-6 py-4 hover:bg-[#FFFAF8] cursor-pointer border-b border-[#F3E5DC] last:border-none flex justify-between items-center group"
+                        >
+                          <div>
+                            <div className="font-black text-[#2D1A12] text-sm uppercase group-hover:text-[#E65100] transition-colors">{p.name}</div>
+                            <div className="text-[10px] font-bold text-[#8D7A71] uppercase tracking-tighter">
+                              Type: {p.product_type} • Current Stock: {p.stock_qty} Units
+                            </div>
+                          </div>
+                          <div className="text-[#E65100] font-black text-xs">PKR {p.price.toLocaleString()}</div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Selected Items List */}
+            {piForm.items.length > 0 && (
+              <div className="space-y-4">
+                <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Invoice Procurement Items</label>
+                <div className="bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl overflow-hidden">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-[#F3E5DC]/30 border-b border-[#F3E5DC]">
+                        <th className="px-6 py-4 text-[10px] font-black text-[#8D7A71] uppercase tracking-widest">Item Description</th>
+                        <th className="px-6 py-4 text-[10px] font-black text-[#8D7A71] uppercase tracking-widest text-center" style={{ width: 140 }}>Qty</th>
+                        <th className="px-6 py-4 text-[10px] font-black text-[#8D7A71] uppercase tracking-widest" style={{ width: 180 }}>Unit Cost (PKR)</th>
+                        <th className="px-6 py-4 text-[10px] font-black text-[#8D7A71] uppercase tracking-widest text-right">Total Cost</th>
+                        <th className="px-6 py-4 text-[10px] font-black text-[#8D7A71] uppercase tracking-widest text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {piForm.items.map(item => (
+                        <tr key={item.productId} className="border-b border-[#F3E5DC] last:border-none">
+                          <td className="px-6 py-4 space-y-3">
+                            <div>
+                              <div className="font-black text-[#2D1A12] text-xs uppercase">{item.name}</div>
+                              <div className="text-[9px] font-bold text-[#8D7A71] uppercase tracking-tighter">Model: {item.model} • Type: {item.productType}</div>
+                            </div>
+                            {item.productType === 'bike' && (
+                              <div className="grid grid-cols-2 gap-2 pt-2">
+                                <input 
+                                  type="text" 
+                                  value={item.engineNo} 
+                                  onChange={e => updatePiItem(item.productId, 'engineNo', e.target.value)} 
+                                  placeholder="Engine Number" 
+                                  className="bg-white border border-[#F3E5DC] rounded-xl px-3 py-1.5 text-[10px] font-bold outline-none"
+                                />
+                                <input 
+                                  type="text" 
+                                  value={item.chassisNo} 
+                                  onChange={e => updatePiItem(item.productId, 'chassisNo', e.target.value)} 
+                                  placeholder="Chassis Number" 
+                                  className="bg-white border border-[#F3E5DC] rounded-xl px-3 py-1.5 text-[10px] font-bold outline-none"
+                                />
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center justify-center gap-3">
+                              <button type="button" onClick={() => updatePiItem(item.productId, 'quantity', Math.max(1, item.quantity - 1))} className="w-6 h-6 rounded-full bg-white border border-[#F3E5DC] flex items-center justify-center text-xs font-black hover:bg-[#F3E5DC] transition-colors">−</button>
+                              <span className="font-black text-xs w-6 text-center">{item.quantity}</span>
+                              <button type="button" onClick={() => updatePiItem(item.productId, 'quantity', item.quantity + 1)} className="w-6 h-6 rounded-full bg-white border border-[#F3E5DC] flex items-center justify-center text-xs font-black hover:bg-[#F3E5DC] transition-colors">+</button>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <input 
+                              type="number" 
+                              value={item.cost} 
+                              onChange={e => updatePiItem(item.productId, 'cost', e.target.value)}
+                              placeholder="Unit Cost"
+                              className="w-full bg-white border border-[#F3E5DC] rounded-xl py-2 px-3 outline-none font-bold text-xs"
+                            />
+                          </td>
+                          <td className="px-6 py-4 text-right font-black text-xs text-[#E65100]">PKR {((parseFloat(item.cost) || 0) * item.quantity).toLocaleString()}</td>
+                          <td className="px-6 py-4 text-center">
+                            <button type="button" onClick={() => removePiItem(item.productId)} className="text-red-400 hover:text-red-600 transition-colors">
+                              <Trash2 size={16} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Remarks and Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Remarks / Notes</label>
+                <textarea 
+                  value={piForm.remarks} 
+                  onChange={e => setPiForm({ ...piForm, remarks: e.target.value })}
+                  placeholder="Add inventory memo or transaction comments..."
+                  className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm min-h-[110px]"
+                />
+              </div>
+
+              <div className="space-y-4">
+                <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Grand Procurement Total</label>
+                <div className="bg-[#2D1A12] p-8 rounded-[2rem] text-white shadow-xl flex flex-col justify-center">
+                  <div className="text-[10px] font-bold text-[#FFFAF8]/60 uppercase tracking-[0.2em] mb-1">Total Bill to Supplier</div>
+                  <div className="text-3xl font-black text-white">PKR {piTotal.toLocaleString()}</div>
+                </div>
+              </div>
+            </div>
+
+            <button 
+              type="submit"
+              className="w-full bg-[#E65100] text-white py-6 rounded-[2.5rem] font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-[1.01] active:scale-95 transition-all mt-6 flex items-center justify-center gap-4"
+            >
+              <Icon n="check" size={20} /> Register Purchase Invoice & Update Stock
+            </button>
+          </form>
+        </div>
+
+        {/* Add Supplier Modal */}
+        {showAddSupplierModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowAddSupplierModal(false)} />
+            <div className="relative bg-white w-full max-w-md rounded-[3rem] overflow-hidden shadow-2xl flex flex-col">
+              <header className="px-10 py-7 border-b border-[#F3E5DC] flex justify-between items-center bg-[#FFFAF8]">
+                <h2 className="text-xl font-black text-[#2D1A12]">REGISTER SUPPLIER</h2>
+                <button className="w-8 h-8 bg-white border border-[#F3E5DC] rounded-full flex items-center justify-center text-[#8D7A71]" onClick={() => setShowAddSupplierModal(false)}>
+                  <Icon n="close" size={16} />
+                </button>
+              </header>
+              <form onSubmit={handleCreateSupplier} className="p-10 space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest">Supplier / Company Name *</label>
+                  <input required type="text" value={newSupplierForm.name} onChange={e => setNewSupplierForm({ ...newSupplierForm, name: e.target.value })} placeholder="e.g. ProCycle Electric Parts" className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-3.5 px-5 outline-none font-bold text-xs" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest">Contact Info (Phone/Email) *</label>
+                  <input required type="text" value={newSupplierForm.contact} onChange={e => setNewSupplierForm({ ...newSupplierForm, contact: e.target.value })} placeholder="e.g. +92 300 1234567" className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-3.5 px-5 outline-none font-bold text-xs" />
+                </div>
+                <button type="submit" className="w-full bg-[#E65100] text-white py-4.5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg">Save Supplier</button>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderServiceInvoices = () => {
+    const handleSvSubmit = async (e) => {
+      e.preventDefault();
+      if (!svForm.customerId) return alert("Please select a customer");
+      if (!svForm.serviceId) return alert("Please select a service type");
+
+      try {
+        const selectedServiceObj = (svServices || []).find(s => s.id === svForm.serviceId);
+        const serviceName = selectedServiceObj ? selectedServiceObj.name : "Bike Maintenance";
+        const selectedCustObj = (svCustomers?.data || []).find(c => c.id === svForm.customerId);
+        const customerName = selectedCustObj ? `${selectedCustObj.first_name} ${selectedCustObj.last_name}` : "Walk-in Customer";
+        const customerPhone = selectedCustObj ? selectedCustObj.phone : "";
+
+        const partsTotal = svForm.selectedParts.reduce((sum, p) => sum + (p.price * p.qty), 0);
+        const grandTotal = (parseFloat(svForm.labor) || 0) + partsTotal;
+
+        const partsListStr = svForm.selectedParts.map(p => `${p.name}|${p.model || ""}|${p.price}|${p.qty}`).join(", ");
+        const finalNotes = partsListStr 
+          ? `Walk-in Service: ${customerName} (${customerPhone}) | Remarks: ${svForm.customerNotes || ""} | Bill: Labor ${svForm.labor}, Parts ${partsTotal} [${partsListStr}]`
+          : `Walk-in Service: ${customerName} (${customerPhone}) | Remarks: ${svForm.customerNotes || ""} | Bill: Labor ${svForm.labor}, Parts ${partsTotal}`;
+
+        const payload = {
+          serviceId: svForm.serviceId,
+          branchId: Number(user?.branchId),
+          booking_date: svForm.bookingDate,
+          booking_time: svForm.bookingTime,
+          status: "COMPLETED",
+          customer_notes: finalNotes,
+          final_price: grandTotal
+        };
+
+        await api.post('/appointments', payload);
+        alert("Walk-in service ticket successfully created and completed!");
+        setSvForm({
+          customerId: '',
+          serviceId: '',
+          basePrice: 0,
+          labor: 0,
+          parts: 0,
+          selectedParts: [],
+          customerNotes: '',
+          bookingDate: new Date().toISOString().split('T')[0],
+          bookingTime: new Date().toTimeString().slice(0, 5)
+        });
+        setSvCustomerSearch("");
+        setSvPartSearch("");
+      } catch (err) {
+        alert("Failed to submit service invoice: " + (err.response?.data?.message || err.message));
+      }
+    };
+
+    const handleServiceSelect = (serviceId) => {
+      const selected = (svServices || []).find(s => s.id === serviceId);
+      if (selected) {
+        setSvForm(prev => ({
+          ...prev,
+          serviceId,
+          basePrice: selected.base_price,
+          labor: selected.base_price
+        }));
+      } else {
+        setSvForm(prev => ({
+          ...prev,
+          serviceId: '',
+          basePrice: 0,
+          labor: 0
+        }));
+      }
+    };
+
+    const addPartToSv = (product) => {
+      setSvForm(prev => {
+        const exists = prev.selectedParts.find(p => p.id === product.id);
+        if (exists) {
+          return {
+            ...prev,
+            selectedParts: prev.selectedParts.map(p => p.id === product.id ? { ...p, qty: p.qty + 1 } : p)
+          };
+        }
+        return {
+          ...prev,
+          selectedParts: [...prev.selectedParts, {
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            qty: 1,
+            model: product.partDetail?.model || ""
+          }]
+        };
+      });
+      setSvPartSearch("");
+    };
+
+    const updateSvPartQty = (id, delta) => {
+      setSvForm(prev => ({
+        ...prev,
+        selectedParts: prev.selectedParts.map(p => p.id === id ? { ...p, qty: Math.max(1, p.qty + delta) } : p)
+      }));
+    };
+
+    const removeSvPart = (id) => {
+      setSvForm(prev => ({
+        ...prev,
+        selectedParts: prev.selectedParts.filter(p => p.id !== id)
+      }));
+    };
+
+    const partsTotal = svForm.selectedParts.reduce((sum, p) => sum + (p.price * p.qty), 0);
+    const grandTotal = (parseFloat(svForm.labor) || 0) + partsTotal;
+
+    return (
+      <div className="flex flex-col h-full space-y-6">
+        <div className="bg-white p-8 rounded-[2.5rem] border border-[#F3E5DC] shadow-sm max-w-5xl mx-auto w-full">
+          <div className="mb-10 text-center">
+            <h2 className="text-3xl font-black text-[#2D1A12] uppercase tracking-tight">Walk-in Customer Service Bay</h2>
+            <p className="text-[10px] font-bold text-[#8D7A71] uppercase tracking-[0.3em] mt-2">Bill Maintenance, Repair & Tuning Services</p>
+          </div>
+
+          <form onSubmit={handleSvSubmit} className="space-y-10">
+            {/* Customer & Service Select Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Customer */}
+              <div className="space-y-4">
+                <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Walk-in Customer *</label>
+                <div className="relative">
+                  <div className="relative">
+                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[#8D7A71]" size={18} />
+                    <input 
+                      type="text" 
+                      value={svCustomerSearch} 
+                      onChange={e => {
+                        setSvCustomerSearch(e.target.value);
+                        if (svForm.customerId) setSvForm({ ...svForm, customerId: '' });
+                      }}
+                      placeholder="Search walk-in customer by name or phone..."
+                      className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl py-4.5 pl-16 pr-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm"
+                    />
+                  </div>
+                  {svCustomerSearch && !svForm.customerId && (
+                    <div className="absolute z-10 left-0 right-0 mt-2 bg-white border border-[#F3E5DC] rounded-3xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto custom-scrollbar">
+                      {loadingSvCustomers ? (
+                        <div className="p-6 text-center animate-pulse text-[#8D7A71] text-xs font-bold uppercase">Searching...</div>
+                      ) : svCustomers?.data?.length === 0 ? (
+                        <div className="p-6 text-center text-[#8D7A71] text-xs font-bold uppercase">Customer not found</div>
+                      ) : (
+                        (svCustomers.data || []).map(c => (
+                          <div 
+                            key={c.id} 
+                            onClick={() => {
+                              setSvForm({ ...svForm, customerId: c.id });
+                              setSvCustomerSearch(`${c.first_name} ${c.last_name} (${c.phone})`);
+                            }}
+                            className="px-6 py-4 hover:bg-[#FFFAF8] cursor-pointer border-b border-[#F3E5DC] last:border-none"
+                          >
+                            <div className="font-black text-[#2D1A12] text-sm uppercase">{c.first_name} {c.last_name}</div>
+                            <div className="text-[10px] font-bold text-[#8D7A71] tracking-widest">{c.phone}</div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Service Type */}
+              <div className="space-y-4">
+                <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Service Type *</label>
+                <select 
+                  required
+                  value={svForm.serviceId} 
+                  onChange={e => handleServiceSelect(e.target.value)}
+                  className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl py-4.5 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm"
+                >
+                  <option value="">Select Service...</option>
+                  {(svServices || []).map(s => (
+                    <option key={s.id} value={s.id}>{s.name} (PKR {s.base_price})</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Spare Parts Used */}
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Add Spare Parts Used (Optional)</label>
+              <div className="relative">
+                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[#8D7A71]" size={18} />
+                <input 
+                  type="text" 
+                  value={svPartSearch} 
+                  onChange={e => setSvPartSearch(e.target.value)}
+                  placeholder="Type to search branch spare parts used in service..."
+                  className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl py-5 pl-16 pr-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm"
+                />
+                {svPartSearch && (
+                  <div className="absolute z-20 left-0 right-0 mt-2 bg-white border border-[#F3E5DC] rounded-3xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto custom-scrollbar">
+                    {loadingSvParts ? (
+                      <div className="p-6 text-center animate-pulse text-[#8D7A71] text-xs font-bold uppercase">Searching...</div>
+                    ) : svParts?.data?.length === 0 ? (
+                      <div className="p-6 text-center text-[#8D7A71] text-xs font-bold uppercase">No matching spare parts found</div>
+                    ) : (
+                      (svParts.data || []).map(p => (
+                        <div 
+                          key={p.id} 
+                          onClick={() => addPartToSv(p)}
+                          className="px-6 py-4 hover:bg-[#FFFAF8] cursor-pointer border-b border-[#F3E5DC] last:border-none flex justify-between items-center group"
+                        >
+                          <div>
+                            <div className="font-black text-[#2D1A12] text-sm uppercase group-hover:text-[#E65100] transition-colors">{p.name}</div>
+                            <div className="text-[10px] font-bold text-[#8D7A71] uppercase tracking-tighter">Model: {p.partDetail?.model || "N/A"} • Stock: {p.stock_qty} Units</div>
+                          </div>
+                          <div className="text-[#E65100] font-black text-xs">PKR {p.price.toLocaleString()}</div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Selected Parts Table */}
+            {svForm.selectedParts.length > 0 && (
+              <div className="space-y-4">
+                <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Selected Parts Applied</label>
+                <div className="bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl overflow-hidden">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-[#F3E5DC]/30 border-b border-[#F3E5DC]">
+                        <th className="px-6 py-4 text-[10px] font-black text-[#8D7A71] uppercase tracking-widest">Part Description</th>
+                        <th className="px-6 py-4 text-[10px] font-black text-[#8D7A71] uppercase tracking-widest text-center">Qty</th>
+                        <th className="px-6 py-4 text-[10px] font-black text-[#8D7A71] uppercase tracking-widest text-right">Unit Price</th>
+                        <th className="px-6 py-4 text-[10px] font-black text-[#8D7A71] uppercase tracking-widest text-right">Total Price</th>
+                        <th className="px-6 py-4 text-[10px] font-black text-[#8D7A71] uppercase tracking-widest text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {svForm.selectedParts.map(item => (
+                        <tr key={item.id} className="border-b border-[#F3E5DC] last:border-none">
+                          <td className="px-6 py-4">
+                            <div className="font-black text-[#2D1A12] text-xs uppercase">{item.name}</div>
+                            <div className="text-[9px] font-bold text-[#8D7A71] uppercase tracking-tighter">Model: {item.model || "Standard"}</div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center justify-center gap-3">
+                              <button type="button" onClick={() => updateSvPartQty(item.id, -1)} className="w-6 h-6 rounded-full bg-white border border-[#F3E5DC] flex items-center justify-center text-xs font-black hover:bg-[#F3E5DC] transition-colors">−</button>
+                              <span className="font-black text-xs w-6 text-center">{item.qty}</span>
+                              <button type="button" onClick={() => updateSvPartQty(item.id, 1)} className="w-6 h-6 rounded-full bg-white border border-[#F3E5DC] flex items-center justify-center text-xs font-black hover:bg-[#F3E5DC] transition-colors">+</button>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-right font-bold text-xs">PKR {item.price.toLocaleString()}</td>
+                          <td className="px-6 py-4 text-right font-black text-xs text-[#E65100]">PKR {(item.price * item.qty).toLocaleString()}</td>
+                          <td className="px-6 py-4 text-center">
+                            <button type="button" onClick={() => removeSvPart(item.id)} className="text-red-400 hover:text-red-600 transition-colors">
+                              <Trash2 size={16} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Calculations Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Labor / Service Charges (PKR)</label>
+                  <input 
+                    type="number" 
+                    value={svForm.labor} 
+                    onChange={e => setSvForm({ ...svForm, labor: e.target.value })}
+                    className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl py-4.5 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Job Remarks / Technicians Notes</label>
+                  <textarea 
+                    value={svForm.customerNotes} 
+                    onChange={e => setSvForm({ ...svForm, customerNotes: e.target.value })}
+                    placeholder="Describe maintenance actions, diagnostic results..."
+                    className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm min-h-[100px]"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-6 flex flex-col justify-between">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Tuning Date</label>
+                    <input 
+                      type="date" 
+                      value={svForm.bookingDate} 
+                      onChange={e => setSvForm({ ...svForm, bookingDate: e.target.value })}
+                      className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none font-bold text-xs"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Tuning Time</label>
+                    <input 
+                      type="time" 
+                      value={svForm.bookingTime} 
+                      onChange={e => setSvForm({ ...svForm, bookingTime: e.target.value })}
+                      className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none font-bold text-xs"
+                    />
+                  </div>
+                </div>
+
+                <div className="bg-[#2D1A12] p-8 rounded-[2rem] text-white shadow-xl">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-[10px] font-bold text-[#FFFAF8]/60 uppercase tracking-[0.2em]">Labor / Tuning</span>
+                    <span className="font-bold text-xs">PKR {(parseFloat(svForm.labor) || 0).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center mb-4 pb-4 border-b border-white/10">
+                    <span className="text-[10px] font-bold text-[#FFFAF8]/60 uppercase tracking-[0.2em]">Spare Parts Cost</span>
+                    <span className="font-bold text-xs">PKR {partsTotal.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-end">
+                    <span className="text-[10px] font-bold text-white uppercase tracking-[0.2em]">Total service bill</span>
+                    <span className="text-2xl font-black text-[#E65100]">PKR {grandTotal.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button 
+              type="submit"
+              className="w-full bg-[#E65100] text-white py-6 rounded-[2.5rem] font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-[1.01] active:scale-95 transition-all mt-6 flex items-center justify-center gap-4"
+            >
+              <Icon n="check" size={20} /> Generate Service Invoice & Print
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
   const menuGroups = [
     {
       title: "GENERAL",
@@ -992,7 +1472,8 @@ const POS = () => {
       title: "INVOICES",
       items: [
         { id: "sale-invoices", label: "Sale Invoices", icon: "tag" },
-        { id: "purchase-invoices", label: "Purchase Invoices", icon: "inventory" },
+        { id: "purchase-invoices", label: "Purchase Invoices", icon: "truck" },
+        { id: "service-invoices", label: "Service Invoices", icon: "wrench" },
       ]
     },
     {
@@ -1474,8 +1955,13 @@ const POS = () => {
         return renderCustomers();
       case "add-bank":
         return renderBanks();
+      case "sale-invoices":
+        return renderSaleInvoices();
       case "purchase-invoices":
         return renderPurchaseInvoices();
+      case "service-invoices":
+        return renderServiceInvoices();
+
       default:
         return <div className="card ci"><h2>{activeMenu.replace("-", " ").toUpperCase()}</h2><p>Feature coming soon...</p></div>;
     }

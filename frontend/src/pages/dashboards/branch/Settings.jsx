@@ -1,5 +1,5 @@
 // frontend/src/pages/dashboards/branch/Settings.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useFetch, apiFetch, toast, Icon, Modal, TblSk } from "../../../components/branch/BranchShared";
 
@@ -9,15 +9,17 @@ const Settings = () => {
 
   // 1. Branch Details Logic
   const { data: branch, loading: bLoading, refetch: bRefetch } = useFetch(`/branches/${branchId}`, [branchId]);
-  const [bForm, setBForm] = useState({ phone: "", whatsapp: "", location: "" });
+  const [bForm, setBForm] = useState({ phone: "", whatsapp: "", address: "", mapLink: "" });
   const [bSaving, setBSaving] = useState(false);
 
   useEffect(() => {
     if (branch) {
+      const [address, mapLink] = (branch.location || "").split("|");
       setBForm({
         phone: branch.phone || "",
         whatsapp: branch.whatsapp || "",
-        location: branch.location || ""
+        address: address?.trim() || "",
+        mapLink: mapLink?.trim() || ""
       });
     }
   }, [branch]);
@@ -25,7 +27,12 @@ const Settings = () => {
   const saveBranch = async () => {
     setBSaving(true);
     try {
-      await apiFetch(`/branches/${branchId}`, { method: "PUT", body: bForm });
+      const payload = {
+        phone: bForm.phone,
+        whatsapp: bForm.whatsapp,
+        location: `${bForm.address.trim()}|${bForm.mapLink.trim()}`
+      };
+      await apiFetch(`/branches/${branchId}`, { method: "PUT", body: payload });
       toast("Branch details updated");
       bRefetch();
     } catch (e) { toast(e.message, "e"); }
@@ -91,8 +98,22 @@ const Settings = () => {
                   <div className="fg"><label>Cell Number</label><input className="fi" value={bForm.phone} onChange={e => setBForm({...bForm, phone: e.target.value})} placeholder="03xx xxxxxxx" /></div>
                   <div className="fg"><label>WhatsApp Number</label><input className="fi" value={bForm.whatsapp} onChange={e => setBForm({...bForm, whatsapp: e.target.value})} placeholder="923xxxxxxxxx" /></div>
                 </div>
-                <div className="fg"><label>Physical Location / Address</label><textarea className="fi" value={bForm.location} onChange={e => setBForm({...bForm, location: e.target.value})} placeholder="Branch full address..." /></div>
-                <button className="btn btn-primary" style={{ marginTop: 10 }} disabled={bSaving} onClick={saveBranch}>{bSaving ? "Saving..." : "Update Details"}</button>
+                <div className="fg"><label>Physical Location / Address</label><textarea className="fi" value={bForm.address} onChange={e => setBForm({...bForm, address: e.target.value})} placeholder="e.g. 225 E State St, Montrose, MI 48457" /></div>
+                <div className="fg" style={{ marginTop: 12 }}><label>Google Maps Location Link</label><input className="fi" value={bForm.mapLink} onChange={e => setBForm({...bForm, mapLink: e.target.value})} placeholder="e.g. https://maps.app.goo.gl/oZXrwc9EY9rT13j58" /></div>
+                
+                {bForm.mapLink && (
+                  <div style={{ marginTop: 14, background: 'rgba(230,81,0,0.04)', border: '1px dashed rgba(230,81,0,0.2)', padding: '10px 14px', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 18 }}>📍</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 10, color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase' }}>Google Maps Location Bound</div>
+                      <a href={bForm.mapLink} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: 'var(--acc)', fontWeight: 700, textDecoration: 'none' }}>
+                        Test Pinned Link &rarr;
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                <button className="btn btn-primary" style={{ marginTop: 20 }} disabled={bSaving} onClick={saveBranch}>{bSaving ? "Saving..." : "Update Details"}</button>
               </>
             )}
           </div>
