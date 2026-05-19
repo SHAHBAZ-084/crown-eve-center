@@ -1334,88 +1334,104 @@ const POS = () => {
               <p className="text-xs text-[#8D7A71] mt-1">Try adjusting your search or issue a new service invoice.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {sortedHistory.map((item) => {
-                const name = getWalkInCustomerName(item.customer_notes);
-                const phone = getWalkInCustomerPhone(item.customer_notes);
-                const serviceName = item.service?.name || "Maintenance & Tuning";
-                const displayId = generateServiceId(item.id);
-                const formattedDate = formatDate(item.booking_date);
-                const formattedTime = formatTime12Hour(item.booking_time);
-                const isCompleted = item.status === "COMPLETED";
+            <div className="overflow-x-auto pb-4">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-[#F3E5DC] text-[9px] font-black text-[#8D7A71] uppercase tracking-[0.2em]">
+                    <th className="px-6 py-4 whitespace-nowrap">ID & Status</th>
+                    <th className="px-6 py-4 whitespace-nowrap">Customer Info</th>
+                    <th className="px-6 py-4 whitespace-nowrap">Service Details</th>
+                    <th className="px-6 py-4 text-center min-w-[240px]">Actions</th>
+                    <th className="px-4 py-4 text-right"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedHistory.map((item) => {
+                    const name = getWalkInCustomerName(item.customer_notes);
+                    const phone = getWalkInCustomerPhone(item.customer_notes);
+                    const serviceName = item.service?.name || "Maintenance & Tuning";
+                    const displayId = generateServiceId(item.id);
+                    const formattedDate = formatDate(item.booking_date);
+                    const formattedTime = formatTime12Hour(item.booking_time);
+                    const isCompleted = item.status === "COMPLETED";
 
-                return (
-                  <div key={item.id} className="bg-white border border-[#F3E5DC] rounded-[2rem] p-6 shadow-sm hover:shadow-xl transition-all flex flex-col group">
-                    {/* Header: Icons */}
-                    <div className="flex justify-between items-start mb-6">
-                      <div className="w-12 h-12 rounded-2xl bg-cyan-50 flex items-center justify-center text-[#E65100] shadow-sm">
-                        <Wrench size={22} strokeWidth={2.5} />
-                      </div>
-                      <div className="flex gap-2">
-                        <button className="w-9 h-9 rounded-xl bg-[#FFF6F0] text-[#E65100] flex items-center justify-center hover:bg-[#FFE0CC] transition-colors">
-                          <Edit2 size={15} />
-                        </button>
-                        <button className="w-9 h-9 rounded-xl bg-[#FFF6F0] text-[#E65100] flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors">
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
-                    </div>
+                    return (
+                      <tr key={item.id} className="border-b border-[#F3E5DC] last:border-none hover:bg-[#FFFAF8] transition-colors group">
+                        
+                        {/* ID & Status */}
+                        <td className="px-6 py-5 align-middle">
+                          <div className="flex flex-col items-start gap-2.5">
+                            <span className="px-3 py-1.5 rounded-lg text-[11px] font-black text-[#E65100] bg-[#FFF6F0] uppercase tracking-wider">
+                              #{displayId}
+                            </span>
+                            <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${isCompleted ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-amber-50 text-amber-600 border-amber-200'}`}>
+                              {isCompleted ? "COMPLETED" : item.status}
+                            </span>
+                          </div>
+                        </td>
 
-                    {/* Status & ID */}
-                    <div className="flex justify-between items-center mb-4">
-                      <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${isCompleted ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-amber-50 text-amber-600 border-amber-200'}`}>
-                        {isCompleted ? "COMPLETED" : item.status}
-                      </span>
-                      <span className="px-3 py-1.5 rounded-lg text-[11px] font-black text-[#E65100] bg-[#FFF6F0] uppercase tracking-wider">
-                        #{displayId}
-                      </span>
-                    </div>
+                        {/* Customer */}
+                        <td className="px-6 py-5 align-middle">
+                          <h3 className="font-black text-sm text-[#2D1A12] leading-tight mb-2.5 truncate max-w-[200px]">{name}</h3>
+                          <div className="flex items-center gap-2">
+                            <div className="bg-white border border-[#F3E5DC] px-2.5 py-1.5 rounded-lg text-[10px] font-bold text-[#8D7A71] shadow-sm">{phone || "N/A"}</div>
+                            {phone && (
+                              <a href={`https://wa.me/${phone.replace(/\D/g,'')}`} target="_blank" rel="noreferrer" className="w-7 h-7 rounded-lg bg-emerald-500 text-white flex items-center justify-center hover:bg-emerald-600 transition-all shadow-sm shadow-emerald-500/20 hover:scale-105 active:scale-95">
+                                <MessageCircle size={14} fill="currentColor" />
+                              </a>
+                            )}
+                          </div>
+                        </td>
 
-                    {/* Names */}
-                    <h3 className="font-black text-xl text-[#2D1A12] leading-tight mb-1 truncate">{name}</h3>
-                    <p className="font-bold text-sm text-[#E65100] mb-5 truncate">{serviceName}</p>
+                        {/* Service & Date */}
+                        <td className="px-6 py-5 align-middle">
+                          <p className="font-bold text-xs text-[#E65100] mb-2 truncate max-w-[200px]">{serviceName}</p>
+                          <div className="bg-[#FFF6F0] border border-[#F3E5DC] border-dashed rounded-lg px-2.5 py-1.5 flex items-center gap-2 text-[10px] font-bold text-[#2D1A12] w-max mb-2">
+                            <Home size={12} className="text-[#8D7A71]" />
+                            <span>{formattedDate} @ {formattedTime}</span>
+                          </div>
+                          <div className="font-black text-xs text-[#2D1A12]">PKR {item.final_price?.toLocaleString() || 0}</div>
+                        </td>
 
-                    {/* Date/Time */}
-                    <div className="bg-[#FFF6F0] border border-[#F3E5DC] border-dashed rounded-xl p-3 flex items-center gap-2 text-xs font-bold text-[#2D1A12] mb-5">
-                      <Home size={14} className="text-[#8D7A71]" />
-                      <span>{formattedDate} @ {formattedTime}</span>
-                      <ExternalLink size={12} className="ml-auto text-[#8D7A71]" />
-                    </div>
+                        {/* Actions */}
+                        <td className="px-6 py-5 align-middle">
+                          <div className="flex flex-col gap-2 w-full max-w-[240px] mx-auto">
+                            <div className="grid grid-cols-2 gap-2">
+                              <button className="bg-[#FFF6F0] text-[#2D1A12] py-2 rounded-lg font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-1.5 hover:bg-[#FFE0CC] transition-colors">
+                                <Home size={12} /> Schedule
+                              </button>
+                              <button className="bg-[#1A1A1A] text-white py-2 rounded-lg font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-1.5 hover:bg-black transition-colors shadow-sm">
+                                <FileText size={12} /> Billing
+                              </button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              <button className="bg-white border border-[#E65100] text-[#E65100] py-2 rounded-lg font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-1.5 hover:bg-[#FFF6F0] transition-colors">
+                                <Calendar size={12} /> Ticket
+                              </button>
+                              <button className="bg-white border border-emerald-500 text-emerald-500 py-2 rounded-lg font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-1.5 hover:bg-emerald-50 transition-colors">
+                                <FileText size={12} /> Complete
+                              </button>
+                            </div>
+                          </div>
+                        </td>
 
-                    {/* Phone */}
-                    <div className="border border-[#F3E5DC] rounded-2xl p-4 flex justify-between items-center mb-6 shadow-sm">
-                      <div>
-                        <div className="text-[9px] font-black text-[#8D7A71] uppercase tracking-[0.2em] mb-1">Phone / Cell</div>
-                        <div className="font-black text-[13px] text-[#2D1A12]">{phone || "N/A"}</div>
-                      </div>
-                      <a href={`https://wa.me/${phone?.replace(/\D/g,'')}`} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center hover:bg-emerald-600 transition-all shadow-md shadow-emerald-500/20 hover:scale-105 active:scale-95">
-                        <MessageCircle size={22} fill="currentColor" className="text-white" />
-                      </a>
-                    </div>
-
-                    {/* Buttons Row 1 */}
-                    <div className="grid grid-cols-2 gap-3 mb-3 mt-auto">
-                      <button className="bg-[#FFF6F0] text-[#2D1A12] py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#FFE0CC] transition-colors">
-                        <Home size={14} /> Schedule
-                      </button>
-                      <button className="bg-[#1A1A1A] text-white py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-black transition-colors shadow-lg shadow-black/20">
-                        <FileText size={14} /> Billing
-                      </button>
-                    </div>
-
-                    {/* Buttons Row 2 */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <button className="bg-white border border-[#E65100] text-[#E65100] py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#FFF6F0] transition-colors">
-                        <Calendar size={14} /> Booking Ticket
-                      </button>
-                      <button className="bg-white border border-emerald-500 text-emerald-500 py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-emerald-50 transition-colors">
-                        <FileText size={14} /> Complete Bill
-                      </button>
-                    </div>
-
-                  </div>
-                );
-              })}
+                        {/* Edit/Delete */}
+                        <td className="px-4 py-5 align-middle pr-6">
+                          <div className="flex flex-col gap-2 justify-center items-end">
+                             <button className="w-8 h-8 rounded-xl bg-[#FFF6F0] text-[#E65100] flex items-center justify-center hover:bg-[#FFE0CC] transition-colors shadow-sm">
+                               <Edit2 size={13} />
+                             </button>
+                             <button className="w-8 h-8 rounded-xl bg-[#FFF6F0] text-[#E65100] flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors shadow-sm">
+                               <Trash2 size={13} />
+                             </button>
+                          </div>
+                        </td>
+                        
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
