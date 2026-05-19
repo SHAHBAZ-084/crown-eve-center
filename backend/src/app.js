@@ -55,6 +55,7 @@ const serviceCategoryRoutes = require('./modules/service-categories/service-cate
 const testimonialRoutes = require('./modules/testimonials/testimonials.routes');
 const walkInRoutes = require('./modules/walk-in-customers/walk-in.routes');
 const bankInfoRoutes = require('./modules/banks/bank.routes');
+const accountRoutes = require('./modules/accounts/account.routes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/branches', branchRoutes);
@@ -76,6 +77,8 @@ app.use('/api/service-categories', serviceCategoryRoutes);
 app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/walk-in-customers', walkInRoutes);
 app.use('/api/banks', bankInfoRoutes);
+app.use('/api/accounts', accountRoutes);
+
 
 // Root route
 app.get('/', (req, res) => {

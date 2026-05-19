@@ -47,6 +47,8 @@ model Branch {
   adjustments  StockAdjustment[]
   walkInCustomers WalkInCustomer[]
   banks        Bank[]
+  accountCategories AccountCategory[]
+  accounts          Account[]
   createdAt    DateTime      @default(now())
 }
 
@@ -393,3 +395,57 @@ model WalkInCustomerLedger {
   @@index([customerId])
   @@index([createdAt])
 }
+
+model AccountCategory {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  status      String    @default("ACTIVE") // ACTIVE or INACTIVE
+  branchId    Int?      // Nullable for default global categories
+  branch      Branch?   @relation(fields: [branchId], references: [id])
+  accounts    Account[]
+  createdAt   DateTime  @default(now())
+
+  @@index([branchId])
+}
+
+model Account {
+  id              String          @id @default(uuid())
+  categoryId      String
+  category        AccountCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  account_name    String
+  opening_balance Float           @default(0)
+  current_balance Float           @default(0)
+  status          String          @default("ACTIVE") // ACTIVE or INACTIVE
+  branchId        Int
+  branch          Branch          @relation(fields: [branchId], references: [id])
+  ledger          Ledger?
+  createdAt       DateTime        @default(now())
+
+  @@index([categoryId])
+  @@index([branchId])
+}
+
+model Ledger {
+  id           String        @id @default(uuid())
+  accountId    String        @unique
+  account      Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  ledger_name  String
+  entries      LedgerEntry[]
+  createdAt    DateTime      @default(now())
+}
+
+model LedgerEntry {
+  id             String   @id @default(uuid())
+  ledgerId       String
+  ledger         Ledger   @relation(fields: [ledgerId], references: [id], onDelete: Cascade)
+  debit          Float    @default(0)
+  credit         Float    @default(0)
+  reference_type String   @default("OPENING_BALANCE")
+  description    String?
+  createdAt      DateTime @default(now())
+
+  @@index([ledgerId])
+  @@index([createdAt])
+}
+

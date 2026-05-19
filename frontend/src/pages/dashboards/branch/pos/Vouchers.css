@@ -1,0 +1,6 @@
+/* pos/Vouchers.css - shared by Payment, Receipt, Journal vouchers */
+.voucher-placeholder { animation: fadeInUp 0.3s ease; }
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
