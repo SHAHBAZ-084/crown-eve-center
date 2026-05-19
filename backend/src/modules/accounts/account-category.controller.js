@@ -69,16 +69,25 @@ exports.delete = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Check if category has accounts to prevent accidental deletions if needed, 
-    // or just let prisma cascade delete as defined.
-    const accountsCount = await prisma.account.count({
+    const accounts = await prisma.account.findMany({
       where: { categoryId: id }
     });
 
-    if (accountsCount > 0) {
-      return res.status(400).json({ 
-        message: 'Cannot delete category. There are active accounts linked to this category.' 
+    for (const acc of accounts) {
+      const vouchersCount = await prisma.voucher.count({
+        where: {
+          OR: [
+            { fromAccountId: acc.id },
+            { toAccountId: acc.id }
+          ]
+        }
       });
+
+      if (vouchersCount > 0) {
+        return res.status(400).json({ 
+          message: `Cannot delete category. The account "${acc.account_name}" inside this category has financial vouchers attached.` 
+        });
+      }
     }
 
     await prisma.accountCategory.delete({

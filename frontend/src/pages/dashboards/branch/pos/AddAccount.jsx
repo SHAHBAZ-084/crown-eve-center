@@ -150,6 +150,18 @@ const AddAccount = ({ user }) => {
     }
   };
 
+  const handleAccDelete = async (accId) => {
+    if (window.confirm("Are you sure you want to permanently delete this account?")) {
+      try {
+        await api.delete(`/accounts/${accId}`);
+        alert("Account deleted successfully.");
+        refetchAccounts();
+      } catch (err) {
+        alert("Error: " + (err.response?.data?.message || err.message));
+      }
+    }
+  };
+
   // Filter accounts
   const filteredAccounts = selectedCatId === 'ALL'
     ? accounts
@@ -230,15 +242,13 @@ const AddAccount = ({ user }) => {
                     >
                       <Edit3 size={12} />
                     </button>
-                    {cat.branchId && (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); handleCatDelete(cat.id); }}
-                        className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${isSelected ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-white border border-[#F3E5DC] text-[#8D7A71] hover:text-red-500'}`}
-                        title="Delete Category"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    )}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleCatDelete(cat.id); }}
+                      className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${isSelected ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-white border border-[#F3E5DC] text-[#8D7A71] hover:text-red-500'}`}
+                      title="Delete Category"
+                    >
+                      <Trash2 size={12} />
+                    </button>
                   </div>
                 </div>
               );
@@ -323,6 +333,13 @@ const AddAccount = ({ user }) => {
                             title="Edit Account"
                           >
                             <Edit3 size={13} />
+                          </button>
+                          <button
+                            onClick={() => handleAccDelete(acc.id)}
+                            className="w-8 h-8 bg-white border border-[#F3E5DC] text-[#8D7A71] hover:text-red-600 rounded-xl flex items-center justify-center shadow-sm hover:scale-105 transition-all"
+                            title="Delete Account"
+                          >
+                            <Trash2 size={13} />
                           </button>
                           <button
                             onClick={() => toggleAccountStatus(acc)}

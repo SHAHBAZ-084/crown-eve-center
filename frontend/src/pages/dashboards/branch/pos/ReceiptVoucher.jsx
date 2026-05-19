@@ -44,7 +44,7 @@ const ReceiptVoucher = ({ user }) => {
   const categories = categoriesData?.data || [];
   const accounts = accountsData?.data || [];
   const vouchersHistory = historyData?.data || [];
-  const nextVoucherNo = vouchersHistory.length > 0 ? (vouchersHistory.length + 1).toString().padStart(4, '0') : '0001';
+  const nextVoucherNo = vouchersHistory.length > 0 ? (vouchersHistory.length + 1).toString() : '1';
 
   // Filter accounts based on selected category
   const fromAccountsFiltered = accounts.filter(acc => 
@@ -337,69 +337,6 @@ const ReceiptVoucher = ({ user }) => {
           </div>
 
         </form>
-      </div>
-
-      {/* Receipt Vouchers History Section */}
-      <div className="w-full bg-white border border-[#E5E7EB] rounded-2xl shadow-sm flex flex-col overflow-hidden">
-        
-        {/* History Header & Search Bar */}
-        <div className="px-8 py-5 border-b border-[#F3E5DC] flex justify-between items-center bg-[#FAFAFA]">
-          <h3 className="text-md font-black text-[#2D1A12] uppercase tracking-tight flex items-center gap-2">
-            <List size={18} className="text-[#2E7D32]" /> Recent Receipt Vouchers
-          </h3>
-          
-          <div className="relative w-72">
-            <input 
-              type="text" 
-              placeholder="Search vouchers..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white border border-[#E5E7EB] rounded-full pl-10 pr-4 py-2.5 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-inner"
-            />
-            <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-          </div>
-        </div>
-
-        {loadingHistory ? (
-          <div className="text-center py-10 text-[#8D7A71] font-bold animate-pulse text-xs">Loading history...</div>
-        ) : filteredHistory.length === 0 ? (
-          <div className="text-center py-10 m-6 text-[#8D7A71] text-xs font-bold border border-dashed border-[#F3E5DC] bg-[#FFFAF8] rounded-2xl">
-            {searchTerm ? 'No vouchers found matching your search.' : 'No receipt vouchers recorded.'}
-          </div>
-        ) : (
-          <div className="overflow-x-auto p-4">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b-2 border-[#F3E5DC] text-[10px] font-black text-[#8D7A71] uppercase tracking-widest bg-gray-50/50">
-                  <th className="px-4 py-4 rounded-tl-xl">Voucher#</th>
-                  <th className="px-4 py-4">Date</th>
-                  <th className="px-4 py-4">From Account</th>
-                  <th className="px-4 py-4">To Account</th>
-                  <th className="px-4 py-4 text-right">Amount</th>
-                  <th className="px-4 py-4">Ref#</th>
-                  <th className="px-4 py-4 rounded-tr-xl">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredHistory.map(v => (
-                  <tr key={v.id} className="border-b border-[#F3E5DC] last:border-none text-xs hover:bg-[#FFFAF8]/60 transition-colors">
-                    <td className="px-4 py-4 font-black text-[#2E7D32] uppercase whitespace-nowrap">{v.voucher_no}</td>
-                    <td className="px-4 py-4 text-[#8D7A71] font-bold whitespace-nowrap">{new Date(v.date || v.createdAt).toLocaleDateString()}</td>
-                    <td className="px-4 py-4 font-bold text-[#2D1A12] whitespace-nowrap">{v.fromAccount?.account_name}</td>
-                    <td className="px-4 py-4 font-bold text-[#2D1A12] whitespace-nowrap">{v.toAccount?.account_name}</td>
-                    <td className="px-4 py-4 text-right font-black text-[#2E7D32] whitespace-nowrap">PKR {v.amount?.toLocaleString()}</td>
-                    <td className="px-4 py-4 text-[#8D7A71] whitespace-nowrap">{v.ref_no || '-'}</td>
-                    <td className="px-4 py-4 text-emerald-600 font-bold uppercase text-[9px] whitespace-nowrap">
-                      <span className="flex items-center gap-1 bg-emerald-50 px-2 py-1 rounded-full w-max border border-emerald-100">
-                        <ShieldCheck size={12} /> Double Posted
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
       </div>
       
     </div>

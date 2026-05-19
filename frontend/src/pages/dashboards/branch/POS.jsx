@@ -13,6 +13,7 @@ import AddAccount from './pos/AddAccount';
 import PaymentVoucher from './pos/PaymentVoucher';
 import ReceiptVoucher from './pos/ReceiptVoucher';
 import JournalVoucher from './pos/JournalVoucher';
+import ViewVoucher from './pos/ViewVoucher';
 import SaleInvoices from './pos/SaleInvoices';
 import PurchaseInvoices from './pos/PurchaseInvoices';
 import ServiceInvoices from './pos/ServiceInvoices';
@@ -91,6 +92,7 @@ const POS = () => {
         { id: "payment-voucher", label: "Payment Voucher", icon: "orders" },
         { id: "receipt-voucher", label: "Receipt Voucher", icon: "plus" },
         { id: "journal-voucher", label: "Journal Voucher", icon: "settings" },
+        { id: "view-voucher", label: "View Voucher", icon: "search" },
       ]
     },
     {
@@ -325,6 +327,8 @@ const POS = () => {
         return <ReceiptVoucher user={user} />;
       case "journal-voucher":
         return <JournalVoucher user={user} />;
+      case "view-voucher":
+        return <ViewVoucher user={user} />;
       case "sale-invoices":
         return <SaleInvoices user={user} queryClient={queryClient} onInvoiceGenerated={setGeneratedInvoice} />;
       case "purchase-invoices":

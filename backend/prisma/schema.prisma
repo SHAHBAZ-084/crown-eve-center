@@ -288,6 +288,8 @@ model Supplier {
   name      String
   contact   String
   purchases Purchase[]
+  accountId String?    @unique
+  account   Account?   @relation("SupplierAccount", fields: [accountId], references: [id])
 }
 
 model Purchase {
@@ -359,6 +361,8 @@ model WalkInCustomer {
   balance    Float    @default(0) // Total outstanding debit
   ledger     WalkInCustomerLedger[]
   orders     Order[]  @relation("WalkInOrders")
+  accountId  String?  @unique
+  account    Account? @relation("CustomerAccount", fields: [accountId], references: [id])
   createdAt  DateTime @default(now())
 
   @@index([branchId])
@@ -423,6 +427,8 @@ model Account {
   ledger          Ledger?
   fromVouchers    Voucher[]       @relation("FromAccountVouchers")
   toVouchers      Voucher[]       @relation("ToAccountVouchers")
+  customer        WalkInCustomer? @relation("CustomerAccount")
+  supplier        Supplier?       @relation("SupplierAccount")
   createdAt       DateTime        @default(now())
 
   @@index([categoryId])

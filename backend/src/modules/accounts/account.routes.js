@@ -17,5 +17,6 @@ router.delete('/categories/:id', protect, allowedRoles, categoryCtrl.delete);
 router.get('/', protect, allowedRoles, accountCtrl.getAll);
 router.post('/', protect, allowedRoles, accountCtrl.create);
 router.put('/:id', protect, allowedRoles, accountCtrl.update);
+router.delete('/:id', protect, allowedRoles, accountCtrl.delete);
 
 module.exports = router;

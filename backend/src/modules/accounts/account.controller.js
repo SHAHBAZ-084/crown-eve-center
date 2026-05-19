@@ -138,3 +138,34 @@ exports.update = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// Delete Account
+exports.delete = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check if account has any vouchers linked
+    const vouchersCount = await prisma.voucher.count({
+      where: {
+        OR: [
+          { fromAccountId: id },
+          { toAccountId: id }
+        ]
+      }
+    });
+
+    if (vouchersCount > 0) {
+      return res.status(400).json({ 
+        message: 'Cannot delete account. There are vouchers attached to this ledger. Please deactivate it instead.' 
+      });
+    }
+
+    await prisma.account.delete({
+      where: { id }
+    });
+
+    res.json({ message: 'Account deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

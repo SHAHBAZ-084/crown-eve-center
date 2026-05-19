@@ -4,10 +4,11 @@ const prisma = require('../../config/db');
 // Get all vouchers (optionally filtered by branch and type)
 exports.getAll = async (req, res) => {
   try {
-    const { branchId, voucher_type } = req.query;
+    const { branchId, voucher_type, voucher_no } = req.query;
     const where = {};
     if (branchId) where.branchId = parseInt(branchId);
     if (voucher_type) where.voucher_type = voucher_type;
+    if (voucher_no) where.voucher_no = { contains: voucher_no, mode: 'insensitive' };
 
     const vouchers = await prisma.voucher.findMany({
       where,
@@ -67,15 +68,13 @@ exports.create = async (req, res) => {
       }
 
       // Generate sequential voucher number
-      let prefix = 'JV';
-      if (voucher_type === 'PAYMENT') prefix = 'PV';
-      if (voucher_type === 'RECEIPT') prefix = 'RV';
+      const prefix = voucher_type === 'PAYMENT' ? 'PV' : voucher_type === 'RECEIPT' ? 'RV' : 'JV';
 
       const count = await tx.voucher.count({
         where: { voucher_type, branchId: parseInt(branchId) }
       });
       const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-      const voucher_no = `${prefix}-${dateStr}-${(count + 1).toString().padStart(4, '0')}`;
+      const voucher_no = `${prefix}-${dateStr}-${(count + 1).toString()}`;
 
       // 2. Create the Voucher record
       const voucher = await tx.voucher.create({
