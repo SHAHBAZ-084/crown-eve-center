@@ -56,6 +56,7 @@ const testimonialRoutes = require('./modules/testimonials/testimonials.routes');
 const walkInRoutes = require('./modules/walk-in-customers/walk-in.routes');
 const bankInfoRoutes = require('./modules/banks/bank.routes');
 const accountRoutes = require('./modules/accounts/account.routes');
+const voucherRoutes = require('./modules/vouchers/voucher.routes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/branches', branchRoutes);
@@ -78,6 +79,8 @@ app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/walk-in-customers', walkInRoutes);
 app.use('/api/banks', bankInfoRoutes);
 app.use('/api/accounts', accountRoutes);
+app.use('/api/vouchers', voucherRoutes);
+
 
 
 // Root route

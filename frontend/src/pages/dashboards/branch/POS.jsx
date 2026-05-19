@@ -320,11 +320,11 @@ const POS = () => {
       case "add-account":
         return <AddAccount user={user} />;
       case "payment-voucher":
-        return <PaymentVoucher />;
+        return <PaymentVoucher user={user} />;
       case "receipt-voucher":
-        return <ReceiptVoucher />;
+        return <ReceiptVoucher user={user} />;
       case "journal-voucher":
-        return <JournalVoucher />;
+        return <JournalVoucher user={user} />;
       case "sale-invoices":
         return <SaleInvoices user={user} queryClient={queryClient} onInvoiceGenerated={setGeneratedInvoice} />;
       case "purchase-invoices":

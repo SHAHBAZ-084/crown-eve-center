@@ -49,6 +49,7 @@ model Branch {
   banks        Bank[]
   accountCategories AccountCategory[]
   accounts          Account[]
+  vouchers          Voucher[]
   createdAt    DateTime      @default(now())
 }
 
@@ -420,6 +421,8 @@ model Account {
   branchId        Int
   branch          Branch          @relation(fields: [branchId], references: [id])
   ledger          Ledger?
+  fromVouchers    Voucher[]       @relation("FromAccountVouchers")
+  toVouchers      Voucher[]       @relation("ToAccountVouchers")
   createdAt       DateTime        @default(now())
 
   @@index([categoryId])
@@ -448,4 +451,28 @@ model LedgerEntry {
   @@index([ledgerId])
   @@index([createdAt])
 }
+
+model Voucher {
+  id             String         @id @default(uuid())
+  voucher_no     String         @unique
+  voucher_type   String         // PAYMENT, RECEIPT, JOURNAL
+  date           DateTime       @default(now())
+  category       String?        // e.g. Cash, Bank, Sale Party, Owner's Equity
+  to_type        String?        // e.g. Expenses, Purchase, Bank, Cash
+  fromAccountId  String?
+  fromAccount    Account?       @relation("FromAccountVouchers", fields: [fromAccountId], references: [id])
+  toAccountId    String?
+  toAccount      Account?       @relation("ToAccountVouchers", fields: [toAccountId], references: [id])
+  amount         Float
+  ref_no         String?
+  description    String?
+  branchId       Int
+  branch         Branch         @relation(fields: [branchId], references: [id])
+  createdAt      DateTime       @default(now())
+
+  @@index([branchId])
+  @@index([voucher_type])
+  @@index([createdAt])
+}
+
 
