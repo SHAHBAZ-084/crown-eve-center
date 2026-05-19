@@ -169,3 +169,107 @@ exports.delete = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// Generate Ledger Statement
+exports.getLedgerStatement = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { startDate, endDate } = req.query;
+
+    const account = await prisma.account.findUnique({
+      where: { id },
+      include: { category: true, ledger: true }
+    });
+
+    if (!account || !account.ledger) {
+      return res.status(404).json({ message: 'Account or Ledger not found.' });
+    }
+
+    const catName = account.category.name.toLowerCase();
+    
+    // Determine Account Nature
+    // Customers = Asset (Accounts Receivable)
+    // Cash/Bank = Asset
+    // Expense/Purchase = Expense
+    const isDebitNature = 
+      catName.includes('bank') || 
+      catName.includes('cash') || 
+      catName.includes('asset') || 
+      catName.includes('expense') ||
+      catName.includes('customer') ||
+      catName.includes('purchase');
+
+    // Fetch entries
+    const allEntries = await prisma.ledgerEntry.findMany({
+      where: { ledgerId: account.ledger.id },
+      orderBy: { createdAt: 'asc' }
+    });
+
+    let openingBalance = account.opening_balance || 0;
+    
+    // Calculate opening balance up to startDate
+    const start = startDate ? new Date(startDate) : new Date(0);
+    start.setHours(0, 0, 0, 0);
+
+    const end = endDate ? new Date(endDate) : new Date();
+    end.setHours(23, 59, 59, 999);
+
+    const previousEntries = allEntries.filter(e => new Date(e.createdAt) < start);
+    const periodEntries = allEntries.filter(e => {
+      const d = new Date(e.createdAt);
+      return d >= start && d <= end;
+    });
+
+    // Calculate opening balance
+    for (const entry of previousEntries) {
+      if (isDebitNature) {
+        openingBalance = openingBalance + entry.debit - entry.credit;
+      } else {
+        openingBalance = openingBalance + entry.credit - entry.debit;
+      }
+    }
+
+    // Prepare statement rows
+    let runningBalance = openingBalance;
+    let totalDebit = 0;
+    let totalCredit = 0;
+
+    const rows = periodEntries.map(entry => {
+      totalDebit += entry.debit;
+      totalCredit += entry.credit;
+
+      if (isDebitNature) {
+        runningBalance = runningBalance + entry.debit - entry.credit;
+      } else {
+        runningBalance = runningBalance + entry.credit - entry.debit;
+      }
+
+      return {
+        id: entry.id,
+        date: entry.createdAt,
+        reference_type: entry.reference_type,
+        description: entry.description,
+        debit: entry.debit,
+        credit: entry.credit,
+        balance: Math.abs(runningBalance),
+        balanceType: runningBalance >= 0 ? (isDebitNature ? 'Dr' : 'Cr') : (isDebitNature ? 'Cr' : 'Dr')
+      };
+    });
+
+    res.json({
+      accountName: account.account_name,
+      categoryName: account.category.name,
+      nature: isDebitNature ? 'DEBIT' : 'CREDIT',
+      openingBalance: Math.abs(openingBalance),
+      openingBalanceType: openingBalance >= 0 ? (isDebitNature ? 'Dr' : 'Cr') : (isDebitNature ? 'Cr' : 'Dr'),
+      totalDebit,
+      totalCredit,
+      closingBalance: Math.abs(runningBalance),
+      closingBalanceType: runningBalance >= 0 ? (isDebitNature ? 'Dr' : 'Cr') : (isDebitNature ? 'Cr' : 'Dr'),
+      entries: rows
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

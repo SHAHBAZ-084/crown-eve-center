@@ -8,5 +8,6 @@ const allowedRoles = allow('COMPANY_OWNER', 'BRANCH_OWNER', 'EMPLOYEE');
 
 router.get('/', protect, allowedRoles, ctrl.getAll);
 router.post('/', protect, allowedRoles, ctrl.create);
+router.delete('/:id', protect, allowedRoles, ctrl.deleteVoucher);
 
 module.exports = router;

@@ -15,6 +15,7 @@ router.delete('/categories/:id', protect, allowedRoles, categoryCtrl.delete);
 
 // Account Routes
 router.get('/', protect, allowedRoles, accountCtrl.getAll);
+router.get('/:id/ledger-statement', protect, allowedRoles, accountCtrl.getLedgerStatement);
 router.post('/', protect, allowedRoles, accountCtrl.create);
 router.put('/:id', protect, allowedRoles, accountCtrl.update);
 router.delete('/:id', protect, allowedRoles, accountCtrl.delete);

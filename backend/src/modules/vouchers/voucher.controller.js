@@ -167,3 +167,85 @@ exports.create = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// Delete a Voucher and Reverse Balances
+exports.deleteVoucher = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. Find Voucher
+      const voucher = await tx.voucher.findUnique({
+        where: { id },
+        include: {
+          fromAccount: { include: { category: true, ledger: true } },
+          toAccount: { include: { category: true, ledger: true } }
+        }
+      });
+
+      if (!voucher) throw new Error("Voucher not found.");
+
+      const amt = voucher.amount;
+
+      // Helper function to update balance based on account type
+      const adjustBalance = (account, changeAmount, operationType) => {
+        const catName = account.category.name.toLowerCase();
+        const isAssetOrExpense = 
+          catName.includes('bank') ||
+          catName.includes('cash') ||
+          catName.includes('asset') ||
+          catName.includes('expense');
+
+        let newBalance = account.current_balance;
+
+        if (operationType === 'DEBIT') {
+          newBalance = isAssetOrExpense ? newBalance + changeAmount : newBalance - changeAmount;
+        } else if (operationType === 'CREDIT') {
+          newBalance = isAssetOrExpense ? newBalance - changeAmount : newBalance + changeAmount;
+        }
+
+        return newBalance;
+      };
+
+      // 2. Reverse Balances
+      // Original: fromAccount was CREDITED. Reversal: DEBIT it.
+      if (voucher.fromAccount) {
+        const fromNewBal = adjustBalance(voucher.fromAccount, amt, 'DEBIT');
+        await tx.account.update({
+          where: { id: voucher.fromAccountId },
+          data: { current_balance: fromNewBal }
+        });
+      }
+
+      // Original: toAccount was DEBITED. Reversal: CREDIT it.
+      if (voucher.toAccount) {
+        const toNewBal = adjustBalance(voucher.toAccount, amt, 'CREDIT');
+        await tx.account.update({
+          where: { id: voucher.toAccountId },
+          data: { current_balance: toNewBal }
+        });
+      }
+
+      // 3. Delete Associated Ledger Entries (using description/reference match)
+      await tx.ledgerEntry.deleteMany({
+        where: {
+          reference_type: `${voucher.voucher_type}_VOUCHER`,
+          description: {
+            contains: voucher.voucher_no
+          }
+        }
+      });
+
+      // 4. Delete the Voucher
+      await tx.voucher.delete({
+        where: { id }
+      });
+
+      return { message: "Voucher deleted and balances reversed successfully." };
+    });
+
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
