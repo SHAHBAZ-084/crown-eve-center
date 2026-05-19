@@ -1163,6 +1163,97 @@ const POS = () => {
   };
 
   const renderServiceInvoices = () => {
+    const handlePrintServiceReceipt = (item, type) => {
+      const name = getWalkInCustomerName(item.customer_notes);
+      const phone = getWalkInCustomerPhone(item.customer_notes);
+      const serviceName = item.service?.name || "Maintenance & Tuning";
+      const displayId = generateServiceId(item.id);
+      const formattedDate = formatDate(item.booking_date);
+      const formattedTime = formatTime12Hour(item.booking_time);
+      
+      let laborStr = "0";
+      let partsStr = "0";
+      const billMatch = item.customer_notes?.match(/Bill:\s*Labor\s*([^,]+),\s*Parts\s*([^\s\[]+)/i);
+      if (billMatch) {
+        laborStr = billMatch[1].trim();
+        partsStr = billMatch[2].trim();
+      }
+
+      const printContents = `
+        <div style="font-family: monospace; width: 300px; padding: 20px; color: #000; text-align: center;">
+          <h2 style="margin: 0 0 10px; font-size: 24px;">CROWN EVE</h2>
+          <p style="margin: 0 0 20px; font-size: 12px; border-bottom: 1px dashed #000; padding-bottom: 10px;">
+            ${type === 'TICKET' ? 'SERVICE BOOKING TICKET' : 'SERVICE FINAL BILL'}
+          </p>
+          
+          <div style="text-align: left; font-size: 14px; margin-bottom: 15px;">
+            <p style="margin: 5px 0;"><b>TICKET ID:</b> #${displayId}</p>
+            <p style="margin: 5px 0;"><b>DATE:</b> ${formattedDate}</p>
+            <p style="margin: 5px 0;"><b>TIME:</b> ${formattedTime}</p>
+            <p style="margin: 5px 0;"><b>STATUS:</b> ${item.status}</p>
+          </div>
+
+          <div style="border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 10px 0; text-align: left; font-size: 14px; margin-bottom: 15px;">
+            <p style="margin: 5px 0;"><b>CUSTOMER:</b> ${name}</p>
+            <p style="margin: 5px 0;"><b>PHONE:</b> ${phone || 'N/A'}</p>
+            <p style="margin: 5px 0;"><b>SERVICE:</b> ${serviceName}</p>
+          </div>
+
+          ${type === 'BILL' ? `
+          <div style="text-align: left; font-size: 14px; margin-bottom: 15px;">
+            <p style="margin: 5px 0; display: flex; justify-content: space-between;"><span>LABOR CHARGES:</span> <span>PKR ${laborStr}</span></p>
+            <p style="margin: 5px 0; display: flex; justify-content: space-between;"><span>PARTS TOTAL:</span> <span>PKR ${partsStr}</span></p>
+            <div style="border-top: 1px dashed #000; margin: 10px 0;"></div>
+            <h3 style="margin: 5px 0; display: flex; justify-content: space-between; font-size: 18px;">
+              <span>TOTAL:</span> <span>PKR ${item.final_price?.toLocaleString() || 0}</span>
+            </h3>
+          </div>
+          ` : ''}
+
+          <p style="margin: 30px 0 0; font-size: 12px; text-align: center;">
+            Thank you for choosing Crown Eve Center!<br/>
+            Please bring this ticket for collection.
+          </p>
+        </div>
+      `;
+
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write('<html><head><title>Print Receipt</title></head><body style="margin:0;display:flex;justify-content:center;">');
+        printWindow.document.write(printContents);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.onload = () => {
+          printWindow.print();
+        };
+      } else {
+        alert("Please allow popups to print receipts.");
+      }
+    };
+
+    const handleSvDelete = async (id) => {
+      if (window.confirm("Are you sure you want to delete this service invoice?")) {
+        try {
+          await api.delete('/appointments/' + id);
+          refetchSvHistory();
+        } catch (err) {
+          alert("Failed to delete: " + (err.response?.data?.message || err.message));
+        }
+      }
+    };
+
+    const handleSvComplete = async (id, currentStatus) => {
+      if (currentStatus === 'COMPLETED') return alert("This service is already completed!");
+      if (window.confirm("Mark this service as COMPLETED?")) {
+        try {
+          await api.put('/appointments/' + id, { status: 'COMPLETED' });
+          refetchSvHistory();
+        } catch (err) {
+          alert("Failed to complete: " + (err.response?.data?.message || err.message));
+        }
+      }
+    };
+
     const handleSvSubmit = async (e) => {
       e.preventDefault();
       if (!svForm.customerId && !svCustomerSearch.trim()) return alert("Please select or type a customer name");
@@ -1397,18 +1488,18 @@ const POS = () => {
                         <td className="px-6 py-5 align-middle">
                           <div className="flex flex-col gap-2 w-full max-w-[240px] mx-auto">
                             <div className="grid grid-cols-2 gap-2">
-                              <button className="bg-[#FFF6F0] text-[#2D1A12] py-2 rounded-lg font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-1.5 hover:bg-[#FFE0CC] transition-colors">
+                              <button onClick={() => alert("Scheduling module coming soon")} className="bg-[#FFF6F0] text-[#2D1A12] py-2 rounded-lg font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-1.5 hover:bg-[#FFE0CC] transition-colors">
                                 <Home size={12} /> Schedule
                               </button>
-                              <button className="bg-[#1A1A1A] text-white py-2 rounded-lg font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-1.5 hover:bg-black transition-colors shadow-sm">
+                              <button onClick={() => handlePrintServiceReceipt(item, 'BILL')} className="bg-[#1A1A1A] text-white py-2 rounded-lg font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-1.5 hover:bg-black transition-colors shadow-sm">
                                 <FileText size={12} /> Billing
                               </button>
                             </div>
                             <div className="grid grid-cols-2 gap-2">
-                              <button className="bg-white border border-[#E65100] text-[#E65100] py-2 rounded-lg font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-1.5 hover:bg-[#FFF6F0] transition-colors">
+                              <button onClick={() => handlePrintServiceReceipt(item, 'TICKET')} className="bg-white border border-[#E65100] text-[#E65100] py-2 rounded-lg font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-1.5 hover:bg-[#FFF6F0] transition-colors">
                                 <Calendar size={12} /> Ticket
                               </button>
-                              <button className="bg-white border border-emerald-500 text-emerald-500 py-2 rounded-lg font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-1.5 hover:bg-emerald-50 transition-colors">
+                              <button onClick={() => handleSvComplete(item.id, item.status)} className="bg-white border border-emerald-500 text-emerald-500 py-2 rounded-lg font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-1.5 hover:bg-emerald-50 transition-colors">
                                 <FileText size={12} /> Complete
                               </button>
                             </div>
@@ -1418,10 +1509,10 @@ const POS = () => {
                         {/* Edit/Delete */}
                         <td className="px-4 py-5 align-middle pr-6">
                           <div className="flex flex-col gap-2 justify-center items-end">
-                             <button className="w-8 h-8 rounded-xl bg-[#FFF6F0] text-[#E65100] flex items-center justify-center hover:bg-[#FFE0CC] transition-colors shadow-sm">
+                             <button onClick={() => alert("Edit invoice coming soon")} className="w-8 h-8 rounded-xl bg-[#FFF6F0] text-[#E65100] flex items-center justify-center hover:bg-[#FFE0CC] transition-colors shadow-sm">
                                <Edit2 size={13} />
                              </button>
-                             <button className="w-8 h-8 rounded-xl bg-[#FFF6F0] text-[#E65100] flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors shadow-sm">
+                             <button onClick={() => handleSvDelete(item.id)} className="w-8 h-8 rounded-xl bg-[#FFF6F0] text-[#E65100] flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors shadow-sm">
                                <Trash2 size={13} />
                              </button>
                           </div>
