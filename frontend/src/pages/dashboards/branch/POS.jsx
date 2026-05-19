@@ -5,8 +5,20 @@ import api from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
 import { useDebounce } from '../../../hooks/useDebounce';
 import { Icon } from "../../../components/branch/BranchShared";
-import { Package, Search, Filter, Tag, Plus, ShoppingCart, Trash2 } from "lucide-react";
+import { Package, Search, Filter, Tag, Plus, ShoppingCart, Trash2, X } from "lucide-react";
 import "../../../styles/pos.css";
+
+const getWalkInCustomerName = (notes) => {
+  if (!notes) return "Walk-in Customer";
+  const match = notes.match(/Walk-in Service:\s*([^(|]+)/i) || notes.match(/Walk-in:\s*([^(|]+)/i);
+  return match ? match[1].trim() : "Walk-in Customer";
+};
+
+const getWalkInCustomerPhone = (notes) => {
+  if (!notes) return "";
+  const match = notes.match(/\(([^)]+)\)/);
+  return match ? match[1].trim() : "";
+};
 
 const POS = () => {
   const { user } = useAuth();
@@ -235,6 +247,7 @@ const POS = () => {
   const [svPartSearch, setSvPartSearch] = useState("");
   const [svPartResults, setSvPartResults] = useState([]);
   const [svCustomerSearch, setSvCustomerSearch] = useState("");
+  const [showNewServiceModal, setShowNewServiceModal] = useState(false);
   const debouncedSvPartSearch = useDebounce(svPartSearch, 300);
   const debouncedSvCustomerSearch = useDebounce(svCustomerSearch, 300);
 
@@ -273,6 +286,12 @@ const POS = () => {
       params: { branchId: user?.branchId, search: debouncedSvPartSearch, limit: 10 }
     }).then(r => r.data),
     enabled: activeMenu === 'service-invoices' && !!debouncedSvPartSearch
+  });
+
+  const { data: svHistory, refetch: refetchSvHistory } = useQuery({
+    queryKey: ['sv-history', user?.branchId],
+    queryFn: () => api.get('/appointments', { params: { branchId: user?.branchId } }).then(r => r.data),
+    enabled: activeMenu === 'service-invoices'
   });
 
   // Fetch data for checkout
@@ -1160,6 +1179,8 @@ const POS = () => {
         });
         setSvCustomerSearch("");
         setSvPartSearch("");
+        setShowNewServiceModal(false);
+        refetchSvHistory();
       } catch (err) {
         alert("Failed to submit service invoice: " + (err.response?.data?.message || err.message));
       }
@@ -1224,230 +1245,324 @@ const POS = () => {
     const partsTotal = svForm.selectedParts.reduce((sum, p) => sum + (p.price * p.qty), 0);
     const grandTotal = (parseFloat(svForm.labor) || 0) + partsTotal;
 
+    const svHistoryList = Array.isArray(svHistory) ? svHistory : (svHistory?.data || []);
+    const sortedHistory = [...svHistoryList].sort((a, b) => {
+      const dateA = new Date((a.booking_date || "") + "T" + (a.booking_time || "00:00"));
+      const dateB = new Date((b.booking_date || "") + "T" + (b.booking_time || "00:00"));
+      return dateB - dateA;
+    });
+
     return (
       <div className="flex flex-col h-full space-y-6">
+        {/* Service Invoices History Dashboard */}
         <div className="bg-white p-8 rounded-[2.5rem] border border-[#F3E5DC] shadow-sm max-w-5xl mx-auto w-full">
-          <div className="mb-10 text-center">
-            <h2 className="text-3xl font-black text-[#2D1A12] uppercase tracking-tight">Walk-in Customer Service Bay</h2>
-            <p className="text-[10px] font-bold text-[#8D7A71] uppercase tracking-[0.3em] mt-2">Bill Maintenance, Repair & Tuning Services</p>
+          <div className="flex justify-between items-center mb-8 pb-6 border-b border-[#F3E5DC]">
+            <div>
+              <h2 className="text-2xl font-black text-[#2D1A12] uppercase tracking-tight">Service Invoices</h2>
+              <p className="text-[10px] font-bold text-[#8D7A71] uppercase tracking-[0.2em] mt-1">Manage and track walk-in customer services</p>
+            </div>
+            <button 
+              onClick={() => setShowNewServiceModal(true)}
+              className="bg-[#E65100] text-white px-6 py-3 rounded-full font-black text-xs uppercase tracking-widest shadow-md hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+            >
+              <Plus size={16} /> New Service Invoice
+            </button>
           </div>
 
-          <form onSubmit={handleSvSubmit} className="space-y-10">
-            {/* Customer & Service Select Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Customer */}
-              <div className="space-y-4">
-                <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Walk-in Customer *</label>
-                <div className="relative">
-                  <div className="relative">
-                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[#8D7A71]" size={18} />
-                    <input 
-                      type="text" 
-                      value={svCustomerSearch} 
-                      onChange={e => {
-                        setSvCustomerSearch(e.target.value);
-                        if (svForm.customerId) setSvForm({ ...svForm, customerId: '' });
-                      }}
-                      placeholder="Search walk-in customer by name or phone..."
-                      className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl py-4.5 pl-16 pr-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm"
-                    />
-                  </div>
-                  {svCustomerSearch && !svForm.customerId && (
-                    <div className="absolute z-10 left-0 right-0 mt-2 bg-white border border-[#F3E5DC] rounded-3xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto custom-scrollbar">
-                      {loadingSvCustomers ? (
-                        <div className="p-6 text-center animate-pulse text-[#8D7A71] text-xs font-bold uppercase">Searching...</div>
-                      ) : svCustomers?.data?.length === 0 ? (
-                        <div className="p-6 text-center text-[#8D7A71] text-xs font-bold uppercase">Customer not found</div>
-                      ) : (
-                        (svCustomers.data || []).map(c => (
-                          <div 
-                            key={c.id} 
-                            onClick={() => {
-                              setSvForm({ ...svForm, customerId: c.id });
-                              setSvCustomerSearch(`${c.first_name} ${c.last_name} (${c.phone})`);
+          {sortedHistory.length === 0 ? (
+            <div className="text-center py-16 bg-[#FFFAF8] rounded-[2rem] border border-dashed border-[#F3E5DC]">
+              <div className="text-4xl mb-4">🔧</div>
+              <p className="font-black text-[#2D1A12] uppercase tracking-wider text-sm">No Service History Found</p>
+              <p className="text-xs text-[#8D7A71] mt-1">Click the button above to issue your first service invoice.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-[#F3E5DC] text-[9px] font-black text-[#8D7A71] uppercase tracking-[0.2em]">
+                    <th className="px-6 py-4">Ticket</th>
+                    <th className="px-6 py-4">Customer</th>
+                    <th className="px-6 py-4">Service</th>
+                    <th className="px-6 py-4">Date & Time</th>
+                    <th className="px-6 py-4 text-right">Amount</th>
+                    <th className="px-6 py-4 text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedHistory.map((item) => {
+                    const name = getWalkInCustomerName(item.customer_notes);
+                    const phone = getWalkInCustomerPhone(item.customer_notes);
+                    const serviceName = item.service?.name || "Maintenance & Tuning";
+                    return (
+                      <tr key={item.id} className="border-b border-[#F3E5DC] last:border-none hover:bg-[#FFFAF8] transition-colors">
+                        <td className="px-6 py-5 font-black text-xs text-[#2D1A12] uppercase">#{item.id.slice(-6).toUpperCase()}</td>
+                        <td className="px-6 py-5">
+                          <div className="font-black text-xs text-[#2D1A12] uppercase">{name}</div>
+                          {phone && <div className="text-[10px] font-bold text-[#8D7A71]">{phone}</div>}
+                        </td>
+                        <td className="px-6 py-5 font-bold text-xs text-[#8D7A71] uppercase">{serviceName}</td>
+                        <td className="px-6 py-5 font-bold text-xs text-[#8D7A71]">
+                          {item.booking_date} <span className="text-[10px] font-normal text-[#8D7A71]/60">{item.booking_time}</span>
+                        </td>
+                        <td className="px-6 py-5 text-right font-black text-xs text-[#E65100]">PKR {item.final_price?.toLocaleString() || 0}</td>
+                        <td className="px-6 py-5 text-center">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-wider">
+                            ● {item.status}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* New Service Invoice Modal */}
+        {showNewServiceModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowNewServiceModal(false)} />
+            
+            {/* Modal Content */}
+            <div className="relative bg-white w-full max-w-5xl rounded-[3rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+              {/* Header */}
+              <header className="px-10 py-7 border-b border-[#F3E5DC] flex justify-between items-center bg-[#FFFAF8]">
+                <div>
+                  <h2 className="text-xl font-black text-[#2D1A12] uppercase tracking-tight">Walk-in Customer Service Bay</h2>
+                  <p className="text-[9px] font-bold text-[#8D7A71] uppercase tracking-[0.2em] mt-0.5">Generate new maintenance service invoice</p>
+                </div>
+                <button 
+                  className="w-8 h-8 bg-white border border-[#F3E5DC] rounded-full flex items-center justify-center text-[#8D7A71] hover:bg-[#F3E5DC] transition-all" 
+                  onClick={() => setShowNewServiceModal(false)}
+                >
+                  <X size={16} />
+                </button>
+              </header>
+
+              {/* Scrollable Body */}
+              <div className="overflow-y-auto p-10">
+                <form onSubmit={handleSvSubmit} className="space-y-10">
+                  {/* Customer & Service Select Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Customer */}
+                    <div className="space-y-4">
+                      <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Walk-in Customer *</label>
+                      <div className="relative">
+                        <div className="relative">
+                          <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[#8D7A71]" size={18} />
+                          <input 
+                            type="text" 
+                            value={svCustomerSearch} 
+                            onChange={e => {
+                              setSvCustomerSearch(e.target.value);
+                              if (svForm.customerId) setSvForm({ ...svForm, customerId: '' });
                             }}
-                            className="px-6 py-4 hover:bg-[#FFFAF8] cursor-pointer border-b border-[#F3E5DC] last:border-none"
-                          >
-                            <div className="font-black text-[#2D1A12] text-sm uppercase">{c.first_name} {c.last_name}</div>
-                            <div className="text-[10px] font-bold text-[#8D7A71] tracking-widest">{c.phone}</div>
+                            placeholder="Search walk-in customer by name or phone..."
+                            className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl py-4.5 pl-16 pr-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm"
+                          />
+                        </div>
+                        {/* Customer Search Dropdown */}
+                        {svCustomerSearch && !svForm.customerId && (
+                          <div className="absolute z-10 left-0 right-0 mt-2 bg-white border border-[#F3E5DC] rounded-3xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto custom-scrollbar">
+                            {loadingSvCustomers ? (
+                              <div className="p-6 text-center animate-pulse text-[#8D7A71] text-xs font-bold uppercase">Searching...</div>
+                            ) : svCustomers?.data?.length === 0 ? (
+                              <div className="p-6 text-center text-[#8D7A71] text-xs font-bold uppercase">Customer not found</div>
+                            ) : (
+                              (svCustomers?.data || []).map(c => (
+                                <div 
+                                  key={c.id} 
+                                  onClick={() => {
+                                    setSvForm({ ...svForm, customerId: c.id });
+                                    setSvCustomerSearch(`${c.first_name} ${c.last_name} (${c.phone})`);
+                                  }}
+                                  className="px-6 py-4 hover:bg-[#FFFAF8] cursor-pointer border-b border-[#F3E5DC] last:border-none"
+                                >
+                                  <div className="font-black text-[#2D1A12] text-sm uppercase">{c.first_name} {c.last_name}</div>
+                                  <div className="text-[10px] font-bold text-[#8D7A71] tracking-widest">{c.phone}</div>
+                                </div>
+                              ))
+                            )}
                           </div>
-                        ))
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Service Type */}
+                    <div className="space-y-4">
+                      <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Service Type *</label>
+                      <select 
+                        required
+                        value={svForm.serviceId} 
+                        onChange={e => handleServiceSelect(e.target.value)}
+                        className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl py-4.5 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm"
+                      >
+                        <option value="">Select Service...</option>
+                        {(svServices || []).map(s => (
+                          <option key={s.id} value={s.id}>{s.name} (PKR {s.base_price})</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Add Parts Section */}
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Add Spare Parts Used (Optional)</label>
+                    <div className="relative">
+                      <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[#8D7A71]" size={18} />
+                      <input 
+                        type="text" 
+                        value={svPartSearch} 
+                        onChange={e => setSvPartSearch(e.target.value)}
+                        placeholder="Type to search branch spare parts used in service..."
+                        className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl py-5 pl-16 pr-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm"
+                      />
+                      {svPartSearch && (
+                        <div className="absolute z-20 left-0 right-0 mt-2 bg-white border border-[#F3E5DC] rounded-3xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto custom-scrollbar">
+                          {loadingSvParts ? (
+                            <div className="p-6 text-center animate-pulse text-[#8D7A71] text-xs font-bold uppercase">Searching...</div>
+                          ) : svParts?.data?.length === 0 ? (
+                            <div className="p-6 text-center text-[#8D7A71] text-xs font-bold uppercase">No matching spare parts found</div>
+                          ) : (
+                            (svParts?.data || []).map(p => (
+                              <div 
+                                key={p.id} 
+                                onClick={() => addPartToSv(p)}
+                                className="px-6 py-4 hover:bg-[#FFFAF8] cursor-pointer border-b border-[#F3E5DC] last:border-none flex justify-between items-center group"
+                              >
+                                <div>
+                                  <div className="font-black text-[#2D1A12] text-sm uppercase group-hover:text-[#E65100] transition-colors">{p.name}</div>
+                                  <div className="text-[10px] font-bold text-[#8D7A71] uppercase tracking-tighter">Model: {p.partDetail?.model || "N/A"} • Stock: {p.stock_qty} Units</div>
+                                </div>
+                                <div className="text-[#E65100] font-black text-xs">PKR {p.price.toLocaleString()}</div>
+                              </div>
+                            ))
+                          )}
+                        </div>
                       )}
                     </div>
+                  </div>
+
+                  {/* Selected Parts List Table */}
+                  {svForm.selectedParts.length > 0 && (
+                    <div className="space-y-4">
+                      <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Selected Parts Applied</label>
+                      <div className="bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl overflow-hidden">
+                        <table className="w-full text-left border-collapse">
+                          <thead>
+                            <tr className="bg-[#F3E5DC]/30 border-b border-[#F3E5DC]">
+                              <th className="px-6 py-4 text-[10px] font-black text-[#8D7A71] uppercase tracking-widest">Part Description</th>
+                              <th className="px-6 py-4 text-[10px] font-black text-[#8D7A71] uppercase tracking-widest text-center">Qty</th>
+                              <th className="px-6 py-4 text-[10px] font-black text-[#8D7A71] uppercase tracking-widest text-right">Unit Price</th>
+                              <th className="px-6 py-4 text-[10px] font-black text-[#8D7A71] uppercase tracking-widest text-right">Total Price</th>
+                              <th className="px-6 py-4 text-[10px] font-black text-[#8D7A71] uppercase tracking-widest text-center">Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {svForm.selectedParts.map(item => (
+                              <tr key={item.id} className="border-b border-[#F3E5DC] last:border-none">
+                                <td className="px-6 py-4">
+                                  <div className="font-black text-[#2D1A12] text-xs uppercase">{item.name}</div>
+                                  <div className="text-[9px] font-bold text-[#8D7A71] uppercase tracking-tighter">Model: {item.model || "Standard"}</div>
+                                </td>
+                                <td className="px-6 py-4">
+                                  <div className="flex items-center justify-center gap-3">
+                                    <button type="button" onClick={() => updateSvPartQty(item.id, -1)} className="w-6 h-6 rounded-full bg-white border border-[#F3E5DC] flex items-center justify-center text-xs font-black hover:bg-[#F3E5DC] transition-colors">−</button>
+                                    <span className="font-black text-xs w-6 text-center">{item.qty}</span>
+                                    <button type="button" onClick={() => updateSvPartQty(item.id, 1)} className="w-6 h-6 rounded-full bg-white border border-[#F3E5DC] flex items-center justify-center text-xs font-black hover:bg-[#F3E5DC] transition-colors">+</button>
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 text-right font-bold text-xs">PKR {item.price.toLocaleString()}</td>
+                                <td className="px-6 py-4 text-right font-black text-xs text-[#E65100]">PKR {(item.price * item.qty).toLocaleString()}</td>
+                                <td className="px-6 py-4 text-center">
+                                  <button type="button" onClick={() => removeSvPart(item.id)} className="text-red-400 hover:text-red-600 transition-colors">
+                                    <Trash2 size={16} />
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
                   )}
-                </div>
-              </div>
 
-              {/* Service Type */}
-              <div className="space-y-4">
-                <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Service Type *</label>
-                <select 
-                  required
-                  value={svForm.serviceId} 
-                  onChange={e => handleServiceSelect(e.target.value)}
-                  className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl py-4.5 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm"
-                >
-                  <option value="">Select Service...</option>
-                  {(svServices || []).map(s => (
-                    <option key={s.id} value={s.id}>{s.name} (PKR {s.base_price})</option>
-                  ))}
-                </select>
-              </div>
-            </div>
+                  {/* Calculations Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Labor / Service Charges (PKR)</label>
+                        <input 
+                          type="number" 
+                          value={svForm.labor} 
+                          onChange={e => setSvForm({ ...svForm, labor: e.target.value })}
+                          className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl py-4.5 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm"
+                        />
+                      </div>
 
-            {/* Spare Parts Used */}
-            <div className="space-y-4">
-              <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Add Spare Parts Used (Optional)</label>
-              <div className="relative">
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[#8D7A71]" size={18} />
-                <input 
-                  type="text" 
-                  value={svPartSearch} 
-                  onChange={e => setSvPartSearch(e.target.value)}
-                  placeholder="Type to search branch spare parts used in service..."
-                  className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl py-5 pl-16 pr-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm"
-                />
-                {svPartSearch && (
-                  <div className="absolute z-20 left-0 right-0 mt-2 bg-white border border-[#F3E5DC] rounded-3xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto custom-scrollbar">
-                    {loadingSvParts ? (
-                      <div className="p-6 text-center animate-pulse text-[#8D7A71] text-xs font-bold uppercase">Searching...</div>
-                    ) : svParts?.data?.length === 0 ? (
-                      <div className="p-6 text-center text-[#8D7A71] text-xs font-bold uppercase">No matching spare parts found</div>
-                    ) : (
-                      (svParts.data || []).map(p => (
-                        <div 
-                          key={p.id} 
-                          onClick={() => addPartToSv(p)}
-                          className="px-6 py-4 hover:bg-[#FFFAF8] cursor-pointer border-b border-[#F3E5DC] last:border-none flex justify-between items-center group"
-                        >
-                          <div>
-                            <div className="font-black text-[#2D1A12] text-sm uppercase group-hover:text-[#E65100] transition-colors">{p.name}</div>
-                            <div className="text-[10px] font-bold text-[#8D7A71] uppercase tracking-tighter">Model: {p.partDetail?.model || "N/A"} • Stock: {p.stock_qty} Units</div>
-                          </div>
-                          <div className="text-[#E65100] font-black text-xs">PKR {p.price.toLocaleString()}</div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Job Remarks / Technicians Notes</label>
+                        <textarea 
+                          value={svForm.customerNotes} 
+                          onChange={e => setSvForm({ ...svForm, customerNotes: e.target.value })}
+                          placeholder="Describe maintenance actions, diagnostic results..."
+                          className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm min-h-[100px]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-6 flex flex-col justify-between">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Tuning Date</label>
+                          <input 
+                            type="date" 
+                            value={svForm.bookingDate} 
+                            onChange={e => setSvForm({ ...svForm, bookingDate: e.target.value })}
+                            className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none font-bold text-xs"
+                          />
                         </div>
-                      ))
-                    )}
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Tuning Time</label>
+                          <input 
+                            type="time" 
+                            value={svForm.bookingTime} 
+                            onChange={e => setSvForm({ ...svForm, bookingTime: e.target.value })}
+                            className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none font-bold text-xs"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="bg-[#2D1A12] p-8 rounded-[2rem] text-white shadow-xl">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-[10px] font-bold text-[#FFFAF8]/60 uppercase tracking-[0.2em]">Labor / Tuning</span>
+                          <span className="font-bold text-xs">PKR {(parseFloat(svForm.labor) || 0).toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between items-center mb-4 pb-4 border-b border-white/10">
+                          <span className="text-[10px] font-bold text-[#FFFAF8]/60 uppercase tracking-[0.2em]">Spare Parts Cost</span>
+                          <span className="font-bold text-xs">PKR {partsTotal.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between items-end">
+                          <span className="text-[10px] font-bold text-white uppercase tracking-[0.2em]">Total service bill</span>
+                          <span className="text-2xl font-black text-[#E65100]">PKR {grandTotal.toLocaleString()}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                )}
+
+                  <button 
+                    type="submit"
+                    className="w-full bg-[#E65100] text-white py-6 rounded-[2.5rem] font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-[1.01] active:scale-95 transition-all mt-6 flex items-center justify-center gap-4"
+                  >
+                    <Icon n="check" size={20} /> Generate Service Invoice & Print
+                  </button>
+                </form>
               </div>
             </div>
-
-            {/* Selected Parts Table */}
-            {svForm.selectedParts.length > 0 && (
-              <div className="space-y-4">
-                <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Selected Parts Applied</label>
-                <div className="bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl overflow-hidden">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-[#F3E5DC]/30 border-b border-[#F3E5DC]">
-                        <th className="px-6 py-4 text-[10px] font-black text-[#8D7A71] uppercase tracking-widest">Part Description</th>
-                        <th className="px-6 py-4 text-[10px] font-black text-[#8D7A71] uppercase tracking-widest text-center">Qty</th>
-                        <th className="px-6 py-4 text-[10px] font-black text-[#8D7A71] uppercase tracking-widest text-right">Unit Price</th>
-                        <th className="px-6 py-4 text-[10px] font-black text-[#8D7A71] uppercase tracking-widest text-right">Total Price</th>
-                        <th className="px-6 py-4 text-[10px] font-black text-[#8D7A71] uppercase tracking-widest text-center">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {svForm.selectedParts.map(item => (
-                        <tr key={item.id} className="border-b border-[#F3E5DC] last:border-none">
-                          <td className="px-6 py-4">
-                            <div className="font-black text-[#2D1A12] text-xs uppercase">{item.name}</div>
-                            <div className="text-[9px] font-bold text-[#8D7A71] uppercase tracking-tighter">Model: {item.model || "Standard"}</div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center justify-center gap-3">
-                              <button type="button" onClick={() => updateSvPartQty(item.id, -1)} className="w-6 h-6 rounded-full bg-white border border-[#F3E5DC] flex items-center justify-center text-xs font-black hover:bg-[#F3E5DC] transition-colors">−</button>
-                              <span className="font-black text-xs w-6 text-center">{item.qty}</span>
-                              <button type="button" onClick={() => updateSvPartQty(item.id, 1)} className="w-6 h-6 rounded-full bg-white border border-[#F3E5DC] flex items-center justify-center text-xs font-black hover:bg-[#F3E5DC] transition-colors">+</button>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-right font-bold text-xs">PKR {item.price.toLocaleString()}</td>
-                          <td className="px-6 py-4 text-right font-black text-xs text-[#E65100]">PKR {(item.price * item.qty).toLocaleString()}</td>
-                          <td className="px-6 py-4 text-center">
-                            <button type="button" onClick={() => removeSvPart(item.id)} className="text-red-400 hover:text-red-600 transition-colors">
-                              <Trash2 size={16} />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* Calculations Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Labor / Service Charges (PKR)</label>
-                  <input 
-                    type="number" 
-                    value={svForm.labor} 
-                    onChange={e => setSvForm({ ...svForm, labor: e.target.value })}
-                    className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl py-4.5 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Job Remarks / Technicians Notes</label>
-                  <textarea 
-                    value={svForm.customerNotes} 
-                    onChange={e => setSvForm({ ...svForm, customerNotes: e.target.value })}
-                    placeholder="Describe maintenance actions, diagnostic results..."
-                    className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm min-h-[100px]"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-6 flex flex-col justify-between">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Tuning Date</label>
-                    <input 
-                      type="date" 
-                      value={svForm.bookingDate} 
-                      onChange={e => setSvForm({ ...svForm, bookingDate: e.target.value })}
-                      className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none font-bold text-xs"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Tuning Time</label>
-                    <input 
-                      type="time" 
-                      value={svForm.bookingTime} 
-                      onChange={e => setSvForm({ ...svForm, bookingTime: e.target.value })}
-                      className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none font-bold text-xs"
-                    />
-                  </div>
-                </div>
-
-                <div className="bg-[#2D1A12] p-8 rounded-[2rem] text-white shadow-xl">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-[10px] font-bold text-[#FFFAF8]/60 uppercase tracking-[0.2em]">Labor / Tuning</span>
-                    <span className="font-bold text-xs">PKR {(parseFloat(svForm.labor) || 0).toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between items-center mb-4 pb-4 border-b border-white/10">
-                    <span className="text-[10px] font-bold text-[#FFFAF8]/60 uppercase tracking-[0.2em]">Spare Parts Cost</span>
-                    <span className="font-bold text-xs">PKR {partsTotal.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between items-end">
-                    <span className="text-[10px] font-bold text-white uppercase tracking-[0.2em]">Total service bill</span>
-                    <span className="text-2xl font-black text-[#E65100]">PKR {grandTotal.toLocaleString()}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <button 
-              type="submit"
-              className="w-full bg-[#E65100] text-white py-6 rounded-[2.5rem] font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-[1.01] active:scale-95 transition-all mt-6 flex items-center justify-center gap-4"
-            >
-              <Icon n="check" size={20} /> Generate Service Invoice & Print
-            </button>
-          </form>
-        </div>
+          </div>
+        )}
       </div>
     );
   };
