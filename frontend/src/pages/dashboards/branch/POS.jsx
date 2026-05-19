@@ -5,7 +5,7 @@ import api from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
 import { useDebounce } from '../../../hooks/useDebounce';
 import { Icon } from "../../../components/branch/BranchShared";
-import { Package, Search, Filter, Tag, Plus, ShoppingCart, Trash2, X } from "lucide-react";
+import { Package, Search, Filter, Tag, Plus, ShoppingCart, Trash2, X, Wrench, Edit2, Home, Calendar, FileText, CheckCircle, MessageCircle, ExternalLink } from "lucide-react";
 import "../../../styles/pos.css";
 
 const getWalkInCustomerName = (notes) => {
@@ -28,6 +28,24 @@ const generateServiceId = (uuidStr) => {
     hash |= 0;
   }
   return (Math.abs(hash) % 900000 + 100000).toString();
+};
+
+const formatDate = (isoString) => {
+  if (!isoString) return "";
+  const date = new Date(isoString);
+  if (isNaN(date)) return isoString;
+  return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-').toUpperCase();
+};
+
+const formatTime12Hour = (timeString) => {
+  if (!timeString) return "";
+  let [hours, minutes] = timeString.split(':');
+  if (!hours || !minutes) return timeString;
+  hours = parseInt(hours, 10);
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  return `${hours.toString().padStart(2, '0')}:${minutes} ${ampm}`;
 };
 
 const POS = () => {
@@ -257,6 +275,7 @@ const POS = () => {
   const [svPartSearch, setSvPartSearch] = useState("");
   const [svPartResults, setSvPartResults] = useState([]);
   const [svCustomerSearch, setSvCustomerSearch] = useState("");
+  const [svHistorySearch, setSvHistorySearch] = useState("");
   const [showNewServiceModal, setShowNewServiceModal] = useState(false);
   const debouncedSvPartSearch = useDebounce(svPartSearch, 300);
   const debouncedSvCustomerSearch = useDebounce(svCustomerSearch, 300);
@@ -1266,76 +1285,137 @@ const POS = () => {
     const grandTotal = (parseFloat(svForm.labor) || 0) + partsTotal;
 
     const svHistoryList = Array.isArray(svHistory) ? svHistory : (svHistory?.data || []);
-    const sortedHistory = [...svHistoryList].sort((a, b) => {
+    let sortedHistory = [...svHistoryList].sort((a, b) => {
       const dateA = new Date((a.booking_date || "") + "T" + (a.booking_time || "00:00"));
       const dateB = new Date((b.booking_date || "") + "T" + (b.booking_time || "00:00"));
       return dateB - dateA;
     });
 
+    if (svHistorySearch.trim()) {
+      sortedHistory = sortedHistory.filter(item => {
+        const displayId = generateServiceId(item.id);
+        return displayId.includes(svHistorySearch.trim());
+      });
+    }
+
     return (
       <div className="flex flex-col h-full space-y-6">
         {/* Service Invoices History Dashboard */}
-        <div className="bg-white p-8 rounded-[2.5rem] border border-[#F3E5DC] shadow-sm max-w-5xl mx-auto w-full">
-          <div className="flex justify-between items-center mb-8 pb-6 border-b border-[#F3E5DC]">
+        <div className="bg-white p-8 rounded-[2.5rem] border border-[#F3E5DC] shadow-sm max-w-[1400px] mx-auto w-full">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-6 border-b border-[#F3E5DC] gap-4">
             <div>
               <h2 className="text-2xl font-black text-[#2D1A12] uppercase tracking-tight">Service Invoices</h2>
               <p className="text-[10px] font-bold text-[#8D7A71] uppercase tracking-[0.2em] mt-1">Manage and track walk-in customer services</p>
             </div>
-            <button 
-              onClick={() => setShowNewServiceModal(true)}
-              className="bg-[#E65100] text-white px-6 py-3 rounded-full font-black text-xs uppercase tracking-widest shadow-md hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
-            >
-              <Plus size={16} /> New Service Invoice
-            </button>
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+              <div className="relative w-full sm:w-64">
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-[#8D7A71]" size={16} />
+                <input 
+                  type="text" 
+                  value={svHistorySearch}
+                  onChange={e => setSvHistorySearch(e.target.value)}
+                  placeholder="Search Service ID..."
+                  className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-full py-3.5 pl-12 pr-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-xs"
+                />
+              </div>
+              <button 
+                onClick={() => setShowNewServiceModal(true)}
+                className="w-full sm:w-auto whitespace-nowrap bg-[#E65100] text-white px-8 py-3.5 rounded-full font-black text-xs uppercase tracking-widest shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
+              >
+                <Plus size={16} /> New Service Invoice
+              </button>
+            </div>
           </div>
 
           {sortedHistory.length === 0 ? (
             <div className="text-center py-16 bg-[#FFFAF8] rounded-[2rem] border border-dashed border-[#F3E5DC]">
               <div className="text-4xl mb-4">🔧</div>
               <p className="font-black text-[#2D1A12] uppercase tracking-wider text-sm">No Service History Found</p>
-              <p className="text-xs text-[#8D7A71] mt-1">Click the button above to issue your first service invoice.</p>
+              <p className="text-xs text-[#8D7A71] mt-1">Try adjusting your search or issue a new service invoice.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-[#F3E5DC] text-[9px] font-black text-[#8D7A71] uppercase tracking-[0.2em]">
-                    <th className="px-6 py-4">Service ID</th>
-                    <th className="px-6 py-4">Customer</th>
-                    <th className="px-6 py-4">Service</th>
-                    <th className="px-6 py-4">Date & Time</th>
-                    <th className="px-6 py-4 text-right">Amount</th>
-                    <th className="px-6 py-4 text-center">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedHistory.map((item) => {
-                    const name = getWalkInCustomerName(item.customer_notes);
-                    const phone = getWalkInCustomerPhone(item.customer_notes);
-                    const serviceName = item.service?.name || "Maintenance & Tuning";
-                    const displayId = generateServiceId(item.id);
-                    return (
-                      <tr key={item.id} className="border-b border-[#F3E5DC] last:border-none hover:bg-[#FFFAF8] transition-colors">
-                        <td className="px-6 py-5 font-black text-xs text-[#2D1A12] uppercase">#{displayId}</td>
-                        <td className="px-6 py-5">
-                          <div className="font-black text-xs text-[#2D1A12] uppercase">{name}</div>
-                          {phone && <div className="text-[10px] font-bold text-[#8D7A71]">{phone}</div>}
-                        </td>
-                        <td className="px-6 py-5 font-bold text-xs text-[#8D7A71] uppercase">{serviceName}</td>
-                        <td className="px-6 py-5 font-bold text-xs text-[#8D7A71]">
-                          {item.booking_date} <span className="text-[10px] font-normal text-[#8D7A71]/60">{item.booking_time}</span>
-                        </td>
-                        <td className="px-6 py-5 text-right font-black text-xs text-[#E65100]">PKR {item.final_price?.toLocaleString() || 0}</td>
-                        <td className="px-6 py-5 text-center">
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-wider">
-                            ● {item.status}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {sortedHistory.map((item) => {
+                const name = getWalkInCustomerName(item.customer_notes);
+                const phone = getWalkInCustomerPhone(item.customer_notes);
+                const serviceName = item.service?.name || "Maintenance & Tuning";
+                const displayId = generateServiceId(item.id);
+                const formattedDate = formatDate(item.booking_date);
+                const formattedTime = formatTime12Hour(item.booking_time);
+                const isCompleted = item.status === "COMPLETED";
+
+                return (
+                  <div key={item.id} className="bg-white border border-[#F3E5DC] rounded-[2rem] p-6 shadow-sm hover:shadow-xl transition-all flex flex-col group">
+                    {/* Header: Icons */}
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="w-12 h-12 rounded-2xl bg-cyan-50 flex items-center justify-center text-[#E65100] shadow-sm">
+                        <Wrench size={22} strokeWidth={2.5} />
+                      </div>
+                      <div className="flex gap-2">
+                        <button className="w-9 h-9 rounded-xl bg-[#FFF6F0] text-[#E65100] flex items-center justify-center hover:bg-[#FFE0CC] transition-colors">
+                          <Edit2 size={15} />
+                        </button>
+                        <button className="w-9 h-9 rounded-xl bg-[#FFF6F0] text-[#E65100] flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors">
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Status & ID */}
+                    <div className="flex justify-between items-center mb-4">
+                      <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${isCompleted ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-amber-50 text-amber-600 border-amber-200'}`}>
+                        {isCompleted ? "COMPLETED" : item.status}
+                      </span>
+                      <span className="px-3 py-1.5 rounded-lg text-[11px] font-black text-[#E65100] bg-[#FFF6F0] uppercase tracking-wider">
+                        #{displayId}
+                      </span>
+                    </div>
+
+                    {/* Names */}
+                    <h3 className="font-black text-xl text-[#2D1A12] leading-tight mb-1 truncate">{name}</h3>
+                    <p className="font-bold text-sm text-[#E65100] mb-5 truncate">{serviceName}</p>
+
+                    {/* Date/Time */}
+                    <div className="bg-[#FFF6F0] border border-[#F3E5DC] border-dashed rounded-xl p-3 flex items-center gap-2 text-xs font-bold text-[#2D1A12] mb-5">
+                      <Home size={14} className="text-[#8D7A71]" />
+                      <span>{formattedDate} @ {formattedTime}</span>
+                      <ExternalLink size={12} className="ml-auto text-[#8D7A71]" />
+                    </div>
+
+                    {/* Phone */}
+                    <div className="border border-[#F3E5DC] rounded-2xl p-4 flex justify-between items-center mb-6 shadow-sm">
+                      <div>
+                        <div className="text-[9px] font-black text-[#8D7A71] uppercase tracking-[0.2em] mb-1">Phone / Cell</div>
+                        <div className="font-black text-[13px] text-[#2D1A12]">{phone || "N/A"}</div>
+                      </div>
+                      <a href={`https://wa.me/${phone?.replace(/\D/g,'')}`} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center hover:bg-emerald-600 transition-all shadow-md shadow-emerald-500/20 hover:scale-105 active:scale-95">
+                        <MessageCircle size={22} fill="currentColor" className="text-white" />
+                      </a>
+                    </div>
+
+                    {/* Buttons Row 1 */}
+                    <div className="grid grid-cols-2 gap-3 mb-3 mt-auto">
+                      <button className="bg-[#FFF6F0] text-[#2D1A12] py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#FFE0CC] transition-colors">
+                        <Home size={14} /> Schedule
+                      </button>
+                      <button className="bg-[#1A1A1A] text-white py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-black transition-colors shadow-lg shadow-black/20">
+                        <FileText size={14} /> Billing
+                      </button>
+                    </div>
+
+                    {/* Buttons Row 2 */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <button className="bg-white border border-[#E65100] text-[#E65100] py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#FFF6F0] transition-colors">
+                        <Calendar size={14} /> Booking Ticket
+                      </button>
+                      <button className="bg-white border border-emerald-500 text-emerald-500 py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-emerald-50 transition-colors">
+                        <FileText size={14} /> Complete Bill
+                      </button>
+                    </div>
+
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
