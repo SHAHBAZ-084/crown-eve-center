@@ -69,9 +69,17 @@ const SaleInvoices = ({ user, queryClient, onInvoiceGenerated }) => {
   };
 
   const addItemToSi = (product) => {
+    if (product.stock_qty <= 0) {
+      alert(`Insufficient Stock! "${product.name}" cannot be sold because its stock quantity is 0.`);
+      return;
+    }
     setSiForm(prev => {
       const exists = prev.items.find(i => i.id === product.id);
       if (exists) {
+        if (exists.qty + 1 > product.stock_qty) {
+          alert(`Insufficient Stock! Cannot add more. Only ${product.stock_qty} unit(s) available.`);
+          return prev;
+        }
         const newItems = prev.items.map(i => i.id === product.id ? { ...i, qty: i.qty + 1 } : i);
         return { ...prev, items: newItems, amount: newItems.reduce((s, i) => s + i.price * i.qty, 0) };
       }
@@ -89,10 +97,23 @@ const SaleInvoices = ({ user, queryClient, onInvoiceGenerated }) => {
 
   const updateItemQty = (id, delta) => {
     setSiForm(prev => {
+      let isOverStock = false;
       const newItems = prev.items.map(i => {
-        if (i.id === id) { const q = Math.max(1, Math.min(i.stock, i.qty + delta)); return { ...i, qty: q }; }
+        if (i.id === id) {
+          const targetQty = i.qty + delta;
+          if (targetQty > i.stock) {
+            isOverStock = true;
+            return i;
+          }
+          const q = Math.max(1, targetQty);
+          return { ...i, qty: q };
+        }
         return i;
       });
+      if (isOverStock) {
+        alert("Insufficient Stock! Cannot exceed available stock.");
+        return prev;
+      }
       return { ...prev, items: newItems, amount: newItems.reduce((s, i) => s + i.price * i.qty, 0) };
     });
   };

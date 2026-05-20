@@ -6,6 +6,25 @@ const createOrder = async (data) => {
   const { branchId, customerId, walkInCustomerId, bankId, total, type, payment_method, payment_status, payment_screenshot, transaction_id, tracking_id, customer_name, customer_phone, notes, items } = data;
 
   return prisma.$transaction(async (tx) => {
+    // 0. Verify stock availability for all items to prevent negative stock
+    for (const item of items) {
+      const pId = item.productId || item.id;
+      const qtyRequested = Number(item.quantity || item.qty);
+
+      const product = await tx.product.findUnique({
+        where: { id: pId },
+        select: { name: true, stock_qty: true }
+      });
+
+      if (!product) {
+        throw new Error('Product not found.');
+      }
+
+      if (product.stock_qty < qtyRequested) {
+        throw new Error(`Insufficient stock for product "${product.name}". Available: ${product.stock_qty}, Requested: ${qtyRequested}.`);
+      }
+    }
+
     // 1. Create the order
     const order = await tx.order.create({
       data: {

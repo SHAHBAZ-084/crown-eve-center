@@ -210,8 +210,9 @@ const JournalVoucher = ({ user }) => {
               
               <div className="flex flex-col gap-5 mt-2">
                 <div className="flex items-center">
-                  <label className="w-40 whitespace-nowrap text-right pr-4 font-bold text-[#424242] text-xs uppercase tracking-wider">Debit Type:</label>
+                  <label className="w-40 whitespace-nowrap text-right pr-4 font-bold text-[#424242] text-xs uppercase tracking-wider">Debit Type <span className="text-red-500 font-black">*</span>:</label>
                   <select 
+                    required
                     value={formData.debitCategoryId}
                     onChange={e => setFormData({ ...formData, debitCategoryId: e.target.value })}
                     className="flex-1 bg-white border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm font-bold text-[#2D1A12] shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400/20 focus:border-gray-400 transition-all"
@@ -224,7 +225,7 @@ const JournalVoucher = ({ user }) => {
                 </div>
 
                 <div className="flex items-center">
-                  <label className="w-40 whitespace-nowrap text-right pr-4 font-bold text-[#424242] text-xs uppercase tracking-wider">Debit Account:</label>
+                  <label className="w-40 whitespace-nowrap text-right pr-4 font-bold text-[#424242] text-xs uppercase tracking-wider">Debit Account <span className="text-red-500 font-black">*</span>:</label>
                   <select 
                     required
                     value={formData.debitAccountId}
@@ -258,8 +259,9 @@ const JournalVoucher = ({ user }) => {
               
               <div className="flex flex-col gap-5 mt-2">
                 <div className="flex items-center">
-                  <label className="w-40 whitespace-nowrap text-right pr-4 font-bold text-[#424242] text-xs uppercase tracking-wider">Credit Type:</label>
+                  <label className="w-40 whitespace-nowrap text-right pr-4 font-bold text-[#424242] text-xs uppercase tracking-wider">Credit Type <span className="text-red-500 font-black">*</span>:</label>
                   <select 
+                    required
                     value={formData.creditCategoryId}
                     onChange={e => setFormData({ ...formData, creditCategoryId: e.target.value })}
                     className="flex-1 bg-white border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm font-bold text-[#2D1A12] shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400/20 focus:border-gray-400 transition-all"
@@ -272,7 +274,7 @@ const JournalVoucher = ({ user }) => {
                 </div>
 
                 <div className="flex items-center">
-                  <label className="w-40 whitespace-nowrap text-right pr-4 font-bold text-[#424242] text-xs uppercase tracking-wider">Credit Account:</label>
+                  <label className="w-40 whitespace-nowrap text-right pr-4 font-bold text-[#424242] text-xs uppercase tracking-wider">Credit Account <span className="text-red-500 font-black">*</span>:</label>
                   <select 
                     required
                     value={formData.creditAccountId}
@@ -318,7 +320,7 @@ const JournalVoucher = ({ user }) => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 xl:pl-4">
               
               <div className="flex items-center">
-                <label className="w-auto whitespace-nowrap text-right pr-3 font-bold text-[#424242] text-xs uppercase tracking-wider">Amount:</label>
+                <label className="w-auto whitespace-nowrap text-right pr-3 font-bold text-[#424242] text-xs uppercase tracking-wider">Amount <span className="text-red-500 font-black">*</span>:</label>
                 <input 
                   required
                   type="number" 
@@ -330,7 +332,7 @@ const JournalVoucher = ({ user }) => {
               </div>
 
               <div className="flex items-center">
-                <label className="w-auto whitespace-nowrap text-right pr-3 font-bold text-[#424242] text-xs uppercase tracking-wider">Date:</label>
+                <label className="w-auto whitespace-nowrap text-right pr-3 font-bold text-[#424242] text-xs uppercase tracking-wider">Date <span className="text-red-500 font-black">*</span>:</label>
                 <input 
                   required
                   type="date" 
@@ -341,8 +343,9 @@ const JournalVoucher = ({ user }) => {
               </div>
 
               <div className="flex items-center">
-                <label className="w-auto whitespace-nowrap text-right pr-3 font-bold text-[#424242] text-xs uppercase tracking-wider">Ref #:</label>
+                <label className="w-auto whitespace-nowrap text-right pr-3 font-bold text-[#424242] text-xs uppercase tracking-wider">Ref # <span className="text-red-500 font-black">*</span>:</label>
                 <input 
+                  required
                   type="text" 
                   value={formData.ref_no}
                   onChange={e => setFormData({ ...formData, ref_no: e.target.value })}

@@ -216,8 +216,9 @@ const PaymentVoucher = ({ user }) => {
               </div>
 
               <div className="flex items-center">
-                <label className="w-32 text-right pr-4 font-bold text-[#8D7A71] text-xs uppercase tracking-wider">From Type:</label>
+                <label className="w-32 text-right pr-4 font-bold text-[#8D7A71] text-xs uppercase tracking-wider">From Type <span className="text-red-500 font-black">*</span>:</label>
                 <select 
+                  required
                   value={formData.fromCategoryId}
                   onChange={e => setFormData({ ...formData, fromCategoryId: e.target.value })}
                   className="flex-1 bg-white border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm font-bold text-[#2D1A12] shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all"
@@ -230,7 +231,7 @@ const PaymentVoucher = ({ user }) => {
               </div>
 
               <div className="flex items-center">
-                <label className="w-32 text-right pr-4 font-bold text-[#8D7A71] text-xs uppercase tracking-wider">From Account:</label>
+                <label className="w-32 text-right pr-4 font-bold text-[#8D7A71] text-xs uppercase tracking-wider">From Account <span className="text-red-500 font-black">*</span>:</label>
                 <select 
                   required
                   value={formData.fromAccountId}
@@ -255,7 +256,7 @@ const PaymentVoucher = ({ user }) => {
               </div>
 
               <div className="flex items-center">
-                <label className="w-32 text-right pr-4 font-bold text-[#8D7A71] text-xs uppercase tracking-wider">Amount (PKR):</label>
+                <label className="w-32 text-right pr-4 font-bold text-[#8D7A71] text-xs uppercase tracking-wider">Amount (PKR) <span className="text-red-500 font-black">*</span>:</label>
                 <input 
                   required
                   type="number" 
@@ -271,7 +272,7 @@ const PaymentVoucher = ({ user }) => {
             <div className="flex flex-col gap-5 bg-[#F9FAFB] p-6 rounded-2xl border border-gray-100">
               
               <div className="flex items-center">
-                <label className="w-32 text-right pr-4 font-bold text-[#8D7A71] text-xs uppercase tracking-wider">Date:</label>
+                <label className="w-32 text-right pr-4 font-bold text-[#8D7A71] text-xs uppercase tracking-wider">Date <span className="text-red-500 font-black">*</span>:</label>
                 <input 
                   required
                   type="date" 
@@ -282,8 +283,9 @@ const PaymentVoucher = ({ user }) => {
               </div>
 
               <div className="flex items-center">
-                <label className="w-32 text-right pr-4 font-bold text-[#8D7A71] text-xs uppercase tracking-wider">To Type:</label>
+                <label className="w-32 text-right pr-4 font-bold text-[#8D7A71] text-xs uppercase tracking-wider">To Type <span className="text-red-500 font-black">*</span>:</label>
                 <select 
+                  required
                   value={formData.toCategoryId}
                   onChange={e => setFormData({ ...formData, toCategoryId: e.target.value })}
                   className="flex-1 bg-white border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm font-bold text-[#2D1A12] shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all"
@@ -296,7 +298,7 @@ const PaymentVoucher = ({ user }) => {
               </div>
 
               <div className="flex items-center">
-                <label className="w-32 text-right pr-4 font-bold text-[#8D7A71] text-xs uppercase tracking-wider">To Account:</label>
+                <label className="w-32 text-right pr-4 font-bold text-[#8D7A71] text-xs uppercase tracking-wider">To Account <span className="text-red-500 font-black">*</span>:</label>
                 <select 
                   required
                   value={formData.toAccountId}
@@ -321,8 +323,9 @@ const PaymentVoucher = ({ user }) => {
               </div>
 
               <div className="flex items-center">
-                <label className="w-32 text-right pr-4 font-bold text-[#8D7A71] text-xs uppercase tracking-wider">Ref #:</label>
+                <label className="w-32 text-right pr-4 font-bold text-[#8D7A71] text-xs uppercase tracking-wider">Ref # <span className="text-red-500 font-black">*</span>:</label>
                 <input 
+                  required
                   type="text" 
                   value={formData.ref_no}
                   onChange={e => setFormData({ ...formData, ref_no: e.target.value })}
