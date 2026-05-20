@@ -75,11 +75,21 @@ const Contact = () => {
               <p className="time-note">{currentInfo.timings || "Mon-Sat, 9:00 AM - 6:00 PM"}</p>
             </div>
 
-            <div className="info-block">
+            <div className="info-block" style={{ gridColumn: '1 / -1' }}>
               <h4>Our Location</h4>
               <div className="info-item">
                 <span>📍</span>
-                <p>{currentInfo.address}</p>
+                <p>{currentInfo.address?.split('|')[0]}</p>
+              </div>
+              <div style={{ marginTop: '20px', borderRadius: '12px', overflow: 'hidden', height: '300px', width: '100%', border: '1px solid #eee' }}>
+                <iframe 
+                  width="100%" 
+                  height="100%" 
+                  style={{ border: 0 }}
+                  loading="lazy" 
+                  allowFullScreen 
+                  src={`https://maps.google.com/maps?q=${encodeURIComponent(currentInfo.address?.split('|')[0] || '')}&output=embed`}
+                ></iframe>
               </div>
             </div>
 
