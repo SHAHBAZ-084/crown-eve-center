@@ -98,28 +98,6 @@ const Contact = () => {
           </div>
         </div>
 
-        <aside className="contact-right">
-          <div className="contact-form-card">
-            <h3>Get in Touch</h3>
-            <form onSubmit={(e) => e.preventDefault()}>
-              <div className="form-group">
-                <input type="text" placeholder="Full Name *" required />
-              </div>
-              <div className="form-group">
-                <input type="email" placeholder="Email Address *" required />
-              </div>
-              <div className="form-group">
-                <input type="tel" placeholder="Phone Number *" required />
-              </div>
-              <div className="form-group">
-                <textarea placeholder="Message *" rows="4" required></textarea>
-              </div>
-              <button type="submit" className="btn-send">
-                Send Message ↗
-              </button>
-            </form>
-          </div>
-        </aside>
       </main>
     </div>
   );

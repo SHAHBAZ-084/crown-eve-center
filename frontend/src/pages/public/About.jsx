@@ -47,7 +47,7 @@ const About = () => {
           display: 'flex'
         }}>
           <img 
-            src="https://images.unsplash.com/photo-1558981285-6f0c94958bb6?auto=format&fit=crop&w=1000&q=80" 
+            src="/legacy-bike.png" 
             alt="Crown Eve Showroom" 
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
