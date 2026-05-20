@@ -1,0 +1,534 @@
+/* frontend/src/pages/public/Shop.css */
+
+.shop-container {
+  padding: 20px 1%;
+  background: #fff;
+}
+
+.pg-hd {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 50px;
+}
+
+.pg-hd h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 64px;
+  line-height: 0.9;
+  color: var(--orange);
+  margin-bottom: 8px;
+}
+
+.pg-hd p {
+  color: #636E72;
+  font-size: 16px;
+  font-weight: 300;
+}
+
+.pg-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.fsearch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8f9fa;
+  border: 1px solid #eee;
+  padding: 10px 20px;
+  border-radius: 30px;
+  width: 300px;
+}
+
+.fsearch input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #2d3436;
+  width: 100%;
+}
+
+.premium-cart-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 1.5px solid var(--orange);
+  color: var(--orange);
+  padding: 10px 24px;
+  border-radius: 30px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.premium-cart-btn:hover {
+  background: var(--orange);
+  color: #fff;
+  box-shadow: 0 10px 20px var(--orange-glow);
+}
+
+.cart-badge {
+  background: #fff;
+  color: var(--orange);
+  font-size: 10px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 800;
+}
+
+.premium-cart-btn:hover .cart-badge {
+  background: #fff;
+  color: var(--orange);
+}
+
+.filter-bar-premium {
+  background: #fdfdfd;
+  border: 1px solid #f0f0f0;
+  border-radius: 16px;
+  padding: 30px;
+  margin-bottom: 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+}
+
+.filter-group label {
+  display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #b2bec3;
+  font-weight: 800;
+  margin-bottom: 15px;
+  letter-spacing: 2px;
+}
+
+.fbar-scrollable {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.fpill {
+  padding: 10px 25px;
+  border-radius: 30px;
+  border: 1px solid #eee;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.3s;
+}
+
+.fpill.on {
+  background: var(--orange);
+  color: #fff;
+  border-color: var(--orange);
+  box-shadow: 0 10px 20px var(--orange-glow);
+}
+
+.filter-controls-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  border-top: 1px solid #f5f5f5;
+  padding-top: 25px;
+}
+
+.control-item {
+  flex: 1;
+  min-width: 250px;
+}
+
+.control-item label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #b2bec3;
+  font-weight: 800;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.premium-select {
+  width: 100%;
+  background: #fff;
+  border: 1px solid #eee;
+  color: #2d3436;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.premium-select:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 4px var(--orange-glow);
+}
+
+.btn-clear {
+  background: #fff;
+  border: 1px solid #ff7675;
+  color: #ff7675;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-clear:hover {
+  background: #ff7675;
+  color: #fff;
+}
+
+/* ── PREMIUM BIKE CARDS ── */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+.bike-card-new {
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.bike-card-new:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+.product-card-img {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.bike-main-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.5s ease;
+}
+
+.bike-card-new:hover .bike-main-img {
+  transform: scale(1.05);
+}
+
+.quick-add-btn {
+  position: absolute;
+  bottom: -50px;
+  left: 0;
+  right: 0;
+  background: var(--orange);
+  color: #fff;
+  border: none;
+  padding: 12px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 13px;
+  transition: all 0.3s;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.bike-card-new:hover .quick-add-btn {
+  bottom: 0;
+}
+
+.quick-add-btn:hover {
+  background: #d34109;
+}
+
+.bike-card-new .product-card-body {
+  padding: 25px;
+  background: #fff;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-cat {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--orange);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+
+.bike-name-new {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 17px;
+  font-weight: 800;
+  color: #111;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bike-price-new {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: var(--orange);
+  font-weight: 500;
+  margin-bottom: 15px;
+  letter-spacing: 1px;
+}
+
+.bike-card-footer {
+  margin-top: auto;
+  padding-top: 15px;
+  border-top: 1px solid #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.check-details {
+  font-size: 14px;
+  font-weight: 600;
+  color: #636E72;
+}
+
+.arrow-circle {
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid #f0f0f0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2D3436;
+  transition: all 0.3s ease;
+}
+
+.bike-card-new:hover .arrow-circle {
+  background: #2D3436;
+  border-color: #2D3436;
+  color: #fff;
+  transform: translateX(5px);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 100px 20px;
+}
+
+.empty-state h3 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 42px;
+  color: var(--orange);
+  margin-bottom: 15px;
+}
+
+/* ── PAGINATION ── */
+.pagination-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  margin-top: 60px;
+  padding-top: 40px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.pag-numbers {
+  display: flex;
+  gap: 10px;
+}
+
+.pag-btn {
+  background: #fff;
+  border: 1.5px solid #eee;
+  color: #2d3436;
+  padding: 10px 25px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.pag-btn:hover:not(:disabled) {
+  border-color: var(--orange);
+  color: var(--orange);
+}
+
+.pag-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #f8f9fa;
+}
+
+.pag-num {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #eee;
+  border-radius: 8px;
+  background: #fff;
+  color: #2d3436;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.pag-num:hover {
+  border-color: var(--orange);
+  color: var(--orange);
+}
+
+.pag-num.active {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: #fff;
+  box-shadow: 0 10px 20px var(--orange-glow);
+}
+
+.pag-ellipsis {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  color: #b2bec3;
+  font-weight: 700;
+  cursor: default;
+}
+
+/* ── MOBILE RESPONSIVENESS ── */
+@media (max-width: 768px) {
+  .shop-container {
+    padding: 20px 4%;
+  }
+
+  .pg-hd {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+
+  .pg-hd h1 {
+    font-size: 48px;
+  }
+
+  .pg-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .fsearch {
+    width: 100%;
+  }
+
+  .premium-cart-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .filter-bar-premium {
+    padding: 20px;
+    gap: 20px;
+  }
+
+  .filter-controls-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .control-item {
+    min-width: 100%;
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+  }
+
+  .pagination-footer {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .pag-numbers {
+    order: -1;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .pg-hd h1 {
+    font-size: 32px;
+  }
+
+  .products-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .bike-card-new .product-card-body {
+    padding: 15px;
+  }
+
+  .bike-name-new {
+    font-size: 14px;
+  }
+
+  .bike-price-new {
+    font-size: 18px;
+  }
+
+  .bike-card-footer {
+    display: none;
+  }
+
+  .quick-add-btn {
+    padding: 8px;
+    font-size: 11px;
+  }
+}

@@ -1,0 +1,159 @@
+/* frontend/src/pages/auth/Auth.css */
+
+#page-login, #page-register {
+  min-height: 100vh;
+  background: #0A0A0A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 5vw;
+  position: relative;
+  overflow: hidden;
+}
+
+#page-login::before, #page-register::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 80% 20%, rgba(232, 71, 10, 0.08), transparent 40%),
+    radial-gradient(circle at 20% 80%, rgba(232, 71, 10, 0.05), transparent 40%);
+  pointer-events: none;
+}
+
+.login-card, .register-card {
+  width: 100%;
+  background: #141414;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 60px 50px;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
+  border-radius: 4px;
+}
+
+.login-card::after, .register-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--orange);
+  box-shadow: 0 0 20px rgba(232, 71, 10, 0.5);
+}
+
+.login-card h2, .register-card h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 64px;
+  line-height: 0.9;
+  letter-spacing: -2px;
+  color: var(--orange);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.login-card p, .register-card p {
+  color: #888;
+  font-size: 15px;
+  margin-bottom: 40px;
+  letter-spacing: 0.3px;
+}
+
+.login-card { max-width: 480px; }
+.register-card { max-width: 580px; }
+
+.form-group { margin-bottom: 30px; }
+
+.form-group label {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #AAA;
+  margin-bottom: 12px;
+}
+
+.form-group input, .form-group select, .form-textarea {
+  width: 100%;
+  background: #1A1A1A;
+  border: 1px solid #2A2A2A;
+  color: #FFF;
+  padding: 16px 20px;
+  font-family: 'Barlow', sans-serif;
+  font-size: 15px;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  border-radius: 4px;
+}
+
+.form-group input:focus, .form-group select:focus, .form-textarea:focus { 
+  border-color: var(--orange);
+  background: #222;
+  box-shadow: 0 0 0 4px rgba(232, 71, 10, 0.1);
+}
+
+.form-submit {
+  width: 100%;
+  padding: 20px;
+  background: var(--orange);
+  color: #FFF;
+  border: none;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  margin-top: 15px;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(232, 71, 10, 0.2);
+}
+
+.form-submit:hover { 
+  background: #FFF;
+  color: #000;
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(232, 71, 10, 0.4);
+}
+
+.form-divider { 
+  text-align: center; 
+  margin: 35px 0; 
+  color: #444; 
+  font-size: 11px; 
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+.form-link { 
+  color: var(--orange); 
+  text-decoration: none; 
+  font-size: 14px; 
+  font-weight: 700;
+  transition: color 0.3s;
+}
+
+.form-link:hover { color: #FFF; }
+
+.role-info { 
+  background: rgba(232, 71, 10, 0.05); 
+  border-left: 3px solid var(--orange);
+  padding: 20px 24px; 
+  margin-bottom: 35px; 
+  font-size: 13px; 
+  color: #BBB; 
+  line-height: 1.7; 
+}
+
+.role-info strong { color: var(--orange); }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+@media (max-width: 600px) {
+  .login-card, .register-card {
+    padding: 40px 25px;
+  }
+  .form-row { grid-template-columns: 1fr; gap: 0; }
+}

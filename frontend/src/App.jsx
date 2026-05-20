@@ -1,0 +1,143 @@
+// frontend/src/App.jsx
+import React, { lazy, Suspense } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
+import Layout from './components/Layout';
+import ProtectedRoute from './components/layout/ProtectedRoute';
+
+// Public Pages
+const Home = lazy(() => import('./pages/public/Home'));
+const Appointments = lazy(() => import('./pages/appointments/Appointments'));
+const TrackOrder = lazy(() => import('./pages/public/TrackOrder'));
+const About = lazy(() => import('./pages/public/About'));
+const Contact = lazy(() => import('./pages/public/Contact'));
+const PublicCart = lazy(() => import('./pages/public/Cart'));
+const PublicCheckout = lazy(() => import('./pages/checkout/Checkout'));
+const NotFound = lazy(() => import('./pages/public/NotFound'));
+
+// Auth Pages
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/auth/Register'));
+const Forgot = lazy(() => import('./pages/auth/Forgot'));
+
+// Dashboards - Owner
+const OwnerLayout = lazy(() => import('./components/owner/OwnerLayout'));
+const OwnerDashboard = lazy(() => import('./pages/dashboards/owner/Dashboard'));
+const OwnerBranches = lazy(() => import('./pages/dashboards/owner/Branches'));
+const OwnerParts = lazy(() => import('./pages/dashboards/owner/Parts'));
+const OwnerUsers = lazy(() => import('./pages/dashboards/owner/Users'));
+const OwnerReports = lazy(() => import('./pages/dashboards/owner/Reports'));
+const OwnerSettings = lazy(() => import('./pages/dashboards/owner/Settings'));
+const OwnerOrders = lazy(() => import('./pages/dashboards/owner/Orders'));
+const OwnerPurchases = lazy(() => import('./pages/dashboards/owner/Purchases'));
+
+// Dashboards - Branch
+const BranchLayout = lazy(() => import('./components/branch/BranchLayout'));
+const BranchDashboard = lazy(() => import('./pages/dashboards/branch/Dashboard'));
+const BranchProducts = lazy(() => import('./pages/dashboards/branch/Products'));
+const BranchInventory = lazy(() => import('./pages/dashboards/branch/Inventory'));
+const BranchOrders = lazy(() => import('./pages/dashboards/branch/Orders'));
+const BranchServices = lazy(() => import('./pages/dashboards/branch/Services'));
+const BranchAppointments = lazy(() => import('./pages/dashboards/branch/Appointments'));
+const BranchSuppliers = lazy(() => import('./pages/dashboards/branch/Suppliers'));
+const BranchReports = lazy(() => import('./pages/dashboards/branch/Reports'));
+const BranchPOS = lazy(() => import('./pages/dashboards/branch/POS'));
+const BranchSettings = lazy(() => import('./pages/dashboards/branch/Settings'));
+
+// Customer Portal
+const CustomerLayout = lazy(() => import('./components/customer/CustomerLayout'));
+const CustomerDashboard = lazy(() => import('./pages/dashboards/customer/Dashboard'));
+const CustomerOrders = lazy(() => import('./pages/dashboards/customer/Orders'));
+const CustomerBookings = lazy(() => import('./pages/dashboards/customer/Bookings'));
+const CustomerProfile = lazy(() => import('./pages/dashboards/customer/Profile'));
+const CustomerShop = lazy(() => import('./pages/dashboards/customer/Shop'));
+const CustomerCart = lazy(() => import('./pages/dashboards/customer/Cart'));
+const CustomerCheckout = lazy(() => import('./pages/dashboards/customer/Checkout'));
+const CustomerTrack = lazy(() => import('./pages/dashboards/customer/TrackOrder'));
+const ProductDetail = lazy(() => import('./pages/dashboards/customer/ProductDetail'));
+
+const FullPageSkeleton = () => (
+  <div className="min-h-screen bg-black flex items-center justify-center">
+    <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+  </div>
+);
+
+const App = () => {
+  return (
+    <AuthProvider>
+      <CartProvider>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <Suspense fallback={<FullPageSkeleton />}>
+          <Routes>
+            <Route element={<Layout isPublic />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/shop" element={<CustomerShop />} />
+              <Route path="/product/:id" element={<ProductDetail />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              
+              {/* Semi-protected routes: Guest cannot access, but they use the public layout */}
+              <Route path="/track/:id" element={<ProtectedRoute><TrackOrder /></ProtectedRoute>} />
+              <Route path="/cart" element={<PublicCart />} />
+              <Route path="/checkout" element={<PublicCheckout />} />
+            </Route>
+
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot" element={<Forgot />} />
+
+            {/* Owner App Shell - TEMPORARILY OPEN FOR TESTING */}
+            <Route element={<ProtectedRoute allowedRoles={['COMPANY_OWNER']}><OwnerLayout /></ProtectedRoute>}>
+              <Route path="/owner/dashboard" element={<OwnerDashboard />} />
+              <Route path="/owner/branches"  element={<OwnerBranches />} />
+              <Route path="/owner/parts"     element={<OwnerParts />} />
+              <Route path="/owner/users"     element={<OwnerUsers />} />
+              <Route path="/owner/reports"   element={<OwnerReports />} />
+              <Route path="/owner/settings"  element={<OwnerSettings />} />
+              <Route path="/owner/orders"    element={<OwnerOrders />} />
+              <Route path="/owner/purchases" element={<OwnerPurchases />} />
+            </Route>
+            
+            {/* Branch Routes - Outside main Layout to avoid double sidebar */}
+            <Route element={<ProtectedRoute allowedRoles={['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER']}><BranchLayout /></ProtectedRoute>}>
+              <Route path="/branch"              element={<Navigate to="/branch/dashboard" replace />} />
+              <Route path="/branch/dashboard"    element={<BranchDashboard />} />
+              <Route path="/branch/products"     element={<BranchProducts />} />
+              <Route path="/branch/inventory"    element={<BranchInventory />} />
+              <Route path="/branch/orders"       element={<BranchOrders />} />
+              <Route path="/branch/services"     element={<BranchServices />} />
+              <Route path="/branch/appointments" element={<BranchAppointments />} />
+              <Route path="/branch/suppliers"    element={<BranchSuppliers />} />
+              <Route path="/branch/reports"      element={<BranchReports />} />
+              <Route path="/branch/settings"     element={<BranchSettings />} />
+            </Route>
+
+            {/* Customer Portal - Premium Dashboard Shell */}
+            <Route element={<ProtectedRoute allowedRoles={['CUSTOMER']}><CustomerLayout /></ProtectedRoute>}>
+              <Route path="/my/dashboard" element={<CustomerDashboard />} />
+              <Route path="/my/orders"    element={<CustomerOrders />} />
+              <Route path="/my/bookings"  element={<CustomerBookings />} />
+              <Route path="/my/profile"   element={<CustomerProfile />} />
+              <Route path="/my/shop"      element={<CustomerShop />} />
+              <Route path="/my/cart"      element={<CustomerCart />} />
+              <Route path="/my/checkout"  element={<CustomerCheckout />} />
+              <Route path="/track/:id"    element={<CustomerTrack />} />
+              <Route path="/appointments" element={<Appointments />} />
+            </Route>
+
+
+
+            <Route path="/branch/pos" element={<ProtectedRoute allowedRoles={['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER']}><BranchPOS /></ProtectedRoute>} />
+
+            <Route path="/unauthorized" element={<div>Unauthorized Access</div>} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
+        </BrowserRouter>
+      </CartProvider>
+    </AuthProvider>
+  );
+};
+
+export default App;
