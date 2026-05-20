@@ -25,6 +25,33 @@ exports.getAll = async (req, res) => {
   }
 };
 
+// Get the next sequential voucher number
+exports.getNextNo = async (req, res) => {
+  try {
+    const { branchId } = req.query;
+    if (!branchId) {
+      return res.status(400).json({ message: 'Branch ID is required.' });
+    }
+
+    const existingVouchers = await prisma.voucher.findMany({
+      where: { branchId: parseInt(branchId) },
+      select: { voucher_no: true }
+    });
+
+    let maxNum = 0;
+    for (const v of existingVouchers) {
+      const num = parseInt(v.voucher_no, 10);
+      if (!isNaN(num) && num.toString() === v.voucher_no && num > maxNum) {
+         maxNum = num;
+      }
+    }
+
+    res.json({ nextNo: (maxNum + 1).toString() });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 // Create a new Voucher (Payment, Receipt, or Journal)
 exports.create = async (req, res) => {
   try {
@@ -143,6 +170,10 @@ exports.create = async (req, res) => {
         data: { current_balance: toNewBal }
       });
 
+      // Generate Auto-Descriptions
+      const fromEntryDesc = `Paid to ${toAcc.account_name}${description ? ' - ' + description : ''}${ref_no ? ' (Ref: ' + ref_no + ')' : ''} [V#: ${voucher_no}]`;
+      const toEntryDesc = `Received from ${fromAcc.account_name}${description ? ' - ' + description : ''}${ref_no ? ' (Ref: ' + ref_no + ')' : ''} [V#: ${voucher_no}]`;
+
       // Create LedgerEntry for fromAccount (Credit)
       if (fromAcc.ledger) {
         await tx.ledgerEntry.create({
@@ -151,7 +182,7 @@ exports.create = async (req, res) => {
             debit: 0,
             credit: amt,
             reference_type: `${voucher_type}_VOUCHER`,
-            description: description ? `${description} [Ref: ${voucher_no}]` : `${voucher_type} Voucher ${voucher_no} reference`,
+            description: fromEntryDesc,
             createdAt: date ? new Date(date) : undefined
           }
         });
@@ -165,7 +196,7 @@ exports.create = async (req, res) => {
             debit: amt,
             credit: 0,
             reference_type: `${voucher_type}_VOUCHER`,
-            description: description ? `${description} [Ref: ${voucher_no}]` : `${voucher_type} Voucher ${voucher_no} reference`,
+            description: toEntryDesc,
             createdAt: date ? new Date(date) : undefined
           }
         });
@@ -239,12 +270,12 @@ exports.deleteVoucher = async (req, res) => {
         });
       }
 
-      // 3. Delete Associated Ledger Entries (using description/reference match)
+      // 3. Delete Associated Ledger Entries (using exact V# match inside description)
       await tx.ledgerEntry.deleteMany({
         where: {
           reference_type: `${voucher.voucher_type}_VOUCHER`,
           description: {
-            contains: voucher.voucher_no
+            contains: `[V#: ${voucher.voucher_no}]`
           }
         }
       });

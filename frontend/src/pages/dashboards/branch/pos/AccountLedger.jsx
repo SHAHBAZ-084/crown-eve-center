@@ -225,13 +225,31 @@ const AccountLedger = ({ user }) => {
                   let type = entry.reference_type.replace('_VOUCHER', ' Vouc');
                   if(type.length > 12) type = type.substring(0, 12);
                   
+                  let vNum = '-';
+                  let refNum = '-';
+                  let displayDesc = entry.description || '';
+
+                  // Extract V#
+                  const vMatch = displayDesc.match(/\[V#: (.*?)\]/);
+                  if (vMatch) {
+                    vNum = vMatch[1];
+                    displayDesc = displayDesc.replace(vMatch[0], '').trim();
+                  }
+
+                  // Extract Ref#
+                  const refMatch = displayDesc.match(/\(Ref: (.*?)\)/);
+                  if (refMatch) {
+                    refNum = refMatch[1];
+                    displayDesc = displayDesc.replace(refMatch[0], '').trim();
+                  }
+                  
                   return (
                     <tr key={index} className="border-b border-black align-top">
                       <td className="border-r border-black px-2 py-1">{formatDate(entry.date)}</td>
                       <td className="border-r border-black px-2 py-1 capitalize">{type.toLowerCase()}</td>
-                      <td className="border-r border-black px-2 py-1">-</td>
-                      <td className="border-r border-black px-2 py-1">-</td>
-                      <td className="border-r border-black px-2 py-1 whitespace-pre-wrap leading-tight text-[13px]">{entry.description}</td>
+                      <td className="border-r border-black px-2 py-1">{vNum}</td>
+                      <td className="border-r border-black px-2 py-1">{refNum}</td>
+                      <td className="border-r border-black px-2 py-1 whitespace-pre-wrap leading-tight text-[13px]">{displayDesc}</td>
                       <td className="border-r border-black px-2 py-1 text-right">{formatNumber(entry.debit)}</td>
                       <td className="border-r border-black px-2 py-1 text-right">{formatNumber(entry.credit)}</td>
                       <td className="px-2 py-1 text-right">{formatNumber(entry.balance)}{entry.balanceType}</td>
