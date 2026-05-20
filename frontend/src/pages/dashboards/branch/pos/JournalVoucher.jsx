@@ -84,9 +84,30 @@ const JournalVoucher = ({ user }) => {
   const currentCreditBalance = selectedCreditAccount ? selectedCreditAccount.current_balance : 0;
 
   // Formatting helper for Dr / Cr display
-  const formatBalance = (bal, side) => {
+  const formatBalance = (bal, accountId) => {
+    if (!accountId) return '0.00';
     if (bal === 0) return '0.00';
-    return `${Math.abs(bal).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${side}`;
+
+    const account = accounts.find(a => a.id === accountId);
+    const cat = categories.find(c => c.id === account?.categoryId);
+    const catName = cat ? cat.name.toLowerCase() : '';
+
+    const isDebitNature = 
+      catName.includes('bank') ||
+      catName.includes('cash') ||
+      catName.includes('asset') ||
+      catName.includes('expense') ||
+      catName.includes('customer') ||
+      catName.includes('purchase');
+
+    let type = '';
+    if (isDebitNature) {
+      type = bal > 0 ? 'Dr' : 'Cr';
+    } else {
+      type = bal > 0 ? 'Cr' : 'Dr';
+    }
+
+    return `${Math.abs(bal).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${type}`;
   };
 
   // Filter History by Search
@@ -132,7 +153,8 @@ const JournalVoucher = ({ user }) => {
       });
 
       alert("Journal Voucher posted successfully! Live balances updated.");
-      setFormData({
+      setFormData(prev => ({
+        ...prev,
         debitCategoryId: '',
         creditCategoryId: '',
         debitAccountId: '',
@@ -140,8 +162,7 @@ const JournalVoucher = ({ user }) => {
         amount: '',
         ref_no: '',
         description: '',
-        date: new Date().toISOString().split('T')[0]
-      });
+      }));
       refetchAccounts();
       refetchHistory();
     } catch (err) {
@@ -214,7 +235,7 @@ const JournalVoucher = ({ user }) => {
                   <input 
                     type="text" 
                     disabled 
-                    value={formatBalance(currentDebitBalance, 'Dr')} 
+                    value={formatBalance(currentDebitBalance, formData.debitAccountId)} 
                     className="flex-1 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm text-right text-emerald-700 font-black shadow-inner"
                   />
                 </div>
@@ -262,7 +283,7 @@ const JournalVoucher = ({ user }) => {
                   <input 
                     type="text" 
                     disabled 
-                    value={formatBalance(currentCreditBalance, 'Cr')} 
+                    value={formatBalance(currentCreditBalance, formData.creditAccountId)} 
                     className="flex-1 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm text-right text-red-700 font-black shadow-inner"
                   />
                 </div>

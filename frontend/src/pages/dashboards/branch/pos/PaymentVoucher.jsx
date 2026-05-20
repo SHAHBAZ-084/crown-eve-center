@@ -86,9 +86,30 @@ const PaymentVoucher = ({ user }) => {
   const currentToBalance = selectedToAccount ? selectedToAccount.current_balance : 0;
 
   // Formatting helper for Dr / Cr display
-  const formatBalance = (bal) => {
+  const formatBalance = (bal, accountId) => {
+    if (!accountId) return '0.00';
     if (bal === 0) return '0.00';
-    return `${Math.abs(bal).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Dr`;
+
+    const account = accounts.find(a => a.id === accountId);
+    const cat = categories.find(c => c.id === account?.categoryId);
+    const catName = cat ? cat.name.toLowerCase() : '';
+
+    const isDebitNature = 
+      catName.includes('bank') ||
+      catName.includes('cash') ||
+      catName.includes('asset') ||
+      catName.includes('expense') ||
+      catName.includes('customer') ||
+      catName.includes('purchase');
+
+    let type = '';
+    if (isDebitNature) {
+      type = bal > 0 ? 'Dr' : 'Cr';
+    } else {
+      type = bal > 0 ? 'Cr' : 'Dr';
+    }
+
+    return `${Math.abs(bal).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${type}`;
   };
 
   // Filter History by Search
@@ -131,16 +152,14 @@ const PaymentVoucher = ({ user }) => {
       });
 
       alert("Payment Voucher posted successfully! Live balances updated.");
-      setFormData({
-        fromCategoryId: '',
+      setFormData(prev => ({
+        ...prev,
         toCategoryId: '',
-        fromAccountId: '',
         toAccountId: '',
         amount: '',
         ref_no: '',
         description: '',
-        date: new Date().toISOString().split('T')[0]
-      });
+      }));
       refetchAccounts();
       refetchHistory();
     } catch (err) {
@@ -222,7 +241,7 @@ const PaymentVoucher = ({ user }) => {
                 <input 
                   type="text" 
                   disabled 
-                  value={formatBalance(currentFromBalance)} 
+                  value={formatBalance(currentFromBalance, formData.fromAccountId)} 
                   className="flex-1 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm text-right text-[#D32F2F] font-black shadow-inner"
                 />
               </div>
@@ -288,7 +307,7 @@ const PaymentVoucher = ({ user }) => {
                 <input 
                   type="text" 
                   disabled 
-                  value={formatBalance(currentToBalance)} 
+                  value={formatBalance(currentToBalance, formData.toAccountId)} 
                   className="flex-1 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm text-right font-black text-[#E65100] shadow-inner"
                 />
               </div>

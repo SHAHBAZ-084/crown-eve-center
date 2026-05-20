@@ -101,7 +101,9 @@ exports.create = async (req, res) => {
           catName.includes('bank') ||
           catName.includes('cash') ||
           catName.includes('asset') ||
-          catName.includes('expense');
+          catName.includes('expense') ||
+          catName.includes('customer') ||
+          catName.includes('purchase');
 
         let newBalance = account.current_balance;
 
