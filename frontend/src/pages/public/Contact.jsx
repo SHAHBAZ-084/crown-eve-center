@@ -18,7 +18,11 @@ const Contact = () => {
     api.get("/branches")
       .then(res => {
         const branchList = res.data?.data || res.data || [];
-        setBranches(Array.isArray(branchList) ? branchList : []);
+        const parsedBranches = Array.isArray(branchList) ? branchList : [];
+        setBranches(parsedBranches);
+        if (parsedBranches.length > 0) {
+          setSelectedBranch(parsedBranches[0]);
+        }
       })
       .catch(err => console.error("Error fetching branches:", err));
   }, []);
@@ -45,12 +49,12 @@ const Contact = () => {
             <span className="selector-label">Select Your Nearest Branch</span>
             <select 
               className="branch-selector-premium"
+              value={selectedBranch ? selectedBranch.id : ""}
               onChange={(e) => {
                 const branch = branches.find(b => String(b.id) === e.target.value);
                 setSelectedBranch(branch || null);
               }}
             >
-              <option value="">Corporate / Head Office</option>
               {branches.map(branch => (
                 <option key={branch.id} value={branch.id}>{branch.name}</option>
               ))}
