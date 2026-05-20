@@ -107,7 +107,7 @@ const POS = () => {
       title: "REPORTS",
       items: [
         { id: "account-ledger", label: "Account Ledger", icon: "reports" },
-        { id: "debit-trail", label: "Debit Trail Balance", icon: "reports" },
+        { id: "debit-trail", label: "Detailed Trial Balance", icon: "reports" },
       ]
     }
   ];

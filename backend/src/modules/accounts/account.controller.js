@@ -274,3 +274,110 @@ exports.getLedgerStatement = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// Generate Trial Balance
+exports.getTrialBalance = async (req, res) => {
+  try {
+    const { branchId, startDate, endDate } = req.query;
+    const where = {};
+    if (branchId) {
+      where.branchId = parseInt(branchId);
+    }
+
+    const accounts = await prisma.account.findMany({
+      where,
+      include: {
+        category: true,
+        ledger: {
+          include: {
+            entries: {
+              orderBy: { createdAt: 'asc' }
+            }
+          }
+        }
+      }
+    });
+
+    let report = [];
+    let grandTotalDebit = 0;
+    let grandTotalCredit = 0;
+
+    const start = startDate ? new Date(startDate) : new Date(0);
+    start.setHours(0, 0, 0, 0);
+
+    const end = endDate ? new Date(endDate) : new Date();
+    end.setHours(23, 59, 59, 999);
+
+    for (const acc of accounts) {
+      if (!acc.ledger) continue;
+
+      const catName = acc.category.name.toLowerCase();
+      const isDebitNature = 
+        catName.includes('bank') || 
+        catName.includes('cash') || 
+        catName.includes('asset') || 
+        catName.includes('expense') ||
+        catName.includes('customer') ||
+        catName.includes('purchase');
+
+      // Adjust Opening Balance logic
+      let openingBalance = acc.opening_balance || 0;
+      if (!isDebitNature && openingBalance > 0) {
+        openingBalance = -openingBalance;
+      }
+
+      let runningBalance = openingBalance;
+      let periodDebit = 0;
+      let periodCredit = 0;
+
+      for (const entry of acc.ledger.entries) {
+        const entryDate = new Date(entry.createdAt);
+        
+        if (entryDate > end) continue;
+
+        if (entryDate < start) {
+          runningBalance += entry.debit - entry.credit;
+        } else {
+          periodDebit += entry.debit;
+          periodCredit += entry.credit;
+          runningBalance += entry.debit - entry.credit;
+        }
+      }
+
+      const closingBalance = runningBalance;
+      // Precision fix
+      const roundedBal = Math.round(closingBalance * 100) / 100;
+      const drBal = roundedBal > 0 ? roundedBal : 0;
+      const crBal = roundedBal < 0 ? Math.abs(roundedBal) : 0;
+
+      if (drBal !== 0 || crBal !== 0 || periodDebit !== 0 || periodCredit !== 0) {
+        grandTotalDebit += drBal;
+        grandTotalCredit += crBal;
+
+        report.push({
+          accountId: acc.id,
+          accountName: acc.account_name,
+          categoryName: acc.category.name,
+          nature: isDebitNature ? 'Debit' : 'Credit',
+          openingBalance: runningBalance - periodDebit + periodCredit,
+          periodDebit,
+          periodCredit,
+          closingDebit: drBal,
+          closingCredit: crBal,
+          closingBalance: roundedBal
+        });
+      }
+    }
+
+    report.sort((a, b) => a.accountName.localeCompare(b.accountName));
+
+    res.json({
+      report,
+      grandTotalDebit: Math.round(grandTotalDebit * 100) / 100,
+      grandTotalCredit: Math.round(grandTotalCredit * 100) / 100
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
