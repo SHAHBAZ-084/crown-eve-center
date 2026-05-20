@@ -9,9 +9,9 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "generate": "prisma generate",
-    "build": "prisma generate && prisma migrate deploy",
-    "vercel-build": "prisma generate && prisma migrate deploy"
+    "generate": "npx --no-install prisma generate",
+    "build": "npx --no-install prisma generate && npx --no-install prisma migrate deploy",
+    "vercel-build": "npx --no-install prisma generate && npx --no-install prisma migrate deploy"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
