@@ -9,6 +9,32 @@ import './AddAccount.css';
 const AddAccount = ({ user }) => {
   const queryClient = useQueryClient();
 
+  const formatBalance = (bal, categoryName) => {
+    if (bal === undefined || bal === null) return 'PKR 0';
+    const catName = (categoryName || '').toLowerCase();
+    
+    const isDebitNature = 
+      catName.includes('bank') ||
+      catName.includes('cash') ||
+      catName.includes('asset') ||
+      catName.includes('expense') ||
+      catName.includes('customer') ||
+      catName.includes('purchase');
+
+    let type = '';
+    if (bal === 0) {
+      return 'PKR 0';
+    }
+
+    if (isDebitNature) {
+      type = bal > 0 ? 'Dr' : 'Cr';
+    } else {
+      type = bal > 0 ? 'Cr' : 'Dr';
+    }
+
+    return `PKR ${Math.abs(bal).toLocaleString()}${type ? ' ' + type : ''}`;
+  };
+
   // Selected category filter
   const [selectedCatId, setSelectedCatId] = useState('ALL');
 
@@ -310,10 +336,10 @@ const AddAccount = ({ user }) => {
                         </div>
                       </td>
                       <td className="px-6 py-5 text-right font-bold text-xs text-[#8D7A71]">
-                        PKR {acc.opening_balance?.toLocaleString()}
+                        {formatBalance(acc.opening_balance, acc.category?.name)}
                       </td>
                       <td className="px-6 py-5 text-right font-black text-xs text-[#E65100]">
-                        PKR {acc.current_balance?.toLocaleString()}
+                        {formatBalance(acc.current_balance, acc.category?.name)}
                       </td>
                       <td className="px-6 py-5 text-center">
                         <span className={`inline-flex px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border ${isActive ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-red-50 text-red-600 border-red-200'}`}>
