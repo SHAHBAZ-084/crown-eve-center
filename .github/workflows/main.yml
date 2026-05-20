@@ -21,19 +21,27 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache-dependency-path: 'backend/package-lock.json'
 
-      - name: Install Dependencies
+      - name: Install Backend Dependencies
         working-directory: backend
         run: npm ci
 
-      - name: Prisma Generate
+      - name: Prisma Generate (Neon Adapter)
         working-directory: backend
-        run: npx prisma generate
+        run: npx prisma@6.19.3 generate
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
 
-      - name: Trigger Vercel Deploy
+      - name: Prisma Migrate Deploy
+        working-directory: backend
+        run: npx prisma@6.19.3 migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+
+      - name: Trigger Vercel Deploy (Backend → Vercel)
         if: github.ref == 'refs/heads/main' && success()
         env:
           VERCEL_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
@@ -49,22 +57,25 @@ jobs:
     name: Frontend (Build Check)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-          # NO cache: 'npm' here — cache was restoring stale Vite 8 binaries
+          # No npm cache — avoids stale Vite binary cache issues
 
-      - name: Clean Install (no cache, no lock file)
+      - name: Install Frontend Dependencies
         working-directory: frontend
         run: |
           rm -rf node_modules package-lock.json
           npm cache clean --force
-          npm install
+          npm install --ignore-scripts
 
-      - name: Build
+      - name: Build Frontend (Vite)
         working-directory: frontend
         run: npm run build
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_R2_PUBLIC_URL: ${{ secrets.VITE_R2_PUBLIC_URL }}
