@@ -67,14 +67,22 @@ exports.create = async (req, res) => {
         throw new Error('One of the specified accounts does not exist.');
       }
 
-      // Generate sequential voucher number
-      const prefix = voucher_type === 'PAYMENT' ? 'PV' : voucher_type === 'RECEIPT' ? 'RV' : 'JV';
-
-      const count = await tx.voucher.count({
-        where: { voucher_type, branchId: parseInt(branchId) }
+      // Generate strict sequential voucher number globally (1, 2, 3, 4...)
+      const existingVouchers = await tx.voucher.findMany({
+        where: { branchId: parseInt(branchId) },
+        select: { voucher_no: true }
       });
-      const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-      const voucher_no = `${prefix}-${dateStr}-${(count + 1).toString()}`;
+      
+      let maxNum = 0;
+      for (const v of existingVouchers) {
+        // If it's a pure number, parse it. (Ignores old PV-2026 formats gracefully)
+        const num = parseInt(v.voucher_no, 10);
+        if (!isNaN(num) && num.toString() === v.voucher_no && num > maxNum) {
+           maxNum = num;
+        }
+      }
+      
+      const voucher_no = (maxNum + 1).toString();
 
       // 2. Create the Voucher record
       const voucher = await tx.voucher.create({
@@ -143,7 +151,7 @@ exports.create = async (req, res) => {
             debit: 0,
             credit: amt,
             reference_type: `${voucher_type}_VOUCHER`,
-            description: description || `${voucher_type} Voucher ${voucher_no} reference`,
+            description: description ? `${description} [Ref: ${voucher_no}]` : `${voucher_type} Voucher ${voucher_no} reference`,
             createdAt: date ? new Date(date) : undefined
           }
         });
@@ -157,7 +165,7 @@ exports.create = async (req, res) => {
             debit: amt,
             credit: 0,
             reference_type: `${voucher_type}_VOUCHER`,
-            description: description || `${voucher_type} Voucher ${voucher_no} reference`,
+            description: description ? `${description} [Ref: ${voucher_no}]` : `${voucher_type} Voucher ${voucher_no} reference`,
             createdAt: date ? new Date(date) : undefined
           }
         });
@@ -191,22 +199,43 @@ exports.deleteVoucher = async (req, res) => {
 
       const amt = voucher.amount;
 
-      // 2. Reverse Balances globally using standard math:
-      // Original: fromAccount was CREDITED (current_balance - amt)
-      // Reversal: DEBIT it (current_balance + amt)
+      const adjustBalance = (account, changeAmount, operationType) => {
+        const catName = account.category.name.toLowerCase();
+        const isAssetOrExpense = 
+          catName.includes('bank') ||
+          catName.includes('cash') ||
+          catName.includes('asset') ||
+          catName.includes('expense') ||
+          catName.includes('customer') ||
+          catName.includes('purchase');
+
+        let newBalance = account.current_balance;
+
+        if (operationType === 'DEBIT') {
+          newBalance = isAssetOrExpense ? newBalance + changeAmount : newBalance - changeAmount;
+        } else if (operationType === 'CREDIT') {
+          newBalance = isAssetOrExpense ? newBalance - changeAmount : newBalance + changeAmount;
+        }
+
+        return newBalance;
+      };
+
+      // 2. Reverse Balances globally using exact rules:
+      // Original: fromAccount was CREDITED. Reversal: DEBIT it.
       if (voucher.fromAccount) {
+        const fromNewBal = adjustBalance(voucher.fromAccount, amt, 'DEBIT');
         await tx.account.update({
           where: { id: voucher.fromAccountId },
-          data: { current_balance: voucher.fromAccount.current_balance + amt }
+          data: { current_balance: fromNewBal }
         });
       }
 
-      // Original: toAccount was DEBITED (current_balance + amt)
-      // Reversal: CREDIT it (current_balance - amt)
+      // Original: toAccount was DEBITED. Reversal: CREDIT it.
       if (voucher.toAccount) {
+        const toNewBal = adjustBalance(voucher.toAccount, amt, 'CREDIT');
         await tx.account.update({
           where: { id: voucher.toAccountId },
-          data: { current_balance: voucher.toAccount.current_balance - amt }
+          data: { current_balance: toNewBal }
         });
       }
 

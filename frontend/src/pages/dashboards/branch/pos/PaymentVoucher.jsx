@@ -202,7 +202,7 @@ const PaymentVoucher = ({ user }) => {
                 <input 
                   type="text" 
                   disabled 
-                  value={nextVoucherNo} 
+                  value="Auto-Generated" 
                   className="flex-1 bg-white border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm text-gray-500 font-bold shadow-sm"
                 />
               </div>

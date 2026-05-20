@@ -343,13 +343,13 @@ const JournalVoucher = ({ user }) => {
               </div>
 
               <div className="flex items-center">
-                <label className="w-auto whitespace-nowrap text-right pr-3 font-bold text-[#424242] text-xs uppercase tracking-wider">Voucher#:</label>
-                <input 
-                  type="text" 
-                  disabled 
-                  value={nextVoucherNo} 
-                  className="flex-1 min-w-[80px] bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm font-bold text-gray-500 shadow-inner"
-                />
+                  <label className="w-32 text-right pr-4 font-bold text-[#8D7A71] text-xs uppercase tracking-wider">Voucher#:</label>
+                  <input 
+                    type="text" 
+                    disabled 
+                    value="Auto-Generated" 
+                    className="flex-1 bg-white border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm text-gray-500 font-bold shadow-sm"
+                  />
               </div>
 
             </div>
