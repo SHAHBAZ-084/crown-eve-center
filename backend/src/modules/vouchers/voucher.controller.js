@@ -141,7 +141,8 @@ exports.create = async (req, res) => {
             debit: 0,
             credit: amt,
             reference_type: `${voucher_type}_VOUCHER`,
-            description: description || `${voucher_type} Voucher ${voucher_no} reference`
+            description: description || `${voucher_type} Voucher ${voucher_no} reference`,
+            createdAt: date ? new Date(date) : undefined
           }
         });
       }
@@ -154,7 +155,8 @@ exports.create = async (req, res) => {
             debit: amt,
             credit: 0,
             reference_type: `${voucher_type}_VOUCHER`,
-            description: description || `${voucher_type} Voucher ${voucher_no} reference`
+            description: description || `${voucher_type} Voucher ${voucher_no} reference`,
+            createdAt: date ? new Date(date) : undefined
           }
         });
       }
@@ -187,42 +189,22 @@ exports.deleteVoucher = async (req, res) => {
 
       const amt = voucher.amount;
 
-      // Helper function to update balance based on account type
-      const adjustBalance = (account, changeAmount, operationType) => {
-        const catName = account.category.name.toLowerCase();
-        const isAssetOrExpense = 
-          catName.includes('bank') ||
-          catName.includes('cash') ||
-          catName.includes('asset') ||
-          catName.includes('expense');
-
-        let newBalance = account.current_balance;
-
-        if (operationType === 'DEBIT') {
-          newBalance = isAssetOrExpense ? newBalance + changeAmount : newBalance - changeAmount;
-        } else if (operationType === 'CREDIT') {
-          newBalance = isAssetOrExpense ? newBalance - changeAmount : newBalance + changeAmount;
-        }
-
-        return newBalance;
-      };
-
-      // 2. Reverse Balances
-      // Original: fromAccount was CREDITED. Reversal: DEBIT it.
+      // 2. Reverse Balances globally using standard math:
+      // Original: fromAccount was CREDITED (current_balance - amt)
+      // Reversal: DEBIT it (current_balance + amt)
       if (voucher.fromAccount) {
-        const fromNewBal = adjustBalance(voucher.fromAccount, amt, 'DEBIT');
         await tx.account.update({
           where: { id: voucher.fromAccountId },
-          data: { current_balance: fromNewBal }
+          data: { current_balance: voucher.fromAccount.current_balance + amt }
         });
       }
 
-      // Original: toAccount was DEBITED. Reversal: CREDIT it.
+      // Original: toAccount was DEBITED (current_balance + amt)
+      // Reversal: CREDIT it (current_balance - amt)
       if (voucher.toAccount) {
-        const toNewBal = adjustBalance(voucher.toAccount, amt, 'CREDIT');
         await tx.account.update({
           where: { id: voucher.toAccountId },
-          data: { current_balance: toNewBal }
+          data: { current_balance: voucher.toAccount.current_balance - amt }
         });
       }
 

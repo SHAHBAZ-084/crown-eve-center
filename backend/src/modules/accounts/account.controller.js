@@ -220,13 +220,17 @@ exports.getLedgerStatement = async (req, res) => {
       return d >= start && d <= end;
     });
 
-    // Calculate opening balance
+    // Calculate opening balance using global rule: Balance = Debit - Credit
+    // Wait, the account.opening_balance might be saved based on its nature. 
+    // To strictly enforce Balance = Debit - Credit globally from transaction zero:
+    // If opening_balance was saved as absolute number, we must ensure it maps correctly.
+    // Assuming opening_balance in DB is an absolute value (e.g. 5000), if it's a CREDIT nature account (like a Supplier), it should mathematically start as -5000 in the strict Dr-Cr formula.
+    if (!isDebitNature && openingBalance > 0) {
+      openingBalance = -openingBalance;
+    }
+
     for (const entry of previousEntries) {
-      if (isDebitNature) {
-        openingBalance = openingBalance + entry.debit - entry.credit;
-      } else {
-        openingBalance = openingBalance + entry.credit - entry.debit;
-      }
+      openingBalance = openingBalance + entry.debit - entry.credit;
     }
 
     // Prepare statement rows
@@ -238,11 +242,8 @@ exports.getLedgerStatement = async (req, res) => {
       totalDebit += entry.debit;
       totalCredit += entry.credit;
 
-      if (isDebitNature) {
-        runningBalance = runningBalance + entry.debit - entry.credit;
-      } else {
-        runningBalance = runningBalance + entry.credit - entry.debit;
-      }
+      // Strict Rule: Balance = Debit - Credit
+      runningBalance = runningBalance + entry.debit - entry.credit;
 
       return {
         id: entry.id,
@@ -252,7 +253,7 @@ exports.getLedgerStatement = async (req, res) => {
         debit: entry.debit,
         credit: entry.credit,
         balance: Math.abs(runningBalance),
-        balanceType: runningBalance >= 0 ? (isDebitNature ? 'Dr' : 'Cr') : (isDebitNature ? 'Cr' : 'Dr')
+        balanceType: runningBalance > 0 ? 'Dr' : (runningBalance < 0 ? 'Cr' : '')
       };
     });
 
@@ -261,11 +262,11 @@ exports.getLedgerStatement = async (req, res) => {
       categoryName: account.category.name,
       nature: isDebitNature ? 'DEBIT' : 'CREDIT',
       openingBalance: Math.abs(openingBalance),
-      openingBalanceType: openingBalance >= 0 ? (isDebitNature ? 'Dr' : 'Cr') : (isDebitNature ? 'Cr' : 'Dr'),
+      openingBalanceType: openingBalance > 0 ? 'Dr' : (openingBalance < 0 ? 'Cr' : ''),
       totalDebit,
       totalCredit,
       closingBalance: Math.abs(runningBalance),
-      closingBalanceType: runningBalance >= 0 ? (isDebitNature ? 'Dr' : 'Cr') : (isDebitNature ? 'Cr' : 'Dr'),
+      closingBalanceType: runningBalance > 0 ? 'Dr' : (runningBalance < 0 ? 'Cr' : ''),
       entries: rows
     });
 

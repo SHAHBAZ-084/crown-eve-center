@@ -167,7 +167,7 @@ const AccountLedger = ({ user }) => {
       {isLoading && <div className="py-20 text-center font-bold text-gray-600 animate-pulse text-sm">Fetching Ledger...</div>}
 
       {ledgerData && (
-        <div className="w-full max-w-[1000px] mx-auto bg-[#FDFFF5] border-4 border-[#E2E8DC] p-10 shadow-2xl font-serif print:shadow-none print:border-none print:p-0 print:bg-white text-black">
+        <div className="w-full max-w-[1000px] mx-auto bg-white border border-gray-300 p-10 shadow-2xl font-serif print:shadow-none print:border-none print:p-0 text-black">
           
           {/* Classic Letterhead Header */}
           <div className="text-center mb-6">
@@ -184,8 +184,8 @@ const AccountLedger = ({ user }) => {
               {submittedSearch.endDate ? formatDate(submittedSearch.endDate) : formatDate(new Date())}
             </div>
 
-            <div className="border border-[#D2B48C] rounded bg-[#FFF8DC] py-2 px-4 inline-block shadow-sm">
-              <span className="text-lg font-bold">{ledgerData.accountName} [{ledgerData.nature}]</span>
+            <div className="border border-black rounded py-2 px-4 inline-block">
+              <span className="text-lg font-bold uppercase">{ledgerData.accountName} [{ledgerData.nature}]</span>
             </div>
           </div>
 
@@ -216,16 +216,6 @@ const AccountLedger = ({ user }) => {
                   <td className="border-r border-black px-2 py-1 font-medium text-right">0.00</td>
                   <td className="border-r border-black px-2 py-1 font-medium text-right">0.00</td>
                   <td className="px-2 py-1 font-medium text-right">{formatNumber(ledgerData.openingBalance)}{ledgerData.openingBalanceType}</td>
-                </tr>
-                <tr className="border-b border-black">
-                  <td className="border-r border-black px-2 py-1"></td>
-                  <td className="border-r border-black px-2 py-1"></td>
-                  <td className="border-r border-black px-2 py-1"></td>
-                  <td className="border-r border-black px-2 py-1"></td>
-                  <td className="border-r border-black px-2 py-1 font-medium">Closing of previous period</td>
-                  <td className="border-r border-black px-2 py-1 font-medium text-right">0.00</td>
-                  <td className="border-r border-black px-2 py-1 font-medium text-right">0.00</td>
-                  <td className="px-2 py-1 font-medium text-right">0.00</td>
                 </tr>
 
                 {/* Transactions */}
@@ -258,6 +248,24 @@ const AccountLedger = ({ user }) => {
                 )}
 
               </tbody>
+
+              {/* Strict Tabular Footer Totals */}
+              <tfoot>
+                <tr className="border-t-2 border-b-2 border-black font-bold">
+                  <td colSpan="5" className="border-r border-black px-2 py-2 text-right uppercase">
+                    Total & Closing Balance:
+                  </td>
+                  <td className="border-r border-black px-2 py-2 text-right">
+                    {formatNumber(ledgerData.totalDebit)}
+                  </td>
+                  <td className="border-r border-black px-2 py-2 text-right">
+                    {formatNumber(ledgerData.totalCredit)}
+                  </td>
+                  <td className="px-2 py-2 text-right">
+                    {formatNumber(ledgerData.closingBalance)}{ledgerData.closingBalanceType}
+                  </td>
+                </tr>
+              </tfoot>
             </table>
           </div>
           

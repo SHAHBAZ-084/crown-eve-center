@@ -336,9 +336,9 @@ const POS = () => {
       case "service-invoices":
         return <ServiceInvoices user={user} queryClient={queryClient} onPrintReceipt={(item, type) => setServiceReceiptData({ item, type })} />;
       case "account-ledger":
-        return <AccountLedger />;
+        return <AccountLedger user={user} />;
       case "debit-trail":
-        return <DebitTrailBalance />;
+        return <DebitTrailBalance user={user} />;
       default:
         return <div className="card ci"><h2>{activeMenu.replace("-", " ").toUpperCase()}</h2><p>Feature coming soon...</p></div>;
     }
