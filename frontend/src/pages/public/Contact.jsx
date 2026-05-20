@@ -23,7 +23,13 @@ const Contact = () => {
       .catch(err => console.error("Error fetching branches:", err));
   }, []);
 
-  const currentInfo = selectedBranch ? selectedBranch : headOffice;
+  const currentInfo = selectedBranch ? {
+    name: selectedBranch.name,
+    phone: selectedBranch.phone || headOffice.phone,
+    email: selectedBranch.email || headOffice.email,
+    address: selectedBranch.location || headOffice.address,
+    timings: headOffice.timings
+  } : headOffice;
 
   return (
     <div id="page-contact" className="page">
@@ -40,7 +46,7 @@ const Contact = () => {
             <select 
               className="branch-selector-premium"
               onChange={(e) => {
-                const branch = branches.find(b => b.id === e.target.value);
+                const branch = branches.find(b => String(b.id) === e.target.value);
                 setSelectedBranch(branch || null);
               }}
             >
