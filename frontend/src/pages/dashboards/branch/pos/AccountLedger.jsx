@@ -195,7 +195,7 @@ const AccountLedger = ({ user }) => {
               <thead>
                 <tr className="border-b-2 border-black">
                   <th className="border-r border-black px-2 py-1 font-bold underline decoration-1 underline-offset-2 w-[80px]">Date</th>
-                  <th className="border-r border-black px-2 py-1 font-bold underline decoration-1 underline-offset-2 w-[100px]">Type</th>
+                  <th className="border-r border-black px-2 py-1 font-bold underline decoration-1 underline-offset-2 w-[130px]">Type</th>
                   <th className="border-r border-black px-2 py-1 font-bold underline decoration-1 underline-offset-2 w-[50px]">V #</th>
                   <th className="border-r border-black px-2 py-1 font-bold underline decoration-1 underline-offset-2 w-[50px]">Ref#</th>
                   <th className="border-r border-black px-2 py-1 font-bold underline decoration-1 underline-offset-2">Description</th>
@@ -222,8 +222,7 @@ const AccountLedger = ({ user }) => {
                 {ledgerData.entries.map((entry, index) => {
                   
                   // Simple parsing to extract V# if it exists in description/type
-                  let type = entry.reference_type.replace('_VOUCHER', ' Vouc');
-                  if(type.length > 12) type = type.substring(0, 12);
+                  let type = entry.reference_type.replace('_VOUCHER', ' Voucher');
                   
                   let vNum = '-';
                   let refNum = '-';
@@ -233,6 +232,9 @@ const AccountLedger = ({ user }) => {
                   const vMatch = displayDesc.match(/\[V#: (.*?)\]/);
                   if (vMatch) {
                     vNum = vMatch[1];
+                    if (vNum.includes('-')) {
+                      vNum = vNum.split('-')[1];
+                    }
                     displayDesc = displayDesc.replace(vMatch[0], '').trim();
                   }
 
@@ -269,17 +271,17 @@ const AccountLedger = ({ user }) => {
 
               {/* Strict Tabular Footer Totals */}
               <tfoot>
-                <tr className="border-t-2 border-b-2 border-black font-bold">
-                  <td colSpan="5" className="border-r border-black px-2 py-2 text-right uppercase">
+                <tr className="border-t-2 border-b-2 border-black">
+                  <td colSpan="5" className="border-r border-black px-2 py-2 text-right uppercase font-bold">
                     Total & Closing Balance:
                   </td>
-                  <td className="border-r border-black px-2 py-2 text-right">
+                  <td className="border-r border-black px-2 py-2 text-right font-normal">
                     {formatNumber(ledgerData.totalDebit)}
                   </td>
-                  <td className="border-r border-black px-2 py-2 text-right">
+                  <td className="border-r border-black px-2 py-2 text-right font-normal">
                     {formatNumber(ledgerData.totalCredit)}
                   </td>
-                  <td className="px-2 py-2 text-right">
+                  <td className="px-2 py-2 text-right font-bold text-base">
                     {formatNumber(ledgerData.closingBalance)}{ledgerData.closingBalanceType}
                   </td>
                 </tr>

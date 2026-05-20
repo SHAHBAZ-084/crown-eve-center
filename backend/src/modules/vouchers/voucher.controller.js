@@ -8,7 +8,12 @@ exports.getAll = async (req, res) => {
     const where = {};
     if (branchId) where.branchId = parseInt(branchId);
     if (voucher_type) where.voucher_type = voucher_type;
-    if (voucher_no) where.voucher_no = { contains: voucher_no, mode: 'insensitive' };
+    
+    if (voucher_no) {
+      const prefix = voucher_type === 'PAYMENT' ? 'PV' : voucher_type === 'RECEIPT' ? 'RV' : 'JV';
+      const exactVNo = voucher_no.toUpperCase().includes(prefix) ? voucher_no.toUpperCase() : `${prefix}-${voucher_no}`;
+      where.voucher_no = exactVNo;
+    }
 
     const vouchers = await prisma.voucher.findMany({
       where,
@@ -28,20 +33,27 @@ exports.getAll = async (req, res) => {
 // Get the next sequential voucher number
 exports.getNextNo = async (req, res) => {
   try {
-    const { branchId } = req.query;
+    const { branchId, voucher_type } = req.query;
     if (!branchId) {
       return res.status(400).json({ message: 'Branch ID is required.' });
     }
+    if (!voucher_type) {
+      return res.status(400).json({ message: 'Voucher type is required.' });
+    }
+
+    const prefix = voucher_type === 'PAYMENT' ? 'PV' : voucher_type === 'RECEIPT' ? 'RV' : 'JV';
 
     const existingVouchers = await prisma.voucher.findMany({
-      where: { branchId: parseInt(branchId) },
+      where: { branchId: parseInt(branchId), voucher_type },
       select: { voucher_no: true }
     });
 
     let maxNum = 0;
     for (const v of existingVouchers) {
-      const num = parseInt(v.voucher_no, 10);
-      if (!isNaN(num) && num.toString() === v.voucher_no && num > maxNum) {
+      const parts = v.voucher_no.split('-');
+      const lastPart = parts[parts.length - 1];
+      const num = parseInt(lastPart, 10);
+      if (!isNaN(num) && num.toString() === lastPart && num > maxNum) {
          maxNum = num;
       }
     }
@@ -94,22 +106,25 @@ exports.create = async (req, res) => {
         throw new Error('One of the specified accounts does not exist.');
       }
 
-      // Generate strict sequential voucher number globally (1, 2, 3, 4...)
+      const prefix = voucher_type === 'PAYMENT' ? 'PV' : voucher_type === 'RECEIPT' ? 'RV' : 'JV';
+
+      // Generate strict sequential voucher number per type globally (1, 2, 3, 4...)
       const existingVouchers = await tx.voucher.findMany({
-        where: { branchId: parseInt(branchId) },
+        where: { branchId: parseInt(branchId), voucher_type },
         select: { voucher_no: true }
       });
       
       let maxNum = 0;
       for (const v of existingVouchers) {
-        // If it's a pure number, parse it. (Ignores old PV-2026 formats gracefully)
-        const num = parseInt(v.voucher_no, 10);
-        if (!isNaN(num) && num.toString() === v.voucher_no && num > maxNum) {
+        const parts = v.voucher_no.split('-');
+        const lastPart = parts[parts.length - 1];
+        const num = parseInt(lastPart, 10);
+        if (!isNaN(num) && num.toString() === lastPart && num > maxNum) {
            maxNum = num;
         }
       }
       
-      const voucher_no = (maxNum + 1).toString();
+      const voucher_no = `${prefix}-${maxNum + 1}`;
 
       // 2. Create the Voucher record
       const voucher = await tx.voucher.create({

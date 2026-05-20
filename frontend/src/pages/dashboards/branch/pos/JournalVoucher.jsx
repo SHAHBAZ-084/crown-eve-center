@@ -41,10 +41,17 @@ const JournalVoucher = ({ user }) => {
     enabled: !!user?.branchId
   });
 
+  // Fetch Next Voucher Number
+  const { data: nextNoData, refetch: refetchNextNo } = useQuery({
+    queryKey: ['vouchers-next-no', user?.branchId, 'JOURNAL'],
+    queryFn: () => api.get('/vouchers/next-no', { params: { branchId: user?.branchId, voucher_type: 'JOURNAL' } }).then(r => r.data),
+    enabled: !!user?.branchId
+  });
+
   const categories = categoriesData?.data || [];
   const accounts = accountsData?.data || [];
   const vouchersHistory = historyData?.data || [];
-  const nextVoucherNo = vouchersHistory.length > 0 ? (vouchersHistory.length + 1).toString() : '1';
+  const nextVoucherNo = nextNoData?.nextNo || 'Fetching...';
 
   // Filter accounts based on selected category
   const activeDebitAccounts = accounts.filter(acc => 
@@ -165,6 +172,7 @@ const JournalVoucher = ({ user }) => {
       }));
       refetchAccounts();
       refetchHistory();
+      refetchNextNo();
     } catch (err) {
       alert("Error: " + (err.response?.data?.message || err.message));
     } finally {
@@ -347,7 +355,7 @@ const JournalVoucher = ({ user }) => {
                   <input 
                     type="text" 
                     disabled 
-                    value="Auto-Generated" 
+                    value={nextVoucherNo} 
                     className="flex-1 bg-white border border-[#E5E7EB] rounded-xl px-4 py-2.5 text-sm text-gray-500 font-bold shadow-sm"
                   />
               </div>

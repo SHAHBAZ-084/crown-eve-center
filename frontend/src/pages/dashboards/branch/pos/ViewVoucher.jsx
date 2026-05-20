@@ -134,7 +134,7 @@ const ViewVoucher = ({ user }) => {
                 <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{voucher.voucher_type} VOUCHER</div>
               </div>
               <div className="text-right">
-                <div className="text-sm font-black text-gray-800 uppercase">NO. {voucher.voucher_no}</div>
+                <div className="text-sm font-black text-gray-800 uppercase">NO. {voucher.voucher_no.includes('-') ? voucher.voucher_no.split('-')[1] : voucher.voucher_no}</div>
                 <div className="text-[10px] font-bold text-gray-500 mt-0.5">{new Date(voucher.date || voucher.createdAt).toLocaleDateString()} | {new Date(voucher.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
               </div>
             </div>

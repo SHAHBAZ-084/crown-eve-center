@@ -43,8 +43,8 @@ const PaymentVoucher = ({ user }) => {
 
   // Fetch Next Voucher Number
   const { data: nextNoData, refetch: refetchNextNo } = useQuery({
-    queryKey: ['vouchers-next-no', user?.branchId],
-    queryFn: () => api.get('/vouchers/next-no', { params: { branchId: user?.branchId } }).then(r => r.data),
+    queryKey: ['vouchers-next-no', user?.branchId, 'PAYMENT'],
+    queryFn: () => api.get('/vouchers/next-no', { params: { branchId: user?.branchId, voucher_type: 'PAYMENT' } }).then(r => r.data),
     enabled: !!user?.branchId
   });
 
