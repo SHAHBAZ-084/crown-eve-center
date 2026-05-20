@@ -15,11 +15,3 @@ backend/dist/
 
 # System
 .DS_Store
-
-# Temp, Media & Processing
-abc.pdf
-logout error.mp4
-extract_data.py
-processing/
-temp-clone/
-

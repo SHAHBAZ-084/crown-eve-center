@@ -18,12 +18,22 @@ const Contact = () => {
     api.get("/branches")
       .then(res => {
         const branchList = res.data?.data || res.data || [];
-        setBranches(Array.isArray(branchList) ? branchList : []);
+        const parsedBranches = Array.isArray(branchList) ? branchList : [];
+        setBranches(parsedBranches);
+        if (parsedBranches.length > 0) {
+          setSelectedBranch(parsedBranches[0]);
+        }
       })
       .catch(err => console.error("Error fetching branches:", err));
   }, []);
 
-  const currentInfo = selectedBranch ? selectedBranch : headOffice;
+  const currentInfo = selectedBranch ? {
+    name: selectedBranch.name,
+    phone: selectedBranch.phone || headOffice.phone,
+    email: selectedBranch.email || headOffice.email,
+    address: selectedBranch.location || headOffice.address,
+    timings: headOffice.timings
+  } : headOffice;
 
   return (
     <div id="page-contact" className="page">
@@ -39,12 +49,12 @@ const Contact = () => {
             <span className="selector-label">Select Your Nearest Branch</span>
             <select 
               className="branch-selector-premium"
+              value={selectedBranch ? selectedBranch.id : ""}
               onChange={(e) => {
-                const branch = branches.find(b => b.id === e.target.value);
+                const branch = branches.find(b => String(b.id) === e.target.value);
                 setSelectedBranch(branch || null);
               }}
             >
-              <option value="">Corporate / Head Office</option>
               {branches.map(branch => (
                 <option key={branch.id} value={branch.id}>{branch.name}</option>
               ))}
@@ -73,7 +83,19 @@ const Contact = () => {
               <h4>Our Location</h4>
               <div className="info-item">
                 <span>📍</span>
-                <p>{currentInfo.address}</p>
+                <div>
+                  <p>{currentInfo.address?.split('|')[0]}</p>
+                  {currentInfo.address?.includes('|') && (
+                    <a 
+                      href={currentInfo.address.split('|')[1]} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{ display: 'inline-block', marginTop: '5px', color: 'var(--orange)', fontSize: '14px', fontWeight: '600', textDecoration: 'none' }}
+                    >
+                      Open in Google Maps ↗
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -98,28 +120,6 @@ const Contact = () => {
           </div>
         </div>
 
-        <aside className="contact-right">
-          <div className="contact-form-card">
-            <h3>Get in Touch</h3>
-            <form onSubmit={(e) => e.preventDefault()}>
-              <div className="form-group">
-                <input type="text" placeholder="Full Name *" required />
-              </div>
-              <div className="form-group">
-                <input type="email" placeholder="Email Address *" required />
-              </div>
-              <div className="form-group">
-                <input type="tel" placeholder="Phone Number *" required />
-              </div>
-              <div className="form-group">
-                <textarea placeholder="Message *" rows="4" required></textarea>
-              </div>
-              <button type="submit" className="btn-send">
-                Send Message ↗
-              </button>
-            </form>
-          </div>
-        </aside>
       </main>
     </div>
   );

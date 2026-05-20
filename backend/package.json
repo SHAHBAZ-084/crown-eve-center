@@ -9,9 +9,8 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "generate": "npx --no-install prisma generate",
-    "build": "npx --no-install prisma generate && npx --no-install prisma migrate deploy",
-    "vercel-build": "npx --no-install prisma generate && npx --no-install prisma migrate deploy"
+    "build": "npx prisma generate && npx prisma migrate deploy",
+    "vercel-build": "npx prisma generate && npx prisma migrate deploy"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
@@ -20,7 +19,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1050.0",
     "@neondatabase/serverless": "^0.10.4",
     "@prisma/adapter-neon": "^6.19.3",
     "@prisma/client": "^6.19.3",
@@ -32,9 +30,9 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.1.1",
-    "multer-s3": "^3.0.1",
     "prisma": "^6.19.3",
     "winston": "^3.19.0",
+    "ws": "^8.18.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {

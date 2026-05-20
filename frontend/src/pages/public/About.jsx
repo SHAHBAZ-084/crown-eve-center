@@ -47,10 +47,76 @@ const About = () => {
           display: 'flex'
         }}>
           <img 
-            src="https://images.unsplash.com/photo-1558981285-6f0c94958bb6?auto=format&fit=crop&w=1000&q=80" 
+            src="/legacy-bike.png" 
             alt="Crown Eve Showroom" 
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
+        </div>
+      </section>
+
+      {/* LEADERSHIP SECTION */}
+      <section className="about-founder-section">
+        <div className="section-header" style={{ marginBottom: '80px', textAlign: 'center' }}>
+          <h2 style={{ fontSize: '3.5rem', fontWeight: 900, color: 'var(--black)', letterSpacing: '-2px' }}>
+            Our <span style={{ color: 'var(--orange)' }}>Leadership.</span>
+          </h2>
+          <p style={{ maxWidth: '600px', margin: '20px auto 0', color: 'var(--muted)', fontWeight: 600, fontSize: '1.1rem' }}>
+            The visionaries driving innovation, reliability, and trust at Crown Eve Center.
+          </p>
+        </div>
+
+        {/* FOUNDER & CEO */}
+        <div className="about-founder">
+          <div className="founder-image-wrapper">
+            <img src="/founder.png" alt="Mohsin Ashraf - Founder & CEO" />
+            <div className="founder-badge">Founder & CEO</div>
+          </div>
+          <div className="founder-content">
+            <h2>Mohsin Ashraf</h2>
+            <div className="founder-title">Founder & CEO, Crown Eve Center</div>
+            
+            <div className="founder-quote">
+              "Our vision is to establish an ecosystem of unmatched trust and engineering excellence, ensuring every rider experiences ultimate safety, quality, and innovation on the road."
+            </div>
+            
+            <div className="founder-text">
+              <p style={{ marginBottom: '20px' }}>
+                At Crown Eve Center, our journey is defined by a relentless passion for empowering lives through premium, reliable, and progressive mobility solutions. We established this organization not merely to provide transportation, but to build a seamless ecosystem of trust, outstanding service quality, and genuine automotive standards that redefine the journey for every rider in Pakistan.
+              </p>
+              <p>
+                By integrating state-of-the-art diagnostic technologies, forward-thinking electric mobility solutions, and a comprehensive, fully-stocked genuine parts distribution system, we are raising the bar for automotive integrity. Our promise is to deliver robust, future-ready support that stands as a lifelong companion to your aspirations.
+              </p>
+            </div>
+            
+            <div className="founder-signature">Mohsin Ashraf</div>
+          </div>
+        </div>
+
+        {/* CO-FOUNDER */}
+        <div className="about-founder co-founder-row" style={{ marginTop: '120px' }}>
+          <div className="founder-content">
+            <h2>Sufi Muhammad Saleemullah</h2>
+            <div className="founder-title">Co-Founder, Crown Eve Center</div>
+            
+            <div className="founder-quote">
+              "True innovation lies in bridging advanced technology with local accessibility, creating pathways for a sustainable future."
+            </div>
+            
+            <div className="founder-text">
+              <p style={{ marginBottom: '20px' }}>
+                At Crown Eve Center, we are driven by the vision of transforming Pakistan's urban transit landscape. As Co-Founder, my commitment is to pioneer advanced engineering, smart battery solutions, and smart electric vehicle platforms that empower the modern commuter. We are not just creating products; we are crafting the future of reliable, sustainable mobility.
+              </p>
+              <p>
+                Through high-quality design, meticulous quality testing, and a dedicated genuine parts support network, we ensure our riders receive world-class value. Together, we are building a safer, cleaner, and more progressive road ahead for everyone.
+              </p>
+            </div>
+            
+            <div className="founder-signature">Sufi Muhammad Saleemullah</div>
+          </div>
+          <div className="founder-image-wrapper">
+            <img src="/cofounder.png" alt="Sufi Muhammad Saleemullah - Co-Founder" />
+            <div className="founder-badge" style={{ background: '#111' }}>Co-Founder</div>
+          </div>
         </div>
       </section>
 
