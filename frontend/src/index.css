@@ -2866,11 +2866,14 @@ footer::after {
   overflow: hidden;
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(232, 71, 10, 0.1);
-  background: #f8f8f8;
+  width: fit-content;
+  margin: 0 auto;
 }
 
 .founder-image-wrapper img {
-  width: 100%;
+  max-width: 100%;
+  max-height: 400px;
+  width: auto;
   height: auto;
   object-fit: contain;
   display: block;
@@ -2894,6 +2897,7 @@ footer::after {
   letter-spacing: 1px;
   text-transform: uppercase;
   box-shadow: 0 10px 20px rgba(232, 71, 10, 0.3);
+  z-index: 10;
 }
 
 .founder-content h2 {
@@ -2944,10 +2948,12 @@ footer::after {
   .about-founder-section {
     padding: 80px 5vw;
   }
+
   .about-founder {
     grid-template-columns: 1fr !important;
     gap: 50px;
   }
+
   .about-founder.co-founder-row {
     display: flex;
     flex-direction: column-reverse;

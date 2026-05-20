@@ -115,7 +115,7 @@ const About = () => {
           </div>
           <div className="founder-image-wrapper">
             <img src="/cofounder.png" alt="Sufi Muhammad Saleemullah - Co-Founder" />
-            <div className="founder-badge" style={{ background: 'var(--black)' }}>Co-Founder</div>
+            <div className="founder-badge" style={{ background: '#111' }}>Co-Founder</div>
           </div>
         </div>
       </section>
