@@ -74,6 +74,11 @@ body::before {
 }
 
 /* ── NAVBAR ── */
+/* ── Logo size control: change --logo-size to resize the navbar logo everywhere ── */
+:root {
+  --logo-size: 90px;
+}
+
 nav {
   position: fixed;
   top: 0;
@@ -81,7 +86,7 @@ nav {
   right: 0;
   z-index: 100;
   padding: 0 5vw;
-  height: 72px;
+  height: calc(var(--logo-size) + 18px);
   display: flex;
   align-items: center;
   justify-content: space-between;

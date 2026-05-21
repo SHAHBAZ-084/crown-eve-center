@@ -27,7 +27,7 @@ const Navbar = ({ user: propsUser, logout: propsLogout }) => {
   return (
     <nav className={`${scrolled ? 'scrolled' : ''} ${menuOpen ? 'menu-open' : ''}`}>
       <Link to="/" className="logo" style={{ display: 'flex', alignItems: 'center' }}>
-        <img src="/logo.png" alt="Crown Hadi EV Center" style={{ height: '72px', width: 'auto', objectFit: 'contain', margin: '-8px 0' }} />
+        <img src="/logo.png" alt="Crown Hadi EV Center" style={{ height: 'var(--logo-size, 90px)', width: 'auto', objectFit: 'contain', display: 'block' }} />
       </Link>
 
       <ul className={`nav-links ${menuOpen ? 'active' : ''}`}>
