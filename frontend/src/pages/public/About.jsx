@@ -69,11 +69,11 @@ const About = () => {
         {/* FOUNDER & CEO */}
         <div className="about-founder">
           <div className="founder-image-wrapper">
-            <img src="/founder.png" alt="Mohsin Ashraf - Founder & CEO" />
+            <img src="/founder.png" alt="Mohsin Ashraf Ch - Founder & CEO" />
             <div className="founder-badge">Founder & CEO</div>
           </div>
           <div className="founder-content">
-            <h2>Mohsin Ashraf</h2>
+            <h2>Mohsin Ashraf Ch</h2>
             <div className="founder-title">Founder & CEO, Crown Eve Center</div>
             
             <div className="founder-quote">
