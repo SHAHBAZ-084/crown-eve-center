@@ -1,6 +1,8 @@
 const { PrismaClient } = require('@prisma/client');
 
 const passwords = [
+  'Farehanzan@786',
+  'Farehanzan%40786',
   'postgres',
   '11223344',
   '123456',

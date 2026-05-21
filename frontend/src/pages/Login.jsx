@@ -47,7 +47,7 @@ const Login = () => {
       <div className="login-card">
         <div style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div className="logo" style={{ display: 'inline-flex', alignItems: 'center' }}>
-            <img src="/logo.png" alt="Crown Hadi EV Center" style={{ height: '48px', width: 'auto', objectFit: 'contain' }} />
+            <img src="/logo.png" alt="Crown Hadi EV Center" style={{ height: '80px', width: 'auto', objectFit: 'contain' }} />
           </div>
           <button
             onClick={() => navigate('/')}

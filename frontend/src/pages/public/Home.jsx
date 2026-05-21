@@ -395,7 +395,7 @@ const Home = () => {
         <div className="footer-top">
           <div className="footer-brand">
             <Link to="/" className="logo" style={{ display: 'flex', alignItems: 'center' }}>
-              <img src="/logo.png" alt="Crown Hadi EV Center" style={{ height: '52px', width: 'auto', objectFit: 'contain' }} />
+              <img src="/logo.png" alt="Crown Hadi EV Center" style={{ height: '90px', width: 'auto', objectFit: 'contain' }} />
             </Link>
             <p>Pakistan's premier motorcycle destination. Premium bikes, genuine parts, expert service — all in one place.</p>
             <div className="footer-socials">
