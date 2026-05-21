@@ -3,10 +3,58 @@ const Order = require('./order.model');
 
 const prisma = require('../../config/db');
 
+/**
+ * Fix 2: Auto-picks the first branch that has sufficient stock for ALL items in an online order.
+ * Called when an ONLINE order arrives without an explicit branchId.
+ *
+ * @param {Array} items - Order items (each must have productId/id and quantity/qty)
+ * @returns {number} branchId of the first branch with sufficient stock for every item
+ * @throws {Error} If no branch can satisfy the full order
+ */
+const pickBranchForOnlineOrder = async (items) => {
+  if (!items || items.length === 0) {
+    throw new Error('Online order must contain at least one item.');
+  }
+
+  const branches = await prisma.branch.findMany({ select: { id: true } });
+
+  for (const branch of branches) {
+    let sufficient = true;
+
+    for (const item of items) {
+      const pId = item.productId || item.id;
+      const qty  = Number(item.quantity || item.qty);
+
+      // Check if this branch stocks the product in sufficient quantity
+      const product = await prisma.product.findFirst({
+        where: { id: pId, branchId: branch.id, stock_qty: { gte: qty } },
+        select: { id: true }
+      });
+
+      if (!product) {
+        sufficient = false;
+        break;
+      }
+    }
+
+    if (sufficient) return branch.id;
+  }
+
+  throw new Error('No branch has sufficient stock for all items in this order.');
+};
+
 exports.create = async (req, res) => {
   try {
     const customerId = req.user.role === 'CUSTOMER' ? req.user.id : (req.body.customerId || null);
-    const order = await Order.createOrder({ ...req.body, customerId });
+
+    let { branchId, ...rest } = req.body;
+
+    // Fix 2: Auto-assign branch for online orders that do not specify one
+    if (rest.type === 'ONLINE' && !branchId) {
+      branchId = await pickBranchForOnlineOrder(req.body.items || []);
+    }
+
+    const order = await Order.createOrder({ ...rest, branchId, customerId });
     res.status(201).json(order);
   } catch (e) {
     res.status(500).json({ message: e.message });
@@ -46,7 +94,8 @@ exports.getById = async (req, res) => {
     const order = await Order.getOrderById(Number(req.params.id));
     if (!order) return res.status(404).json({ message: 'Order not found' });
 
-    if (req.user.role === 'CUSTOMER' && order.customer.id !== req.user.id) {
+    // Bug 6: Use optional chaining — order.customer may be null for walk-in or system orders
+    if (req.user.role === 'CUSTOMER' && order.customer?.id !== req.user.id) {
       return res.status(403).json({ message: 'Access denied' });
     }
 

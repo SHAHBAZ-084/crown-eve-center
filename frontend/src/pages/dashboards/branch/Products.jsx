@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useFetch, apiFetch, toast, Icon, Modal, Confirm, UPLOAD_BASE } from "../../../components/branch/BranchShared";
+import { getImgUrl } from "../../../utils/imgUrl";
 
 const Products = () => {
   const { user } = useOutletContext();
@@ -16,13 +17,7 @@ const Products = () => {
   const { data: catsData, refetch: refetchCats } = useFetch("/categories");
   const { data: brandsData, refetch: refetchBrands } = useFetch("/brands");
 
-  const getImgUrl = (url) => {
-    if (!url) return "";
-    if (url.startsWith('http')) return url;
-    const base = UPLOAD_BASE.endsWith('/') ? UPLOAD_BASE.slice(0, -1) : UPLOAD_BASE;
-    const path = url.startsWith('/') ? url : `/${url}`;
-    return `${base}${path}`;
-  };
+
   const [showModal, setShowModal] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [confirmId, setConfirmId] = useState(null);

@@ -1,7 +1,8 @@
-// frontend/src/pages/dashboards\customer/Cart.jsx
+// frontend/src/pages/dashboards/customer/Cart.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../../../context/CartContext";
+import { getImgUrl } from "../../../utils/imgUrl";
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -20,11 +21,7 @@ const Cart = () => {
     else setSelectedItems([...selectedItems, id]);
   };
 
-  const getImgUrl = (url) => {
-    if (!url) return "";
-    if (url.startsWith('http')) return url;
-    return `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${url}`;
-  };
+
 
   const selectedTotal = items
     .filter(i => selectedItems.includes(i.id))

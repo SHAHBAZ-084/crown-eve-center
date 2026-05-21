@@ -25,7 +25,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
-app.use('/uploads', express.static('uploads'));
+// NOTE: /uploads static removed — files served from Cloudflare R2
 
 // Rate Limiting (Auth routes)
 const authLimiter = rateLimit({

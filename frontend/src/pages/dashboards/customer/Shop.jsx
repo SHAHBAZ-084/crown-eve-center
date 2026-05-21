@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import api from "../../../services/api";
 import { useCart } from "../../../context/CartContext";
+import { getImgUrl } from "../../../utils/imgUrl";
 import "../../public/Shop.css";
 
 const Shop = () => {
@@ -26,11 +27,6 @@ const Shop = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
 
-  const getImgUrl = (url) => {
-    if (!url) return "";
-    if (url.startsWith('http')) return url;
-    return `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${url}`;
-  };
 
   // Initial loads
   useEffect(() => {

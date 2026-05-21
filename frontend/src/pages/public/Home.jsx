@@ -1,19 +1,17 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { getImgUrl } from '../../utils/imgUrl';
 import './Home.css';
 
 const Home = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-
-
-  const images = [
-    '/hero-1.png',
-    '/hero-2.png',
-    '/hero-3.png'
-  ];
+  const R2_PUBLIC_URL = import.meta.env.VITE_R2_PUBLIC_URL;
+  const images = R2_PUBLIC_URL 
+    ? [`${R2_PUBLIC_URL}/hero-1.webp`, `${R2_PUBLIC_URL}/hero-2.webp`, `${R2_PUBLIC_URL}/hero-3.webp`]
+    : ['/hero-1.png', '/hero-2.png', '/hero-3.png'];
 
   const [currentImg, setCurrentImg] = useState(0);
   const [services, setServices] = useState([]);
@@ -28,19 +26,6 @@ const Home = () => {
   };
 
   useEffect(() => {
-    const fetchTestimonials = async () => {
-      try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/testimonials`);
-        const data = await res.json();
-        setTestimonials(data);
-      } catch (err) {
-        console.error('Failed to load testimonials:', err);
-      }
-    };
-    fetchTestimonials();
-  }, []);
-
-  useEffect(() => {
     const timer = setInterval(() => {
       setCurrentImg((prev) => (prev + 1) % images.length);
     }, 5000);
@@ -48,47 +33,24 @@ const Home = () => {
   }, [images.length]);
 
   useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const res = await fetch(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/services`
-        );
-        const data = await res.json();
-        setServices(data);
-      } catch (err) {
-        console.error('Failed to load services:', err);
-      } finally {
-        setServicesLoading(false);
-      }
-    };
-    fetchServices();
+    const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-    const fetchProducts = async () => {
-      try {
-        const res = await fetch(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/products?product_type=bike&limit=2`
-        );
-        const result = await res.json();
-        // Extract array from { data: [...], meta: {...} } or handle raw array
-        const items = result.data || (Array.isArray(result) ? result : []);
-        setProducts(items);
-      } catch (err) {
-        console.error('Failed to load products:', err);
-      } finally {
-        setProductsLoading(false);
-      }
-    };
-    fetchProducts();
+    Promise.all([
+      fetch(`${API}/services`).then(r => r.json()).catch(() => []),
+      fetch(`${API}/products?product_type=bike&limit=3`).then(r => r.json()).catch(() => ({ data: [] })),
+      fetch(`${API}/testimonials`).then(r => r.json()).catch(() => [])
+    ]).then(([svc, prod, testi]) => {
+      setServices(svc);
+      setProducts(prod.data || (Array.isArray(prod) ? prod : []));
+      setTestimonials(testi);
+      setServicesLoading(false);
+      setProductsLoading(false);
+    }).catch(err => {
+      console.error('Failed to load home page data:', err);
+      setServicesLoading(false);
+      setProductsLoading(false);
+    });
   }, []);
-
-  const getImgUrl = (url) => {
-    if (!url) return "";
-    if (url.startsWith('http')) return url;
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-    const base = apiUrl.replace('/api', '');
-    const path = url.startsWith('/') ? url : `/${url}`;
-    return `${base}${path}`;
-  };
 
   return (
     <div id="page-home" className="page">
@@ -276,9 +238,10 @@ const Home = () => {
           muted
           loop
           playsInline
+          preload="none"
           className="booking-video-bg"
         >
-          <source src="/videos/ride-bg.webm" type="video/webm" />
+          <source src={R2_PUBLIC_URL ? `${R2_PUBLIC_URL}/videos/ride-bg.webm` : '/videos/ride-bg.webm'} type="video/webm" />
         </video>
         <div className="booking-overlay"></div>
 
@@ -334,7 +297,7 @@ const Home = () => {
 
           <div className="why-evee-visual">
             <div className="why-evee-img-wrapper">
-              <img src="/1-3.png" alt="Evee Electric Scooter" className="scooter-visual" />
+              <img src={R2_PUBLIC_URL ? `${R2_PUBLIC_URL}/1-3.webp` : '/1-3.png'} alt="Evee Electric Scooter" className="scooter-visual" />
               <div className="evee-visual-overlay">
                 <div className="evee-main-text-float">evee</div>
                 <div className="evee-sub-text-float">I am Evee. Are you?</div>

@@ -3,14 +3,43 @@ const prisma = require('../../config/db');
 const { syncInventoryToPartsAndProducts } = require('./inventory.utils');
 
 const getBranchInventory = async ({ branchId, page = 1, limit = 20, type = "" }) => {
-  const skip = (page - 1) * limit;
-  const where = { branchId: Number(branchId) };
+  // Bug 4 Fix: The old code applied skip/take to the parts query AND sliced the combined
+  // [parts + bikes] array a second time, producing wrong results on every page beyond page 1.
+  //
+  // Correct approach:
+  //   1. Count parts and bikes independently.
+  //   2. Treat the page as a window [skip, skip+take) over the virtual combined list where
+  //      parts occupy positions [0, partsTotal) and bikes follow at [partsTotal, total).
+  //   3. Derive the exact sub-slice of each section that falls in the window, and only
+  //      fetch those rows — no post-hoc array slice needed.
+  const skip = (page - 1) * Number(limit);
+  const take = Number(limit);
+  const partWhere = { branchId: Number(branchId) };
+  const bikeWhere = { branchId: Number(branchId), product_type: 'bike' };
 
-  const [invData, invTotal, bikes] = await Promise.all([
-    (type === "" || type === "PART") ? prisma.inventory.findMany({
-      where,
-      skip,
-      take: Number(limit),
+  // Step 1: Count each section
+  const [partsTotal, bikeTotal] = await Promise.all([
+    (type === "" || type === "PART") ? prisma.inventory.count({ where: partWhere }) : Promise.resolve(0),
+    (type === "" || type === "BIKE") ? prisma.product.count({ where: bikeWhere })   : Promise.resolve(0),
+  ]);
+
+  // Step 2: Calculate which rows of each section fall inside the requested page window.
+  //
+  //   Parts occupy virtual positions  [0,           partsTotal)
+  //   Bikes occupy virtual positions  [partsTotal,  partsTotal + bikeTotal)
+  //
+  const partsSkip = Math.min(skip, partsTotal);
+  const partsTake = Math.max(0, Math.min(partsTotal, skip + take) - partsSkip);
+
+  const bikesSkip = Math.max(0, skip - partsTotal);
+  const bikesTake = Math.max(0, Math.min(bikeTotal, skip + take - partsTotal) - bikesSkip);
+
+  // Step 3: Fetch only the needed slices
+  const [invData, bikes] = await Promise.all([
+    partsTake > 0 ? prisma.inventory.findMany({
+      where: partWhere,
+      skip: partsSkip,
+      take: partsTake,
       select: {
         id: true,
         stock: true,
@@ -20,25 +49,23 @@ const getBranchInventory = async ({ branchId, page = 1, limit = 20, type = "" })
         }
       }
     }) : Promise.resolve([]),
-    (type === "" || type === "PART") ? prisma.inventory.count({ where }) : Promise.resolve(0),
-    (type === "" || type === "BIKE") ? prisma.product.findMany({
-      where: {
-        branchId: Number(branchId),
-        product_type: 'bike'
-      },
+    bikesTake > 0 ? prisma.product.findMany({
+      where: bikeWhere,
+      skip: bikesSkip,
+      take: bikesTake,
       select: {
         id: true,
         name: true,
         stock_qty: true
       }
-    }) : Promise.resolve([])
+    }) : Promise.resolve([]),
   ]);
 
-  // Merge standalone bikes into the inventory list
+  // Map bikes to the same shape as inventory records
   const bikeData = bikes.map(b => ({
     id: `bike_${b.id}`, // Virtual ID to distinguish from inventory records
     stock: b.stock_qty,
-    alertAt: 2, // Default alert for bikes
+    alertAt: 2, // Default alert threshold for bikes
     isBike: true,
     part: {
       name: b.name,
@@ -47,15 +74,16 @@ const getBranchInventory = async ({ branchId, page = 1, limit = 20, type = "" })
     }
   }));
 
-  const combinedData = [...invData, ...bikeData].slice(skip, skip + Number(limit));
+  // Parts come first in the combined list, bikes follow
+  const combinedData = [...invData, ...bikeData];
 
   return {
     data: combinedData,
     meta: {
-      total: invTotal + bikes.length,
+      total: partsTotal + bikeTotal,
       page: Number(page),
-      limit: Number(limit),
-      totalPages: Math.ceil((invTotal + bikes.length) / limit)
+      limit: take,
+      totalPages: Math.ceil((partsTotal + bikeTotal) / take)
     }
   };
 };

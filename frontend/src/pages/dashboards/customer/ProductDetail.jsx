@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../../services/api";
 import { useCart } from "../../../context/CartContext";
+import { getImgUrl } from "../../../utils/imgUrl";
 import "./ProductDetail.css";
 
 const ProductDetailPage = () => {
@@ -25,11 +26,7 @@ const ProductDetailPage = () => {
 
   const bike = product.bikeDetail || {};
   const mainImg = product.images?.find(img => img.is_primary)?.url || product.images?.[0]?.url;
-  const getImgUrl = (url) => {
-    if (!url) return "";
-    if (url.startsWith('http')) return url;
-    return `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${url}`;
-  };
+
 
   return (
     <div className="product-detail-page">
