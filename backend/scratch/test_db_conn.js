@@ -40,11 +40,7 @@ async function tryConnect(url) {
     await prisma.$disconnect();
     return true;
   } catch (err) {
-    if (err.message.includes('Authentication failed')) {
-      // wrong credentials
-    } else {
-      console.log('Other error with URL:', url, 'Error:', err.message);
-    }
+    console.log('Error with URL:', url, 'Error:', err.message);
     return false;
   }
 }

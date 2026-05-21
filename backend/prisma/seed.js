@@ -7,17 +7,35 @@ const prisma = new PrismaClient();
 async function main() {
   const hashedPassword = await bcrypt.hash('11223344', 10);
 
-  // 1. Create Default Branch
+  // 1. Create Default Branch (Hadi Ev Center - Chishtian)
   const branch = await prisma.branch.upsert({
     where: { id: 1 },
     update: {
-      name: 'Hadi Ev Center',
+      name: 'Hadi Ev Center - Chishtian',
       location: 'Hadi Ev Center, Bahawalnagar road Chishtian',
+      phone: '0300 698 3345, 0300 449 4545',
     },
     create: {
       id: 1,
-      name: 'Hadi Ev Center',
+      name: 'Hadi Ev Center - Chishtian',
       location: 'Hadi Ev Center, Bahawalnagar road Chishtian',
+      phone: '0300 698 3345, 0300 449 4545',
+    },
+  });
+
+  // Create Lahore Branch
+  const branchLahore = await prisma.branch.upsert({
+    where: { id: 2 },
+    update: {
+      name: 'Hadi Ev Center - Lahore',
+      location: 'Main Ferozepur Road, Near Metro Station, Lahore',
+      phone: '0300 698 3345, 0300 449 4545',
+    },
+    create: {
+      id: 2,
+      name: 'Hadi Ev Center - Lahore',
+      location: 'Main Ferozepur Road, Near Metro Station, Lahore',
+      phone: '0300 698 3345, 0300 449 4545',
     },
   });
 

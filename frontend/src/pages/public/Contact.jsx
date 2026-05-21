@@ -110,11 +110,8 @@ const Contact = () => {
             <div className="info-block">
               <h4>Social Network</h4>
               <div className="social-links">
-                <a href="#">FB</a>
-                <a href="#">IG</a>
-                <a href="#">YT</a>
-                <a href="#">LN</a>
-                <a href="#">TK</a>
+                <a href="https://web.facebook.com/hadievcenter/?_rdc=1&_rdr" target="_blank" rel="noopener noreferrer">FB</a>
+                <a href="https://www.instagram.com/hadievcenter?hl=af" target="_blank" rel="noopener noreferrer">IG</a>
               </div>
             </div>
           </div>

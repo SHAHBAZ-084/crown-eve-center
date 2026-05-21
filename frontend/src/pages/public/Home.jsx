@@ -73,7 +73,7 @@ const Home = () => {
 
         <div className="hero-content full-width">
 
-          <p className="hero-sub">Crown Eve delivers premium motorcycles, expert servicing, and genuine parts  engineered for the road, built for the rider.</p>
+          <p className="hero-sub">Crown Hadi EV Center delivers premium electric bikes, expert servicing, and best-in-class lithium batteries — engineered for the road, built for the rider.</p>
           <div className="hero-ctas">
             <Link to="/shop" className="btn-primary">
               <span>Explore Bikes</span>
@@ -99,19 +99,19 @@ const Home = () => {
         {/* MARQUEE */}
         <div className="marquee-section">
           <div className="marquee-track">
-            <span className="marquee-item"><span className="marquee-sep">✦</span> Crown Eve Bikes <span className="marquee-sep">✦</span></span>
-            <span className="marquee-item highlight">Premium Parts</span>
-            <span className="marquee-item"><span className="marquee-sep">✦</span> Expert Service <span className="marquee-sep">✦</span></span>
-            <span className="marquee-item highlight">Nationwide Branches</span>
-            <span className="marquee-item"><span className="marquee-sep">✦</span> Ride The Legacy <span className="marquee-sep">✦</span></span>
-            <span className="marquee-item highlight">1700+ Genuine Parts</span>
+            <span className="marquee-item"><span className="marquee-sep">✦</span> Crown EV Bikes <span className="marquee-sep">✦</span></span>
+            <span className="marquee-item highlight">Best Lithium Batteries</span>
+            <span className="marquee-item"><span className="marquee-sep">✦</span> High Performance Motors <span className="marquee-sep">✦</span></span>
+            <span className="marquee-item highlight">Punjab's Premier Branches</span>
+            <span className="marquee-item"><span className="marquee-sep">✦</span> Ride The Future <span className="marquee-sep">✦</span></span>
+            <span className="marquee-item highlight">Smart Digital Dashboards</span>
             {/* Duplicate for infinite loop */}
-            <span className="marquee-item"><span className="marquee-sep">✦</span> Crown Eve Bikes <span className="marquee-sep">✦</span></span>
-            <span className="marquee-item highlight">Premium Parts</span>
-            <span className="marquee-item"><span className="marquee-sep">✦</span> Expert Service <span className="marquee-sep">✦</span></span>
-            <span className="marquee-item highlight">Nationwide Branches</span>
-            <span className="marquee-item"><span className="marquee-sep">✦</span> Ride The Legacy <span className="marquee-sep">✦</span></span>
-            <span className="marquee-item highlight">1700+ Genuine Parts</span>
+            <span className="marquee-item"><span className="marquee-sep">✦</span> Crown EV Bikes <span className="marquee-sep">✦</span></span>
+            <span className="marquee-item highlight">Best Lithium Batteries</span>
+            <span className="marquee-item"><span className="marquee-sep">✦</span> High Performance Motors <span className="marquee-sep">✦</span></span>
+            <span className="marquee-item highlight">Punjab's Premier Branches</span>
+            <span className="marquee-item"><span className="marquee-sep">✦</span> Ride The Future <span className="marquee-sep">✦</span></span>
+            <span className="marquee-item highlight">Smart Digital Dashboards</span>
           </div>
         </div>
       </section>
@@ -216,7 +216,7 @@ const Home = () => {
             ) : (
               <div className="services-paragraph-box" style={{ padding: '40px 0', borderTop: '1px solid #F3E5DC' }}>
                 <p style={{ fontSize: '1.1rem', color: 'var(--muted)', lineHeight: '1.8', fontWeight: 500, maxWidth: '800px' }}>
-                  At <span style={{ color: 'var(--orange)', fontWeight: 900 }}>Crown Eve</span>, we provide a comprehensive ecosystem for the modern rider, offering precision-engineered electric motorcycles, advanced battery health diagnostics, and a massive inventory of over 1,700 genuine OEM parts to ensure your ride always stays in its original condition. Our certified technicians provide expert maintenance and performance tuning from <span style={{ color: 'var(--white)', fontWeight: 800 }}>10:00 AM to 8:00 PM</span> daily, all backed by a hassle-free warranty to ensure your ultimate peace of mind and an unbeatable riding experience.
+                  At <span style={{ color: 'var(--orange)', fontWeight: 900 }}>Crown Hadi EV Center</span>, we provide a comprehensive ecosystem for the modern rider, offering precision-engineered electric motorcycles, advanced battery health diagnostics, high-performance electric motors, and smart digital dashboards. Our certified technicians provide expert maintenance and performance tuning from <span style={{ color: 'var(--white)', fontWeight: 800 }}>10:00 AM to 8:00 PM</span> daily, all backed by a hassle-free warranty to ensure your ultimate peace of mind and an unbeatable riding experience as Punjab's premium mobility destination with different branches.
                 </p>
               </div>
             )}
@@ -249,7 +249,7 @@ const Home = () => {
         <div className="booking-inner">
           <div className="booking-text">
             <h2>Ready to<br />Ride?</h2>
-            <p>Browse our full catalog of premium bikes, genuine parts, and accessories. Find your next ride today.</p>
+            <p>Browse our full catalog of premium EV bikes, long-range batteries, and smart digital dashboards. Find your next ride today.</p>
           </div>
           <Link to="/shop" className="btn-booking">Shop The Collection →</Link>
         </div>
@@ -375,13 +375,13 @@ const Home = () => {
                   className={`testimonial-text ${expandedTestimonial === 'fallback-3' ? 'expanded' : ''}`}
                   onClick={() => toggleTestimonial('fallback-3')}
                 >
-                  "1700+ parts in stock — I found an obscure OEM part for my 2019 model within 20 minutes of walking in. Incredible inventory and knowledgeable staff."
+                  "Excellent battery backup and performance! The premium lithium-ion battery provides incredible long range, and the high-performance electric drive is extremely smooth."
                 </p>
                 <div className="testimonial-author">
                   <div className="author-avatar">MR</div>
                   <div className="author-info">
                     <div className="author-name">Muhammad Raza</div>
-                    <div className="author-role">Honda CBR Owner, Islamabad</div>
+                    <div className="author-role">Crown EV Owner, Bahawalnagar</div>
                   </div>
                 </div>
               </div>
@@ -397,19 +397,13 @@ const Home = () => {
             <Link to="/" className="logo" style={{ display: 'flex', alignItems: 'center' }}>
               <img src="/logo.png" alt="Crown Hadi EV Center" style={{ height: '90px', width: 'auto', objectFit: 'contain' }} />
             </Link>
-            <p>Pakistan's premier motorcycle destination. Premium bikes, genuine parts, expert service — all in one place.</p>
+            <p>Punjab's premium mobility destination with different branches. Premium EV bikes, long-range batteries, high-performance motors, and expert service — all in one place.</p>
             <div className="footer-socials">
-              <a href="#" className="social-link" aria-label="LinkedIn">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" /><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" /></svg>
-              </a>
-              <a href="#" className="social-link" aria-label="Facebook">
+              <a href="https://web.facebook.com/hadievcenter/?_rdc=1&_rdr" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Facebook">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" /></svg>
               </a>
-              <a href="#" className="social-link" aria-label="Instagram">
+              <a href="https://www.instagram.com/hadievcenter?hl=af" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Instagram">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" /></svg>
-              </a>
-              <a href="#" className="social-link" aria-label="YouTube">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.42a2.78 2.78 0 0 0-1.94 2C1 8.11 1 12 1 12s0 3.89.46 5.58a2.78 2.78 0 0 0 1.94 2c1.72.42 8.6.42 8.6.42s6.88 0 8.6-.42a2.78 2.78 0 0 0 1.94-2C23 15.89 23 12 23 12s0-3.89-.46-5.58z" /><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" /></svg>
               </a>
             </div>
           </div>
