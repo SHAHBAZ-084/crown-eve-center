@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getImgUrl } from '../../utils/imgUrl';
+import { getApiUrl } from '../../utils/apiUrl';
 import './Home.css';
 
 const Home = () => {
@@ -33,7 +34,7 @@ const Home = () => {
   }, [images.length]);
 
   useEffect(() => {
-    const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const API = getApiUrl();
 
     Promise.all([
       fetch(`${API}/services`).then(r => r.json()).catch(() => []),

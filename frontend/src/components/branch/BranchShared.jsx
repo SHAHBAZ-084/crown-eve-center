@@ -1,7 +1,8 @@
 // frontend/src/components/branch/BranchShared.jsx
 import React, { useState, useEffect, useCallback } from "react";
+import { getApiUrl } from "../../utils/apiUrl";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_BASE = getApiUrl();
 export const UPLOAD_BASE = API_BASE.replace('/api', '');
 const TOKEN_KEY = "token";
 

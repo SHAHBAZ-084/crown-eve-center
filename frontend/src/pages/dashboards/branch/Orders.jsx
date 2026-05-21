@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useFetch, apiFetch, toast, Icon, TblSk, ORDER_BADGE } from "../../../components/branch/BranchShared";
+import { getApiUrl } from "../../../utils/apiUrl";
 
 const Orders = () => {
   const { user } = useOutletContext();
@@ -126,7 +127,7 @@ const Orders = () => {
               {viewing.payment_screenshot ? (
                 <div style={{ margin: "10px 0", borderRadius: 8, overflow: "hidden", border: "1px solid var(--border)" }}>
                   <img 
-                    src={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${viewing.payment_screenshot}`} 
+                    src={`${getApiUrl().replace('/api', '')}${viewing.payment_screenshot}`} 
                     alt="Proof" 
                     style={{ width: "100%", display: "block" }} 
                   />

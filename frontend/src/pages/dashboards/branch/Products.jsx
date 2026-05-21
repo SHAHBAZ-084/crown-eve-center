@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useFetch, apiFetch, toast, Icon, Modal, Confirm, UPLOAD_BASE } from "../../../components/branch/BranchShared";
 import { getImgUrl } from "../../../utils/imgUrl";
+import { getApiUrl } from "../../../utils/apiUrl";
 
 const Products = () => {
   const { user } = useOutletContext();
@@ -558,7 +559,7 @@ const Products = () => {
                         const formData = new FormData();
                         formData.append('image', file);
                         try {
-                          const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/upload`, {
+                          const res = await fetch(`${getApiUrl()}/upload`, {
                             method: "POST",
                             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
                             body: formData

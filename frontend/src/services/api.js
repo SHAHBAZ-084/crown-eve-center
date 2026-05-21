@@ -1,8 +1,8 @@
-// frontend/src/services/api.js
 import axios from 'axios';
+import { getApiUrl } from '../utils/apiUrl';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'production' ? 'https://crown-eve-center.onrender.com/api' : 'http://localhost:5000/api'),
+  baseURL: getApiUrl(),
 });
 
 api.interceptors.request.use((config) => {

@@ -1,5 +1,6 @@
 // frontend/src/components/customer/CustomerShared.jsx
 import React, { useState, useEffect, useCallback } from "react";
+import { getApiUrl } from "../../utils/apiUrl";
 
 /**
  * CORE API UTILITY
@@ -7,7 +8,7 @@ import React, { useState, useEffect, useCallback } from "react";
  */
 export const api = async (endpoint, options = {}) => {
   const token = localStorage.getItem("token");
-  const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+  const baseUrl = getApiUrl();
   
   const headers = {
     "Content-Type": "application/json",

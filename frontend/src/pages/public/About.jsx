@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { getApiUrl } from '../../utils/apiUrl';
 
 const About = () => {
   return (
@@ -195,7 +196,7 @@ const About = () => {
             };
 
             try {
-              const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/testimonials`, {
+              const res = await fetch(`${getApiUrl()}/testimonials`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
