@@ -5,16 +5,42 @@
     <link rel="icon" type="image/png" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- CSP: unsafe-eval needed for any remaining library that uses it (e.g. animation libs) -->
+    <!-- Content Security Policy -->
     <meta http-equiv="Content-Security-Policy"
       content="default-src 'self';
                script-src 'self' 'unsafe-eval' 'unsafe-inline';
                style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
                font-src 'self' https://fonts.gstatic.com;
                img-src 'self' data: blob: http: https: *;
-               connect-src 'self' http://localhost:5000 https://*.neon.tech https://*.vercel.app *;" />
+               connect-src 'self' http://localhost:5000 https://*.neon.tech *;" />
 
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+
+    <!-- SEO: Helps Google index and rank this page -->
+    <meta name="description" content="Crown Eve Center is Pakistan's premier mobility destination. Explore premium bikes, browse 100% genuine OEM parts, and book certified maintenance services online." />
+    <meta name="keywords" content="Crown Eve, Crown Eve Center, Crown Eve Bikes, Scooters Pakistan, Genuine Parts, Bike Repair Pakistan, Electric Bikes Pakistan" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Crown Eve Center" />
+    <link rel="canonical" href="https://www.crownevcenter.com" />
+
+    <!-- Open Graph: Controls how link looks when shared on WhatsApp, Facebook, etc. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Crown Eve Bikes | Ride The Legacy" />
+    <meta property="og:description" content="Pakistan's premier mobility destination. Find premium bikes, 1,700+ genuine OEM parts, and expert certified maintenance." />
+    <meta property="og:url" content="https://www.crownevcenter.com" />
+    <meta property="og:image" content="https://www.crownevcenter.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="Crown Eve Center" />
+    <meta property="og:locale" content="en_PK" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Crown Eve Bikes | Ride The Legacy" />
+    <meta name="twitter:description" content="Pakistan's premier mobility destination. Find premium bikes, genuine OEM parts, and certified maintenance." />
+    <meta name="twitter:image" content="https://www.crownevcenter.com/og-image.png" />
+
     <title>Crown Eve Bikes | Ride The Legacy</title>
 
     <style>

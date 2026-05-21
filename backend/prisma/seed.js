@@ -10,11 +10,14 @@ async function main() {
   // 1. Create Default Branch
   const branch = await prisma.branch.upsert({
     where: { id: 1 },
-    update: {},
+    update: {
+      name: 'Hadi Ev Center',
+      location: 'Hadi Ev Center, Bahawalnagar road Chishtian',
+    },
     create: {
       id: 1,
-      name: 'Main Branch',
-      location: 'Karachi, Pakistan',
+      name: 'Hadi Ev Center',
+      location: 'Hadi Ev Center, Bahawalnagar road Chishtian',
     },
   });
 

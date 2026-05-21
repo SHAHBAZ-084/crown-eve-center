@@ -7,11 +7,11 @@ const Contact = () => {
 
   // Default Head Office Info
   const headOffice = {
-    name: "Head Office",
-    phone: "021-111000348, 0326-8330680",
+    name: "Hadi Ev Center",
+    phone: "0300 698 3345, 0300 449 4545",
     email: "info@crownelectricmobility.com",
-    address: "Plot No. 672-673, Deh Joreji Taluka, Bin Qasim Town Karachi, 75600",
-    timings: "Mon-Sat, 9:00 AM - 6:00 PM"
+    address: "Hadi Ev Center, Bahawalnagar road Chishtian",
+    timings: "Mon-Sat, 9:00 AM - 8:00 PM"
   };
 
   useEffect(() => {
