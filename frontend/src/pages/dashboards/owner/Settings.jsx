@@ -1,6 +1,7 @@
 // frontend/src/pages/dashboards/owner/Settings.jsx
 import React, { useState } from "react";
 import { toast, Icon } from "../../../components/owner/OwnerShared";
+import { getApiUrl } from "../../../utils/apiUrl";
 
 const Toggle = ({ on, onChange }) => (
   <button className={`toggle ${on ? "on" : "off"}`} onClick={() => onChange(!on)}>
@@ -74,7 +75,7 @@ const SettingsPage = () => {
       <div style={{ background: "var(--surface2)", border: "1px solid var(--border)", borderRadius: "var(--r-lg)", padding: 28, marginBottom: 24 }}>
         <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}><Icon name="globe" size={18} /> API Configuration</div>
         <div className="form-row">
-          <div className="form-group"><label>Backend URL</label><input defaultValue="https://crown-eve-center.onrender.com/api" readOnly /></div>
+          <div className="form-group"><label>Backend URL</label><input defaultValue={getApiUrl()} readOnly /></div>
           <div className="form-group"><label>Environment</label>
             <select defaultValue="production"><option value="production">Production</option><option value="staging">Staging</option><option value="dev">Development</option></select>
           </div>

@@ -1,8 +1,9 @@
 // frontend/src/components/owner/OwnerShared.jsx
 import React, { useState, useEffect, useCallback } from "react";
+import { getApiUrl } from "../../utils/apiUrl";
 
 // ─── API HELPER & HOOKS ─────────────────────────────────────────────────────
-const API_BASE = import.meta.env.VITE_API_URL || "https://crown-eve-center.onrender.com/api";
+const API_BASE = getApiUrl();
 const TOKEN_KEY = "token";
 
 export const api = async (path, options = {}) => {

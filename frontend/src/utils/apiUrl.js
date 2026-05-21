@@ -7,16 +7,11 @@ export const getApiUrl = () => {
     return import.meta.env.VITE_API_URL;
   }
 
-  // 2. If in production mode, dynamically resolve or fall back to the live domain.
+  // 2. If in production mode, dynamically point to the origin we are loaded from
   if (import.meta.env.MODE === 'production') {
     if (typeof window !== 'undefined') {
-      // If frontend and backend are hosted on the same domain (e.g. Hostinger public_html)
-      if (window.location.hostname.includes('crownevecenter.com') || window.location.hostname.includes('crowneve.com')) {
-        return `${window.location.origin}/api`;
-      }
+      return `${window.location.origin}/api`;
     }
-    // Render backup fallback
-    return 'https://crown-eve-center.onrender.com/api';
   }
 
   // 3. In development mode, fall back to localhost.
