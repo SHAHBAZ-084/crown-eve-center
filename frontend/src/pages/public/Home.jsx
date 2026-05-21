@@ -102,14 +102,14 @@ const Home = () => {
             <span className="marquee-item"><span className="marquee-sep">✦</span> Crown EV Bikes <span className="marquee-sep">✦</span></span>
             <span className="marquee-item highlight">Best Lithium Batteries</span>
             <span className="marquee-item"><span className="marquee-sep">✦</span> High Performance Motors <span className="marquee-sep">✦</span></span>
-            <span className="marquee-item highlight">Punjab's Premier Branches</span>
+            <span className="marquee-item highlight">Pakistan's Premier Branches</span>
             <span className="marquee-item"><span className="marquee-sep">✦</span> Ride The Future <span className="marquee-sep">✦</span></span>
             <span className="marquee-item highlight">Smart Digital Dashboards</span>
             {/* Duplicate for infinite loop */}
             <span className="marquee-item"><span className="marquee-sep">✦</span> Crown EV Bikes <span className="marquee-sep">✦</span></span>
             <span className="marquee-item highlight">Best Lithium Batteries</span>
             <span className="marquee-item"><span className="marquee-sep">✦</span> High Performance Motors <span className="marquee-sep">✦</span></span>
-            <span className="marquee-item highlight">Punjab's Premier Branches</span>
+            <span className="marquee-item highlight">Pakistan's Premier Branches</span>
             <span className="marquee-item"><span className="marquee-sep">✦</span> Ride The Future <span className="marquee-sep">✦</span></span>
             <span className="marquee-item highlight">Smart Digital Dashboards</span>
           </div>
@@ -216,7 +216,7 @@ const Home = () => {
             ) : (
               <div className="services-paragraph-box" style={{ padding: '40px 0', borderTop: '1px solid #F3E5DC' }}>
                 <p style={{ fontSize: '1.1rem', color: 'var(--muted)', lineHeight: '1.8', fontWeight: 500, maxWidth: '800px' }}>
-                  At <span style={{ color: 'var(--orange)', fontWeight: 900 }}>Crown Hadi EV Center</span>, we provide a comprehensive ecosystem for the modern rider, offering precision-engineered electric motorcycles, advanced battery health diagnostics, high-performance electric motors, and smart digital dashboards. Our certified technicians provide expert maintenance and performance tuning from <span style={{ color: 'var(--white)', fontWeight: 800 }}>10:00 AM to 8:00 PM</span> daily, all backed by a hassle-free warranty to ensure your ultimate peace of mind and an unbeatable riding experience as Punjab's premium mobility destination with different branches.
+                  At <span style={{ color: 'var(--orange)', fontWeight: 900 }}>Crown Hadi EV Center</span>, we provide a comprehensive ecosystem for the modern rider, offering precision-engineered electric motorcycles, advanced battery health diagnostics, high-performance electric motors, and smart digital dashboards. Our certified technicians provide expert maintenance and performance tuning from <span style={{ color: 'var(--white)', fontWeight: 800 }}>10:00 AM to 8:00 PM</span> daily, all backed by a hassle-free warranty to ensure your ultimate peace of mind and an unbeatable riding experience as Pakistan's premium mobility destination with different branches.
                 </p>
               </div>
             )}
@@ -397,7 +397,7 @@ const Home = () => {
             <Link to="/" className="logo" style={{ display: 'flex', alignItems: 'center' }}>
               <img src="/logo.png" alt="Crown Hadi EV Center" style={{ height: '90px', width: 'auto', objectFit: 'contain' }} />
             </Link>
-            <p>Punjab's premium mobility destination with different branches. Premium EV bikes, long-range batteries, high-performance motors, and expert service — all in one place.</p>
+            <p>Pakistan's premium mobility destination with different branches. Premium EV bikes, long-range batteries, high-performance motors, and expert service — all in one place.</p>
             <div className="footer-socials">
               <a href="https://web.facebook.com/hadievcenter/?_rdc=1&_rdr" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Facebook">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" /></svg>
