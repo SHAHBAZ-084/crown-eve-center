@@ -1,13 +1,16 @@
 // backend/prisma/seed.js
+require('../src/config/loadEnv');
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 
 const prisma = new PrismaClient();
 
-async function main() {
-  const hashedPassword = await bcrypt.hash('11223344', 10);
+const SEED_PASSWORD = '11223344';
 
-  // 1. Create Default Branch (Hadi Ev Center - Chishtian)
+async function main() {
+  const hashedPassword = await bcrypt.hash(SEED_PASSWORD, 10);
+  const verified = { password: hashedPassword, isVerified: true };
+
   const branch = await prisma.branch.upsert({
     where: { id: 1 },
     update: {
@@ -23,8 +26,7 @@ async function main() {
     },
   });
 
-  // Create Lahore Branch
-  const branchLahore = await prisma.branch.upsert({
+  await prisma.branch.upsert({
     where: { id: 2 },
     update: {
       name: 'Hadi Ev Center - Lahore',
@@ -39,88 +41,59 @@ async function main() {
     },
   });
 
-  // 2. Technician
-  await prisma.user.upsert({
-    where: { email: 'tech@gmail.com' },
-    update: { password: hashedPassword },
-    create: {
+  const users = [
+    {
       email: 'tech@gmail.com',
       name: 'Expert Technician',
-      password: hashedPassword,
       role: 'TECHNICIAN',
       branchId: branch.id,
     },
-  });
-
-  // 3. Manager
-  await prisma.user.upsert({
-    where: { email: 'manager@gmail.com' },
-    update: { password: hashedPassword },
-    create: {
+    {
       email: 'manager@gmail.com',
       name: 'Branch Manager',
-      password: hashedPassword,
       role: 'BRANCH_MANAGER',
       branchId: branch.id,
     },
-  });
-
-  // 4. Employee
-  await prisma.user.upsert({
-    where: { email: 'employee@gmail.com' },
-    update: { password: hashedPassword },
-    create: {
+    {
       email: 'employee@gmail.com',
       name: 'Sales Employee',
-      password: hashedPassword,
       role: 'EMPLOYEE',
       branchId: branch.id,
     },
-  });
-
-  // 5. Customer
-  await prisma.user.upsert({
-    where: { email: 'customer@gmail.com' },
-    update: { password: hashedPassword },
-    create: {
+    {
       email: 'customer@gmail.com',
       name: 'Valued Customer',
-      password: hashedPassword,
       role: 'CUSTOMER',
+      branchId: null,
     },
-  });
-
-  // 6. Branch Owner
-  await prisma.user.upsert({
-    where: { email: 'branch@gmail.com' },
-    update: { password: hashedPassword, role: 'BRANCH_OWNER' },
-    create: {
+    {
       email: 'branch@gmail.com',
       name: 'Branch Owner',
-      password: hashedPassword,
       role: 'BRANCH_OWNER',
       branchId: branch.id,
     },
-  });
-
-  // 7. Company Owner
-  await prisma.user.upsert({
-    where: { email: 'owner@crowneve.com' },
-    update: { password: hashedPassword },
-    create: {
+    {
       email: 'owner@crowneve.com',
       name: 'Company Owner',
-      password: hashedPassword,
       role: 'COMPANY_OWNER',
+      branchId: null,
     },
-  });
+  ];
 
-  // Initial Categories and Brands to keep UI clean
+  for (const u of users) {
+    await prisma.user.upsert({
+      where: { email: u.email },
+      update: { ...verified, name: u.name, role: u.role, branchId: u.branchId },
+      create: { ...u, ...verified },
+    });
+  }
+
   await prisma.category.upsert({ where: { name: 'Electric Bikes' }, update: {}, create: { name: 'Electric Bikes' } });
   await prisma.brand.upsert({ where: { name: 'Crown EV' }, update: {}, create: { name: 'Crown EV', country: 'Pakistan' } });
   await prisma.serviceCategory.upsert({ where: { name: 'Mechanical' }, update: {}, create: { name: 'Mechanical' } });
 
-  console.log('Seeding finished: All requested accounts created with password 11223344');
+  console.log(`Seeding finished. All accounts use password: ${SEED_PASSWORD} (isVerified: true)`);
+  console.log('Emails:', users.map((u) => u.email).join(', '));
 }
 
 main()
