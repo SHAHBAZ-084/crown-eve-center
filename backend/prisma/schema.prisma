@@ -2,7 +2,9 @@
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["driverAdapters"]
-  binaryTargets   = ["native", "debian-openssl-3.0.x", "rhel-openssl-3.0.x"]
+  // Hostinger currently runs Debian with OpenSSL 1.1, so include it to avoid
+  // Prisma Query Engine crashes (e.g. "PANIC: timer has gone away").
+  binaryTargets   = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
