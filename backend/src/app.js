@@ -3,9 +3,14 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
 const dotenv = require('dotenv');
 
+// Load environment variables from current working directory (default)
 dotenv.config();
+
+// Fallback: Load environment variables from the backend directory relative to this file
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const app = express();
 
