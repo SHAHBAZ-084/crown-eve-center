@@ -1,4 +1,4 @@
-// backend/src/app.js
+// backend/src/app.js - updated for Hostinger environment loading
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
