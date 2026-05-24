@@ -1,7 +1,7 @@
 // backend/src/server.js
 require('./config/loadEnv');
 const app = require('./app');
-
+const prisma = require('./config/db');
 const logger = require('./config/logger');
 
 const PORT = process.env.PORT || 5000;
@@ -15,6 +15,22 @@ if (missing.length) {
   process.exit(1);
 }
 
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
-});
+async function start() {
+  try {
+    await prisma.$connect();
+    await prisma.$queryRaw`SELECT 1`;
+    logger.info('Database connected');
+  } catch (err) {
+    logger.error('Database connection failed at startup', {
+      message: err.message,
+      stack: err.stack,
+    });
+    process.exit(1);
+  }
+
+  app.listen(PORT, () => {
+    logger.info(`Server running on port ${PORT}`);
+  });
+}
+
+start();

@@ -1,36 +1,63 @@
-// backend/src/config/db.js
-// Singleton PrismaClient — safe for shared hosting / serverless restarts
-// Connection limit is enforced via URL param (?connection_limit=5) to
-// prevent exhausting Neon's connection pool on Hostinger shared hosting.
+// Singleton PrismaClient — Neon adapter on production avoids native engine panics
+// ("PANIC: timer has gone away") on Hostinger shared Node hosting.
 
 const { PrismaClient } = require('@prisma/client');
 
 const globalForPrisma = global;
 
-if (!globalForPrisma.prisma) {
-  if (!process.env.DATABASE_URL) {
-    console.error("\x1b[31m%s\x1b[0m", "==========================================================================");
-    console.error("\x1b[31m%s\x1b[0m", "CRITICAL ERROR: DATABASE_URL is not defined in process.env!");
-    console.error("\x1b[31m%s\x1b[0m", "Please make sure your .env file exists and contains DATABASE_URL.");
-    console.error("\x1b[31m%s\x1b[0m", "Current Working Directory: " + process.cwd());
-    console.error("\x1b[31m%s\x1b[0m", "==========================================================================");
+const buildUrl = (raw) => {
+  if (!raw) return raw;
+  if (raw.includes('connection_limit')) return raw;
+  const sep = raw.includes('?') ? '&' : '?';
+  return `${raw}${sep}connection_limit=5`;
+};
+
+const useNeonAdapter = () => {
+  const url = process.env.DATABASE_URL || '';
+  return (
+    process.env.PRISMA_NEON_ADAPTER === '1' ||
+    url.includes('neon.tech') ||
+    url.includes('neon.database')
+  );
+};
+
+function createPrismaClient() {
+  const databaseUrl = buildUrl(process.env.DATABASE_URL);
+
+  if (!databaseUrl) {
+    console.error('\x1b[31m%s\x1b[0m', 'CRITICAL: DATABASE_URL is not set.');
+    return new PrismaClient();
   }
 
-  // Append connection_limit to DATABASE_URL if not already present
-  const buildUrl = (raw) => {
-    if (!raw) return raw;
-    if (raw.includes('connection_limit')) return raw;
-    const sep = raw.includes('?') ? '&' : '?';
-    return `${raw}${sep}connection_limit=5`;
-  };
+  if (useNeonAdapter()) {
+    const { Pool, neonConfig } = require('@neondatabase/serverless');
+    const { PrismaNeon } = require('@prisma/adapter-neon');
 
-  globalForPrisma.prisma = new PrismaClient({
+    try {
+      const ws = require('ws');
+      neonConfig.webSocketConstructor = ws;
+    } catch {
+      // Node 20+ may work without explicit ws; ignore if package missing locally.
+    }
+
+    const pool = new Pool({ connectionString: databaseUrl });
+    const adapter = new PrismaNeon(pool);
+    return new PrismaClient({
+      adapter,
+      log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
+    });
+  }
+
+  return new PrismaClient({
     datasources: {
-      db: { url: buildUrl(process.env.DATABASE_URL) },
+      db: { url: databaseUrl },
     },
     log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
   });
 }
 
-module.exports = globalForPrisma.prisma;
+if (!globalForPrisma.prisma) {
+  globalForPrisma.prisma = createPrismaClient();
+}
 
+module.exports = globalForPrisma.prisma;
