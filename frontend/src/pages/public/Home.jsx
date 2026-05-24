@@ -99,19 +99,15 @@ const Home = () => {
         {/* MARQUEE */}
         <div className="marquee-section">
           <div className="marquee-track">
-            <span className="marquee-item"><span className="marquee-sep">✦</span> Crown EV Bikes <span className="marquee-sep">✦</span></span>
-            <span className="marquee-item highlight">Best Lithium Batteries</span>
-            <span className="marquee-item"><span className="marquee-sep">✦</span> High Performance Motors <span className="marquee-sep">✦</span></span>
-            <span className="marquee-item highlight">Pakistan's Premier Branches</span>
-            <span className="marquee-item"><span className="marquee-sep">✦</span> Ride The Future <span className="marquee-sep">✦</span></span>
-            <span className="marquee-item highlight">Smart Digital Dashboards</span>
-            {/* Duplicate for infinite loop */}
-            <span className="marquee-item"><span className="marquee-sep">✦</span> Crown EV Bikes <span className="marquee-sep">✦</span></span>
-            <span className="marquee-item highlight">Best Lithium Batteries</span>
-            <span className="marquee-item"><span className="marquee-sep">✦</span> High Performance Motors <span className="marquee-sep">✦</span></span>
-            <span className="marquee-item highlight">Pakistan's Premier Branches</span>
-            <span className="marquee-item"><span className="marquee-sep">✦</span> Ride The Future <span className="marquee-sep">✦</span></span>
-            <span className="marquee-item highlight">Smart Digital Dashboards</span>
+            <span className="marquee-item">
+              <span style={{ color: '#FFFFFF' }}>Welcome to</span> <span className="highlight" style={{ margin: '0 8px', color: '#ff4500', textShadow: '0 0 10px rgba(255,69,0,0.6)' }}>Crown Hadi EV Center</span> <span style={{ color: '#E0E0E0' }}>— Pakistan's Premium Mobility Destination</span> <span className="marquee-sep" style={{ margin: '0 16px', color: '#555' }}>✦</span> <span style={{ color: '#00E5FF', textShadow: '0 0 10px rgba(0,229,255,0.4)' }}>Experience the Future with our High Performance Electric Bikes</span> <span className="marquee-sep" style={{ margin: '0 16px', color: '#555' }}>✦</span> <span style={{ color: '#FFD700', textShadow: '0 0 10px rgba(255,215,0,0.4)' }}>Equipped with the Best Lithium Batteries & Smart Digital Dashboards</span> <span className="marquee-sep" style={{ margin: '0 16px', color: '#555' }}>✦</span> <span style={{ color: '#00E676', textShadow: '0 0 10px rgba(0,230,118,0.4)' }}>Visit our Branches or Shop Online Today!</span>
+            </span>
+            <span className="marquee-item">
+              <span style={{ color: '#FFFFFF' }}>Welcome to</span> <span className="highlight" style={{ margin: '0 8px', color: '#ff4500', textShadow: '0 0 10px rgba(255,69,0,0.6)' }}>Crown Hadi EV Center</span> <span style={{ color: '#E0E0E0' }}>— Pakistan's Premium Mobility Destination</span> <span className="marquee-sep" style={{ margin: '0 16px', color: '#555' }}>✦</span> <span style={{ color: '#00E5FF', textShadow: '0 0 10px rgba(0,229,255,0.4)' }}>Experience the Future with our High Performance Electric Bikes</span> <span className="marquee-sep" style={{ margin: '0 16px', color: '#555' }}>✦</span> <span style={{ color: '#FFD700', textShadow: '0 0 10px rgba(255,215,0,0.4)' }}>Equipped with the Best Lithium Batteries & Smart Digital Dashboards</span> <span className="marquee-sep" style={{ margin: '0 16px', color: '#555' }}>✦</span> <span style={{ color: '#00E676', textShadow: '0 0 10px rgba(0,230,118,0.4)' }}>Visit our Branches or Shop Online Today!</span>
+            </span>
+            <span className="marquee-item">
+              <span style={{ color: '#FFFFFF' }}>Welcome to</span> <span className="highlight" style={{ margin: '0 8px', color: '#ff4500', textShadow: '0 0 10px rgba(255,69,0,0.6)' }}>Crown Hadi EV Center</span> <span style={{ color: '#E0E0E0' }}>— Pakistan's Premium Mobility Destination</span> <span className="marquee-sep" style={{ margin: '0 16px', color: '#555' }}>✦</span> <span style={{ color: '#00E5FF', textShadow: '0 0 10px rgba(0,229,255,0.4)' }}>Experience the Future with our High Performance Electric Bikes</span> <span className="marquee-sep" style={{ margin: '0 16px', color: '#555' }}>✦</span> <span style={{ color: '#FFD700', textShadow: '0 0 10px rgba(255,215,0,0.4)' }}>Equipped with the Best Lithium Batteries & Smart Digital Dashboards</span> <span className="marquee-sep" style={{ margin: '0 16px', color: '#555' }}>✦</span> <span style={{ color: '#00E676', textShadow: '0 0 10px rgba(0,230,118,0.4)' }}>Visit our Branches or Shop Online Today!</span>
+            </span>
           </div>
         </div>
       </section>
