@@ -9,6 +9,7 @@ const { registerSchema, loginSchema } = require('./auth.schema');
 
 router.post('/register', validate(registerSchema), authController.register);
 router.post('/login', validate(loginSchema), authController.login);
+router.get('/verify-email', authController.verifyEmail);
 router.get('/me', protect, authController.getMe);
 router.put('/profile', protect, authController.updateProfile);
 

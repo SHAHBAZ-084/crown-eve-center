@@ -25,6 +25,8 @@ model User {
   branch       Branch?          @relation(fields: [branchId], references: [id])
   orders       Order[]
   serviceBookings ServiceBooking[] @relation("CustomerBookings")
+  isVerified   Boolean          @default(false)
+  verificationToken String?
   createdAt    DateTime         @default(now())
 
   @@index([email])

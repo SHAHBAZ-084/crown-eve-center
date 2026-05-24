@@ -14,6 +14,7 @@ const Register = () => {
     confirmPassword: '',
     city: ''
   });
+  const [isSuccess, setIsSuccess] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -22,7 +23,7 @@ const Register = () => {
       return alert('Passwords do not match');
     }
     try {
-      await api.post('/auth/register', {
+      const response = await api.post('/auth/register', {
         name: `${formData.firstName} ${formData.lastName}`,
         email: formData.email,
         password: formData.password,
@@ -30,11 +31,31 @@ const Register = () => {
         city: formData.city,
         role: 'CUSTOMER'
       });
-      navigate('/login');
+      setIsSuccess(true);
     } catch (err) {
-      alert('Registration failed');
+      alert(err.response?.data?.message || 'Registration failed');
     }
   };
+
+  if (isSuccess) {
+    return (
+      <div id="page-register" className="page">
+        <div className="register-card" style={{ textAlign: 'center' }}>
+          <Link to="/" className="logo" style={{ marginBottom: '32px', display: 'inline-flex', alignItems: 'center' }}>
+            <img src="/logo.png" alt="Crown Hadi EV Center" style={{ height: '80px', width: 'auto', objectFit: 'contain' }} />
+          </Link>
+          <h2 className="text-5xl font-family-bebas mb-2 tracking-tighter uppercase text-black">Check Your Email</h2>
+          <p className="text-sm text-muted mb-8" style={{ fontSize: '16px', lineHeight: '1.5' }}>
+            We've sent a verification link to <strong>{formData.email}</strong>. <br />
+            Please click the link in the email to verify your account before logging in.
+          </p>
+          <button onClick={() => navigate('/login')} className="form-submit" style={{ marginTop: '20px' }}>
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div id="page-register" className="page">
