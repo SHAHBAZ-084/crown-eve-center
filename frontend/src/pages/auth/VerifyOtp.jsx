@@ -68,7 +68,9 @@ const VerifyOtp = () => {
       setCanResend(false);
       alert('A new OTP has been sent to your email.');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to resend OTP.');
+      const msg = err.response?.data?.message || 'Failed to resend OTP.';
+      setError(msg);
+      if (err.response?.status === 429) setCanResend(true);
     }
   };
 

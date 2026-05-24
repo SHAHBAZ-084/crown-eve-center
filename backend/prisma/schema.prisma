@@ -38,11 +38,13 @@ model OtpVerification {
   id         Int      @id @default(autoincrement())
   email      String
   otp        String
+  purpose    String   @default("VERIFY_EMAIL") // VERIFY_EMAIL | PASSWORD_RESET
   expiresAt  DateTime
   isUsed     Boolean  @default(false)
   createdAt  DateTime @default(now())
 
   @@index([email])
+  @@index([email, createdAt])
 }
 
 model Branch {
