@@ -1,5 +1,6 @@
 // backend/src/modules/accounts/account.controller.js
 const prisma = require('../../config/db');
+const { syncPartyLedgers } = require('../../services/ledger.service');
 
 // Get all accounts (with optional category and branch filtering)
 exports.getAll = async (req, res) => {
@@ -377,6 +378,121 @@ exports.getTrialBalance = async (req, res) => {
       grandTotalCredit: Math.round(grandTotalCredit * 100) / 100
     });
 
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.exportLedgerStatement = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { startDate, endDate } = req.query;
+
+    const account = await prisma.account.findUnique({
+      where: { id },
+      include: { category: true, ledger: true },
+    });
+
+    if (!account || !account.ledger) {
+      return res.status(404).json({ message: 'Account or Ledger not found.' });
+    }
+
+    const catName = account.category.name.toLowerCase();
+    const isDebitNature =
+      catName.includes('bank') ||
+      catName.includes('cash') ||
+      catName.includes('asset') ||
+      catName.includes('expense') ||
+      catName.includes('customer') ||
+      catName.includes('purchase');
+
+    const allEntries = await prisma.ledgerEntry.findMany({
+      where: { ledgerId: account.ledger.id },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    let openingBalance = account.opening_balance || 0;
+    const start = startDate ? new Date(startDate) : new Date(0);
+    start.setHours(0, 0, 0, 0);
+    const end = endDate ? new Date(endDate) : new Date();
+    end.setHours(23, 59, 59, 999);
+
+    if (!isDebitNature && openingBalance > 0) openingBalance = -openingBalance;
+
+    const previousEntries = allEntries.filter((e) => new Date(e.createdAt) < start);
+    const periodEntries = allEntries.filter((e) => {
+      const d = new Date(e.createdAt);
+      return d >= start && d <= end;
+    });
+
+    for (const entry of previousEntries) {
+      openingBalance = openingBalance + entry.debit - entry.credit;
+    }
+
+    let runningBalance = openingBalance;
+    let totalDebit = 0;
+    let totalCredit = 0;
+
+    const csvEscape = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const rows = [
+      ['Account', account.account_name],
+      ['Category', account.category.name],
+      ['From', startDate || 'Start'],
+      ['To', endDate || new Date().toISOString().slice(0, 10)],
+      [],
+      ['Date', 'Type', 'Description', 'Debit', 'Credit', 'Balance', 'Dr/Cr'],
+    ];
+
+    rows.push([
+      startDate || '',
+      'Opening Balance',
+      'Opening Balance',
+      '0.00',
+      '0.00',
+      Math.abs(openingBalance).toFixed(2),
+      openingBalance > 0 ? 'Dr' : openingBalance < 0 ? 'Cr' : '',
+    ]);
+
+    for (const entry of periodEntries) {
+      totalDebit += entry.debit;
+      totalCredit += entry.credit;
+      runningBalance = runningBalance + entry.debit - entry.credit;
+      rows.push([
+        new Date(entry.createdAt).toISOString().slice(0, 10),
+        entry.reference_type,
+        entry.description || '',
+        entry.debit.toFixed(2),
+        entry.credit.toFixed(2),
+        Math.abs(runningBalance).toFixed(2),
+        runningBalance > 0 ? 'Dr' : runningBalance < 0 ? 'Cr' : '',
+      ]);
+    }
+
+    rows.push([]);
+    rows.push(['', 'TOTALS', '', totalDebit.toFixed(2), totalCredit.toFixed(2), '', '']);
+
+    const csv = rows.map((r) => r.map(csvEscape).join(',')).join('\n');
+    const filename = `ledger-${account.account_name.replace(/[^a-z0-9]/gi, '_')}.csv`;
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send('\ufeff' + csv);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.syncPartyLedgers = async (req, res) => {
+  try {
+    let { branchId } = req.query;
+    if (req.user.role === 'BRANCH_OWNER' || req.user.role === 'EMPLOYEE') {
+      branchId = req.user.branchId;
+    }
+    if (!branchId) {
+      return res.status(400).json({ message: 'branchId is required.' });
+    }
+    await syncPartyLedgers(branchId);
+    res.json({ message: 'Customer and supplier ledgers synced successfully.' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

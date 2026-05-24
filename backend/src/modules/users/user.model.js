@@ -22,4 +22,28 @@ const deleteUser = (id) => prisma.user.delete({
   where: { id }
 });
 
-module.exports = { getAllUsers, getUserById, createUser, updateUser, deleteUser };
+const searchOnlineCustomers = (search, limit = 50) =>
+  prisma.user.findMany({
+    where: {
+      role: 'CUSTOMER',
+      OR: search
+        ? [
+            { name: { contains: search, mode: 'insensitive' } },
+            { email: { contains: search, mode: 'insensitive' } },
+            { phone: { contains: search, mode: 'insensitive' } },
+          ]
+        : undefined,
+    },
+    select: { id: true, name: true, email: true, phone: true, city: true },
+    take: Number(limit),
+    orderBy: { name: 'asc' },
+  });
+
+module.exports = {
+  getAllUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  deleteUser,
+  searchOnlineCustomers,
+};

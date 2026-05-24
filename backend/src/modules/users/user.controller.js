@@ -15,6 +15,16 @@ exports.getAll = async (req, res) => {
   }
 };
 
+exports.getOnlineCustomers = async (req, res) => {
+  try {
+    const { search, limit } = req.query;
+    const customers = await User.searchOnlineCustomers(search, limit || 50);
+    res.json({ data: customers });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
 exports.create = async (req, res) => {
   try {
     const { name, email, password, role, branchId } = req.body;

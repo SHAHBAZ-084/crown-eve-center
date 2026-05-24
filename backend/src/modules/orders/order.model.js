@@ -1,119 +1,7 @@
 // backend/src/modules/orders/order.model.js
 const prisma = require('../../config/db');
 const { syncInventoryToPartsAndProducts } = require('../inventory/inventory.utils');
-
-/**
- * Posts double-entry ledger accounting entries for an order.
- * Handles walk-in credit sales, online customer credit sales, and bank payments.
- *
- * Walk-in  → LedgerEntry: DR walk-in receivable, CR revenue
- * Online   → LedgerEntry: DR customer account, CR revenue
- * Bank     → LedgerEntry: DR bank account, CR revenue + bank balance update
- *
- * @param {object} tx  - Prisma transaction client
- * @param {object} params - { orderId, branchId, total, customerId, walkInCustomerId, bankId }
- */
-const postLedgerEntries = async (tx, { orderId, branchId, total, customerId, walkInCustomerId, bankId }) => {
-  const bId = Number(branchId);
-
-  // ── Helper: find or create an AccountCategory for this branch ──────────────
-  const getOrCreateCategory = async (name) => {
-    let cat = await tx.accountCategory.findFirst({ where: { name, branchId: bId } });
-    if (!cat) {
-      cat = await tx.accountCategory.create({
-        data: { name, description: `System ${name} Ledgers`, branchId: bId }
-      });
-    }
-    return cat;
-  };
-
-  // ── Helper: find or create an Account + its Ledger under a category ─────────
-  const getOrCreateAccountLedger = async (categoryId, accountName) => {
-    let acc = await tx.account.findFirst({
-      where: { categoryId, account_name: accountName, branchId: bId }
-    });
-    if (!acc) {
-      acc = await tx.account.create({
-        data: { categoryId, account_name: accountName, branchId: bId, opening_balance: 0, current_balance: 0 }
-      });
-    }
-    let ledger = await tx.ledger.findUnique({ where: { accountId: acc.id } });
-    if (!ledger) {
-      ledger = await tx.ledger.create({ data: { accountId: acc.id, ledger_name: accountName } });
-    }
-    return { account: acc, ledger };
-  };
-
-  // Shared Revenue account — CR side of all sales
-  const revCat = await getOrCreateCategory('REVENUE');
-  const { account: revAcc, ledger: revLedger } = await getOrCreateAccountLedger(revCat.id, 'Sales Revenue');
-
-  if (walkInCustomerId) {
-    // ── Walk-in credit sale: DR walk-in receivable, CR revenue ─────────────────
-    const walkIn = await tx.walkInCustomer.findUnique({
-      where: { id: walkInCustomerId },
-      select: { accountId: true }
-    });
-
-    if (walkIn?.accountId) {
-      // DR: Debit the walk-in customer's receivable account
-      const custLedger = await tx.ledger.findUnique({ where: { accountId: walkIn.accountId } });
-      if (custLedger) {
-        await tx.ledgerEntry.create({
-          data: { ledgerId: custLedger.id, debit: total, credit: 0, reference_type: 'SALE', description: `Invoice #${orderId}` }
-        });
-        await tx.account.update({ where: { id: walkIn.accountId }, data: { current_balance: { increment: total } } });
-      }
-    }
-
-    // CR: Credit Sales Revenue
-    await tx.ledgerEntry.create({
-      data: { ledgerId: revLedger.id, debit: 0, credit: total, reference_type: 'SALE', description: `Invoice #${orderId}` }
-    });
-    await tx.account.update({ where: { id: revAcc.id }, data: { current_balance: { increment: total } } });
-
-  } else if (customerId) {
-    // ── Online customer sale: find/create their account, DR customer, CR revenue ─
-    const custCat = await getOrCreateCategory('CUSTOMER');
-    const user = await tx.user.findUnique({ where: { id: customerId }, select: { name: true } });
-    const accName = `Online Customer - ${user?.name || customerId}`;
-    const { account: custAcc, ledger: custLedger } = await getOrCreateAccountLedger(custCat.id, accName);
-
-    // DR: Debit the online customer's receivable account
-    await tx.ledgerEntry.create({
-      data: { ledgerId: custLedger.id, debit: total, credit: 0, reference_type: 'SALE', description: `Online Invoice #${orderId}` }
-    });
-    await tx.account.update({ where: { id: custAcc.id }, data: { current_balance: { increment: total } } });
-
-    // CR: Credit Sales Revenue
-    await tx.ledgerEntry.create({
-      data: { ledgerId: revLedger.id, debit: 0, credit: total, reference_type: 'SALE', description: `Online Invoice #${orderId}` }
-    });
-    await tx.account.update({ where: { id: revAcc.id }, data: { current_balance: { increment: total } } });
-  }
-
-  if (bankId) {
-    // ── Bank payment: DR bank account, CR revenue (direct bank receipt) ─────────
-    const bank = await tx.bank.findUnique({ where: { id: bankId }, select: { account_title: true } });
-    const bankCat = await getOrCreateCategory('BANK');
-    const bankAccName = bank?.account_title || 'Bank Account';
-    const { account: bankAcc, ledger: bankLedger } = await getOrCreateAccountLedger(bankCat.id, bankAccName);
-
-    // DR: Debit bank (money received into bank)
-    await tx.ledgerEntry.create({
-      data: { ledgerId: bankLedger.id, debit: total, credit: 0, reference_type: 'SALE', description: `Bank receipt Invoice #${orderId}` }
-    });
-    await tx.account.update({ where: { id: bankAcc.id }, data: { current_balance: { increment: total } } });
-
-    // CR: Revenue — only if not already credited via a customer entry above (avoids double-posting)
-    if (!walkInCustomerId && !customerId) {
-      await tx.ledgerEntry.create({
-        data: { ledgerId: revLedger.id, debit: 0, credit: total, reference_type: 'SALE', description: `Bank sale Invoice #${orderId}` }
-      });
-      await tx.account.update({ where: { id: revAcc.id }, data: { current_balance: { increment: total } } });
-    }
-  }
-};
+const { postSaleInvoiceLedger } = require('../../services/ledger.service');
 
 const createOrder = async (data) => {
   const {
@@ -261,15 +149,16 @@ const createOrder = async (data) => {
       });
     }
 
-    // 5. Post double-entry ledger entries for all customer types (Bug 2)
-    await postLedgerEntries(tx, {
-      orderId: order.id,
-      branchId,
-      total: Number(total),
-      customerId,
-      walkInCustomerId: order.walkInCustomerId,
-      bankId
-    });
+    // 5. Double-entry: DR Customer Account, CR Sales Account
+    if (order.walkInCustomerId || customerId) {
+      await postSaleInvoiceLedger(tx, {
+        branchId,
+        orderId: order.id,
+        total: Number(total),
+        walkInCustomerId: order.walkInCustomerId,
+        customerId: customerId || null,
+      });
+    }
 
     return order;
   });

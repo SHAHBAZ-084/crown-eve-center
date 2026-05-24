@@ -87,7 +87,7 @@ const PurchaseInvoices = ({ user, queryClient }) => {
     e.preventDefault();
     if (!newSupplierForm.name || !newSupplierForm.contact) return alert('Name and contact are required');
     try {
-      const res = await api.post('/suppliers', newSupplierForm);
+      const res = await api.post('/suppliers', { ...newSupplierForm, branchId: user?.branchId });
       alert('Supplier registered successfully!');
       setPiForm(prev => ({ ...prev, supplierId: res.data.id }));
       setNewSupplierForm({ name: '', contact: '' });

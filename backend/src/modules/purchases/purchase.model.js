@@ -1,6 +1,7 @@
 // backend/src/modules/purchases/purchase.model.js
 const prisma = require('../../config/db');
 const { syncInventoryToPartsAndProducts } = require('../inventory/inventory.utils');
+const { postPurchaseInvoiceLedger } = require('../../services/ledger.service');
 
 const getPurchases = async ({ page = 1, limit = 20, branchId, supplierId }) => {
   const skip = (page - 1) * limit;
@@ -99,6 +100,14 @@ const createPurchase = async (data) => {
         });
       }
     }
+
+    // 3. Double-entry: DR Purchase Account, CR Supplier Account
+    await postPurchaseInvoiceLedger(tx, {
+      branchId,
+      purchaseId: purchase.id,
+      total: Number(total),
+      supplierId,
+    });
 
     return purchase;
   }, {

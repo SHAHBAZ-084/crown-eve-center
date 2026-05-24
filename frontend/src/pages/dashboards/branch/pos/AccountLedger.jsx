@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../../../../services/api';
-import { Search, Printer, Calendar } from 'lucide-react';
+import { Search, Printer, Calendar, Download, RefreshCw } from 'lucide-react';
 import './Reports.css';
 
 const AccountLedger = ({ user }) => {
+  const queryClient = useQueryClient();
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
   const [selectedAccountId, setSelectedAccountId] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -63,6 +64,37 @@ const AccountLedger = ({ user }) => {
   };
 
   const printLedger = () => window.print();
+
+  const exportExcel = async () => {
+    if (!submittedSearch?.accountId) return alert('Search ledger first.');
+    try {
+      const res = await api.get(`/accounts/${submittedSearch.accountId}/ledger-export`, {
+        params: {
+          startDate: submittedSearch.startDate || undefined,
+          endDate: submittedSearch.endDate || undefined,
+        },
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ledger-export.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('Export failed: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const syncPartyLedgers = async () => {
+    try {
+      await api.post('/accounts/sync-party-ledgers', null, { params: { branchId: user?.branchId } });
+      alert('All customer & supplier ledgers synced.');
+      queryClient.invalidateQueries({ queryKey: ['accounts-list'] });
+    } catch (err) {
+      alert('Sync failed: ' + (err.response?.data?.message || err.message));
+    }
+  };
 
   const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -142,22 +174,39 @@ const AccountLedger = ({ user }) => {
               </div>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2 md:col-span-1">
               <button 
                 type="submit"
-                className="bg-black text-white px-4 py-1.5 rounded text-xs font-bold uppercase shadow hover:bg-gray-800 transition-all flex items-center justify-center gap-2 flex-1"
+                className="bg-black text-white px-4 py-1.5 rounded text-xs font-bold uppercase shadow hover:bg-gray-800 transition-all flex items-center justify-center gap-2 flex-1 min-w-[80px]"
               >
                 <Search size={14} /> Search
               </button>
               {ledgerData && (
-                <button 
-                  type="button"
-                  onClick={printLedger} 
-                  className="bg-white border border-gray-400 text-black px-4 py-1.5 rounded text-xs font-bold uppercase shadow-sm hover:bg-gray-100 transition-all flex items-center justify-center gap-2 flex-1"
-                >
-                  <Printer size={14} /> Print
-                </button>
+                <>
+                  <button 
+                    type="button"
+                    onClick={printLedger} 
+                    className="bg-white border border-gray-400 text-black px-4 py-1.5 rounded text-xs font-bold uppercase shadow-sm hover:bg-gray-100 transition-all flex items-center justify-center gap-2 flex-1 min-w-[80px]"
+                  >
+                    <Printer size={14} /> Print
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={exportExcel} 
+                    className="bg-emerald-700 text-white px-4 py-1.5 rounded text-xs font-bold uppercase shadow-sm hover:bg-emerald-800 transition-all flex items-center justify-center gap-2 flex-1 min-w-[80px]"
+                  >
+                    <Download size={14} /> Excel
+                  </button>
+                </>
               )}
+              <button 
+                type="button"
+                onClick={syncPartyLedgers} 
+                className="bg-orange-600 text-white px-4 py-1.5 rounded text-xs font-bold uppercase shadow-sm hover:bg-orange-700 transition-all flex items-center justify-center gap-2 w-full"
+                title="Create ledgers for all walk-in, online customers & suppliers"
+              >
+                <RefreshCw size={14} /> Sync Party Ledgers
+              </button>
             </div>
 
           </div>

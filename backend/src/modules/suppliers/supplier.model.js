@@ -1,37 +1,23 @@
 // backend/src/modules/suppliers/supplier.model.js
 const prisma = require('../../config/db');
+const { ensureSupplierAccount } = require('../../services/ledger.service');
 
-const getAllSuppliers = () => prisma.supplier.findMany();
+const getAllSuppliers = () =>
+  prisma.supplier.findMany({
+    include: { account: { select: { id: true, account_name: true, current_balance: true } } },
+  });
+
 const createSupplier = async (data) => {
-  return await prisma.$transaction(async (tx) => {
-    const supplier = await tx.supplier.create({ data });
-    
-    const branch = await tx.branch.findFirst();
-    if (!branch) return supplier;
+  const { branchId, ...supplierData } = data;
+  const bId = branchId ? Number(branchId) : (await prisma.branch.findFirst({ select: { id: true } }))?.id;
+  if (!bId) throw new Error('Branch ID is required to create supplier ledger.');
 
-    let cat = await tx.accountCategory.findFirst({
-      where: { name: 'Suppliers', branchId: branch.id }
-    });
-    
-    if (!cat) {
-      cat = await tx.accountCategory.create({
-        data: { name: 'Suppliers', description: 'System Supplier Ledgers', branchId: branch.id }
-      });
-    }
-
-    const acc = await tx.account.create({
-      data: {
-        categoryId: cat.id,
-        account_name: `${supplier.name} (${supplier.contact})`,
-        current_balance: 0,
-        branchId: branch.id,
-        ledger: { create: { ledger_name: `${supplier.name} - Ledger` } }
-      }
-    });
-
-    return await tx.supplier.update({
+  return prisma.$transaction(async (tx) => {
+    const supplier = await tx.supplier.create({ data: supplierData });
+    await ensureSupplierAccount(tx, supplier.id, bId);
+    return tx.supplier.findUnique({
       where: { id: supplier.id },
-      data: { accountId: acc.id }
+      include: { account: true },
     });
   });
 };

@@ -11,6 +11,7 @@ const SaleInvoices = ({ user, queryClient, onInvoiceGenerated }) => {
   const [siForm, setSiForm] = useState({
     type: 'bike',
     items: [],
+    customerKind: 'walkin', // walkin | online
     customerId: '',
     paymentMethod: 'CASH',
     amount: '',
@@ -30,10 +31,17 @@ const SaleInvoices = ({ user, queryClient, onInvoiceGenerated }) => {
   });
 
   const { data: siCustomers, isLoading: loadingSiCustomers } = useQuery({
-    queryKey: ['si-customers', debouncedSiCustomerSearch],
-    queryFn: () => api.get('/walk-in-customers', {
-      params: { branchId: user?.branchId, search: debouncedSiCustomerSearch, limit: 50 }
-    }).then(r => r.data),
+    queryKey: ['si-customers', siForm.customerKind, debouncedSiCustomerSearch],
+    queryFn: () => {
+      if (siForm.customerKind === 'online') {
+        return api.get('/users/online-customers', {
+          params: { search: debouncedSiCustomerSearch, limit: 50 }
+        }).then(r => r.data);
+      }
+      return api.get('/walk-in-customers', {
+        params: { branchId: user?.branchId, search: debouncedSiCustomerSearch, limit: 50 }
+      }).then(r => r.data);
+    },
     enabled: !!debouncedSiCustomerSearch
   });
 
@@ -45,7 +53,9 @@ const SaleInvoices = ({ user, queryClient, onInvoiceGenerated }) => {
     try {
       const payload = {
         branchId: user?.branchId,
-        walkInCustomerId: siForm.customerId,
+        ...(siForm.customerKind === 'walkin'
+          ? { walkInCustomerId: siForm.customerId }
+          : { customerId: siForm.customerId }),
         bankId: siForm.paymentMethod === 'BANK' ? siForm.bankId : null,
         payment_method: siForm.paymentMethod,
         total: parseFloat(siForm.amount),
@@ -232,10 +242,21 @@ const SaleInvoices = ({ user, queryClient, onInvoiceGenerated }) => {
           <div className="grid grid-cols-2 gap-10">
             {/* Customer Select */}
             <div className="space-y-4">
+              <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Customer Type</label>
+              <div className="flex gap-2 p-1 bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl w-fit">
+                <button type="button" onClick={() => { setSiForm({ ...siForm, customerKind: 'walkin', customerId: '' }); setSiCustomerSearch(''); }}
+                  className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest ${siForm.customerKind === 'walkin' ? 'bg-[#E65100] text-white' : 'text-[#8D7A71]'}`}>
+                  Walk-in / Offline
+                </button>
+                <button type="button" onClick={() => { setSiForm({ ...siForm, customerKind: 'online', customerId: '' }); setSiCustomerSearch(''); }}
+                  className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest ${siForm.customerKind === 'online' ? 'bg-[#E65100] text-white' : 'text-[#8D7A71]'}`}>
+                  Online Customer
+                </button>
+              </div>
               <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Assign Customer</label>
               <div className="relative">
                 <Icon n="user" className="absolute left-6 top-1/2 -translate-y-1/2 text-[#8D7A71]" size={18} />
-                <input type="text" placeholder="Search name or phone..." value={siCustomerSearch}
+                <input type="text" placeholder={siForm.customerKind === 'online' ? 'Search name or email...' : 'Search name or phone...'} value={siCustomerSearch}
                   onChange={e => { setSiCustomerSearch(e.target.value); if (siForm.customerId) setSiForm({ ...siForm, customerId: '' }); }}
                   className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl py-5 pl-16 pr-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm" />
                 {siCustomerSearch && !siForm.customerId && (
@@ -245,15 +266,33 @@ const SaleInvoices = ({ user, queryClient, onInvoiceGenerated }) => {
                     ) : siCustomers?.data?.length === 0 ? (
                       <div className="p-6 text-center text-[#8D7A71] text-xs font-bold uppercase">Customer not found</div>
                     ) : siCustomers?.data?.map(cust => (
-                      <div key={cust.id} onClick={() => { setSiForm({ ...siForm, customerId: cust.id }); setSiCustomerSearch(`${cust.first_name} ${cust.last_name} (${cust.phone})`); }}
+                      <div key={cust.id} onClick={() => {
+                        if (siForm.customerKind === 'online') {
+                          setSiForm({ ...siForm, customerId: cust.id });
+                          setSiCustomerSearch(`${cust.name} (${cust.email})`);
+                        } else {
+                          setSiForm({ ...siForm, customerId: cust.id });
+                          setSiCustomerSearch(`${cust.first_name} ${cust.last_name} (${cust.phone})`);
+                        }
+                      }}
                         className="px-6 py-4 hover:bg-[#FFFAF8] cursor-pointer border-b border-[#F3E5DC] last:border-none">
-                        <div className="font-black text-[#2D1A12] text-sm uppercase">{cust.first_name} {cust.last_name}</div>
-                        <div className="text-[10px] font-bold text-[#8D7A71] tracking-widest">{cust.phone}</div>
+                        {siForm.customerKind === 'online' ? (
+                          <>
+                            <div className="font-black text-[#2D1A12] text-sm uppercase">{cust.name}</div>
+                            <div className="text-[10px] font-bold text-[#8D7A71] tracking-widest">{cust.email}</div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="font-black text-[#2D1A12] text-sm uppercase">{cust.first_name} {cust.last_name}</div>
+                            <div className="text-[10px] font-bold text-[#8D7A71] tracking-widest">{cust.phone}</div>
+                          </>
+                        )}
                       </div>
                     ))}
                   </div>
                 )}
               </div>
+              <p className="text-[9px] text-[#8D7A71] ml-2">Ledger: DR Customer Account · CR Sales Account on save</p>
             </div>
 
             {/* Total Summary */}
