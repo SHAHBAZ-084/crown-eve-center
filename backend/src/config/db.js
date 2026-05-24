@@ -13,12 +13,13 @@ const buildUrl = (raw) => {
 };
 
 const useNeonAdapter = () => {
+  if (process.env.PRISMA_NEON_ADAPTER === '0') return false;
+  if (process.env.PRISMA_NEON_ADAPTER === '1') return true;
   const url = process.env.DATABASE_URL || '';
-  return (
-    process.env.PRISMA_NEON_ADAPTER === '1' ||
-    url.includes('neon.tech') ||
-    url.includes('neon.database')
-  );
+  if (!url) return false;
+  // Neon pooled/direct URLs, or any production deploy (Hostinger) — skip native engine.
+  if (url.includes('neon.tech') || url.includes('neon.database')) return true;
+  return process.env.NODE_ENV === 'production';
 };
 
 function createPrismaClient() {
