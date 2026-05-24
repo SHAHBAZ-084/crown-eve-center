@@ -20,7 +20,7 @@ const NotFound = lazy(() => import('./pages/public/NotFound'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/auth/Register'));
 const Forgot = lazy(() => import('./pages/auth/Forgot'));
-const VerifyEmail = lazy(() => import('./pages/auth/VerifyEmail'));
+const VerifyOtp = lazy(() => import('./pages/auth/VerifyOtp'));
 
 // Dashboards - Owner
 const OwnerLayout = lazy(() => import('./components/owner/OwnerLayout'));
@@ -87,7 +87,7 @@ const App = () => {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgot" element={<Forgot />} />
-              <Route path="/verify-email" element={<VerifyEmail />} />
+              <Route path="/verify-otp" element={<VerifyOtp />} />
 
               {/* Owner App Shell - TEMPORARILY OPEN FOR TESTING */}
               <Route element={<ProtectedRoute allowedRoles={['COMPANY_OWNER']}><OwnerLayout /></ProtectedRoute>}>

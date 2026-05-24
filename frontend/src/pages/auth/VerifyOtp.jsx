@@ -1,0 +1,119 @@
+// frontend/src/pages/auth/VerifyOtp.jsx
+import React, { useState, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
+import './Auth.css';
+
+const VerifyOtp = () => {
+  const [searchParams] = useSearchParams();
+  const email = searchParams.get('email');
+  const navigate = useNavigate();
+  const { login } = useAuth(); // If AuthContext has a way to manually set user/token, but api response gives token, we can just save it.
+
+  const [otp, setOtp] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  
+  const [timer, setTimer] = useState(60);
+  const [canResend, setCanResend] = useState(false);
+
+  useEffect(() => {
+    if (!email) {
+      navigate('/login');
+    }
+  }, [email, navigate]);
+
+  useEffect(() => {
+    let interval;
+    if (timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+    } else {
+      setCanResend(true);
+    }
+    return () => clearInterval(interval);
+  }, [timer]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await api.post('/auth/verify-otp', { email, otp });
+      
+      // Manually store token since we bypassed standard login function
+      const { token, user } = response.data;
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+
+      // Force page reload to ensure AuthContext picks up the new token
+      window.location.href = '/my/dashboard';
+    } catch (err) {
+      setError(err.response?.data?.message || 'Invalid or expired OTP.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (!canResend) return;
+    setError('');
+    
+    try {
+      await api.post('/auth/resend-otp', { email });
+      setTimer(60);
+      setCanResend(false);
+      alert('A new OTP has been sent to your email.');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to resend OTP.');
+    }
+  };
+
+  return (
+    <div id="page-verify" className="page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: '#f9fafb' }}>
+      <div className="register-card" style={{ textAlign: 'center', padding: '40px', maxWidth: '400px', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+        <h2 className="text-3xl font-family-bebas mb-2 tracking-tighter uppercase text-black">Verify Email</h2>
+        <p className="text-sm text-muted mb-6">
+          We sent a 6-digit code to <strong>{email}</strong>
+        </p>
+
+        {error && <div style={{ color: 'red', marginBottom: '16px', fontSize: '14px' }}>{error}</div>}
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-group" style={{ marginBottom: '20px' }}>
+            <input 
+              type="text" 
+              placeholder="Enter 6-digit OTP"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              style={{ textAlign: 'center', letterSpacing: '4px', fontSize: '20px', fontWeight: 'bold' }}
+              required
+            />
+          </div>
+          <button type="submit" className="form-submit" disabled={loading || otp.length !== 6}>
+            {loading ? 'Verifying...' : 'Verify & Log In'}
+          </button>
+        </form>
+
+        <div style={{ marginTop: '24px', fontSize: '14px', color: '#666' }}>
+          Didn't receive the code? <br />
+          <button 
+            onClick={handleResend} 
+            disabled={!canResend}
+            style={{ 
+              background: 'none', border: 'none', color: canResend ? '#ff4500' : '#ccc', 
+              cursor: canResend ? 'pointer' : 'not-allowed', marginTop: '8px', fontWeight: 'bold' 
+            }}
+          >
+            {canResend ? 'Resend OTP' : `Resend in ${timer}s`}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default VerifyOtp;

@@ -26,11 +26,21 @@ model User {
   orders       Order[]
   serviceBookings ServiceBooking[] @relation("CustomerBookings")
   isVerified   Boolean          @default(false)
-  verificationToken String?
   createdAt    DateTime         @default(now())
 
   @@index([email])
   @@index([branchId])
+}
+
+model OtpVerification {
+  id         Int      @id @default(autoincrement())
+  email      String
+  otp        String
+  expiresAt  DateTime
+  isUsed     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([email])
 }
 
 model Branch {

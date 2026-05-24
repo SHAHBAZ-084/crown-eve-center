@@ -37,6 +37,9 @@ const Login = () => {
       }
     } catch (err) {
       console.error('Login error:', err);
+      if (err.response?.data?.unverified) {
+        return navigate(`/verify-otp?email=${encodeURIComponent(err.response.data.email || email)}`);
+      }
       const msg = err.response?.data?.message || 'Invalid credentials or server error';
       alert(msg);
     }

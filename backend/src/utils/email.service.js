@@ -1,13 +1,12 @@
 // backend/src/utils/email.service.js
 const nodemailer = require('nodemailer');
 
-// Set up the transporter
-// For Gmail, you will need to use an "App Password" if 2FA is enabled.
+// Set up the transporter with the provided credentials
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.SMTP_USER, // e.g., 'crownevecenter@gmail.com'
-    pass: process.env.SMTP_PASS, // The 16-character App Password
+    user: process.env.SMTP_USER || 'crownevecenter@gmail.com',
+    pass: process.env.SMTP_PASS || 'znws fvqu yams tabz',
   },
 });
 
@@ -20,7 +19,7 @@ const transporter = nodemailer.createTransport({
 const sendEmail = async (to, subject, html) => {
   try {
     const mailOptions = {
-      from: `"Crown Eve Center" <${process.env.SMTP_USER}>`,
+      from: `"Crown Eve Center" <crownevecenter@gmail.com>`,
       to,
       subject,
       html,
@@ -36,27 +35,26 @@ const sendEmail = async (to, subject, html) => {
 };
 
 /**
- * Send a verification email
+ * Send a verification OTP email
  * @param {string} to - Recipient email address
- * @param {string} token - The verification token
+ * @param {string} otp - The 6-digit OTP
  */
-const sendVerificationEmail = async (to, token) => {
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-  const verificationLink = `${frontendUrl}/verify-email?token=${token}`;
-
-  const subject = 'Verify your Crown Eve Center Account';
+const sendOtpEmail = async (to, otp) => {
+  const subject = 'Your Verification Code - Crown Eve Center';
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
       <h2 style="color: #ff4500; text-align: center;">Crown Eve Center</h2>
-      <h3 style="color: #333;">Welcome to Crown Eve Center!</h3>
-      <p style="color: #555; line-height: 1.5;">Thank you for registering. Please confirm your email address by clicking the button below:</p>
-      <div style="text-align: center; margin: 30px 0;">
-        <a href="${verificationLink}" style="background-color: #ff4500; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 4px; display: inline-block;">Verify Email Address</a>
+      <h3 style="color: #333;">Account Verification</h3>
+      <p style="color: #555; line-height: 1.5;">Thank you for registering! Please use the following One-Time Password (OTP) to verify your email address:</p>
+      
+      <div style="text-align: center; margin: 30px 0; padding: 20px; background-color: #f9f9f9; border-radius: 8px;">
+        <span style="font-size: 32px; font-weight: bold; letter-spacing: 4px; color: #333;">${otp}</span>
       </div>
-      <p style="color: #555; line-height: 1.5;">If the button above does not work, you can copy and paste the following link into your browser:</p>
-      <p style="word-break: break-all; color: #0066cc;">${verificationLink}</p>
+      
+      <p style="color: #d9534f; font-weight: bold; text-align: center;">This code will expire in 10 minutes.</p>
+      <p style="color: #555; line-height: 1.5;">If you did not request this code, please ignore this email.</p>
       <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-      <p style="font-size: 12px; color: #999; text-align: center;">If you did not create this account, please ignore this email.</p>
+      <p style="font-size: 12px; color: #999; text-align: center;">© Crown Eve Center</p>
     </div>
   `;
 
@@ -65,5 +63,5 @@ const sendVerificationEmail = async (to, token) => {
 
 module.exports = {
   sendEmail,
-  sendVerificationEmail,
+  sendOtpEmail,
 };
