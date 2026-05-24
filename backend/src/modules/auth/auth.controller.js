@@ -15,11 +15,26 @@ if (!JWT_SECRET) {
   throw new Error('JWT_SECRET env var not set. Server refuses to start.');
 }
 
+const logger = require('../../config/logger');
+
 const sendOtpError = (res, error, fallback = 'Internal server error.') => {
   if (error.statusCode === 429) {
     return res.status(429).json({ message: error.message });
   }
   return res.status(500).json({ message: fallback, error: error.message });
+};
+
+/** Send OTP in background so register/forgot respond in ~1s, not after SMTP (10–30s). */
+const dispatchVerificationOtp = (email) => {
+  void sendVerificationOtp(email).catch((err) => {
+    logger.error('Background verification OTP failed', { email, error: err.message });
+  });
+};
+
+const dispatchPasswordResetOtp = (email) => {
+  void sendPasswordResetOtp(email).catch((err) => {
+    logger.error('Background password-reset OTP failed', { email, error: err.message });
+  });
 };
 
 exports.register = async (req, res) => {
@@ -28,7 +43,6 @@ exports.register = async (req, res) => {
   try {
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      const logger = require('../../config/logger');
       logger.warn('Registration failed: User already exists', { email });
       return res.status(400).json({ message: 'User already exists with this email.' });
     }
@@ -48,15 +62,7 @@ exports.register = async (req, res) => {
       },
     });
 
-    try {
-      await sendVerificationOtp(user.email);
-    } catch (emailError) {
-      const logger = require('../../config/logger');
-      logger.error('Failed to send verification email', { error: emailError.message });
-      if (emailError.statusCode === 429) {
-        return sendOtpError(res, emailError);
-      }
-    }
+    dispatchVerificationOtp(user.email);
 
     res.status(201).json({
       message: 'OTP sent to your email. Please verify your account.',
@@ -75,7 +81,16 @@ exports.login = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { email },
-      include: { branch: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        branchId: true,
+        password: true,
+        isVerified: true,
+        branch: { select: { name: true } },
+      },
     });
 
     if (!user) {
@@ -197,7 +212,7 @@ exports.resendOtp = async (req, res) => {
       return res.status(400).json({ message: 'User is already verified.' });
     }
 
-    await sendVerificationOtp(user.email);
+    dispatchVerificationOtp(user.email);
     res.status(200).json({ message: 'A new OTP has been sent to your email.' });
   } catch (error) {
     return sendOtpError(res, error, 'Failed to resend OTP.');
@@ -217,7 +232,7 @@ exports.forgotPassword = async (req, res) => {
       return res.status(404).json({ message: 'No account found with this email.' });
     }
 
-    await sendPasswordResetOtp(user.email);
+    dispatchPasswordResetOtp(user.email);
     res.status(200).json({
       message: 'Password reset OTP sent to your email.',
       email: user.email,

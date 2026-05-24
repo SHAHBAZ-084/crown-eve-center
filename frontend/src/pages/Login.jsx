@@ -7,12 +7,15 @@ import './auth/Auth.css';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
     try {
       const res = await login(email, password);
       const user = res.user;
@@ -40,8 +43,13 @@ const Login = () => {
       if (err.response?.data?.unverified) {
         return navigate(`/verify-otp?email=${encodeURIComponent(err.response.data.email || email)}`);
       }
-      const msg = err.response?.data?.message || 'Invalid credentials or server error';
+      const msg =
+        err.code === 'ECONNABORTED'
+          ? 'Server is slow or unreachable. Try again in a moment.'
+          : err.response?.data?.message || 'Invalid credentials or server error';
       alert(msg);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -94,7 +102,9 @@ const Login = () => {
               required
             />
           </div>
-          <button type="submit" className="form-submit">Sign In To Portal →</button>
+          <button type="submit" className="form-submit" disabled={submitting}>
+            {submitting ? 'Signing in…' : 'Sign In To Portal →'}
+          </button>
         </form>
         
         <div className="form-divider">— or —</div>

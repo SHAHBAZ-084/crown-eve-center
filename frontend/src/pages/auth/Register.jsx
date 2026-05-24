@@ -15,6 +15,7 @@ const Register = () => {
     city: ''
   });
   const [isSuccess, setIsSuccess] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -22,8 +23,10 @@ const Register = () => {
     if (formData.password !== formData.confirmPassword) {
       return alert('Passwords do not match');
     }
+    if (submitting) return;
+    setSubmitting(true);
     try {
-      const response = await api.post('/auth/register', {
+      await api.post('/auth/register', {
         name: `${formData.firstName} ${formData.lastName}`,
         email: formData.email,
         password: formData.password,
@@ -33,7 +36,13 @@ const Register = () => {
       });
       navigate(`/verify-otp?email=${encodeURIComponent(formData.email)}`);
     } catch (err) {
-      alert(err.response?.data?.message || 'Registration failed');
+      const msg =
+        err.code === 'ECONNABORTED'
+          ? 'Server is slow or unreachable. Try again in a moment.'
+          : err.response?.data?.message || 'Registration failed';
+      alert(msg);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -129,7 +138,9 @@ const Register = () => {
               I agree to the <Link to="/terms" className="form-link">Terms of Service</Link> and <Link to="/privacy" className="form-link">Privacy Policy</Link>
             </label>
           </div>
-          <button type="submit" className="form-submit">Create My Account →</button>
+          <button type="submit" className="form-submit" disabled={submitting}>
+            {submitting ? 'Creating account…' : 'Create My Account →'}
+          </button>
         </form>
         
         <div className="form-divider">— or —</div>
