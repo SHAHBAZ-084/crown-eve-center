@@ -11,6 +11,7 @@ frontend/.env.local
 
 # Backend
 backend/.env
+backend/config.env
 backend/dist/
 
 # System

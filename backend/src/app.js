@@ -3,14 +3,6 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const path = require('path');
-const dotenv = require('dotenv');
-
-// Load environment variables from current working directory (default)
-dotenv.config();
-
-// Fallback: Load environment variables from the backend directory relative to this file
-dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const app = express();
 
@@ -25,6 +17,8 @@ app.use(cors({
     'http://localhost:5174',
     'https://crown-eve-center.vercel.app',
     'https://crown-eve-center-298d.vercel.app',
+    'https://crownevcenter.com',
+    'https://www.crownevcenter.com',
     process.env.FRONTEND_URL
   ].filter(Boolean),
   credentials: true

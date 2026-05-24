@@ -6,7 +6,8 @@
     "backend"
   ],
   "scripts": {
-    "build": "npm run build --workspace=backend"
+    "build": "npm run build --workspace=backend",
+    "start": "npm run start --workspace=backend"
   },
   "dependencies": {
     "csv-parser": "^3.2.0",
