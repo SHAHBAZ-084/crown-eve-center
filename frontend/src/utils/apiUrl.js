@@ -1,19 +1,19 @@
-// frontend/src/utils/apiUrl.js
-// Centralized API URL resolver to prevent hardcoded localhost fallbacks in production.
+// Centralized API URL — production uses Hostinger API directly (avoids Vercel proxy 429s).
+
+const PRODUCTION_API = 'https://api.crownevcenter.com/api';
 
 export const getApiUrl = () => {
-  // 1. If VITE_API_URL is explicitly set via env variables, use it.
   if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
+    return import.meta.env.VITE_API_URL.replace(/\/$/, '');
   }
 
-  // 2. If in production mode, dynamically point to the origin we are loaded from
-  if (import.meta.env.MODE === 'production') {
-    if (typeof window !== 'undefined') {
-      return `${window.location.origin}/api`;
+  if (import.meta.env.MODE === 'production' && typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    if (host === 'crownevcenter.com' || host === 'www.crownevcenter.com') {
+      return PRODUCTION_API;
     }
+    return `${window.location.origin}/api`;
   }
 
-  // 3. In development mode, fall back to localhost.
   return 'http://localhost:5000/api';
 };

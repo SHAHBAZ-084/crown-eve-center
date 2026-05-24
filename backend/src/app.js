@@ -2,7 +2,6 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 
 const app = express();
 
@@ -25,14 +24,6 @@ app.use(cors({
 }));
 app.use(express.json());
 // NOTE: /uploads static removed — files served from Cloudflare R2
-
-// Rate Limiting (Auth routes)
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10000, // relaxed for development
-  message: { message: 'Too many requests, slow down.' }
-});
-app.use('/api/auth', authLimiter);
 
 // Routes
 const authRoutes = require('./modules/auth/auth.routes');
