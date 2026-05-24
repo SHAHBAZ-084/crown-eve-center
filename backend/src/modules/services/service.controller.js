@@ -4,7 +4,10 @@ const Service = require('./service.model');
 exports.getAll = async (req, res) => {
   try {
     const branchId = req.branchId || req.query.branchId;
-    const services = await Service.getAllServices(branchId ? Number(branchId) : undefined);
+    const services = await Service.getAllServices(
+      branchId ? Number(branchId) : undefined,
+      req.query.limit
+    );
     res.json(services);
   } catch (e) {
     res.status(500).json({ message: e.message });

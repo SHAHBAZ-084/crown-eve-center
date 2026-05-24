@@ -15,19 +15,22 @@ exports.getAll = async (req, res) => {
       where.categoryId = categoryId;
     }
 
+    // Do not load all ledger entries here (very slow). Use ledger-statement for details.
     const accounts = await prisma.account.findMany({
       where,
-      include: {
-        category: true,
-        ledger: {
-          include: {
-            entries: {
-              orderBy: { createdAt: 'asc' }
-            }
-          }
-        }
+      select: {
+        id: true,
+        categoryId: true,
+        account_name: true,
+        opening_balance: true,
+        current_balance: true,
+        status: true,
+        branchId: true,
+        createdAt: true,
+        category: { select: { id: true, name: true } },
+        ledger: { select: { id: true, ledger_name: true } },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
 
     res.json({ data: accounts });

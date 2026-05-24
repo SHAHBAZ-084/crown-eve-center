@@ -1,8 +1,19 @@
 // backend/src/modules/products/product.model.js
 const prisma = require('../../config/db');
 
-const getProducts = async ({ page = 1, limit = 20, branchId, categoryId, product_type, search, sortBy, order }) => {
+const getProducts = async ({
+  page = 1,
+  limit = 20,
+  branchId,
+  categoryId,
+  product_type,
+  search,
+  sortBy,
+  order,
+  lite,
+}) => {
   const skip = (page - 1) * limit;
+  const isLite = lite === 'true' || lite === '1';
 
   const where = {
     ...(branchId && { branchId: Number(branchId) }),
@@ -28,12 +39,15 @@ const getProducts = async ({ page = 1, limit = 20, branchId, categoryId, product
     orderBy = { name: order === 'desc' ? 'desc' : 'asc' };
   }
 
-  const [data, total] = await Promise.all([
-    prisma.product.findMany({
-      where,
-      skip,
-      take: Number(limit),
-      include: {
+  const include = isLite
+    ? {
+        category: { select: { id: true, name: true } },
+        brand: { select: { id: true, name: true } },
+        images: { take: 1, orderBy: { sort_order: 'asc' } },
+        bikeDetail: { select: { motor_type: true, battery_type: true } },
+        partDetail: { select: { model: true, item_code: true, description: true, cp_price: true } },
+      }
+    : {
         branch: { select: { name: true } },
         category: true,
         brand: true,
@@ -45,14 +59,21 @@ const getProducts = async ({ page = 1, limit = 20, branchId, categoryId, product
             part: {
               include: {
                 inventory: {
-                  where: { branchId: branchId ? Number(branchId) : 0 }
-                }
-              }
-            }
-          }
-        }
-      },
-      orderBy
+                  where: { branchId: branchId ? Number(branchId) : 0 },
+                },
+              },
+            },
+          },
+        },
+      };
+
+  const [data, total] = await Promise.all([
+    prisma.product.findMany({
+      where,
+      skip,
+      take: Number(limit),
+      include,
+      orderBy,
     }),
     prisma.product.count({ where }),
   ]);

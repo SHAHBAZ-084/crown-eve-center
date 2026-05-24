@@ -2,69 +2,50 @@ const prisma = require('../../config/db');
 
 exports.getAll = async (req, res) => {
   try {
-    const { branchId, search } = req.query;
-
-    if (branchId) {
-      const parsedBranchId = parseInt(branchId);
-      
-      // Self-healing: find all customers in this branch without an accountId
-      const orphanedCustomers = await prisma.walkInCustomer.findMany({
-        where: { branchId: parsedBranchId, accountId: null }
-      });
-      
-      if (orphanedCustomers.length > 0) {
-        for (const cust of orphanedCustomers) {
-          try {
-            await prisma.$transaction(async (tx) => {
-              let cat = await tx.accountCategory.findFirst({ 
-                where: { name: 'CUSTOMER', branchId: parsedBranchId } 
-              });
-              
-              if (!cat) {
-                cat = await tx.accountCategory.create({ 
-                  data: { name: 'CUSTOMER', description: 'System Customer Ledgers', branchId: parsedBranchId } 
-                });
-              }
-
-              const accName = `${cust.first_name} ${cust.last_name || ''}`.trim();
-              const acc = await tx.account.create({
-                data: {
-                  categoryId: cat.id,
-                  account_name: cust.phone ? `${accName} (${cust.phone})` : accName,
-                  current_balance: 0,
-                  branchId: parsedBranchId,
-                  ledger: { create: { ledger_name: `${accName} - Ledger` } }
-                }
-              });
-
-              await tx.walkInCustomer.update({
-                where: { id: cust.id },
-                data: { accountId: acc.id }
-              });
-            });
-          } catch (txErr) {
-            console.error(`Failed to self-heal account for customer ${cust.id}:`, txErr);
-          }
-        }
-      }
-    }
+    const { branchId, search, limit = '50', page = '1' } = req.query;
+    const take = Math.min(Number(limit) || 50, 100);
+    const skip = (Math.max(Number(page) || 1, 1) - 1) * take;
 
     const where = {
-      branchId: branchId ? parseInt(branchId) : undefined,
-      OR: search ? [
-        { first_name: { contains: search, mode: 'insensitive' } },
-        { last_name: { contains: search, mode: 'insensitive' } },
-        { phone: { contains: search, mode: 'insensitive' } },
-        { cnic: { contains: search, mode: 'insensitive' } },
-      ] : undefined
+      ...(branchId ? { branchId: parseInt(branchId) } : {}),
+      ...(search
+        ? {
+            OR: [
+              { first_name: { contains: search, mode: 'insensitive' } },
+              { last_name: { contains: search, mode: 'insensitive' } },
+              { phone: { contains: search, mode: 'insensitive' } },
+              { cnic: { contains: search, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
     };
 
-    const customers = await prisma.walkInCustomer.findMany({
-      where,
-      orderBy: { createdAt: 'desc' }
-    });
+    const [customers, total] = await Promise.all([
+      prisma.walkInCustomer.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          phone: true,
+          cnic: true,
+          email: true,
+          balance: true,
+          branchId: true,
+          accountId: true,
+          createdAt: true,
+        },
+      }),
+      prisma.walkInCustomer.count({ where }),
+    ]);
 
-    res.json({ data: customers });
+    res.json({
+      data: customers,
+      meta: { total, page: Number(page) || 1, limit: take, totalPages: Math.ceil(total / take) },
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

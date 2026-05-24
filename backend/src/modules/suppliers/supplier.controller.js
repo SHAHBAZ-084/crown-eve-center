@@ -3,8 +3,8 @@ const Supplier = require('./supplier.model');
 
 exports.getAll = async (req, res) => {
   try {
-    const suppliers = await Supplier.getAllSuppliers();
-    res.json(suppliers);
+    const result = await Supplier.getAllSuppliers(req.query);
+    res.json(result);
   } catch (e) {
     res.status(500).json({ message: e.message });
   }

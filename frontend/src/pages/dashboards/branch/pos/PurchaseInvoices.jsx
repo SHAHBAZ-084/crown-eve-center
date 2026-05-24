@@ -18,13 +18,13 @@ const PurchaseInvoices = ({ user, queryClient }) => {
 
   const { data: piSuppliers } = useQuery({
     queryKey: ['pi-suppliers'],
-    queryFn: () => api.get('/suppliers').then(r => r.data),
+    queryFn: () => api.get('/suppliers', { params: { limit: 200 } }).then((r) => r.data?.data ?? r.data ?? []),
   });
 
   const { data: piProducts, isLoading: loadingPiProducts } = useQuery({
     queryKey: ['pi-products', debouncedPiProductSearch],
     queryFn: () => api.get('/products', {
-      params: { branchId: user?.branchId, search: debouncedPiProductSearch, limit: 50 }
+      params: { branchId: user?.branchId, search: debouncedPiProductSearch, limit: 50, lite: '1' }
     }).then(r => r.data),
     enabled: !!debouncedPiProductSearch
   });

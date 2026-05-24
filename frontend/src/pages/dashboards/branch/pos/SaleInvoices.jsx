@@ -25,7 +25,7 @@ const SaleInvoices = ({ user, queryClient, onInvoiceGenerated }) => {
   const { data: siItems, isLoading: loadingSiItems } = useQuery({
     queryKey: ['si-items', siForm.type, debouncedSiItemSearch],
     queryFn: () => api.get('/products', {
-      params: { branchId: user?.branchId, product_type: siForm.type, search: debouncedSiItemSearch, limit: 50 }
+      params: { branchId: user?.branchId, product_type: siForm.type, search: debouncedSiItemSearch, limit: 50, lite: '1' }
     }).then(r => r.data),
     enabled: !!debouncedSiItemSearch
   });

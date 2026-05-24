@@ -7,7 +7,8 @@ const Suppliers = () => {
   const { user } = useOutletContext();
   const branchId = user?.branchId;
 
-  const { data: suppliers, loading, refetch } = useFetch("/suppliers");
+  const { data: suppliersRes, loading, refetch } = useFetch("/suppliers?limit=200");
+  const suppliers = suppliersRes?.data ?? suppliersRes ?? [];
   const { data: partsData } = useFetch("/parts?limit=200");
   const [showSupModal, setShowSupModal] = useState(false);
   const [showPOModal, setShowPOModal]   = useState(null); // supplier object

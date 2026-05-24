@@ -14,10 +14,16 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-        }
-      }
-    }
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return;
+          if (id.includes('framer-motion')) return 'motion';
+          if (id.includes('recharts')) return 'charts';
+          if (id.includes('@tanstack')) return 'query';
+          if (id.includes('lucide-react')) return 'icons';
+          if (id.includes('react-dom') || id.includes('react-router')) return 'vendor';
+          return 'vendor-libs';
+        },
+      },
+    },
   }
 })

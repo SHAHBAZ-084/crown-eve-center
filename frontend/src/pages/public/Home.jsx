@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getImgUrl } from '../../utils/imgUrl';
-import { getApiUrl } from '../../utils/apiUrl';
+import { useHomeData } from '../../hooks/useHomeData';
+import PageSkeleton from '../../components/ui/PageSkeleton';
 import './Home.css';
 
 const Home = () => {
@@ -10,21 +11,21 @@ const Home = () => {
   const navigate = useNavigate();
 
   const R2_PUBLIC_URL = import.meta.env.VITE_R2_PUBLIC_URL;
-  const images = R2_PUBLIC_URL
-    ? [`${R2_PUBLIC_URL}/hero-1.webp`, `${R2_PUBLIC_URL}/hero-2.webp`, `${R2_PUBLIC_URL}/hero-3.webp`]
-    : ['/hero-1.png', '/hero-2.png', '/hero-3.png'];
+  const images = useMemo(
+    () =>
+      R2_PUBLIC_URL
+        ? [`${R2_PUBLIC_URL}/hero-1.webp`, `${R2_PUBLIC_URL}/hero-2.webp`, `${R2_PUBLIC_URL}/hero-3.webp`]
+        : ['/hero-1.png', '/hero-2.png', '/hero-3.png'],
+    [R2_PUBLIC_URL]
+  );
 
+  const { services, products, testimonials, isLoading } = useHomeData();
   const [currentImg, setCurrentImg] = useState(0);
-  const [services, setServices] = useState([]);
-  const [servicesLoading, setServicesLoading] = useState(true);
-  const [products, setProducts] = useState([]);
-  const [productsLoading, setProductsLoading] = useState(true);
-  const [testimonials, setTestimonials] = useState([]);
   const [expandedTestimonial, setExpandedTestimonial] = useState(null);
 
-  const toggleTestimonial = (id) => {
-    setExpandedTestimonial(expandedTestimonial === id ? null : id);
-  };
+  const toggleTestimonial = useCallback((id) => {
+    setExpandedTestimonial((prev) => (prev === id ? null : id));
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -33,25 +34,9 @@ const Home = () => {
     return () => clearInterval(timer);
   }, [images.length]);
 
-  useEffect(() => {
-    const API = getApiUrl();
-
-    Promise.all([
-      fetch(`${API}/services`).then(r => r.json()).catch(() => []),
-      fetch(`${API}/products?product_type=bike&limit=3`).then(r => r.json()).catch(() => ({ data: [] })),
-      fetch(`${API}/testimonials`).then(r => r.json()).catch(() => [])
-    ]).then(([svc, prod, testi]) => {
-      setServices(svc);
-      setProducts(prod.data || (Array.isArray(prod) ? prod : []));
-      setTestimonials(testi);
-      setServicesLoading(false);
-      setProductsLoading(false);
-    }).catch(err => {
-      console.error('Failed to load home page data:', err);
-      setServicesLoading(false);
-      setProductsLoading(false);
-    });
-  }, []);
+  if (isLoading) {
+    return <PageSkeleton rows={6} />;
+  }
 
   return (
     <div id="page-home" className="page">
@@ -123,17 +108,7 @@ const Home = () => {
           <Link to="/shop" className="view-all">View all bikes →</Link>
         </div>
         <div className="products-grid three-cols">
-          {productsLoading ? (
-            [...Array(3)].map((_, i) => (
-              <div key={i} className="product-card skeleton-card">
-                <div className="product-card-img" style={{ height: '300px', background: 'var(--black3)' }}></div>
-                <div className="product-card-body">
-                  <div style={{ height: '20px', width: '60%', background: 'var(--black3)', marginBottom: '10px' }}></div>
-                  <div style={{ height: '30px', width: '80%', background: 'var(--black3)' }}></div>
-                </div>
-              </div>
-            ))
-          ) : products.length > 0 ? (
+          {products.length > 0 ? (
             products.slice(0, 3).map((p) => (
               <div key={p.id} className="product-card bike-card-new" onClick={() => navigate(`/product/${p.id}`)}>
                 <div className="product-card-img">
@@ -179,20 +154,7 @@ const Home = () => {
         <h2 className="section-title">Our<br /><span style={{ color: 'var(--orange)' }}>Services.</span></h2>
         <div className="services-layout">
           <div className="services-list">
-            {servicesLoading ? (
-              // Simple skeleton — shows while loading
-              [...Array(5)].map((_, i) => (
-                <div key={i} className="service-item" style={{ opacity: 0.4 }}>
-                  <div className="service-item-left">
-                    <span className="service-item-num">0{i + 1}</span>
-                    <div>
-                      <div className="service-item-name" style={{ background: 'rgba(0,0,0,0.05)', height: '16px', width: '160px', borderRadius: '4px' }} />
-                      <div className="service-item-price" style={{ background: 'rgba(0,0,0,0.04)', height: '12px', width: '100px', borderRadius: '4px', marginTop: '6px' }} />
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : services.length > 0 ? (
+            {services.length > 0 ? (
               services.slice(0, 6).map((service, i) => (
                 <div key={service.id} className="service-item">
                   <div className="service-item-left">

@@ -111,6 +111,10 @@ model Product {
   @@index([branchId])
   @@index([categoryId])
   @@index([brandId])
+  @@index([product_type])
+  @@index([branchId, product_type])
+  @@index([name])
+  @@index([is_active])
 }
 
 model Bike {
@@ -306,6 +310,8 @@ model Supplier {
   purchases Purchase[]
   accountId String?    @unique
   account   Account?   @relation("SupplierAccount", fields: [accountId], references: [id])
+
+  @@index([name])
 }
 
 model Purchase {
@@ -383,6 +389,7 @@ model WalkInCustomer {
 
   @@index([branchId])
   @@index([phone])
+  @@index([branchId, accountId])
 }
 
 model Bank {
