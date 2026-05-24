@@ -69,7 +69,7 @@ const DashboardPage = () => {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
+      <div className="dashboard-compare-grid">
         <div className="card card-inner">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <div style={{ fontWeight: 700, fontSize: 15 }}>Branch Revenue Comparison</div>
@@ -115,26 +115,28 @@ const DashboardPage = () => {
           <span className="badge badge-blue">Live</span>
         </div>
         {!orders ? <TableSk rows={5} cols={5} /> : (
-          <table>
-            <thead>
-              <tr>
-                <th>Order #</th><th>Branch</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders?.data?.slice(0, 6).map(o => (
-                <tr key={o.id}>
-                  <td><span style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}>#{o.id}</span></td>
-                  <td style={{ fontSize: 13, color: "var(--muted)" }}>{o.branch?.name || "—"}</td>
-                  <td style={{ fontSize: 13 }}>{o.customer?.name || "—"}</td>
-                  <td style={{ fontWeight: 700, color: "var(--accent)" }}>PKR {(o.total ?? 0).toFixed(2)}</td>
-                  <td><OrderBadge status={o.status} /></td>
-                  <td style={{ fontSize: 12, color: "var(--muted)" }}>{new Date(o.createdAt).toLocaleDateString()}</td>
+          <div style={{ overflowX: 'auto', paddingBottom: '10px' }}>
+            <table style={{ minWidth: '600px' }}>
+              <thead>
+                <tr>
+                  <th>Order #</th><th>Branch</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th>
                 </tr>
-              ))}
-              {orders?.data?.length === 0 && <tr><td colSpan={6}><div className="empty"><Icon name="orders" /><div className="empty-title">No orders</div></div></td></tr>}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {orders?.data?.slice(0, 6).map(o => (
+                  <tr key={o.id}>
+                    <td><span style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}>#{o.id}</span></td>
+                    <td style={{ fontSize: 13, color: "var(--muted)" }}>{o.branch?.name || "—"}</td>
+                    <td style={{ fontSize: 13 }}>{o.customer?.name || "—"}</td>
+                    <td style={{ fontWeight: 700, color: "var(--accent)" }}>PKR {(o.total ?? 0).toFixed(2)}</td>
+                    <td><OrderBadge status={o.status} /></td>
+                    <td style={{ fontSize: 12, color: "var(--muted)" }}>{new Date(o.createdAt).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+                {orders?.data?.length === 0 && <tr><td colSpan={6}><div className="empty"><Icon name="orders" /><div className="empty-title">No orders</div></div></td></tr>}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

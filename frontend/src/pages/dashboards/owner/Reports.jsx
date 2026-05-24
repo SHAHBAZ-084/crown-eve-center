@@ -56,7 +56,7 @@ const ReportsPage = () => {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
+      <div className="dashboard-compare-grid">
         <div className="card card-inner">
           <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 20 }}>Revenue Trend ({period})</div>
           {!chart ? <Sk h={160} r={8} /> : (
@@ -102,20 +102,22 @@ const ReportsPage = () => {
       <div className="card">
         <div style={{ padding: "20px 20px 0", fontWeight: 700, fontSize: 15, marginBottom: 16 }}>Branch Performance Ledger</div>
         {!compare ? <TableSk rows={4} cols={4} /> : (
-          <table>
-            <thead><tr><th>#</th><th>Branch</th><th>Revenue</th><th>Orders</th><th>Avg Order</th></tr></thead>
-            <tbody>
-              {compare.sort((a, b) => b.revenue - a.revenue).map((b, i) => (
-                <tr key={b.name}>
-                  <td style={{ fontWeight: 700, color: i === 0 ? "var(--accent)" : "var(--muted)" }}>{i + 1}</td>
-                  <td style={{ fontWeight: 600 }}>{b.name}</td>
-                  <td style={{ fontWeight: 700, color: "var(--accent)" }}>PKR {b.revenue.toLocaleString()}</td>
-                  <td>{b.orderCount}</td>
-                  <td style={{ color: "var(--muted)" }}>PKR {b.orderCount > 0 ? (b.revenue / b.orderCount).toLocaleString() : "0.00"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div style={{ overflowX: 'auto', paddingBottom: '10px' }}>
+            <table>
+              <thead><tr><th>#</th><th>Branch</th><th>Revenue</th><th>Orders</th><th>Avg Order</th></tr></thead>
+              <tbody>
+                {compare.sort((a, b) => b.revenue - a.revenue).map((b, i) => (
+                  <tr key={b.name}>
+                    <td style={{ fontWeight: 700, color: i === 0 ? "var(--accent)" : "var(--muted)" }}>{i + 1}</td>
+                    <td style={{ fontWeight: 600 }}>{b.name}</td>
+                    <td style={{ fontWeight: 700, color: "var(--accent)" }}>PKR {b.revenue.toLocaleString()}</td>
+                    <td>{b.orderCount}</td>
+                    <td style={{ color: "var(--muted)" }}>PKR {b.orderCount > 0 ? (b.revenue / b.orderCount).toLocaleString() : "0.00"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

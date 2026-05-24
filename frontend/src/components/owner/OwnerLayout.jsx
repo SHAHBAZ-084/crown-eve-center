@@ -1,5 +1,6 @@
 // frontend/src/components/owner/OwnerLayout.jsx
 import { Link, Outlet, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { Icon, ToastContainer } from "./OwnerShared";
 import "../../styles/owner.css";
@@ -21,13 +22,28 @@ const OwnerLayout = () => {
 
   const sections = [...new Set(NAV.map(n => n.section))];
   const currentPage = NAV.find(n => n.path === location.pathname);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
   const handleLogout = () => {
     logout();
     window.location.href = '/';
   };
 
   return (
-    <div className="owner-dashboard-root">
+    <div className={`owner-dashboard-root ${mobileOpen ? 'mobile-open' : ''}`}>
+      {/* Mobile backdrop */}
+      {mobileOpen && (
+        <div 
+          className="modal-backdrop" 
+          style={{ zIndex: 999 }} 
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
       <div className="shell">
         {/* Sidebar */}
         <div id="owner-sidebar-fixed">
@@ -73,7 +89,16 @@ const OwnerLayout = () => {
         {/* Main */}
         <main className="main">
           <div className="topbar">
-            <div className="topbar-title">{currentPage?.label?.toUpperCase() || "DASHBOARD"}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <button 
+                className="btn-icon d-lg-none" 
+                style={{ border: 'none', background: 'transparent' }}
+                onClick={() => setMobileOpen(true)}
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+              </button>
+              <div className="topbar-title">{currentPage?.label?.toUpperCase() || "DASHBOARD"}</div>
+            </div>
             <div className="topbar-right">
               <div className="live-badge"><span className="live-dot" />Live Control Panel</div>
             </div>

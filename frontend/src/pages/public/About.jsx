@@ -41,15 +41,15 @@ const About = () => {
             </div>
           </div>
         </div>
-        <div className="philosophy-image" style={{ 
-          borderRadius: '12px', 
+        <div className="philosophy-image" style={{
+          borderRadius: '12px',
           boxShadow: '0 30px 60px rgba(0,0,0,0.1)',
           overflow: 'hidden',
           display: 'flex'
         }}>
-          <img 
-            src="/legacy-bike.png" 
-            alt="Crown Eve Showroom" 
+          <img
+            src="/legacy-bike.png"
+            alt="Crown Eve Showroom"
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
         </div>
@@ -75,11 +75,11 @@ const About = () => {
           <div className="founder-content">
             <h2>Mohsin Ashraf Ch</h2>
             <div className="founder-title">Founder & CEO, Crown Eve Center</div>
-            
+
             <div className="founder-quote">
               "Our vision is to establish an ecosystem of unmatched trust and engineering excellence, ensuring every rider experiences ultimate safety, quality, and innovation on the road."
             </div>
-            
+
             <div className="founder-text">
               <p style={{ marginBottom: '20px' }}>
                 At Crown Eve Center, our journey is defined by a relentless passion for empowering lives through premium, reliable, and progressive mobility solutions. We established this organization not merely to provide transportation, but to build a seamless ecosystem of trust, outstanding service quality, and genuine automotive standards that redefine the journey for every rider in Pakistan.
@@ -88,7 +88,7 @@ const About = () => {
                 By integrating state-of-the-art diagnostic technologies, forward-thinking electric mobility solutions, and a comprehensive suite of best-in-class lithium-ion batteries and high-performance motors, we are raising the bar for automotive integrity. Our promise is to deliver robust, future-ready support that stands as a lifelong companion to your aspirations.
               </p>
             </div>
-            
+
             <div className="founder-signature">Mohsin Ashraf</div>
           </div>
         </div>
@@ -98,11 +98,11 @@ const About = () => {
           <div className="founder-content">
             <h2>Sufi Muhammad Saleemullah</h2>
             <div className="founder-title">Co-Founder, Crown Eve Center</div>
-            
+
             <div className="founder-quote">
               "True innovation lies in bridging advanced technology with local accessibility, creating pathways for a sustainable future."
             </div>
-            
+
             <div className="founder-text">
               <p style={{ marginBottom: '20px' }}>
                 At Crown Eve Center, we are driven by the vision of transforming Pakistan's urban transit landscape. As Co-Founder, my commitment is to pioneer advanced engineering, smart battery solutions, and smart electric vehicle platforms that empower the modern commuter. We are not just creating products; we are crafting the future of reliable, sustainable mobility.
@@ -111,7 +111,7 @@ const About = () => {
                 Through high-quality design, meticulous quality testing, and a dedicated EV battery and component support network, we ensure our riders receive world-class value. Together, we are building a safer, cleaner, and more progressive road ahead for everyone.
               </p>
             </div>
-            
+
             <div className="founder-signature">Sufi Muhammad Saleemullah</div>
           </div>
           <div className="founder-image-wrapper">
@@ -124,17 +124,17 @@ const About = () => {
       {/* PHILOSOPHY SECTION */}
       <section className="about-philosophy">
         <div className="philosophy-grid">
-          <div className="philosophy-video-wrapper" style={{ 
-            borderRadius: '12px', 
+          <div className="philosophy-video-wrapper" style={{
+            borderRadius: '12px',
             boxShadow: '0 30px 60px rgba(0,0,0,0.3)',
             overflow: 'hidden',
             height: '600px'
           }}>
-            <video 
-              src="/about-philosophy.webm" 
-              autoPlay 
-              loop 
-              muted 
+            <video
+              src="/about-philosophy.webm"
+              autoPlay
+              loop
+              muted
               playsInline
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
@@ -184,7 +184,7 @@ const About = () => {
             <h2>Rate Your Experience</h2>
             <p>Your feedback helps us improve and serves our community of riders.</p>
           </div>
-          
+
           <form className="rate-us-form" onSubmit={async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
@@ -222,7 +222,7 @@ const About = () => {
                 <input type="text" name="role" placeholder="e.g. KTM Duke Owner" />
               </div>
             </div>
-            
+
             <div className="form-group">
               <label>Rating</label>
               <select name="stars" required>

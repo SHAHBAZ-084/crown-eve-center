@@ -10,7 +10,7 @@ const Home = () => {
   const navigate = useNavigate();
 
   const R2_PUBLIC_URL = import.meta.env.VITE_R2_PUBLIC_URL;
-  const images = R2_PUBLIC_URL 
+  const images = R2_PUBLIC_URL
     ? [`${R2_PUBLIC_URL}/hero-1.webp`, `${R2_PUBLIC_URL}/hero-2.webp`, `${R2_PUBLIC_URL}/hero-3.webp`]
     : ['/hero-1.png', '/hero-2.png', '/hero-3.png'];
 
@@ -320,7 +320,7 @@ const Home = () => {
             testimonials.slice(0, 3).map((t, idx) => (
               <div key={t.id || idx} className="testimonial-card">
                 <div className="stars">{'★'.repeat(t.stars)}{'☆'.repeat(5 - t.stars)}</div>
-                <p 
+                <p
                   className={`testimonial-text ${expandedTestimonial === (t.id || idx) ? 'expanded' : ''}`}
                   onClick={() => toggleTestimonial(t.id || idx)}
                 >
@@ -339,7 +339,7 @@ const Home = () => {
             <>
               <div className="testimonial-card">
                 <div className="stars">★★★★★</div>
-                <p 
+                <p
                   className={`testimonial-text ${expandedTestimonial === 'fallback-1' ? 'expanded' : ''}`}
                   onClick={() => toggleTestimonial('fallback-1')}
                 >
@@ -355,7 +355,7 @@ const Home = () => {
               </div>
               <div className="testimonial-card">
                 <div className="stars">★★★★★</div>
-                <p 
+                <p
                   className={`testimonial-text ${expandedTestimonial === 'fallback-2' ? 'expanded' : ''}`}
                   onClick={() => toggleTestimonial('fallback-2')}
                 >
@@ -371,7 +371,7 @@ const Home = () => {
               </div>
               <div className="testimonial-card">
                 <div className="stars">★★★★★</div>
-                <p 
+                <p
                   className={`testimonial-text ${expandedTestimonial === 'fallback-3' ? 'expanded' : ''}`}
                   onClick={() => toggleTestimonial('fallback-3')}
                 >

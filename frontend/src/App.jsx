@@ -69,71 +69,71 @@ const App = () => {
       <CartProvider>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <Suspense fallback={<FullPageSkeleton />}>
-          <Routes>
-            <Route element={<Layout isPublic />}>
-              <Route path="/" element={<Home />} />
-              <Route path="/shop" element={<CustomerShop />} />
-              <Route path="/product/:id" element={<ProductDetail />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              
-              {/* Semi-protected routes: Guest cannot access, but they use the public layout */}
-              <Route path="/track/:id" element={<ProtectedRoute><TrackOrder /></ProtectedRoute>} />
-              <Route path="/cart" element={<PublicCart />} />
-              <Route path="/checkout" element={<PublicCheckout />} />
-            </Route>
+            <Routes>
+              <Route element={<Layout isPublic />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/shop" element={<CustomerShop />} />
+                <Route path="/product/:id" element={<ProductDetail />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
 
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot" element={<Forgot />} />
+                {/* Semi-protected routes: Guest cannot access, but they use the public layout */}
+                <Route path="/track/:id" element={<ProtectedRoute><TrackOrder /></ProtectedRoute>} />
+                <Route path="/cart" element={<PublicCart />} />
+                <Route path="/checkout" element={<PublicCheckout />} />
+              </Route>
 
-            {/* Owner App Shell - TEMPORARILY OPEN FOR TESTING */}
-            <Route element={<ProtectedRoute allowedRoles={['COMPANY_OWNER']}><OwnerLayout /></ProtectedRoute>}>
-              <Route path="/owner/dashboard" element={<OwnerDashboard />} />
-              <Route path="/owner/branches"  element={<OwnerBranches />} />
-              <Route path="/owner/parts"     element={<OwnerParts />} />
-              <Route path="/owner/users"     element={<OwnerUsers />} />
-              <Route path="/owner/reports"   element={<OwnerReports />} />
-              <Route path="/owner/settings"  element={<OwnerSettings />} />
-              <Route path="/owner/orders"    element={<OwnerOrders />} />
-              <Route path="/owner/purchases" element={<OwnerPurchases />} />
-            </Route>
-            
-            {/* Branch Routes - Outside main Layout to avoid double sidebar */}
-            <Route element={<ProtectedRoute allowedRoles={['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER']}><BranchLayout /></ProtectedRoute>}>
-              <Route path="/branch"              element={<Navigate to="/branch/dashboard" replace />} />
-              <Route path="/branch/dashboard"    element={<BranchDashboard />} />
-              <Route path="/branch/products"     element={<BranchProducts />} />
-              <Route path="/branch/inventory"    element={<BranchInventory />} />
-              <Route path="/branch/orders"       element={<BranchOrders />} />
-              <Route path="/branch/services"     element={<BranchServices />} />
-              <Route path="/branch/appointments" element={<BranchAppointments />} />
-              <Route path="/branch/suppliers"    element={<BranchSuppliers />} />
-              <Route path="/branch/reports"      element={<BranchReports />} />
-              <Route path="/branch/settings"     element={<BranchSettings />} />
-            </Route>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot" element={<Forgot />} />
 
-            {/* Customer Portal - Premium Dashboard Shell */}
-            <Route element={<ProtectedRoute allowedRoles={['CUSTOMER']}><CustomerLayout /></ProtectedRoute>}>
-              <Route path="/my/dashboard" element={<CustomerDashboard />} />
-              <Route path="/my/orders"    element={<CustomerOrders />} />
-              <Route path="/my/bookings"  element={<CustomerBookings />} />
-              <Route path="/my/profile"   element={<CustomerProfile />} />
-              <Route path="/my/shop"      element={<CustomerShop />} />
-              <Route path="/my/cart"      element={<CustomerCart />} />
-              <Route path="/my/checkout"  element={<CustomerCheckout />} />
-              <Route path="/track/:id"    element={<CustomerTrack />} />
-              <Route path="/appointments" element={<Appointments />} />
-            </Route>
+              {/* Owner App Shell - TEMPORARILY OPEN FOR TESTING */}
+              <Route element={<ProtectedRoute allowedRoles={['COMPANY_OWNER']}><OwnerLayout /></ProtectedRoute>}>
+                <Route path="/owner/dashboard" element={<OwnerDashboard />} />
+                <Route path="/owner/branches" element={<OwnerBranches />} />
+                <Route path="/owner/parts" element={<OwnerParts />} />
+                <Route path="/owner/users" element={<OwnerUsers />} />
+                <Route path="/owner/reports" element={<OwnerReports />} />
+                <Route path="/owner/settings" element={<OwnerSettings />} />
+                <Route path="/owner/orders" element={<OwnerOrders />} />
+                <Route path="/owner/purchases" element={<OwnerPurchases />} />
+              </Route>
+
+              {/* Branch Routes - Outside main Layout to avoid double sidebar */}
+              <Route element={<ProtectedRoute allowedRoles={['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER']}><BranchLayout /></ProtectedRoute>}>
+                <Route path="/branch" element={<Navigate to="/branch/dashboard" replace />} />
+                <Route path="/branch/dashboard" element={<BranchDashboard />} />
+                <Route path="/branch/products" element={<BranchProducts />} />
+                <Route path="/branch/inventory" element={<BranchInventory />} />
+                <Route path="/branch/orders" element={<BranchOrders />} />
+                <Route path="/branch/services" element={<BranchServices />} />
+                <Route path="/branch/appointments" element={<BranchAppointments />} />
+                <Route path="/branch/suppliers" element={<BranchSuppliers />} />
+                <Route path="/branch/reports" element={<BranchReports />} />
+                <Route path="/branch/settings" element={<BranchSettings />} />
+              </Route>
+
+              {/* Customer Portal - Premium Dashboard Shell */}
+              <Route element={<ProtectedRoute allowedRoles={['CUSTOMER']}><CustomerLayout /></ProtectedRoute>}>
+                <Route path="/my/dashboard" element={<CustomerDashboard />} />
+                <Route path="/my/orders" element={<CustomerOrders />} />
+                <Route path="/my/bookings" element={<CustomerBookings />} />
+                <Route path="/my/profile" element={<CustomerProfile />} />
+                <Route path="/my/shop" element={<CustomerShop />} />
+                <Route path="/my/cart" element={<CustomerCart />} />
+                <Route path="/my/checkout" element={<CustomerCheckout />} />
+                <Route path="/track/:id" element={<CustomerTrack />} />
+                <Route path="/appointments" element={<Appointments />} />
+              </Route>
 
 
 
-            <Route path="/branch/pos" element={<ProtectedRoute allowedRoles={['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER']}><BranchPOS /></ProtectedRoute>} />
+              <Route path="/branch/pos" element={<ProtectedRoute allowedRoles={['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER']}><BranchPOS /></ProtectedRoute>} />
 
-            <Route path="/unauthorized" element={<div>Unauthorized Access</div>} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
+              <Route path="/unauthorized" element={<div>Unauthorized Access</div>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </CartProvider>
     </AuthProvider>
