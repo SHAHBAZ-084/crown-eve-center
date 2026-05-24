@@ -76,7 +76,7 @@ body::before {
 /* ── NAVBAR ── */
 /* ── Logo size control: change --logo-size to resize the navbar logo everywhere ── */
 :root {
-  --logo-size: 110px;
+  --logo-size: 65px;
   --nav-height: calc(var(--logo-size) + 18px);
 }
 
