@@ -30,7 +30,12 @@ function createPrismaClient() {
 
   if (useNeonAdapter()) {
     const { PrismaNeon } = require('@prisma/adapter-neon');
-    // HTTP driver — no WebSocket pool (can hang on Hostinger and block startup).
+    const { neonConfig } = require('@neondatabase/serverless');
+    const ws = require('ws');
+
+    // Set up WebSocket constructor for Node.js environments without a global WebSocket object
+    neonConfig.webSocketConstructor = ws;
+
     const adapter = new PrismaNeon({ connectionString: databaseUrl });
     return new PrismaClient({
       adapter,
