@@ -12,18 +12,35 @@ app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
-app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'https://crown-eve-center.vercel.app',
-    'https://crown-eve-center-298d.vercel.app',
-    'https://crownevcenter.com',
-    'https://www.crownevcenter.com',
-    process.env.FRONTEND_URL
-  ].filter(Boolean),
-  credentials: true
-}));
+const corsOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'https://crown-eve-center.vercel.app',
+  'https://crown-eve-center-298d.vercel.app',
+  'https://crownevcenter.com',
+  'https://www.crownevcenter.com',
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+  if (corsOrigins.includes(origin)) return true;
+  if (/^https:\/\/([\w-]+\.)?crownevcenter\.com$/.test(origin)) return true;
+  if (/^http:\/\/localhost:\d+$/.test(origin)) return true;
+  return false;
+};
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (isAllowedOrigin(origin)) callback(null, origin || true);
+      else callback(null, false);
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Cache-Control'],
+  })
+);
 app.use(compression());
 app.use(express.json({ limit: '2mb' }));
 // NOTE: /uploads static removed — files served from Cloudflare R2

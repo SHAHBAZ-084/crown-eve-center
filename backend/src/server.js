@@ -5,32 +5,38 @@ const prisma = require('./config/db');
 const logger = require('./config/logger');
 
 const PORT = process.env.PORT || 5000;
+const DB_CONNECT_MS = Number(process.env.DB_CONNECT_TIMEOUT_MS) || 20000;
 
 const required = ['DATABASE_URL', 'JWT_SECRET'];
 const missing = required.filter((key) => !process.env[key]);
 if (missing.length) {
   logger.error(
-    `Missing env: ${missing.join(', ')}. Set them in Hostinger hPanel → Node.js → Environment variables (do not rely on .env uploads).`
+    `Missing env: ${missing.join(', ')}. Set them in Hostinger hPanel → Node.js → Environment variables.`
   );
   process.exit(1);
 }
 
-async function start() {
-  try {
-    await prisma.$connect();
-    await prisma.$queryRaw`SELECT 1`;
-    logger.info('Database connected');
-  } catch (err) {
-    logger.error('Database connection failed at startup', {
-      message: err.message,
-      stack: err.stack,
-    });
-    process.exit(1);
-  }
-
-  app.listen(PORT, () => {
-    logger.info(`Server running on port ${PORT}`);
+async function connectDatabase() {
+  const timeout = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error(`Database connection timed out after ${DB_CONNECT_MS}ms`)), DB_CONNECT_MS);
   });
+
+  await Promise.race([
+    (async () => {
+      await prisma.$connect();
+      await prisma.$queryRaw`SELECT 1`;
+    })(),
+    timeout,
+  ]);
+  logger.info('Database connected');
 }
 
-start();
+// Listen first — prevents Hostinger 504 and browser "CORS" false alarms when DB is slow.
+app.listen(PORT, () => {
+  logger.info(`Server running on port ${PORT}`);
+  connectDatabase().catch((err) => {
+    logger.error('Database connection failed — fix DATABASE_URL / Neon and restart', {
+      message: err.message,
+    });
+  });
+});

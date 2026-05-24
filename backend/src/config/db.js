@@ -1,5 +1,4 @@
-// Singleton PrismaClient — Neon adapter on production avoids native engine panics
-// ("PANIC: timer has gone away") on Hostinger shared Node hosting.
+// Singleton PrismaClient — Neon HTTP adapter avoids native engine panics on Hostinger.
 
 const { PrismaClient } = require('@prisma/client');
 
@@ -17,7 +16,6 @@ const useNeonAdapter = () => {
   if (process.env.PRISMA_NEON_ADAPTER === '1') return true;
   const url = process.env.DATABASE_URL || '';
   if (!url) return false;
-  // Neon pooled/direct URLs, or any production deploy (Hostinger) — skip native engine.
   if (url.includes('neon.tech') || url.includes('neon.database')) return true;
   return process.env.NODE_ENV === 'production';
 };
@@ -31,18 +29,9 @@ function createPrismaClient() {
   }
 
   if (useNeonAdapter()) {
-    const { Pool, neonConfig } = require('@neondatabase/serverless');
     const { PrismaNeon } = require('@prisma/adapter-neon');
-
-    try {
-      const ws = require('ws');
-      neonConfig.webSocketConstructor = ws;
-    } catch {
-      // Node 20+ may work without explicit ws; ignore if package missing locally.
-    }
-
-    const pool = new Pool({ connectionString: databaseUrl });
-    const adapter = new PrismaNeon(pool);
+    // HTTP driver — no WebSocket pool (can hang on Hostinger and block startup).
+    const adapter = new PrismaNeon({ connectionString: databaseUrl });
     return new PrismaClient({
       adapter,
       log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
