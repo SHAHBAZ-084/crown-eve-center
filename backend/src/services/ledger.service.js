@@ -141,9 +141,9 @@ const ensureWalkInCustomerAccount = async (tx, walkInCustomerId, branchId) => {
   const account = await getOrCreateAccountWithLedger(
     tx,
     branchId,
-    'CUSTOMER',
+    'WALK-IN CUSTOMER',
     walkIn.phone ? `${accName} (${walkIn.phone})` : accName,
-    'Customer receivable accounts'
+    'Walk-in customer receivable accounts'
   );
 
   await tx.walkInCustomer.update({
@@ -159,7 +159,7 @@ const ensureOnlineCustomerAccount = async (tx, customerId, branchId) => {
 
   const accountName = `Online - ${user.name} (${user.email})`;
   const bId = Number(branchId);
-  const cat = await getOrCreateCategory(tx, bId, 'CUSTOMER', 'Customer receivable accounts');
+  const cat = await getOrCreateCategory(tx, bId, 'ONLINE CUSTOMER', 'Online customer receivable accounts');
 
   let account = await tx.account.findFirst({
     where: { categoryId: cat.id, account_name: accountName, branchId: bId },
@@ -170,9 +170,9 @@ const ensureOnlineCustomerAccount = async (tx, customerId, branchId) => {
     account = await getOrCreateAccountWithLedger(
       tx,
       branchId,
-      'CUSTOMER',
+      'ONLINE CUSTOMER',
       accountName,
-      'Customer receivable accounts'
+      'Online customer receivable accounts'
     );
   }
   return account;

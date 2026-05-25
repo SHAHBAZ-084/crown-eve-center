@@ -74,12 +74,12 @@ exports.create = async (req, res) => {
       });
 
       let cat = await tx.accountCategory.findFirst({ 
-        where: { name: 'CUSTOMER', branchId: parseInt(branchId) } 
+        where: { name: 'WALK-IN CUSTOMER', branchId: parseInt(branchId) } 
       });
       
       if (!cat) {
         cat = await tx.accountCategory.create({ 
-          data: { name: 'CUSTOMER', description: 'System Customer Ledgers', branchId: parseInt(branchId) } 
+          data: { name: 'WALK-IN CUSTOMER', description: 'Walk-in customer receivable accounts', branchId: parseInt(branchId) } 
         });
       }
 
