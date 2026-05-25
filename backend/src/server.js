@@ -6,7 +6,7 @@ function serveCrashReport(err) {
     res.end('Crown Eve API Startup Error:\\n\\n' + (err ? err.stack : 'Unknown error'));
   });
   const port = process.env.PORT || 3000;
-  server.listen(port, () => console.log(`[fallback] Serving crash report on port ${port}`));
+  server.listen(port, '0.0.0.0', () => console.log(`[fallback] Serving crash report on 0.0.0.0:${port}`));
 }
 
 process.on('uncaughtException', (err) => {
@@ -53,9 +53,9 @@ async function connectDatabase() {
 }
 
 // Listen first — prevents Hostinger 504 and browser "CORS" false alarms when DB is slow.
-app.listen(PORT, () => {
-  console.log(`[startup] Crown Eve API listening on ${PORT} (NODE_ENV=${process.env.NODE_ENV || 'development'})`);
-  logger.info(`Server running on ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`[startup] Crown Eve API listening on 0.0.0.0:${PORT} (NODE_ENV=${process.env.NODE_ENV || 'development'})`);
+  logger.info(`Server running on 0.0.0.0:${PORT}`);
   connectDatabase().catch((err) => {
     logger.error('Database connection failed — fix DATABASE_URL / Neon and restart', {
       message: err.message,
