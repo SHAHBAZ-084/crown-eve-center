@@ -71,7 +71,7 @@ const Inventory = () => {
             <Icon n="plus" size={20} />
           </div>
           <div>
-            <div style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 1 }}>Stock In (Weekly)</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 1 }}>Total Stock In</div>
             <div style={{ fontSize: 24, fontWeight: 800, color: "#22c55e" }}>{summary?.weeklyIn || 0} <span style={{ fontSize: 12, fontWeight: 500, color: "var(--muted)" }}>units</span></div>
           </div>
         </div>
@@ -80,7 +80,7 @@ const Inventory = () => {
             <Icon n="orders" size={20} />
           </div>
           <div>
-            <div style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 1 }}>Stock Out (Weekly)</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 1 }}>Total Stock Out</div>
             <div style={{ fontSize: 24, fontWeight: 800, color: "#0ea5e9" }}>{summary?.weeklyOut || 0} <span style={{ fontSize: 12, fontWeight: 500, color: "var(--muted)" }}>units</span></div>
           </div>
         </div>

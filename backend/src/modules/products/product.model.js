@@ -138,16 +138,86 @@ const getProductById = async (id) => {
   }
 };
 
-const createProduct = (data) => prisma.product.create({
-  data,
-  include: { bikeDetail: true, partDetail: true, images: true }
-});
+const createProduct = async (data) => {
+  return prisma.$transaction(async (tx) => {
+    // 1. Create the base product
+    const product = await tx.product.create({
+      data,
+      include: { bikeDetail: true, partDetail: true, images: true, category: true }
+    });
 
-const updateProduct = (id, data) => prisma.product.update({
-  where: { id },
-  data,
-  include: { bikeDetail: true, partDetail: true, images: true }
-});
+    // 2. If it's a part, automatically create the global Part and local Inventory
+    if (product.product_type === 'part') {
+      const part = await tx.part.create({
+        data: {
+          name: product.name,
+          category: product.category ? product.category.name : 'Uncategorized',
+          price: product.price,
+          stock: product.stock_qty || 0
+        }
+      });
+
+      await tx.productPart.create({
+        data: { productId: product.id, partId: part.id, quantity: 1 }
+      });
+
+      await tx.inventory.create({
+        data: { branchId: product.branchId, partId: part.id, stock: product.stock_qty || 0, alertAt: 5 }
+      });
+    }
+
+    return product;
+  });
+};
+
+const updateProduct = async (id, data) => {
+  return prisma.$transaction(async (tx) => {
+    // 1. Get the current product to see if it's linked to a Part
+    const oldProduct = await tx.product.findUnique({
+      where: { id },
+      include: { productParts: true, category: true }
+    });
+
+    // 2. Update the base product
+    const product = await tx.product.update({
+      where: { id },
+      data,
+      include: { bikeDetail: true, partDetail: true, images: true, category: true }
+    });
+
+    // 3. Sync changes to Part and Inventory if applicable
+    if (product.product_type === 'part' && oldProduct?.productParts?.length > 0) {
+      const partId = oldProduct.productParts[0].partId;
+      
+      // Update global Part
+      await tx.part.update({
+        where: { id: partId },
+        data: {
+          name: product.name,
+          category: product.category ? product.category.name : (oldProduct.category ? oldProduct.category.name : 'Uncategorized'),
+          price: product.price,
+          // Only sync stock if it was actually provided in the update
+          ...(data.stock_qty !== undefined && { stock: product.stock_qty })
+        }
+      });
+
+      // Update Branch Inventory
+      if (data.stock_qty !== undefined) {
+        const inv = await tx.inventory.findFirst({
+          where: { branchId: product.branchId, partId: partId }
+        });
+        if (inv) {
+          await tx.inventory.update({
+            where: { id: inv.id },
+            data: { stock: product.stock_qty }
+          });
+        }
+      }
+    }
+
+    return product;
+  });
+};
 
 const deleteProduct = (id) => prisma.product.delete({
   where: { id }

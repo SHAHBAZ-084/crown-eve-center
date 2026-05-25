@@ -169,39 +169,45 @@ const getInventorySummary = async (branchId) => {
   `;
   const lowStockCount = lowStockResult[0]?.count || 0;
 
-  const [weeklyOutOrders, weeklyInPurchases, weeklyAdjustments] = await Promise.all([
-    // 2. Weekly Out (Sales/Orders)
+  const [totalOutOrders, totalInPurchases, totalAdjustments] = await Promise.all([
+    // 2. Total Out (Sales/Orders)
     prisma.orderItem.aggregate({
       where: {
         order: {
-          branchId: bId,
-          createdAt: { gte: lastWeek }
+          branchId: bId
         }
       },
       _sum: { quantity: true }
     }),
-    // 3. Weekly In (Purchases/Restock)
+    // 3. Total In (Purchases/Restock)
     prisma.purchaseItem.aggregate({
       where: {
         purchase: {
-          branchId: bId,
-          createdAt: { gte: lastWeek }
+          branchId: bId
         }
       },
       _sum: { quantity: true }
     }),
-    // 4. Weekly Manual Adjustments
+    // 4. Total Manual Adjustments
     prisma.stockAdjustment.aggregate({
       where: {
-        branchId: bId,
-        createdAt: { gte: lastWeek }
+        branchId: bId
       },
       _sum: { quantity: true }
     })
   ]);
 
-  const totalOut = (weeklyOutOrders._sum.quantity || 0) + (weeklyAdjustments._sum.quantity < 0 ? Math.abs(weeklyAdjustments._sum.quantity) : 0);
-  const totalIn = (weeklyInPurchases._sum.quantity || 0) + (weeklyAdjustments._sum.quantity > 0 ? weeklyAdjustments._sum.quantity : 0);
+  const totalOut = (totalOutOrders._sum.quantity || 0) + (totalAdjustments._sum.quantity < 0 ? Math.abs(totalAdjustments._sum.quantity) : 0);
+  
+  // To account for seeded products that don't have stock adjustment logs, we can calculate total in as:
+  // Current Stock On Hand + Total Sold
+  const currentStock = await prisma.inventory.aggregate({
+    where: { branchId: bId },
+    _sum: { stock: true }
+  });
+  
+  // Total In = What we have now + What we already sold
+  const totalIn = (currentStock._sum.stock || 0) + totalOut;
 
   return {
     lowStock: lowStockCount,
