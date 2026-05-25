@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../../../context/CartContext";
 import api from "../../../services/api";
+import { uploadImage } from "../../../utils/uploadMedia";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -84,16 +85,14 @@ const CheckoutPage = () => {
 
   const handleFileUpload = async (bId, file) => {
     if (!file) return;
-    const formData = new FormData();
-    formData.append('image', file);
     try {
-      const res = await api.post('/upload', formData);
+      const { url } = await uploadImage(file);
       setPaymentData(prev => ({
         ...prev,
-        [bId]: { ...prev[bId], payment_screenshot: res.data.url }
+        [bId]: { ...prev[bId], payment_screenshot: url },
       }));
     } catch (e) {
-      setError("Image upload failed.");
+      setError(e.message || 'Image upload failed.');
     }
   };
 

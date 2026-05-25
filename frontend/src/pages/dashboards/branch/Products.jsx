@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useFetch, apiFetch, toast, Icon, Modal, Confirm, UPLOAD_BASE } from "../../../components/branch/BranchShared";
 import { getImgUrl } from "../../../utils/imgUrl";
-import { getApiUrl } from "../../../utils/apiUrl";
+import { uploadImage } from "../../../utils/uploadMedia";
 
 const Products = () => {
   const { user } = useOutletContext();
@@ -556,20 +556,11 @@ const Products = () => {
                       onChange={async (e) => {
                         const file = e.target.files[0];
                         if (!file) return;
-                        const formData = new FormData();
-                        formData.append('image', file);
                         try {
-                          const res = await fetch(`${getApiUrl()}/upload`, {
-                            method: "POST",
-                            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-                            body: formData
-                          });
-                          const data = await res.json();
-                          if (data.url) {
-                            setForm(f => ({ ...f, images: f.images.map((im, j) => j === i ? { ...im, url: data.url } : im) }));
-                            toast("Image uploaded successfully");
-                          }
-                        } catch (err) { toast("Upload failed", "e"); }
+                          const { url } = await uploadImage(file);
+                          setForm(f => ({ ...f, images: f.images.map((im, j) => j === i ? { ...im, url } : im) }));
+                          toast("Image uploaded to Cloudflare");
+                        } catch (err) { toast(err.message || "Upload failed", "e"); }
                       }}
                     />
                   </button>

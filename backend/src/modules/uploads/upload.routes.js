@@ -1,69 +1,91 @@
-// backend/src/modules/uploads/upload.routes.js
-// Uploads go to Cloudflare R2 (S3-compatible) — no local disk needed
+// All website uploads (images + videos) → Cloudflare R2 only (no local disk).
 const express = require('express');
-const multer  = require('multer');
-const path    = require('path');
-const { S3Client, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
-const router  = express.Router();
+const multer = require('multer');
+const path = require('path');
+const { uploadBuffer, deleteByUrl, assertR2Config } = require('../../../scripts/r2-upload');
 const { protect } = require('../../middleware/auth');
 
-// ─── R2 Client ───────────────────────────────────────────────────────────────
-const r2 = new S3Client({
-  region: 'auto',
-  endpoint: process.env.R2_ENDPOINT || process.env.R2_ENDPOINT_URL,         // e.g. https://<account>.r2.cloudflarestorage.com
-  credentials: {
-    accessKeyId:     process.env.R2_ACCESS_KEY || process.env.R2_ACCESS_KEY_ID,
-    secretAccessKey: process.env.R2_SECRET_KEY || process.env.R2_SECRET_ACCESS_KEY,
-  },
-});
+const router = express.Router();
 
-const BUCKET      = process.env.R2_BUCKET_NAME;   // e.g. crown-eve-media
-const PUBLIC_BASE = process.env.R2_PUBLIC_URL;    // e.g. https://media.crowneve.com  (R2 custom domain or pub URL)
+const IMAGE_EXT = /\.(jpe?g|png|webp|gif)$/i;
+const VIDEO_EXT = /\.(mp4|webm|mov|m4v|ogg)$/i;
+const IMAGE_TYPES = /^image\//i;
+const VIDEO_TYPES = /^video\//i;
 
-// ─── Multer — memory storage, never touches disk ──────────────────────────────
+const MAX_IMAGE_MB = 10;
+const MAX_VIDEO_MB = 80;
+
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
-  fileFilter: (req, file, cb) => {
-    const allowed = /jpeg|jpg|png|webp/;
-    const ok = allowed.test(path.extname(file.originalname).toLowerCase())
-            && allowed.test(file.mimetype);
-    ok ? cb(null, true) : cb(new Error('Only jpeg / jpg / png / webp allowed'));
+  limits: { fileSize: MAX_VIDEO_MB * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const ok =
+      (IMAGE_TYPES.test(file.mimetype) && IMAGE_EXT.test(ext)) ||
+      (VIDEO_TYPES.test(file.mimetype) && VIDEO_EXT.test(ext));
+    if (!ok) {
+      return cb(new Error('Allowed: images (jpg, png, webp, gif) and videos (mp4, webm, mov)'));
+    }
+    cb(null, true);
   },
 });
 
-// ─── POST /api/upload ─────────────────────────────────────────────────────────
-router.post('/', protect, upload.single('image'), async (req, res) => {
-  if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+const pickFile = (req) => {
+  if (req.file) return req.file;
+  const f = req.files || {};
+  return f.image?.[0] || f.video?.[0] || f.file?.[0] || null;
+};
 
-  try {
-    const key = `uploads/${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(req.file.originalname)}`;
+const isVideoFile = (file) => VIDEO_TYPES.test(file.mimetype) || VIDEO_EXT.test(path.extname(file.originalname));
 
-    await r2.send(new PutObjectCommand({
-      Bucket:      BUCKET,
-      Key:         key,
-      Body:        req.file.buffer,
-      ContentType: req.file.mimetype,
-    }));
+router.post(
+  '/',
+  protect,
+  upload.fields([
+    { name: 'image', maxCount: 1 },
+    { name: 'video', maxCount: 1 },
+    { name: 'file', maxCount: 1 },
+  ]),
+  async (req, res) => {
+    const file = pickFile(req);
+    if (!file) {
+      return res.status(400).json({ message: 'No file uploaded. Use field: image, video, or file.' });
+    }
 
-    const url = `${PUBLIC_BASE}/${key}`;
-    res.json({ url });
-  } catch (err) {
-    console.error('R2 upload error:', err);
-    res.status(500).json({ message: 'Upload failed', error: err.message });
+    const video = isVideoFile(file);
+    const maxBytes = (video ? MAX_VIDEO_MB : MAX_IMAGE_MB) * 1024 * 1024;
+    if (file.size > maxBytes) {
+      return res.status(400).json({
+        message: `File too large. Max ${video ? MAX_VIDEO_MB : MAX_IMAGE_MB} MB for ${video ? 'video' : 'image'}.`,
+      });
+    }
+
+    try {
+      assertR2Config();
+      const ext = path.extname(file.originalname).toLowerCase() || (video ? '.mp4' : '.jpg');
+      const folder = video ? 'uploads/videos' : 'uploads/images';
+      const key = `${folder}/${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+      const url = await uploadBuffer(key, file.buffer, file.mimetype);
+
+      res.json({
+        url,
+        key,
+        type: video ? 'video' : 'image',
+        contentType: file.mimetype,
+      });
+    } catch (err) {
+      console.error('R2 upload error:', err);
+      res.status(500).json({ message: 'Upload failed', error: err.message });
+    }
   }
-});
+);
 
-// ─── DELETE /api/upload ───────────────────────────────────────────────────────
-// Body: { url: "https://media.crowneve.com/uploads/xyz.jpg" }
 router.delete('/', protect, async (req, res) => {
   const { url } = req.body;
   if (!url) return res.status(400).json({ message: 'url required' });
 
   try {
-    // Extract key from full public URL
-    const key = url.replace(`${PUBLIC_BASE}/`, '');
-    await r2.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: key }));
+    await deleteByUrl(url);
     res.json({ message: 'Deleted' });
   } catch (err) {
     res.status(500).json({ message: 'Delete failed', error: err.message });
