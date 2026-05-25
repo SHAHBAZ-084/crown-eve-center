@@ -11,15 +11,9 @@ const buildUrl = (raw) => {
   return `${raw}${sep}connection_limit=5`;
 };
 
-const useNeonAdapter = () => {
-  if (process.env.PRISMA_NEON_ADAPTER === '0') return false;
-  if (process.env.PRISMA_NEON_ADAPTER === '1') return true;
-  const url = process.env.DATABASE_URL || '';
-  if (!url) return false;
-  // Only use Neon HTTP adapter for actual Neon databases
-  // The HTTP adapter does NOT support interactive transactions ($transaction)
-  return url.includes('neon.tech') || url.includes('neon.database');
-};
+// DISABLED: Neon HTTP adapter does NOT support interactive transactions ($transaction).
+// Standard Prisma wire protocol works fine with Neon databases on Hostinger.
+const useNeonAdapter = () => false;
 
 function createPrismaClient() {
   const databaseUrl = buildUrl(process.env.DATABASE_URL);
