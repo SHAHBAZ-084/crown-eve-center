@@ -5,7 +5,7 @@ require('../src/config/loadEnv');
 const fs = require('fs');
 const path = require('path');
 const { PrismaClient } = require('@prisma/client');
-const { uploadBuffer, assertR2Config } = require('../scripts/r2-upload');
+const { uploadBuffer, assertR2Config } = require('../src/utils/r2-upload');
 
 const prisma = new PrismaClient();
 

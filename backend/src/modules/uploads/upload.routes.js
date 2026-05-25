@@ -2,7 +2,7 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const { uploadBuffer, deleteByUrl, assertR2Config } = require('../../../scripts/r2-upload');
+const { uploadBuffer, assertR2Config } = require('../../utils/r2-upload');
 const { protect } = require('../../middleware/auth');
 
 const router = express.Router();
