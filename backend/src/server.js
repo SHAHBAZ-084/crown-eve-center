@@ -4,15 +4,16 @@ const app = require('./app');
 const prisma = require('./config/db');
 const logger = require('./config/logger');
 
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT) || 3000;
+const HOST = process.env.HOST || '0.0.0.0';
 const DB_CONNECT_MS = Number(process.env.DB_CONNECT_TIMEOUT_MS) || 20000;
 
 const required = ['DATABASE_URL', 'JWT_SECRET'];
 const missing = required.filter((key) => !process.env[key]);
 if (missing.length) {
-  logger.error(
-    `Missing env: ${missing.join(', ')}. Set them in Hostinger hPanel → Node.js → Environment variables.`
-  );
+  const msg = `Missing env: ${missing.join(', ')}. Set in Hostinger → Node.js → Environment variables.`;
+  console.error('[startup]', msg);
+  logger.error(msg);
   process.exit(1);
 }
 
@@ -32,8 +33,9 @@ async function connectDatabase() {
 }
 
 // Listen first — prevents Hostinger 504 and browser "CORS" false alarms when DB is slow.
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
+app.listen(PORT, HOST, () => {
+  console.log(`[startup] Crown Eve API listening on ${HOST}:${PORT} (NODE_ENV=${process.env.NODE_ENV || 'development'})`);
+  logger.info(`Server running on ${HOST}:${PORT}`);
   connectDatabase().catch((err) => {
     logger.error('Database connection failed — fix DATABASE_URL / Neon and restart', {
       message: err.message,

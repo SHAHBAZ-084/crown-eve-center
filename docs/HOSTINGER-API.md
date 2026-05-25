@@ -11,15 +11,19 @@ Open: `https://api.crownevcenter.com/health`
 
 The public site (`www.crownevcenter.com`) can work while the API is down; login and data will fail until `/health` is OK.
 
-## Hostinger Node.js settings
+## Hostinger Node.js settings (GitHub deploy)
 
 | Setting | Value |
 |--------|--------|
-| **App root** | `backend` (folder that contains `package.json` with `"start": "node src/server.js"`) |
+| **Repository** | `SHAHBAZ-084/crown-eve-center` |
+| **Root directory** | **`backend`** ← if this is wrong you get **503** |
+| **Framework** | Express.js (or **Other**) |
+| **Entry file** | `index.js` |
 | **Node version** | 20.x |
-| **Install** | `npm install` |
-| **Build** (if available) | `npx prisma generate` |
-| **Start** | `npm start` |
+| **Install / Build** | `npm install` (runs `prisma generate` via postinstall) |
+| **Start command** | `npm start` |
+
+Wrong root (`/` monorepo root without workspace) → `package.json` / Prisma / start script mismatch → app never starts → **503**.
 
 ## Required environment variables
 
