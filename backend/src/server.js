@@ -1,9 +1,30 @@
 // backend/src/server.js
-require('./config/loadEnv');
-const app = require('./app');
-const prisma = require('./config/db');
-const logger = require('./config/logger');
+function serveCrashReport(err) {
+  const http = require('http');
+  const server = http.createServer((req, res) => {
+    res.writeHead(500, { 'Content-Type': 'text/plain' });
+    res.end('Crown Eve API Startup Error:\\n\\n' + (err ? err.stack : 'Unknown error'));
+  });
+  const port = process.env.PORT || 3000;
+  server.listen(port, () => console.log(`[fallback] Serving crash report on port ${port}`));
+}
 
+process.on('uncaughtException', (err) => {
+  console.error('[FATAL] Uncaught Exception:', err);
+  serveCrashReport(err);
+});
+
+let app, prisma, logger;
+try {
+  require('./config/loadEnv');
+  app = require('./app');
+  prisma = require('./config/db');
+  logger = require('./config/logger');
+} catch (err) {
+  console.error('[FATAL] Initialization error:', err);
+  serveCrashReport(err);
+  return; // Stop execution of the rest of the file
+}
 const PORT = process.env.PORT || 3000;
 const DB_CONNECT_MS = Number(process.env.DB_CONNECT_TIMEOUT_MS) || 20000;
 
