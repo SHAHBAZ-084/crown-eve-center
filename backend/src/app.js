@@ -39,6 +39,8 @@ app.use(
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Cache-Control'],
+    optionsSuccessStatus: 204,
+    maxAge: 86400,
   })
 );
 app.use(compression());
