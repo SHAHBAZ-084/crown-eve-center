@@ -16,8 +16,9 @@ const useNeonAdapter = () => {
   if (process.env.PRISMA_NEON_ADAPTER === '1') return true;
   const url = process.env.DATABASE_URL || '';
   if (!url) return false;
-  if (url.includes('neon.tech') || url.includes('neon.database')) return true;
-  return process.env.NODE_ENV === 'production';
+  // Only use Neon HTTP adapter for actual Neon databases
+  // The HTTP adapter does NOT support interactive transactions ($transaction)
+  return url.includes('neon.tech') || url.includes('neon.database');
 };
 
 function createPrismaClient() {
