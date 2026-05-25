@@ -4,8 +4,7 @@ const app = require('./app');
 const prisma = require('./config/db');
 const logger = require('./config/logger');
 
-const PORT = Number(process.env.PORT) || 3000;
-const HOST = process.env.HOST || '0.0.0.0';
+const PORT = process.env.PORT || 3000;
 const DB_CONNECT_MS = Number(process.env.DB_CONNECT_TIMEOUT_MS) || 20000;
 
 const required = ['DATABASE_URL', 'JWT_SECRET'];
@@ -33,9 +32,9 @@ async function connectDatabase() {
 }
 
 // Listen first — prevents Hostinger 504 and browser "CORS" false alarms when DB is slow.
-app.listen(PORT, HOST, () => {
-  console.log(`[startup] Crown Eve API listening on ${HOST}:${PORT} (NODE_ENV=${process.env.NODE_ENV || 'development'})`);
-  logger.info(`Server running on ${HOST}:${PORT}`);
+app.listen(PORT, () => {
+  console.log(`[startup] Crown Eve API listening on ${PORT} (NODE_ENV=${process.env.NODE_ENV || 'development'})`);
+  logger.info(`Server running on ${PORT}`);
   connectDatabase().catch((err) => {
     logger.error('Database connection failed — fix DATABASE_URL / Neon and restart', {
       message: err.message,
