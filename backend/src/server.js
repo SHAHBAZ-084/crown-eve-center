@@ -13,7 +13,7 @@ if (missing.length) {
   const msg = `Missing env: ${missing.join(', ')}. Set in Hostinger → Node.js → Environment variables.`;
   console.error('[startup]', msg);
   logger.error(msg);
-  process.exit(1);
+  // Removed process.exit(1) so /health still works even if env is missing
 }
 
 async function connectDatabase() {
