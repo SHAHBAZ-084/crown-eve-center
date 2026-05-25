@@ -127,7 +127,7 @@ const Orders = () => {
               {viewing.payment_screenshot ? (
                 <div style={{ margin: "10px 0", borderRadius: 8, overflow: "hidden", border: "1px solid var(--border)" }}>
                   <img 
-                    src={`${getApiUrl().replace('/api', '')}${viewing.payment_screenshot}`} 
+                    src={viewing.payment_screenshot.startsWith('http') ? viewing.payment_screenshot : `${getApiUrl().replace('/api', '')}${viewing.payment_screenshot}`} 
                     alt="Proof" 
                     style={{ width: "100%", display: "block" }} 
                   />
