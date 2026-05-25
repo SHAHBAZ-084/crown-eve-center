@@ -11,6 +11,10 @@
     "dev": "nodemon src/server.js",
     "build": "npx prisma generate",
     "seed": "node prisma/seed.js",
+    "parse:catalog": "node scripts/parse-pdf-catalog.js",
+    "seed:products": "node prisma/seed-products.js",
+    "upload:images": "node scripts/upload-catalog-images-r2.js",
+    "link:images": "node prisma/link-product-images.js",
     "build:migrate": "npx prisma generate && npx prisma migrate deploy",
     "vercel-build": "npx prisma generate && npx prisma migrate deploy"
   },
