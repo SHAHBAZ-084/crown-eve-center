@@ -16,26 +16,16 @@ const buildUrl = (raw) => {
 const useNeonAdapter = () => false;
 
 function createPrismaClient() {
-  const databaseUrl = buildUrl(process.env.DATABASE_URL);
+  // Prefer DIRECT_URL (non-pooler) over DATABASE_URL (pooler).
+  // Neon's pooler URL (with -pooler in hostname) uses PgBouncer in transaction mode,
+  // which breaks Prisma's interactive $transaction(). Direct connections work fine
+  // on persistent Node.js servers like Hostinger.
+  const rawUrl = process.env.DIRECT_URL || process.env.DATABASE_URL;
+  const databaseUrl = buildUrl(rawUrl);
 
   if (!databaseUrl) {
     console.error('\x1b[31m%s\x1b[0m', 'CRITICAL: DATABASE_URL is not set.');
     return new PrismaClient();
-  }
-
-  if (useNeonAdapter()) {
-    const { PrismaNeon } = require('@prisma/adapter-neon');
-    const { neonConfig } = require('@neondatabase/serverless');
-    const ws = require('ws');
-
-    // Set up WebSocket constructor for Node.js environments without a global WebSocket object
-    neonConfig.webSocketConstructor = ws;
-
-    const adapter = new PrismaNeon({ connectionString: databaseUrl });
-    return new PrismaClient({
-      adapter,
-      log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
-    });
   }
 
   return new PrismaClient({
