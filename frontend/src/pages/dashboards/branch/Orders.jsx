@@ -13,6 +13,7 @@ const Orders = () => {
   const params = new URLSearchParams({ branchId, page, limit: 12, ...(status && { status }) }).toString();
   const { data, loading, refetch } = useFetch(`/orders?${params}`, [page, status, branchId]);
   const [viewing, setViewing] = useState(null);
+  const [summaryOrder, setSummaryOrder] = useState(null);
   const [trackId, setTrackId] = useState("");
   const [updating, setUpdating] = useState(null);
 
@@ -81,8 +82,11 @@ const Orders = () => {
                   </td>
                   <td>
                     <div className="tda" style={{ justifyContent: "flex-end", gap: 8 }}>
-                      {o.type === "ONLINE" && (
+                      {o.type === "ONLINE" && o.payment_status === "PENDING" && (
                         <button className="btn btn-ghost btn-sm" onClick={() => { setViewing(o); setTrackId(o.tracking_id || ""); }}>Verify</button>
+                      )}
+                      {o.type === "ONLINE" && o.payment_status !== "PENDING" && (
+                        <button className="btn btn-ghost btn-sm" onClick={() => setSummaryOrder(o)}>Summary</button>
                       )}
                       <select
                         value={o.status}
@@ -143,6 +147,58 @@ const Orders = () => {
                 <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => updateOrderData(viewing.id, { payment_status: "REJECTED" })} disabled={updating}>Reject Payment</button>
                 <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => updateOrderData(viewing.id, { payment_status: "PAID", tracking_id: trackId, status: trackId ? "SHIPPED" : viewing.status })} disabled={updating}>Approve & Update</button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Summary Modal */}
+      {summaryOrder && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: 600 }}>
+            <div className="modal-header">
+              <h3>Order Summary #{summaryOrder.id}</h3>
+              <button className="close-btn" onClick={() => setSummaryOrder(null)}>×</button>
+            </div>
+            <div style={{ padding: 20 }}>
+              <div className="fgrid" style={{ marginBottom: 20 }}>
+                <div className="fg"><label>Transaction ID</label><div className="fi" style={{ background: "var(--black2)" }}>{summaryOrder.transaction_id || "None"}</div></div>
+                <div className="fg"><label>Payment Status</label><div style={{ fontWeight: 700, color: summaryOrder.payment_status === 'PAID' ? '#22c55e' : '#eab308' }}>{summaryOrder.payment_status}</div></div>
+              </div>
+              
+              <div className="fgrid" style={{ marginBottom: 20 }}>
+                <div className="fg"><label>Customer Name</label><div className="fi" style={{ background: "var(--black2)" }}>{summaryOrder.customer?.name || summaryOrder.customer_name || "—"}</div></div>
+                <div className="fg"><label>Customer Phone</label><div className="fi" style={{ background: "var(--black2)" }}>{summaryOrder.customer_phone || "—"}</div></div>
+              </div>
+
+              <div className="fgrid" style={{ marginBottom: 20 }}>
+                <div className="fg"><label>Tracking ID</label><div className="fi" style={{ background: "var(--black2)" }}>{summaryOrder.tracking_id || "—"}</div></div>
+                <div className="fg"><label>Order Total</label><div className="fi" style={{ background: "var(--black2)", fontWeight: 700, color: "var(--acc)" }}>Rs. {summaryOrder.total?.toLocaleString()}</div></div>
+              </div>
+
+              <label>Order Items</label>
+              <div style={{ background: "var(--black2)", padding: 15, borderRadius: 8, marginBottom: 20 }}>
+                {summaryOrder.items?.map((item, i) => (
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", marginBottom: i !== summaryOrder.items.length - 1 ? 10 : 0 }}>
+                    <span>{item.quantity}x {item.product?.name}</span>
+                    <span>Rs. {item.price?.toLocaleString()}</span>
+                  </div>
+                ))}
+                {(!summaryOrder.items || summaryOrder.items.length === 0) && (
+                  <span style={{ color: "var(--muted)" }}>No items</span>
+                )}
+              </div>
+
+              <label>Payment Proof</label>
+              {summaryOrder.payment_screenshot ? (
+                <div style={{ margin: "10px 0", borderRadius: 8, overflow: "hidden", border: "1px solid var(--border)" }}>
+                  <img 
+                    src={summaryOrder.payment_screenshot.startsWith('http') ? summaryOrder.payment_screenshot : `${getApiUrl().replace('/api', '')}${summaryOrder.payment_screenshot}`} 
+                    alt="Proof" 
+                    style={{ width: "100%", display: "block" }} 
+                  />
+                </div>
+              ) : <div style={{ padding: 20, textAlign: "center", background: "var(--black3)", borderRadius: 8, color: "var(--muted2)" }}>No screenshot uploaded</div>}
+
             </div>
           </div>
         </div>
