@@ -6,9 +6,26 @@ const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: process.env.SMTP_USER || 'crownevecenter@gmail.com',
-    pass: process.env.SMTP_PASS || 'znws fvqu yams tabz',
+    pass: process.env.SMTP_PASS,
   },
 });
+
+const PK_TZ = 'Asia/Karachi';
+
+const formatSentAtPk = () =>
+  new Date().toLocaleString('en-PK', {
+    timeZone: PK_TZ,
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+
+/** Subject suffix so inbox shows exact Pakistan send time (not confused with old AM emails). */
+const subjectTimePk = () => formatSentAtPk();
 
 /**
  * Send an email
@@ -18,15 +35,17 @@ const transporter = nodemailer.createTransport({
  */
 const sendEmail = async (to, subject, html) => {
   try {
+    const sentAtPk = formatSentAtPk();
     const mailOptions = {
-      from: `"Crown Eve Center" <crownevecenter@gmail.com>`,
+      from: `"Crown Eve Center" <${process.env.SMTP_USER || 'crownevecenter@gmail.com'}>`,
       to,
       subject,
-      html,
+      html: html.replace('<!--SENT_AT-->', sentAtPk),
+      date: new Date(),
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(`Email sent to ${to}: ${info.messageId}`);
+    console.log(`Email sent to ${to} at ${sentAtPk} PKT: ${info.messageId}`);
     return info;
   } catch (error) {
     console.error('Error sending email:', error);
@@ -40,7 +59,7 @@ const sendEmail = async (to, subject, html) => {
  * @param {string} otp - The 6-digit OTP
  */
 const sendOtpEmail = async (to, otp) => {
-  const subject = 'Your Verification Code - Crown Eve Center';
+  const subject = `Your Verification Code - Crown Eve Center (${subjectTimePk()})`;
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
       <h2 style="color: #ff4500; text-align: center;">Crown Eve Center</h2>
@@ -51,7 +70,8 @@ const sendOtpEmail = async (to, otp) => {
         <span style="font-size: 32px; font-weight: bold; letter-spacing: 4px; color: #333;">${otp}</span>
       </div>
       
-      <p style="color: #d9534f; font-weight: bold; text-align: center;">This code will expire in 10 minutes.</p>
+      <p style="color: #888; font-size: 13px; text-align: center;">Sent: <!--SENT_AT--> (Pakistan time)</p>
+      <p style="color: #d9534f; font-weight: bold; text-align: center;">This code will expire in 10 minutes from sent time.</p>
       <p style="color: #555; line-height: 1.5;">If you did not request this code, please ignore this email.</p>
       <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
       <p style="font-size: 12px; color: #999; text-align: center;">© Crown Eve Center</p>
@@ -62,7 +82,7 @@ const sendOtpEmail = async (to, otp) => {
 };
 
 const sendPasswordResetOtpEmail = async (to, otp) => {
-  const subject = 'Password Reset Code - Crown Eve Center';
+  const subject = `Password Reset Code - Crown Eve Center (${subjectTimePk()})`;
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
       <h2 style="color: #ff4500; text-align: center;">Crown Eve Center</h2>
@@ -71,7 +91,8 @@ const sendPasswordResetOtpEmail = async (to, otp) => {
       <div style="text-align: center; margin: 30px 0; padding: 20px; background-color: #f9f9f9; border-radius: 8px;">
         <span style="font-size: 32px; font-weight: bold; letter-spacing: 4px; color: #333;">${otp}</span>
       </div>
-      <p style="color: #d9534f; font-weight: bold; text-align: center;">This code expires in 10 minutes.</p>
+      <p style="color: #888; font-size: 13px; text-align: center;">Sent: <!--SENT_AT--> (Pakistan time)</p>
+      <p style="color: #d9534f; font-weight: bold; text-align: center;">This code expires in 10 minutes from sent time.</p>
       <p style="color: #555;">If you did not request a password reset, ignore this email.</p>
     </div>
   `;

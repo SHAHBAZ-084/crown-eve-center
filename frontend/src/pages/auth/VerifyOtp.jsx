@@ -36,9 +36,19 @@ const VerifyOtp = () => {
     return () => clearInterval(interval);
   }, [timer]);
 
+  const validateOtp = () => {
+    const digits = String(otp || '').trim();
+    if (!/^\d{6}$/.test(digits)) {
+      setError('OTP is required. Enter the 6-digit code from your email.');
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    if (!validateOtp()) return;
     setLoading(true);
 
     try {
@@ -86,16 +96,24 @@ const VerifyOtp = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group" style={{ marginBottom: '20px' }}>
-            <input 
-              type="text" 
+            <label htmlFor="verify-otp" className="sr-only">6-digit OTP</label>
+            <input
+              id="verify-otp"
+              name="otp"
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
               placeholder="Enter 6-digit OTP"
               value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              onChange={(e) => {
+                setOtp(e.target.value.replace(/\D/g, '').slice(0, 6));
+                if (error) setError('');
+              }}
               style={{ textAlign: 'center', letterSpacing: '4px', fontSize: '20px', fontWeight: 'bold' }}
-              required
+              aria-invalid={error ? 'true' : 'false'}
             />
           </div>
-          <button type="submit" className="form-submit" disabled={loading || otp.length !== 6}>
+          <button type="submit" className="form-submit" disabled={loading}>
             {loading ? 'Verifying...' : 'Verify & Log In'}
           </button>
         </form>

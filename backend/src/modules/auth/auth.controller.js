@@ -156,13 +156,18 @@ exports.updateProfile = async (req, res) => {
 
 exports.verifyOtp = async (req, res) => {
   const { email, otp } = req.body;
+  const otpDigits = String(otp || '').trim();
 
-  if (!email || !otp) {
+  if (!email || !otpDigits) {
     return res.status(400).json({ message: 'Email and OTP are required.' });
   }
 
+  if (!/^\d{6}$/.test(otpDigits)) {
+    return res.status(400).json({ message: 'OTP must be a 6-digit code from your email.' });
+  }
+
   try {
-    const otpRecord = await findValidOtp(email, otp, OTP_PURPOSE.VERIFY_EMAIL);
+    const otpRecord = await findValidOtp(email, otpDigits, OTP_PURPOSE.VERIFY_EMAIL);
     if (!otpRecord) {
       return res.status(400).json({ message: 'Invalid or expired OTP.' });
     }
@@ -244,9 +249,14 @@ exports.forgotPassword = async (req, res) => {
 
 exports.resetPassword = async (req, res) => {
   const { email, otp, newPassword } = req.body;
+  const otpDigits = String(otp || '').trim();
 
-  if (!email || !otp || !newPassword) {
+  if (!email || !otpDigits || !newPassword) {
     return res.status(400).json({ message: 'Email, OTP, and new password are required.' });
+  }
+
+  if (!/^\d{6}$/.test(otpDigits)) {
+    return res.status(400).json({ message: 'OTP must be a 6-digit code from your email.' });
   }
 
   if (newPassword.length < 6) {
@@ -259,7 +269,7 @@ exports.resetPassword = async (req, res) => {
       return res.status(404).json({ message: 'User not found.' });
     }
 
-    const otpRecord = await findValidOtp(email, otp, OTP_PURPOSE.PASSWORD_RESET);
+    const otpRecord = await findValidOtp(email, otpDigits, OTP_PURPOSE.PASSWORD_RESET);
     if (!otpRecord) {
       return res.status(400).json({ message: 'Invalid or expired OTP.' });
     }

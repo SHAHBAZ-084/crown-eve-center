@@ -1,4 +1,9 @@
 // Load env before any module reads process.env (Hostinger often deletes .env files).
+// Pakistan timezone for logs, OTP expiry, and email timestamps (Hostinger default is often UTC).
+if (!process.env.TZ) {
+  process.env.TZ = 'Asia/Karachi';
+}
+
 const path = require('path');
 const fs = require('fs');
 const dotenv = require('dotenv');

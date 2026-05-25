@@ -4,14 +4,17 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import './Auth.css';
 
+const isValidOtp = (value) => /^\d{6}$/.test(String(value || '').trim());
+
 const Forgot = () => {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1); // 1: email, 2: otp + new password
+  const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [otpError, setOtpError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSendOtp = async (e) => {
@@ -21,6 +24,8 @@ const Forgot = () => {
     try {
       await api.post('/auth/forgot-password', { email });
       setStep(2);
+      setOtp('');
+      setOtpError('');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to send OTP.');
     } finally {
@@ -28,18 +33,32 @@ const Forgot = () => {
     }
   };
 
+  const validateOtpField = () => {
+    if (!isValidOtp(otp)) {
+      setOtpError('OTP is required. Enter the 6-digit code from your email.');
+      return false;
+    }
+    setOtpError('');
+    return true;
+  };
+
   const handleResetPassword = async (e) => {
     e.preventDefault();
     setError('');
+    if (!validateOtpField()) return;
     if (newPassword !== confirmPassword) {
       setError('Passwords do not match.');
+      return;
+    }
+    if (newPassword.length < 6) {
+      setError('Password must be at least 6 characters.');
       return;
     }
     setLoading(true);
     try {
       await api.post('/auth/reset-password', {
         email,
-        otp,
+        otp: otp.trim(),
         newPassword,
       });
       alert('Password updated successfully. Please log in.');
@@ -54,7 +73,11 @@ const Forgot = () => {
   return (
     <div id="page-forgot" className="page">
       <div className="login-card">
-        <Link to="/login" className="form-link" style={{ display: 'inline-block', marginBottom: '24px' }}>
+        <Link
+          to="/login"
+          className="form-link"
+          style={{ display: 'inline-block', marginBottom: '24px' }}
+        >
           ← Back to Login
         </Link>
 
@@ -68,14 +91,18 @@ const Forgot = () => {
         </p>
 
         {error && (
-          <div style={{ color: '#ef4444', marginBottom: '16px', fontSize: '14px' }}>{error}</div>
+          <div style={{ color: '#ef4444', marginBottom: '16px', fontSize: '14px' }} role="alert">
+            {error}
+          </div>
         )}
 
         {step === 1 ? (
           <form onSubmit={handleSendOtp}>
             <div className="form-group">
-              <label>Email Address</label>
+              <label htmlFor="forgot-email">Email Address</label>
               <input
+                id="forgot-email"
+                name="email"
                 type="email"
                 placeholder="you@email.com"
                 value={email}
@@ -88,21 +115,42 @@ const Forgot = () => {
             </button>
           </form>
         ) : (
-          <form onSubmit={handleResetPassword}>
+          <form onSubmit={handleResetPassword} noValidate>
             <div className="form-group">
-              <label>6-digit OTP</label>
+              <label htmlFor="forgot-otp">6-digit OTP</label>
               <input
+                id="forgot-otp"
+                name="otp"
                 type="text"
-                placeholder="000000"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                placeholder="Enter 6-digit code"
                 value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                style={{ textAlign: 'center', letterSpacing: '4px', fontWeight: 'bold' }}
-                required
+                onChange={(e) => {
+                  setOtp(e.target.value.replace(/\D/g, '').slice(0, 6));
+                  if (otpError) setOtpError('');
+                }}
+                onBlur={validateOtpField}
+                style={{
+                  textAlign: 'center',
+                  letterSpacing: '4px',
+                  fontWeight: 'bold',
+                  borderColor: otpError ? '#ef4444' : undefined,
+                }}
+                aria-invalid={otpError ? 'true' : 'false'}
+                aria-describedby={otpError ? 'forgot-otp-error' : undefined}
               />
+              {otpError && (
+                <p id="forgot-otp-error" style={{ color: '#ef4444', fontSize: '13px', marginTop: '8px' }}>
+                  {otpError}
+                </p>
+              )}
             </div>
             <div className="form-group">
-              <label>New Password</label>
+              <label htmlFor="forgot-new-password">New Password</label>
               <input
+                id="forgot-new-password"
+                name="newPassword"
                 type="password"
                 placeholder="••••••••"
                 value={newPassword}
@@ -112,8 +160,10 @@ const Forgot = () => {
               />
             </div>
             <div className="form-group">
-              <label>Confirm Password</label>
+              <label htmlFor="forgot-confirm-password">Confirm Password</label>
               <input
+                id="forgot-confirm-password"
+                name="confirmPassword"
                 type="password"
                 placeholder="••••••••"
                 value={confirmPassword}
@@ -125,7 +175,12 @@ const Forgot = () => {
             <button
               type="submit"
               className="form-submit"
-              disabled={loading || otp.length !== 6}
+              disabled={loading}
+              onClick={(e) => {
+                if (!validateOtpField()) {
+                  e.preventDefault();
+                }
+              }}
             >
               {loading ? 'Updating...' : 'Update Password →'}
             </button>
@@ -136,8 +191,10 @@ const Forgot = () => {
               onClick={() => {
                 setStep(1);
                 setOtp('');
+                setOtpError('');
                 setNewPassword('');
                 setConfirmPassword('');
+                setError('');
               }}
             >
               Use a different email
