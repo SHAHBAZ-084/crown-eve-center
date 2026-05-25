@@ -161,6 +161,9 @@ const createOrder = async (data) => {
     }
 
     return order;
+  }, {
+    maxWait: 15000, // 15 seconds to connect
+    timeout: 30000  // 30 seconds max execution time
   });
 };
 
