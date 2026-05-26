@@ -112,6 +112,18 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Diagnostic route
+app.get('/api/debug-env', (req, res) => {
+  res.status(200).json({
+    db: process.env.DATABASE_URL ? 'Set' : 'Missing',
+    jwt: process.env.JWT_SECRET ? 'Set' : 'Missing',
+    port: process.env.PORT || 'Missing',
+    node_env: process.env.NODE_ENV,
+    cwd: process.cwd(),
+    dirname: __dirname,
+  });
+});
+
 const logger = require('./config/logger');
 
 // Error handling middleware
@@ -119,7 +131,8 @@ app.use((err, req, res, next) => {
   logger.error('Unhandled Error', { message: err.message, stack: err.stack });
   res.status(500).json({ 
     message: 'Something went wrong!',
-    ...(process.env.NODE_ENV !== 'production' && { error: err.message })
+    error: err.message,
+    stack: err.stack
   });
 });
 
