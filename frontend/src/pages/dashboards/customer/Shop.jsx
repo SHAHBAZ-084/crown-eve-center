@@ -1,47 +1,30 @@
 // frontend/src/pages/dashboards/customer/Shop.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import api from "../../../services/api";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import publicApi from "../../../services/publicApi";
+import { useAuth } from "../../../context/AuthContext";
 import { useCart } from "../../../context/CartContext";
+import { useDebounce } from "../../../hooks/useDebounce";
 import { getImgUrl } from "../../../utils/imgUrl";
 import "../../public/Shop.css";
 
 const Shop = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
   const { addItem, count } = useCart();
-  const [products, setProducts] = useState([]);
-  const [branches, setBranches] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  // Filter States
   const [cat, setCat] = useState("All");
-  const [type, setType] = useState("All"); // bike or part
+  const [type, setType] = useState("All");
   const [search, setSearch] = useState("");
   const [branchId, setBranchId] = useState("");
   const [sortBy, setSortBy] = useState("stock_desc");
-
-  // Pagination State
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
 
+  const debouncedSearch = useDebounce(search, 350);
+  const cartPath = user?.role === "CUSTOMER" ? "/my/cart" : "/cart";
 
-  // Initial loads
-  useEffect(() => {
-    Promise.all([
-      api.get("/branches").catch(() => ({ data: { data: [] } })),
-      api.get("/categories").catch(() => ({ data: [] }))
-    ]).then(([br, ct]) => {
-      const branchList = br.data?.data || br.data || [];
-      setBranches(Array.isArray(branchList) ? branchList : []);
-      const categoryList = ct.data?.data || ct.data || [];
-      setCategories(Array.isArray(categoryList) ? categoryList : []);
-    });
-  }, []);
-
-  // Handle URL Query Params (e.g. ?type=bike)
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const typeParam = params.get("type");
@@ -51,36 +34,54 @@ const Shop = () => {
     }
   }, [location.search]);
 
-  // Fetch products when filters change
-  useEffect(() => {
-    setLoading(true);
+  const { data: branches = [] } = useQuery({
+    queryKey: ["shop", "branches"],
+    queryFn: () =>
+      publicApi.get("/branches").then((r) => {
+        const list = r.data?.data ?? r.data ?? [];
+        return Array.isArray(list) ? list : [];
+      }),
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const productParams = useMemo(() => {
     const [sort, order] = sortBy.split("_");
-    const params = {
+    return {
       branchId: branchId || undefined,
       categoryId: cat === "All" ? undefined : cat,
       product_type: type === "All" ? undefined : type,
-      search: search || undefined,
+      search: debouncedSearch || undefined,
       sortBy: sort,
       order: order || "desc",
-      page: page,
+      page,
       limit: 12,
-      lite: '1',
+      lite: "1",
     };
+  }, [branchId, cat, type, debouncedSearch, sortBy, page]);
 
-    api.get("/products", { params })
-      .then(r => {
-        const d = r?.data?.data ?? r?.data;
-        const meta = r?.data?.meta;
-        setProducts(Array.isArray(d) ? d : []);
-        if (meta) {
-          setTotalPages(meta.totalPages || 1);
-          setTotalItems(meta.total || 0);
-        }
-      })
-      .catch(() => setProducts([]))
-      .finally(() => setLoading(false));
+  const {
+    data: productsResult,
+    isLoading,
+    isFetching,
+  } = useQuery({
+    queryKey: ["shop", "products", productParams],
+    queryFn: () => publicApi.get("/products", { params: productParams }).then((r) => r.data),
+    staleTime: 2 * 60 * 1000,
+    placeholderData: keepPreviousData,
+  });
+
+  const products = useMemo(() => {
+    const d = productsResult?.data ?? productsResult;
+    return Array.isArray(d) ? d : [];
+  }, [productsResult]);
+
+  const totalPages = productsResult?.meta?.totalPages || 1;
+  const totalItems = productsResult?.meta?.total || 0;
+  const showLoading = isLoading && products.length === 0;
+
+  useEffect(() => {
     window.scrollTo(0, 0);
-  }, [branchId, cat, type, search, sortBy, page]);
+  }, [page, type, cat, branchId, debouncedSearch, sortBy]);
 
   const clearFilters = () => {
     setCat("All");
@@ -118,14 +119,24 @@ const Shop = () => {
       <div className="pg-hd">
         <div>
           <h1>Premium Catalog</h1>
-          <p>Showing {products.length} of {totalItems} items</p>
+          <p>
+            Showing {products.length} of {totalItems} items
+            {isFetching && !showLoading ? " · updating…" : ""}
+          </p>
         </div>
         <div className="pg-actions">
           <div className="fsearch">
             <span>🔍</span>
-            <input placeholder="Search models or parts..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} />
+            <input
+              placeholder="Search models or parts..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+            />
           </div>
-          <button className="premium-cart-btn" onClick={() => navigate("/my/cart")}>
+          <button className="premium-cart-btn" onClick={() => navigate(cartPath)}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
               <path d="M3 6h18"></path>
@@ -137,7 +148,6 @@ const Shop = () => {
         </div>
       </div>
 
-      {/* Advanced Filters Bar */}
       <div className="filter-bar-premium">
         <div className="filter-group">
           <label>Browse By Type</label>
@@ -151,14 +161,16 @@ const Shop = () => {
         <div className="filter-controls-row">
           <div className="control-item">
             <label>Available at Branch</label>
-            <select className="premium-select" value={branchId} onChange={e => { setBranchId(e.target.value); setPage(1); }}>
+            <select className="premium-select" value={branchId} onChange={(e) => { setBranchId(e.target.value); setPage(1); }}>
               <option value="">All Branches</option>
-              {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+              {branches.map((b) => (
+                <option key={b.id} value={b.id}>{b.name}</option>
+              ))}
             </select>
           </div>
           <div className="control-item">
             <label>Sort By</label>
-            <select className="premium-select" value={sortBy} onChange={e => { setSortBy(e.target.value); setPage(1); }}>
+            <select className="premium-select" value={sortBy} onChange={(e) => { setSortBy(e.target.value); setPage(1); }}>
               <option value="stock_desc">Availability (Highest First)</option>
               <option value="price_asc">Price: Low to High</option>
               <option value="price_desc">Price: High to Low</option>
@@ -169,26 +181,32 @@ const Shop = () => {
         </div>
       </div>
 
-      {loading ? (
+      {showLoading ? (
         <div style={{ padding: 100, textAlign: "center" }}>Loading Catalog...</div>
       ) : products.length > 0 ? (
         <>
           <div className="products-grid">
-            {products.map(p => {
-              const mainImg = p.images?.find(img => img.is_primary)?.url || p.images?.[0]?.url;
+            {products.map((p) => {
+              const mainImg = p.images?.find((img) => img.is_primary)?.url || p.images?.[0]?.url;
 
               return (
                 <Link to={`/product/${p.id}`} key={p.id} className="bike-card-new">
                   <div className="product-card-img">
                     {mainImg ? (
-                      <img src={getImgUrl(mainImg)} alt={p.name} className="bike-main-img" />
+                      <img
+                        src={getImgUrl(mainImg)}
+                        alt={p.name}
+                        className="bike-main-img"
+                        loading="lazy"
+                        decoding="async"
+                      />
                     ) : (
                       <div className="placeholder-img">{p.name}</div>
                     )}
                     {p.stock_qty <= 0 && <div className="out-of-stock-tag">Out of Stock</div>}
                   </div>
                   <div className="product-card-body">
-                    <div className="product-cat">{p.category?.name || (p.product_type === 'bike' ? 'Bike' : 'Part')}</div>
+                    <div className="product-cat">{p.category?.name || (p.product_type === "bike" ? "Bike" : "Part")}</div>
                     <h3 className="bike-name-new">{p.name}</h3>
                     <div className="bike-price-new">
                       Rs. {Number(p.sale_price || p.price).toLocaleString()}
@@ -209,7 +227,6 @@ const Shop = () => {
             })}
           </div>
 
-          {/* Pagination Controls */}
           {totalPages > 1 && (
             <div className="pagination-footer">
               <button
@@ -227,7 +244,7 @@ const Shop = () => {
                       <span className="pag-ellipsis">...</span>
                     ) : (
                       <button
-                        className={`pag-num ${page === p ? 'active' : ''}`}
+                        className={`pag-num ${page === p ? "active" : ""}`}
                         onClick={() => handlePageChange(p)}
                       >
                         {p}

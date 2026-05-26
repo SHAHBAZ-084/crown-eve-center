@@ -1,10 +1,11 @@
 // frontend/src/components/Layout.jsx
 import React from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Navbar from './layout/Navbar';
 import Sidebar from './layout/Sidebar';
 import TopBar from './layout/TopBar';
+import PageSuspense from './PageSuspense';
 
 // CSS-only page transition — no framer-motion, no eval, no CSP issues
 const pageStyle = {
@@ -13,7 +14,6 @@ const pageStyle = {
 
 const Layout = ({ isPublic = false }) => {
   const { user, logout, loading } = useAuth();
-  const location = useLocation();
 
   // Only block rendering on auth for protected (non-public) layouts
   // Public pages like homepage should render immediately for a fast first paint
@@ -34,8 +34,10 @@ const Layout = ({ isPublic = false }) => {
       <div className="min-h-screen bg-black text-orange-600 font-sans public-layout-wrapper">
         <Navbar user={user} logout={logout} />
         <main>
-          <div key={location.pathname} style={pageStyle}>
-            <Outlet />
+          <div style={pageStyle}>
+            <PageSuspense>
+              <Outlet />
+            </PageSuspense>
           </div>
         </main>
       </div>
@@ -50,8 +52,10 @@ const Layout = ({ isPublic = false }) => {
         <TopBar user={user} logout={logout} isMinimal={isMinimal} />
 
         <main className="p-8">
-          <div key={location.pathname} style={pageStyle}>
-            <Outlet />
+          <div style={pageStyle}>
+            <PageSuspense>
+              <Outlet />
+            </PageSuspense>
           </div>
         </main>
       </div>

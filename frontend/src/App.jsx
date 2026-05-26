@@ -1,10 +1,11 @@
 // frontend/src/App.jsx
-import React, { lazy, Suspense } from 'react';
+import React, { lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/layout/ProtectedRoute';
+import PageSuspense from './components/PageSuspense';
 
 // Public Pages
 const Home = lazy(() => import('./pages/public/Home'));
@@ -63,86 +64,81 @@ const ProductDetail = lazy(() => import('./pages/dashboards/customer/ProductDeta
 
 import { BRANCH_DASHBOARD_ROLES } from './constants/roles';
 
-const FullPageSkeleton = () => (
-  <div className="min-h-screen bg-black flex items-center justify-center">
-    <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-  </div>
-);
-
 const App = () => {
   return (
     <AuthProvider>
       <CartProvider>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <Suspense fallback={<FullPageSkeleton />}>
-            <Routes>
-              <Route element={<Layout isPublic />}>
-                <Route path="/" element={<Home />} />
-                <Route path="/shop" element={<CustomerShop />} />
-                <Route path="/product/:id" element={<ProductDetail />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/terms" element={<TermsOfService />} />
-                <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Routes>
+            <Route element={<Layout isPublic />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/shop" element={<CustomerShop />} />
+              <Route path="/product/:id" element={<ProductDetail />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
 
-                {/* Semi-protected routes: Guest cannot access, but they use the public layout */}
-                <Route path="/track/:id" element={<ProtectedRoute><TrackOrder /></ProtectedRoute>} />
-                <Route path="/cart" element={<PublicCart />} />
-                <Route path="/checkout" element={<PublicCheckout />} />
-              </Route>
+              <Route path="/track/:id" element={<ProtectedRoute><TrackOrder /></ProtectedRoute>} />
+              <Route path="/cart" element={<PublicCart />} />
+              <Route path="/checkout" element={<PublicCheckout />} />
+            </Route>
 
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/forgot" element={<Forgot />} />
-              <Route path="/verify-otp" element={<VerifyOtp />} />
+            <Route path="/login" element={<PageSuspense><Login /></PageSuspense>} />
+            <Route path="/register" element={<PageSuspense><Register /></PageSuspense>} />
+            <Route path="/forgot" element={<PageSuspense><Forgot /></PageSuspense>} />
+            <Route path="/verify-otp" element={<PageSuspense><VerifyOtp /></PageSuspense>} />
 
-              {/* Owner App Shell - TEMPORARILY OPEN FOR TESTING */}
-              <Route element={<ProtectedRoute allowedRoles={['COMPANY_OWNER']}><OwnerLayout /></ProtectedRoute>}>
-                <Route path="/owner/dashboard" element={<OwnerDashboard />} />
-                <Route path="/owner/branches" element={<OwnerBranches />} />
-                <Route path="/owner/parts" element={<OwnerParts />} />
-                <Route path="/owner/users" element={<OwnerUsers />} />
-                <Route path="/owner/reports" element={<OwnerReports />} />
-                <Route path="/owner/settings" element={<OwnerSettings />} />
-                <Route path="/owner/orders" element={<OwnerOrders />} />
-                <Route path="/owner/purchases" element={<OwnerPurchases />} />
-              </Route>
+            <Route element={<PageSuspense><ProtectedRoute allowedRoles={['COMPANY_OWNER']}><OwnerLayout /></ProtectedRoute></PageSuspense>}>
+              <Route path="/owner/dashboard" element={<OwnerDashboard />} />
+              <Route path="/owner/branches" element={<OwnerBranches />} />
+              <Route path="/owner/parts" element={<OwnerParts />} />
+              <Route path="/owner/users" element={<OwnerUsers />} />
+              <Route path="/owner/reports" element={<OwnerReports />} />
+              <Route path="/owner/settings" element={<OwnerSettings />} />
+              <Route path="/owner/orders" element={<OwnerOrders />} />
+              <Route path="/owner/purchases" element={<OwnerPurchases />} />
+            </Route>
 
-              {/* Branch Routes - Outside main Layout to avoid double sidebar */}
-              <Route element={<ProtectedRoute allowedRoles={BRANCH_DASHBOARD_ROLES}><BranchLayout /></ProtectedRoute>}>
-                <Route path="/branch" element={<Navigate to="/branch/dashboard" replace />} />
-                <Route path="/branch/dashboard" element={<BranchDashboard />} />
-                <Route path="/branch/products" element={<BranchProducts />} />
-                <Route path="/branch/inventory" element={<BranchInventory />} />
-                <Route path="/branch/orders" element={<BranchOrders />} />
-                <Route path="/branch/services" element={<BranchServices />} />
-                <Route path="/branch/appointments" element={<BranchAppointments />} />
-                <Route path="/branch/suppliers" element={<BranchSuppliers />} />
-                <Route path="/branch/reports" element={<BranchReports />} />
-                <Route path="/branch/settings" element={<BranchSettings />} />
-              </Route>
+            <Route element={<PageSuspense><ProtectedRoute allowedRoles={BRANCH_DASHBOARD_ROLES}><BranchLayout /></ProtectedRoute></PageSuspense>}>
+              <Route path="/branch" element={<Navigate to="/branch/dashboard" replace />} />
+              <Route path="/branch/dashboard" element={<BranchDashboard />} />
+              <Route path="/branch/products" element={<BranchProducts />} />
+              <Route path="/branch/inventory" element={<BranchInventory />} />
+              <Route path="/branch/orders" element={<BranchOrders />} />
+              <Route path="/branch/services" element={<BranchServices />} />
+              <Route path="/branch/appointments" element={<BranchAppointments />} />
+              <Route path="/branch/suppliers" element={<BranchSuppliers />} />
+              <Route path="/branch/reports" element={<BranchReports />} />
+              <Route path="/branch/settings" element={<BranchSettings />} />
+            </Route>
 
-              {/* Customer Portal - Premium Dashboard Shell */}
-              <Route element={<ProtectedRoute allowedRoles={['CUSTOMER']}><CustomerLayout /></ProtectedRoute>}>
-                <Route path="/my/dashboard" element={<CustomerDashboard />} />
-                <Route path="/my/orders" element={<CustomerOrders />} />
-                <Route path="/my/bookings" element={<CustomerBookings />} />
-                <Route path="/my/profile" element={<CustomerProfile />} />
-                <Route path="/my/shop" element={<CustomerShop />} />
-                <Route path="/my/cart" element={<CustomerCart />} />
-                <Route path="/my/checkout" element={<CustomerCheckout />} />
-                <Route path="/track/:id" element={<CustomerTrack />} />
-                <Route path="/appointments" element={<Appointments />} />
-              </Route>
+            <Route element={<PageSuspense><ProtectedRoute allowedRoles={['CUSTOMER']}><CustomerLayout /></ProtectedRoute></PageSuspense>}>
+              <Route path="/my/dashboard" element={<CustomerDashboard />} />
+              <Route path="/my/orders" element={<CustomerOrders />} />
+              <Route path="/my/bookings" element={<CustomerBookings />} />
+              <Route path="/my/profile" element={<CustomerProfile />} />
+              <Route path="/my/shop" element={<CustomerShop />} />
+              <Route path="/my/cart" element={<CustomerCart />} />
+              <Route path="/my/checkout" element={<CustomerCheckout />} />
+              <Route path="/track/:id" element={<CustomerTrack />} />
+              <Route path="/appointments" element={<Appointments />} />
+            </Route>
 
+            <Route
+              path="/branch/pos"
+              element={
+                <PageSuspense>
+                  <ProtectedRoute allowedRoles={['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER', 'EMPLOYEE']}>
+                    <BranchPOS />
+                  </ProtectedRoute>
+                </PageSuspense>
+              }
+            />
 
-
-              <Route path="/branch/pos" element={<ProtectedRoute allowedRoles={['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER', 'EMPLOYEE']}><BranchPOS /></ProtectedRoute>} />
-
-              <Route path="/unauthorized" element={<Unauthorized />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
+            <Route path="/unauthorized" element={<PageSuspense><Unauthorized /></PageSuspense>} />
+            <Route path="*" element={<PageSuspense><NotFound /></PageSuspense>} />
+          </Routes>
         </BrowserRouter>
       </CartProvider>
     </AuthProvider>

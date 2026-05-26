@@ -1,7 +1,8 @@
 // frontend/src/pages/dashboards/customer/ProductDetail.jsx
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "../../../services/api";
+import { useQuery } from "@tanstack/react-query";
+import publicApi from "../../../services/publicApi";
 import { useCart } from "../../../context/CartContext";
 import { getImgUrl } from "../../../utils/imgUrl";
 import "./ProductDetail.css";
@@ -10,18 +11,19 @@ const ProductDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addItem } = useCart();
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
+
+  const { data: product, isLoading } = useQuery({
+    queryKey: ["product", id],
+    queryFn: () => publicApi.get(`/products/${id}`).then((r) => r.data),
+    staleTime: 5 * 60 * 1000,
+    enabled: Boolean(id),
+  });
 
   useEffect(() => {
-    api.get(`/products/${id}`)
-      .then(r => setProduct(r.data))
-      .catch(() => setProduct(null))
-      .finally(() => setLoading(false));
     window.scrollTo(0, 0);
   }, [id]);
 
-  if (loading) return <div style={{ padding: 100, textAlign: "center", fontSize: 20 }}>Loading...</div>;
+  if (isLoading) return <div style={{ padding: 100, textAlign: "center", fontSize: 20 }}>Loading...</div>;
   if (!product) return <div style={{ padding: 100, textAlign: "center" }}><h3>Product not found</h3><button onClick={() => navigate("/")}>Back Home</button></div>;
 
   const bike = product.bikeDetail || {};
