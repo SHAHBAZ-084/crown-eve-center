@@ -62,13 +62,6 @@ const buildUserResponse = (user) => ({
   branchName: user.branch?.name ?? null,
 });
 
-const issueToken = (user) =>
-  jwt.sign(
-    { id: user.id, role: normalizeRole(user.role), branchId: user.branchId },
-    getJwtSecret(),
-    { expiresIn: '1d' }
-  );
-
 const sendAuthResponse = (res, user) => {
   const token = issueToken(user);
   setAuthCookie(res, token);
