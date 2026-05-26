@@ -23,11 +23,20 @@ const { assertPasswordPolicy } = require('../../utils/passwordPolicy');
 const { normalizeRole } = require('../../constants/roles');
 
 const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET env var not set. Server refuses to start.');
-}
 
-const logger = require('../../config/logger');
+const getJwtSecret = () => {
+  if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET env var not set.');
+  }
+  return JWT_SECRET;
+};
+
+const issueToken = (user) =>
+  jwt.sign(
+    { id: user.id, role: normalizeRole(user.role), branchId: user.branchId },
+    getJwtSecret(),
+    { expiresIn: '1d' }
+  );
 const isProduction = process.env.NODE_ENV === 'production';
 
 const sendSafeError = (res, status, message) => {
@@ -56,7 +65,7 @@ const buildUserResponse = (user) => ({
 const issueToken = (user) =>
   jwt.sign(
     { id: user.id, role: normalizeRole(user.role), branchId: user.branchId },
-    JWT_SECRET,
+    getJwtSecret(),
     { expiresIn: '1d' }
   );
 

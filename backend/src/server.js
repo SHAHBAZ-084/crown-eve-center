@@ -63,7 +63,7 @@ async function connectDatabase() {
 }
 
 // Listen first — prevents Hostinger 504 and browser "CORS" false alarms when DB is slow.
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`[startup] Crown Eve API listening on port ${PORT} (NODE_ENV=${process.env.NODE_ENV || 'development'})`);
   logger.info(`Server running on port ${PORT}`);
   connectDatabase().catch((err) => {

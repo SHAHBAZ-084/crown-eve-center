@@ -5,17 +5,22 @@ const { getTokenFromRequest } = require('../utils/authCookie');
 const { isTokenRevoked } = require('../utils/tokenRevocation');
 const { normalizeRole } = require('../constants/roles');
 
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET env var not set. Server refuses to start.');
-}
+const JWT_SECRET = () => process.env.JWT_SECRET;
+
+const requireJwtSecret = () => {
+  const secret = JWT_SECRET();
+  if (!secret) {
+    throw new Error('JWT_SECRET env var not set. Add it in Hostinger → Environment variables.');
+  }
+  return secret;
+};
 
 const protect = async (req, res, next) => {
   const token = getTokenFromRequest(req);
   if (!token) return res.status(401).json({ message: 'No token' });
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, requireJwtSecret());
 
     if (isTokenRevoked(decoded.id, decoded.iat)) {
       return res.status(401).json({ message: 'Session expired. Please log in again.' });
@@ -48,7 +53,7 @@ const optionalProtect = async (req, res, next) => {
   if (!token) return next();
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, requireJwtSecret());
     if (isTokenRevoked(decoded.id, decoded.iat)) return next();
 
     const user = await prisma.user.findUnique({
