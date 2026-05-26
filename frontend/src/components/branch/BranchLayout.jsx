@@ -1,6 +1,7 @@
 // frontend/src/components/branch/BranchLayout.jsx
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation, Outlet } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import { Icon, ToastContainer, apiFetch } from "./BranchShared";
 import "../../styles/branch.css";
 
@@ -17,6 +18,7 @@ const NAV = [
 ];
 
 const BranchLayout = () => {
+  const { logout } = useAuth();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showSidebar, setShowSidebar] = useState(false);
@@ -40,9 +42,8 @@ const BranchLayout = () => {
     setShowSidebar(false);
   }, [location.pathname]);
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
+  const handleLogout = () => {
+    logout();
   };
 
   if (loading) return (
@@ -97,7 +98,7 @@ const BranchLayout = () => {
               <div className="sb-urole">{user?.branchName || "LOCAL STATION"}</div>
             </div>
           </div>
-          <button className="sb-item" onClick={logout} style={{ width: "100%", marginTop: 8, background: "transparent", border: "none" }}>
+          <button className="sb-item" onClick={handleLogout} style={{ width: "100%", marginTop: 8, background: "transparent", border: "none" }}>
             <Icon n="logout" /> Logout
           </button>
         </div>
