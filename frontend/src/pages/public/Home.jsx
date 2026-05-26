@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getImgUrl } from '../../utils/imgUrl';
 import { useHomeData } from '../../hooks/useHomeData';
 import PageSkeleton from '../../components/ui/PageSkeleton';
+import PublicFooter from '../../components/public/PublicFooter';
 import './Home.css';
 
 const Home = () => {
@@ -359,63 +360,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer>
-        <div className="footer-top">
-          <div className="footer-brand">
-            <Link to="/" className="logo" style={{ display: 'flex', alignItems: 'center' }}>
-              <img src="/logo.png" alt="Crown Hadi EV Center" style={{ height: '90px', width: 'auto', objectFit: 'contain' }} />
-            </Link>
-            <p>Pakistan's premium mobility destination with different branches. Premium EV bikes, long-range batteries, high-performance motors, and expert service — all in one place.</p>
-            <div className="footer-socials">
-              <a href="https://web.facebook.com/hadievcenter/?_rdc=1&_rdr" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Facebook">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" /></svg>
-              </a>
-              <a href="https://www.instagram.com/hadievcenter?hl=af" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Instagram">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" /></svg>
-              </a>
-            </div>
-          </div>
-          <div className="footer-col">
-            <h4>Explore</h4>
-            <ul>
-              <li><Link to="/shop">Shop Bikes</Link></li>
-              <li><Link to="/shop">Parts Catalog</Link></li>
-              {user && <li><Link to="/appointments">Book Service</Link></li>}
-              <li><Link to="/about">About Us</Link></li>
-              <li><Link to="/contact">Contact</Link></li>
-            </ul>
-          </div>
-          <div className="footer-col">
-            <h4>Account</h4>
-            <ul>
-              <li><Link to="/login">Sign In</Link></li>
-              <li><Link to="/register">Register</Link></li>
-              {user && (
-                <>
-                  <li><Link to="/my/orders">My Orders</Link></li>
-                  <li><Link to="/my/bookings">My Bookings</Link></li>
-                  <li><Link to="/track">Track Order</Link></li>
-                </>
-              )}
-            </ul>
-          </div>
-          <div className="footer-col">
-            <h4>Support</h4>
-            <ul>
-              <li><Link to="/contact">Get Help</Link></li>
-              <li><a href="#">Find A Branch</a></li>
-              <li><a href="#">Warranty</a></li>
-              <li><a href="#">Returns</a></li>
-              <li><a href="#">Privacy Policy</a></li>
-            </ul>
-          </div>
-        </div>
-        <div className="footer-bottom">
-          <p>© 2025 <span>Crown Eve Bikes</span>. All rights reserved. Built with precision.</p>
-          <p style={{ fontSize: '11px', color: 'var(--muted)' }}>Main Branch Chishtian </p>
-        </div>
-      </footer>
+      <PublicFooter />
     </div>
   );
 };

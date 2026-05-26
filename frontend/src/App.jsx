@@ -12,6 +12,8 @@ const Appointments = lazy(() => import('./pages/appointments/Appointments'));
 const TrackOrder = lazy(() => import('./pages/public/TrackOrder'));
 const About = lazy(() => import('./pages/public/About'));
 const Contact = lazy(() => import('./pages/public/Contact'));
+const TermsOfService = lazy(() => import('./pages/public/TermsOfService'));
+const PrivacyPolicy = lazy(() => import('./pages/public/PrivacyPolicy'));
 const PublicCart = lazy(() => import('./pages/public/Cart'));
 const PublicCheckout = lazy(() => import('./pages/checkout/Checkout'));
 const NotFound = lazy(() => import('./pages/public/NotFound'));
@@ -80,6 +82,8 @@ const App = () => {
                 <Route path="/product/:id" element={<ProductDetail />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
 
                 {/* Semi-protected routes: Guest cannot access, but they use the public layout */}
                 <Route path="/track/:id" element={<ProtectedRoute><TrackOrder /></ProtectedRoute>} />
