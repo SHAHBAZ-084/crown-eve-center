@@ -1350,3 +1350,8 @@ h1.hero-title .line3 {
     font-size: 38px !important;
   }
 }
+
+/* ── SPINNER ── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

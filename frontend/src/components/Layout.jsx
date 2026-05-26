@@ -15,8 +15,9 @@ const Layout = ({ isPublic = false }) => {
   const { user, logout, loading } = useAuth();
   const location = useLocation();
 
-  // While checking auth, show nothing — prevents flash of wrong UI state
-  if (loading) {
+  // Only block rendering on auth for protected (non-public) layouts
+  // Public pages like homepage should render immediately
+  if (loading && !isPublic) {
     return (
       <div style={{ minHeight: '100vh', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ width: 40, height: 40, border: '4px solid #2563eb', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />

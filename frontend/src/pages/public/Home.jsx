@@ -19,7 +19,7 @@ const Home = () => {
     [R2_PUBLIC_URL]
   );
 
-  const { services, products, testimonials, isLoading } = useHomeData();
+  const { services, products, testimonials, isLoading, servicesLoading, testimonialsLoading } = useHomeData();
   const [currentImg, setCurrentImg] = useState(0);
   const [expandedTestimonial, setExpandedTestimonial] = useState(null);
 
@@ -118,6 +118,7 @@ const Home = () => {
                       src={getImgUrl(p.images[0].url)}
                       alt={p.name}
                       className="bike-main-img"
+                      loading="lazy"
                     />
                   ) : (
                     <div className="placeholder-img">[ {p.name} ]</div>
@@ -154,7 +155,11 @@ const Home = () => {
         <h2 className="section-title">Our<br /><span style={{ color: 'var(--orange)' }}>Services.</span></h2>
         <div className="services-layout">
           <div className="services-list">
-            {services.length > 0 ? (
+            {servicesLoading ? (
+              <div style={{ padding: '40px 0', display: 'flex', justifyContent: 'center' }}>
+                <div className="w-8 h-8 border-3 border-orange-500 border-t-transparent rounded-full animate-spin" style={{ width: 32, height: 32, border: '3px solid var(--orange)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+              </div>
+            ) : services.length > 0 ? (
               services.slice(0, 6).map((service, i) => (
                 <div key={service.id} className="service-item">
                   <div className="service-item-left">
@@ -198,6 +203,7 @@ const Home = () => {
           loop
           playsInline
           preload="none"
+          loading="lazy"
           className="booking-video-bg"
         >
           <source src={R2_PUBLIC_URL ? `${R2_PUBLIC_URL}/videos/ride-bg.webm` : '/videos/ride-bg.webm'} type="video/webm" />
@@ -256,7 +262,7 @@ const Home = () => {
 
           <div className="why-evee-visual">
             <div className="why-evee-img-wrapper">
-              <img src={R2_PUBLIC_URL ? `${R2_PUBLIC_URL}/1-3.webp` : '/1-3.png'} alt="Evee Electric Scooter" className="scooter-visual" />
+              <img src={R2_PUBLIC_URL ? `${R2_PUBLIC_URL}/1-3.webp` : '/1-3.png'} alt="Evee Electric Scooter" className="scooter-visual" loading="lazy" />
               <div className="evee-visual-overlay">
                 <div className="evee-main-text-float">evee</div>
                 <div className="evee-sub-text-float">I am Evee. Are you?</div>
@@ -274,7 +280,11 @@ const Home = () => {
         </div>
         <h2 className="section-title">Trusted by<br /><span style={{ color: 'var(--orange)' }}>Riders.</span></h2>
         <div className="testimonials-grid">
-          {testimonials.length > 0 ? (
+          {testimonialsLoading ? (
+            <div style={{ gridColumn: '1 / -1', padding: '60px 0', display: 'flex', justifyContent: 'center' }}>
+              <div style={{ width: 32, height: 32, border: '3px solid var(--orange)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+            </div>
+          ) : testimonials.length > 0 ? (
             testimonials.slice(0, 3).map((t, idx) => (
               <div key={t.id || idx} className="testimonial-card">
                 <div className="stars">{'★'.repeat(t.stars)}{'☆'.repeat(5 - t.stars)}</div>

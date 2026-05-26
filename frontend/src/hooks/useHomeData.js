@@ -25,6 +25,9 @@ export function useHomeData() {
     services: servicesQuery.data ?? [],
     products: productsQuery.data?.data ?? productsQuery.data ?? [],
     testimonials: testimonialsQuery.data ?? [],
-    isLoading: servicesQuery.isLoading || productsQuery.isLoading || testimonialsQuery.isLoading,
+    // Only block on products (above-the-fold); services/testimonials load independently
+    isLoading: productsQuery.isLoading,
+    servicesLoading: servicesQuery.isLoading,
+    testimonialsLoading: testimonialsQuery.isLoading,
   };
 }
