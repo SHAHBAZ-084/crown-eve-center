@@ -1,4 +1,4 @@
-// Singleton PrismaClient — Neon HTTP adapter avoids native engine panics on Hostinger.
+// Singleton PrismaClient — Neon driver adapter avoids native engine panics on Hostinger/Node 22.
 
 const { PrismaClient } = require('@prisma/client');
 
@@ -11,26 +11,36 @@ const buildUrl = (raw) => {
   return `${raw}${sep}connection_limit=5`;
 };
 
-// DISABLED: Neon HTTP adapter does NOT support interactive transactions ($transaction).
-// Standard Prisma wire protocol works fine with Neon databases on Hostinger.
-const useNeonAdapter = () => false;
+const shouldUseNeonAdapter = () => {
+  if (process.env.PRISMA_NEON_ADAPTER === '0') return false;
+  if (process.env.PRISMA_NEON_ADAPTER === '1') return true;
+  const url = `${process.env.DATABASE_URL || ''}${process.env.DIRECT_URL || ''}`;
+  return url.includes('neon.tech');
+};
 
 function createPrismaClient() {
-  // Prefer DIRECT_URL (non-pooler) over DATABASE_URL (pooler).
-  // Neon's pooler URL (with -pooler in hostname) uses PgBouncer in transaction mode,
-  // which breaks Prisma's interactive $transaction(). Direct connections work fine
-  // on persistent Node.js servers like Hostinger.
-  const rawUrl = process.env.DIRECT_URL || process.env.DATABASE_URL;
-  const databaseUrl = buildUrl(rawUrl);
+  const pooledUrl = buildUrl(process.env.DATABASE_URL);
+  const directUrl = buildUrl(process.env.DIRECT_URL || process.env.DATABASE_URL);
 
-  if (!databaseUrl) {
+  if (!pooledUrl && !directUrl) {
     console.error('\x1b[31m%s\x1b[0m', 'CRITICAL: DATABASE_URL is not set.');
     return new PrismaClient();
   }
 
+  if (shouldUseNeonAdapter() && pooledUrl) {
+    console.log('[db] Using Neon driver adapter (no native Prisma engine)');
+    const { PrismaNeon } = require('@prisma/adapter-neon');
+    const adapter = new PrismaNeon({ connectionString: pooledUrl });
+    return new PrismaClient({
+      adapter,
+      log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
+    });
+  }
+
+  console.log('[db] Using native Prisma engine');
   return new PrismaClient({
     datasources: {
-      db: { url: databaseUrl },
+      db: { url: directUrl },
     },
     log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
   });

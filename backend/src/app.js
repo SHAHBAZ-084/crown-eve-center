@@ -107,8 +107,24 @@ app.get('/', (req, res) => {
   });
 });
 
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+app.get('/health', async (req, res) => {
+  const payload = {
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    node: process.version,
+  };
+
+  try {
+    const prisma = require('./config/db');
+    await prisma.$queryRaw`SELECT 1`;
+    payload.db = 'connected';
+    return res.status(200).json(payload);
+  } catch (err) {
+    payload.status = 'DEGRADED';
+    payload.db = 'disconnected';
+    payload.error = process.env.NODE_ENV === 'production' ? 'Database unreachable' : err.message;
+    return res.status(503).json(payload);
+  }
 });
 
 if (!isProduction) {

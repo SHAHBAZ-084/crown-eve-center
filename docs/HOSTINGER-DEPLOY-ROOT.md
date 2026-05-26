@@ -10,7 +10,7 @@ Agar Hostinger sirf **repo root (`./`)** allow karta hai, yeh settings use karei
 | Entry file | **`index.js`** |
 | Build command | **`npm run build`** |
 | Start command | **`npm start`** |
-| Node version | **20.x** |
+| Node version | **20.x** (NOT 22 — Prisma crashes on Node 22) |
 | Output directory | *(blank — delete the `.`)* |
 
 GitHub se code pull / redeploy ke baad **Restart** karein.
