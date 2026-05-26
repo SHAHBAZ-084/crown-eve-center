@@ -34,10 +34,7 @@ const Home = () => {
     return () => clearInterval(timer);
   }, [images.length]);
 
-  if (isLoading) {
-    return <PageSkeleton rows={6} />;
-  }
-
+  // Removed full-page skeleton to allow Hero section to render instantly
   return (
     <div id="page-home" className="page">
       {/* HERO */}
@@ -108,7 +105,11 @@ const Home = () => {
           <Link to="/shop" className="view-all">View all bikes →</Link>
         </div>
         <div className="products-grid three-cols">
-          {products.length > 0 ? (
+          {isLoading ? (
+            <div style={{ gridColumn: '1 / -1', padding: '60px 0', display: 'flex', justifyContent: 'center' }}>
+              <div style={{ width: 40, height: 40, border: '4px solid var(--orange)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+            </div>
+          ) : products.length > 0 ? (
             products.slice(0, 3).map((p) => (
               <div key={p.id} className="product-card bike-card-new" onClick={() => navigate(`/product/${p.id}`)}>
                 <div className="product-card-img">

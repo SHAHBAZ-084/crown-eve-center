@@ -5,7 +5,7 @@ const AUTH_TIMEOUT_MS = 15000;
 
 const api = axios.create({
   baseURL: getApiUrl(),
-  timeout: 30000,
+  timeout: 60000,
   headers: {
     Accept: 'application/json',
     'Cache-Control': 'no-cache',

@@ -16,7 +16,7 @@ const Layout = ({ isPublic = false }) => {
   const location = useLocation();
 
   // Only block rendering on auth for protected (non-public) layouts
-  // Public pages like homepage should render immediately
+  // Public pages like homepage should render immediately for a fast first paint
   if (loading && !isPublic) {
     return (
       <div style={{ minHeight: '100vh', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
