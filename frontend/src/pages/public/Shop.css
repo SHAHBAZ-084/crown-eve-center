@@ -1,7 +1,7 @@
 /* frontend/src/pages/public/Shop.css */
 
 .shop-container {
-  padding: calc(var(--nav-height) + 20px) 1% 20px 1%;
+  padding: 20px 1%;
   background: #fff;
 }
 
@@ -443,6 +443,7 @@
   .shop-container {
     padding: 20px 4%;
   }
+
 
   .pg-hd {
     flex-direction: column;

@@ -932,6 +932,7 @@ h1.hero-title .line3 {
   justify-content: center;
   text-align: center;
   position: relative;
+  margin-top: calc(-1 * var(--nav-height));
 }
 
 .hero-slideshow {
