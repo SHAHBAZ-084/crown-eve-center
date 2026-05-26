@@ -11,7 +11,7 @@ Agar Hostinger sirf **repo root (`./`)** allow karta hai, yeh settings use karei
 | Build command | **`npm run build`** |
 | Start command | **`npm start`** |
 | Node version | **20.x** |
-| Output directory | *(blank)* |
+| Output directory | *(blank — delete the `.`)* |
 
 GitHub se code pull / redeploy ke baad **Restart** karein.
 
