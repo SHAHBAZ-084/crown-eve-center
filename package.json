@@ -1,13 +1,19 @@
 {
   "name": "crown-eve-center-monorepo",
   "private": true,
+  "main": "index.js",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "workspaces": [
     "frontend",
     "backend"
   ],
   "scripts": {
-    "build": "npm run build --workspace=backend",
-    "start": "npm run start --workspace=backend"
+    "postinstall": "npm install --prefix backend && npm run build --prefix backend",
+    "build": "npm install --prefix backend && npm run build --prefix backend",
+    "start": "node index.js",
+    "start:backend": "node backend/index.js"
   },
   "dependencies": {
     "csv-parser": "^3.2.0",

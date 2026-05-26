@@ -1,4 +1,14 @@
 // backend/src/server.js
+const path = require('path');
+
+// Hostinger often runs `node backend/src/server.js` from repo root (cwd = ./).
+// Prisma and relative paths expect cwd to be the backend folder.
+try {
+  process.chdir(path.resolve(__dirname, '..'));
+} catch {
+  // ignore
+}
+
 function serveCrashReport(err) {
   const http = require('http');
   const server = http.createServer((req, res) => {
