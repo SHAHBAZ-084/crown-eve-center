@@ -7,7 +7,7 @@
   grid-template-columns: 1fr 1fr;
   align-items: center;
   padding: 0 5vw;
-  padding-top: 72px;
+  padding-top: var(--nav-height);
   position: relative;
   overflow: hidden;
 }
@@ -932,7 +932,6 @@ h1.hero-title .line3 {
   justify-content: center;
   text-align: center;
   position: relative;
-  margin-top: calc(-1 * var(--nav-height));
 }
 
 .hero-slideshow {

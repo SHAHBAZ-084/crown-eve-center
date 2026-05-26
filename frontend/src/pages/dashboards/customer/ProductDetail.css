@@ -1,5 +1,5 @@
 .product-detail-page {
-  padding: 120px 10% 60px;
+  padding: calc(var(--nav-height) + 30px) 10% 60px;
   /* Increased top padding for navbar */
   background: #fff;
   color: #2D3436;

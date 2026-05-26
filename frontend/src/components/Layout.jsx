@@ -33,7 +33,7 @@ const Layout = ({ isPublic = false }) => {
     return (
       <div className="min-h-screen bg-black text-orange-600 font-sans public-layout-wrapper">
         <Navbar user={user} logout={logout} />
-        <main style={{ paddingTop: 'var(--nav-height)' }}>
+        <main>
           <div key={location.pathname} style={pageStyle}>
             <Outlet />
           </div>
