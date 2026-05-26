@@ -15,7 +15,7 @@ class ErrorBoundary extends React.Component {
     console.error('[ErrorBoundary]', error, info);
     
     // Auto-reload on chunk load errors (due to new deployment / hash changes)
-    const chunkError = /Failed to fetch dynamically imported module|dynamically imported module|Loading chunk|Failed to load resource/i.test(error?.message || '');
+    const chunkError = /Failed to fetch dynamically imported module|dynamically imported module|Loading chunk|Failed to load resource|Unable to preload CSS/i.test(error?.message || '');
     if (chunkError) {
       const lastReload = sessionStorage.getItem('last-chunk-reload');
       const now = Date.now();
