@@ -12,6 +12,12 @@
   overflow: hidden;
 }
 
+#hero.full-screen-hero {
+  min-height: 135vh;
+  align-items: center;
+  justify-content: center;
+}
+
 .hero-bg {
   position: absolute;
   inset: 0;
@@ -263,7 +269,7 @@ h1.hero-title .line3 {
 
 .scroll-indicator {
   position: absolute;
-  bottom: 40px;
+  bottom: 90px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -927,11 +933,12 @@ h1.hero-title .line3 {
 /* DYNAMIC HERO IMPROVEMENTS */
 .full-screen-hero {
   grid-template-columns: 1fr !important;
-  min-height: 120vh;
+  min-height: 135vh;
   display: flex !important;
   justify-content: center;
   text-align: center;
   position: relative;
+  padding-bottom: 90px !important;
 }
 
 .hero-slideshow {
@@ -944,7 +951,7 @@ h1.hero-title .line3 {
 .hero-slide {
   position: absolute;
   inset: 0;
-  background-size: 100% 100%;
+  background-size: cover;
   background-position: center;
   opacity: 0;
   transition: opacity 1.5s ease-in-out;

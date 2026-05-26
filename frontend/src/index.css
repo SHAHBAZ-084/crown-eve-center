@@ -2319,8 +2319,8 @@ footer::after {
   }
 
   .full-screen-hero {
-    padding: 100px 6vw 80px !important;
-    min-height: 100vh !important;
+    padding: 100px 6vw 90px !important;
+    min-height: 120vh !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
@@ -2363,7 +2363,7 @@ footer::after {
 .full-screen-hero {
   grid-template-columns: 1fr !important;
   padding: 140px 5vw 100px !important;
-  min-height: 100vh;
+  min-height: 135vh;
   display: flex !important;
   align-items: center;
   justify-content: flex-start;
