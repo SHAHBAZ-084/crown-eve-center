@@ -15,6 +15,7 @@ const Contact = lazy(() => import('./pages/public/Contact'));
 const PublicCart = lazy(() => import('./pages/public/Cart'));
 const PublicCheckout = lazy(() => import('./pages/checkout/Checkout'));
 const NotFound = lazy(() => import('./pages/public/NotFound'));
+const Unauthorized = lazy(() => import('./pages/Unauthorized'));
 
 // Auth Pages
 const Login = lazy(() => import('./pages/Login'));
@@ -57,6 +58,8 @@ const CustomerCart = lazy(() => import('./pages/dashboards/customer/Cart'));
 const CustomerCheckout = lazy(() => import('./pages/dashboards/customer/Checkout'));
 const CustomerTrack = lazy(() => import('./pages/dashboards/customer/TrackOrder'));
 const ProductDetail = lazy(() => import('./pages/dashboards/customer/ProductDetail'));
+
+import { BRANCH_DASHBOARD_ROLES } from './constants/roles';
 
 const FullPageSkeleton = () => (
   <div className="min-h-screen bg-black flex items-center justify-center">
@@ -102,7 +105,7 @@ const App = () => {
               </Route>
 
               {/* Branch Routes - Outside main Layout to avoid double sidebar */}
-              <Route element={<ProtectedRoute allowedRoles={['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER']}><BranchLayout /></ProtectedRoute>}>
+              <Route element={<ProtectedRoute allowedRoles={BRANCH_DASHBOARD_ROLES}><BranchLayout /></ProtectedRoute>}>
                 <Route path="/branch" element={<Navigate to="/branch/dashboard" replace />} />
                 <Route path="/branch/dashboard" element={<BranchDashboard />} />
                 <Route path="/branch/products" element={<BranchProducts />} />
@@ -130,9 +133,9 @@ const App = () => {
 
 
 
-              <Route path="/branch/pos" element={<ProtectedRoute allowedRoles={['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER']}><BranchPOS /></ProtectedRoute>} />
+              <Route path="/branch/pos" element={<ProtectedRoute allowedRoles={['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER', 'EMPLOYEE']}><BranchPOS /></ProtectedRoute>} />
 
-              <Route path="/unauthorized" element={<Navigate to="/" replace />} />
+              <Route path="/unauthorized" element={<Unauthorized />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

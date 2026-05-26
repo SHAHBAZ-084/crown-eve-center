@@ -3,16 +3,20 @@ const router = require('express').Router();
 const ctrl = require('./order.controller');
 const { protect } = require('../../middleware/auth');
 const { allow } = require('../../middleware/rbac');
+const { scopeBranch } = require('../../middleware/scopeBranch');
 
 const validate = require('../../middleware/validate');
 const { createOrderSchema, updateStatusSchema } = require('./order.schema');
 
-router.post('/',           protect, allow('EMPLOYEE','BRANCH_OWNER','CUSTOMER'), validate(createOrderSchema), ctrl.create);
-router.get('/count',       protect, allow('BRANCH_OWNER','EMPLOYEE', 'COMPANY_OWNER'), ctrl.getCount);
-router.get('/my',          protect, allow('CUSTOMER'), ctrl.getMine);
-router.get('/',            protect, allow('BRANCH_OWNER','EMPLOYEE', 'COMPANY_OWNER'), ctrl.getAll);
-router.get('/customer/:id',protect, allow('CUSTOMER', 'BRANCH_OWNER'), ctrl.getByCustomer);
-router.get('/:id',         protect, allow('BRANCH_OWNER','EMPLOYEE','COMPANY_OWNER','CUSTOMER'), ctrl.getById);
-router.put('/:id/status',  protect, allow('EMPLOYEE','BRANCH_OWNER'),             validate(updateStatusSchema), ctrl.updateStatus);
+const staffRoles = ['EMPLOYEE', 'BRANCH_OWNER', 'BRANCH_MANAGER', 'COMPANY_OWNER'];
+const branchStaff = ['EMPLOYEE', 'BRANCH_OWNER', 'BRANCH_MANAGER'];
+
+router.post('/', protect, allow('EMPLOYEE', 'BRANCH_OWNER', 'BRANCH_MANAGER', 'CUSTOMER'), validate(createOrderSchema), ctrl.create);
+router.get('/count', protect, scopeBranch, allow(...staffRoles), ctrl.getCount);
+router.get('/my', protect, allow('CUSTOMER'), ctrl.getMine);
+router.get('/', protect, scopeBranch, allow(...staffRoles), ctrl.getAll);
+router.get('/customer/:id', protect, allow('CUSTOMER', 'BRANCH_OWNER', 'BRANCH_MANAGER'), ctrl.getByCustomer);
+router.get('/:id', protect, allow(...staffRoles, 'CUSTOMER'), ctrl.getById);
+router.put('/:id/status', protect, scopeBranch, allow(...branchStaff), validate(updateStatusSchema), ctrl.updateStatus);
 
 module.exports = router;

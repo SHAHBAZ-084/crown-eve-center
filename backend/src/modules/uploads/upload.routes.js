@@ -2,10 +2,13 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const { uploadBuffer, assertR2Config } = require('../../utils/r2-upload');
+const { uploadBuffer, deleteByUrl, assertR2Config } = require('../../utils/r2-upload');
 const { protect } = require('../../middleware/auth');
+const { allow } = require('../../middleware/rbac');
 
 const router = express.Router();
+
+const uploadRoles = ['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER', 'EMPLOYEE'];
 
 const IMAGE_EXT = /\.(jpe?g|png|webp|gif)$/i;
 const VIDEO_EXT = /\.(mp4|webm|mov|m4v|ogg)$/i;
@@ -41,6 +44,7 @@ const isVideoFile = (file) => VIDEO_TYPES.test(file.mimetype) || VIDEO_EXT.test(
 router.post(
   '/',
   protect,
+  allow(...uploadRoles),
   upload.fields([
     { name: 'image', maxCount: 1 },
     { name: 'video', maxCount: 1 },
@@ -75,12 +79,12 @@ router.post(
       });
     } catch (err) {
       console.error('R2 upload error:', err);
-      res.status(500).json({ message: 'Upload failed', error: err.message });
+      res.status(500).json({ message: 'Upload failed' });
     }
   }
 );
 
-router.delete('/', protect, async (req, res) => {
+router.delete('/', protect, allow(...uploadRoles), async (req, res) => {
   const { url } = req.body;
   if (!url) return res.status(400).json({ message: 'url required' });
 
@@ -88,7 +92,7 @@ router.delete('/', protect, async (req, res) => {
     await deleteByUrl(url);
     res.json({ message: 'Deleted' });
   } catch (err) {
-    res.status(500).json({ message: 'Delete failed', error: err.message });
+    res.status(500).json({ message: 'Delete failed' });
   }
 });
 

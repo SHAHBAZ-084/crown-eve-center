@@ -2,12 +2,12 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { normalizeRole } from '../../constants/roles';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  // Show nothing while checking auth state
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
@@ -16,14 +16,16 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     );
   }
 
-  // Not logged in
   if (!user) {
-    return <Navigate to="/" replace />;
+    const redirect = `${location.pathname}${location.search}`;
+    return <Navigate to={`/login?redirect=${encodeURIComponent(redirect)}`} replace />;
   }
 
-  // Role not allowed
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/" replace />;
+  const userRole = normalizeRole(user.role);
+  const allowed = allowedRoles?.map(normalizeRole);
+
+  if (allowed && !allowed.includes(userRole)) {
+    return <Navigate to="/unauthorized" replace />;
   }
 
   return children;

@@ -29,12 +29,14 @@ const Login = () => {
         navigate(from, { replace: true });
       } else if (user.role === 'COMPANY_OWNER') {
         navigate('/owner/dashboard');
-      } else if (user.role === 'BRANCH_OWNER') {
+      } else if (user.role === 'BRANCH_OWNER' || user.role === 'BRANCH_MANAGER') {
         navigate('/branch/dashboard');
       } else if (user.role === 'CUSTOMER') {
         navigate('/my/dashboard');
-      } else if (['EMPLOYEE', 'TECHNICIAN'].includes(user.role)) {
-        navigate('/emp/dashboard');
+      } else if (user.role === 'EMPLOYEE') {
+        navigate('/branch/pos');
+      } else if (user.role === 'TECHNICIAN') {
+        navigate('/branch/appointments');
       } else {
         navigate('/');
       }

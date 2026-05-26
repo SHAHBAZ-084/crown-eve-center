@@ -112,6 +112,7 @@ model Product {
   @@index([brandId])
   @@index([product_type])
   @@index([branchId, product_type])
+  @@index([branchId, is_active])
   @@index([name])
   @@index([is_active])
 }
@@ -245,7 +246,7 @@ model Order {
   @@index([branchId])
   @@index([status])
   @@index([createdAt])
-  @@index([branchId, status])
+  @@index([branchId, status, createdAt])
 }
 
 model OrderItem {

@@ -1,4 +1,4 @@
-const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 
 require('../config/loadEnv');
 
@@ -69,4 +69,21 @@ async function uploadBuffer(key, buffer, contentType = 'image/png') {
   return `${PUBLIC_BASE}/${normalizedKey}`;
 }
 
-module.exports = { uploadBuffer, assertR2Config, PUBLIC_BASE };
+function keyFromPublicUrl(url) {
+  if (!url || !PUBLIC_BASE) return null;
+  const base = PUBLIC_BASE.replace(/\/$/, '');
+  if (!url.startsWith(base)) return null;
+  return url.slice(base.length + 1);
+}
+
+async function deleteByUrl(url) {
+  assertR2Config();
+  const key = keyFromPublicUrl(url);
+  if (!key) {
+    throw new Error('Invalid R2 URL');
+  }
+  const r2 = await getR2Client();
+  await r2.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: key }));
+}
+
+module.exports = { uploadBuffer, deleteByUrl, assertR2Config, PUBLIC_BASE };

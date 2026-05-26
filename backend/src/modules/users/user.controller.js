@@ -1,11 +1,15 @@
 // backend/src/modules/users/user.controller.js
 const User = require('./user.model');
 const bcrypt = require('bcryptjs');
+const { normalizeRole } = require('../../constants/roles');
+const { assertPasswordPolicy } = require('../../utils/passwordPolicy');
+
+const BRANCH_SCOPED = ['BRANCH_OWNER', 'BRANCH_MANAGER', 'EMPLOYEE'];
 
 exports.getAll = async (req, res) => {
   try {
     let { branchId } = req.query;
-    if (req.user.role === 'BRANCH_OWNER' || req.user.role === 'EMPLOYEE') {
+    if (BRANCH_SCOPED.includes(normalizeRole(req.user.role))) {
       branchId = req.user.branchId;
     }
     const users = await User.getAllUsers(branchId ? Number(branchId) : undefined);
@@ -28,17 +32,27 @@ exports.getOnlineCustomers = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const { name, email, password, role, branchId } = req.body;
+    assertPasswordPolicy(password);
+    const normalizedRole = normalizeRole(role);
+
+    const allowedRoles = ['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER', 'EMPLOYEE', 'TECHNICIAN', 'CUSTOMER'];
+    if (!allowedRoles.includes(normalizedRole)) {
+      return res.status(400).json({ message: 'Invalid role.' });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    
-    // Enforce branchId for Branch Owners
-    const finalBranchId = req.user.role === 'BRANCH_OWNER' ? req.user.branchId : (branchId ? Number(branchId) : null);
+
+    let finalBranchId = branchId ? Number(branchId) : null;
+    if (normalizeRole(req.user.role) === 'BRANCH_OWNER' || normalizeRole(req.user.role) === 'BRANCH_MANAGER') {
+      finalBranchId = req.user.branchId;
+    }
 
     const user = await User.createUser({
       name,
       email,
       password: hashedPassword,
-      role,
-      branchId: finalBranchId
+      role: normalizedRole,
+      branchId: finalBranchId,
     });
     res.status(201).json({ id: user.id, name: user.name, email: user.email, role: user.role });
   } catch (e) {
@@ -55,7 +69,7 @@ exports.update = async (req, res) => {
     
     // Only COMPANY_OWNER can change role or branch assignment
     if (req.user.role === 'COMPANY_OWNER') {
-      if (role) safeData.role = role;
+      if (role) safeData.role = normalizeRole(role);
       if (branchId !== undefined) safeData.branchId = branchId ? Number(branchId) : null;
     }
 

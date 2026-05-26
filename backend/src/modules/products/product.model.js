@@ -11,11 +11,14 @@ const getProducts = async ({
   sortBy,
   order,
   lite,
+  publicOnly,
 }) => {
   const skip = (page - 1) * limit;
   const isLite = lite === 'true' || lite === '1';
+  const activeOnly = publicOnly === true || publicOnly === 'true' || publicOnly === '1';
 
   const where = {
+    ...(activeOnly && { is_active: true }),
     ...(branchId && { branchId: Number(branchId) }),
     ...(categoryId && { categoryId }),
     ...(product_type && { product_type }),

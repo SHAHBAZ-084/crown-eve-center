@@ -4,7 +4,7 @@ const ctrl = require('./voucher.controller');
 const { protect } = require('../../middleware/auth');
 const { allow } = require('../../middleware/rbac');
 
-const allowedRoles = allow('COMPANY_OWNER', 'BRANCH_OWNER', 'EMPLOYEE');
+const allowedRoles = allow('COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER', 'EMPLOYEE');
 
 router.get('/', protect, allowedRoles, ctrl.getAll);
 router.get('/next-no', protect, allowedRoles, ctrl.getNextNo);

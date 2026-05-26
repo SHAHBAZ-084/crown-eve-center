@@ -6,6 +6,7 @@ const AUTH_TIMEOUT_MS = 15000;
 const api = axios.create({
   baseURL: getApiUrl(),
   timeout: 60000,
+  withCredentials: true,
   headers: {
     Accept: 'application/json',
     'Cache-Control': 'no-cache',
@@ -26,7 +27,6 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor — auto-logout on 401 (expired/invalid token)
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -37,8 +37,10 @@ api.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       sessionStorage.clear();
-      // Redirect to homepage silently (not /unauthorized)
-      window.location.href = '/';
+      const path = window.location.pathname + window.location.search;
+      if (!path.startsWith('/login')) {
+        window.location.href = `/login?redirect=${encodeURIComponent(path)}`;
+      }
     }
     return Promise.reject(error);
   }

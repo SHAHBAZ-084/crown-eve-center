@@ -1,17 +1,22 @@
-// backend/src/app.js - updated for Hostinger environment loading
+// backend/src/app.js
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
-const { cacheGet } = require('./middleware/cache');
+const { cacheGet, invalidateCacheOnWrite } = require('./middleware/cache');
 
 const app = express();
 
-// Security Middleware
-app.use(helmet({
-  contentSecurityPolicy: false,
-  crossOriginResourcePolicy: { policy: "cross-origin" }
-}));
+const isProduction = process.env.NODE_ENV === 'production';
+
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    hsts: isProduction ? { maxAge: 31536000, includeSubDomains: true } : false,
+  })
+);
+
 const corsOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
@@ -26,7 +31,7 @@ const isAllowedOrigin = (origin) => {
   if (!origin) return true;
   if (corsOrigins.includes(origin)) return true;
   if (/^https:\/\/([\w-]+\.)?crownevcenter\.com$/.test(origin)) return true;
-  if (/^http:\/\/localhost:\d+$/.test(origin)) return true;
+  if (!isProduction && /^http:\/\/localhost:\d+$/.test(origin)) return true;
   return false;
 };
 
@@ -45,12 +50,10 @@ app.use(
 );
 app.use(compression());
 app.use(express.json({ limit: '2mb' }));
-// NOTE: /uploads static removed — files served from Cloudflare R2
 
-// Public/read-heavy GET caching (short TTL; skips auth/orders/accounts)
+app.use('/api', invalidateCacheOnWrite);
 app.use('/api', cacheGet(45));
 
-// Routes
 const authRoutes = require('./modules/auth/auth.routes');
 const branchRoutes = require('./modules/branches/branch.routes');
 const productRoutes = require('./modules/products/product.routes');
@@ -96,43 +99,42 @@ app.use('/api/banks', bankInfoRoutes);
 app.use('/api/accounts', accountRoutes);
 app.use('/api/vouchers', voucherRoutes);
 
-
-
-// Root route
 app.get('/', (req, res) => {
-  res.status(200).json({ 
-    message: 'Crown Eve Management System API', 
+  res.status(200).json({
+    message: 'Crown Eve Management System API',
     version: '1.0.0',
-    status: 'Operational'
+    status: 'Operational',
   });
 });
 
-// Health check
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// Diagnostic route
-app.get('/api/debug-env', (req, res) => {
-  res.status(200).json({
-    db: process.env.DATABASE_URL ? 'Set' : 'Missing',
-    jwt: process.env.JWT_SECRET ? 'Set' : 'Missing',
-    port: process.env.PORT || 'Missing',
-    node_env: process.env.NODE_ENV,
-    cwd: process.cwd(),
-    dirname: __dirname,
+if (!isProduction) {
+  app.get('/api/debug-env', (req, res) => {
+    res.status(200).json({
+      db: process.env.DATABASE_URL ? 'Set' : 'Missing',
+      jwt: process.env.JWT_SECRET ? 'Set' : 'Missing',
+      port: process.env.PORT || 'Missing',
+      node_env: process.env.NODE_ENV,
+    });
   });
-});
+}
 
 const logger = require('./config/logger');
 
-// Error handling middleware
 app.use((err, req, res, next) => {
   logger.error('Unhandled Error', { message: err.message, stack: err.stack });
-  res.status(500).json({ 
+
+  if (isProduction) {
+    return res.status(500).json({ message: 'Something went wrong!' });
+  }
+
+  res.status(500).json({
     message: 'Something went wrong!',
     error: err.message,
-    stack: err.stack
+    stack: err.stack,
   });
 });
 

@@ -8,7 +8,19 @@ const {
   sendPasswordResetOtp,
   findValidOtp,
   markOtpUsed,
+  assertOtpVerifyLimit,
+  clearOtpVerifyAttempts,
 } = require('./otp.service');
+const { setAuthCookie, clearAuthCookie } = require('../../utils/authCookie');
+const { revokeUserTokens } = require('../../utils/tokenRevocation');
+const {
+  recordFailedLogin,
+  clearLoginAttempts,
+  isLoginLocked,
+  getRemainingLockMessage,
+} = require('../../utils/loginAttempts');
+const { assertPasswordPolicy } = require('../../utils/passwordPolicy');
+const { normalizeRole } = require('../../constants/roles');
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -16,15 +28,47 @@ if (!JWT_SECRET) {
 }
 
 const logger = require('../../config/logger');
+const isProduction = process.env.NODE_ENV === 'production';
+
+const sendSafeError = (res, status, message) => {
+  res.status(status).json({ message });
+};
 
 const sendOtpError = (res, error, fallback = 'Internal server error.') => {
   if (error.statusCode === 429) {
     return res.status(429).json({ message: error.message });
   }
+  if (isProduction) {
+    return res.status(500).json({ message: fallback });
+  }
   return res.status(500).json({ message: fallback, error: error.message });
 };
 
-/** Send OTP in background so register/forgot respond in ~1s, not after SMTP (10–30s). */
+const buildUserResponse = (user) => ({
+  id: user.id,
+  name: user.name,
+  email: user.email,
+  role: normalizeRole(user.role),
+  branchId: user.branchId,
+  branchName: user.branch?.name ?? null,
+});
+
+const issueToken = (user) =>
+  jwt.sign(
+    { id: user.id, role: normalizeRole(user.role), branchId: user.branchId },
+    JWT_SECRET,
+    { expiresIn: '1d' }
+  );
+
+const sendAuthResponse = (res, user) => {
+  const token = issueToken(user);
+  setAuthCookie(res, token);
+  return res.status(200).json({
+    token,
+    user: buildUserResponse(user),
+  });
+};
+
 const dispatchVerificationOtp = (email) => {
   void sendVerificationOtp(email).catch((err) => {
     logger.error('Background verification OTP failed', { email, error: err.message });
@@ -38,9 +82,11 @@ const dispatchPasswordResetOtp = (email) => {
 };
 
 exports.register = async (req, res) => {
-  const { name, email, password, branchId, phone, city } = req.body;
+  const { name, email, password, phone, city } = req.body;
 
   try {
+    assertPasswordPolicy(password);
+
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       logger.warn('Registration failed: User already exists', { email });
@@ -55,7 +101,7 @@ exports.register = async (req, res) => {
         email,
         password: hashedPassword,
         role: 'CUSTOMER',
-        branchId: branchId || null,
+        branchId: null,
         phone: phone || null,
         city: city || null,
         isVerified: false,
@@ -70,8 +116,11 @@ exports.register = async (req, res) => {
       user: { id: user.id, name: user.name, email: user.email, role: user.role },
     });
   } catch (error) {
+    if (error.statusCode === 400) {
+      return res.status(400).json({ message: error.message });
+    }
     if (error.statusCode === 429) return sendOtpError(res, error);
-    res.status(500).json({ message: 'Internal server error.', error: error.message });
+    sendSafeError(res, 500, 'Internal server error.');
   }
 };
 
@@ -79,6 +128,10 @@ exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
+    if (isLoginLocked(email)) {
+      return res.status(429).json({ message: getRemainingLockMessage() });
+    }
+
     const user = await prisma.user.findUnique({
       where: { email },
       select: {
@@ -94,10 +147,11 @@ exports.login = async (req, res) => {
     });
 
     if (!user) {
+      recordFailedLogin(email);
       return res.status(401).json({ message: 'Invalid credentials.' });
     }
 
-    if (user.role === 'CUSTOMER' && !user.isVerified) {
+    if (normalizeRole(user.role) === 'CUSTOMER' && !user.isVerified) {
       return res.status(403).json({
         message: 'Please verify your email before logging in.',
         unverified: true,
@@ -107,29 +161,23 @@ exports.login = async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      recordFailedLogin(email);
       return res.status(401).json({ message: 'Invalid credentials.' });
     }
 
-    const token = jwt.sign(
-      { id: user.id, role: user.role, branchId: user.branchId },
-      JWT_SECRET,
-      { expiresIn: '1d' }
-    );
-
-    res.status(200).json({
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        branchId: user.branchId,
-        branchName: user.branch ? user.branch.name : null,
-      },
-    });
+    clearLoginAttempts(email);
+    return sendAuthResponse(res, user);
   } catch (error) {
-    res.status(500).json({ message: 'Internal server error.', error: error.message });
+    sendSafeError(res, 500, 'Internal server error.');
   }
+};
+
+exports.logout = async (req, res) => {
+  if (req.user?.id) {
+    revokeUserTokens(req.user.id);
+  }
+  clearAuthCookie(res);
+  res.status(200).json({ message: 'Logged out successfully.' });
 };
 
 exports.getMe = async (req, res) => {
@@ -138,7 +186,7 @@ exports.getMe = async (req, res) => {
     select: { id: true, name: true, email: true, role: true, branchId: true, phone: true },
   });
   if (!user) return res.status(404).json({ message: 'User not found' });
-  res.status(200).json({ user });
+  res.status(200).json({ user: { ...user, role: normalizeRole(user.role) } });
 };
 
 exports.updateProfile = async (req, res) => {
@@ -150,7 +198,7 @@ exports.updateProfile = async (req, res) => {
     });
     res.json({ message: 'Profile updated successfully', user });
   } catch (error) {
-    res.status(500).json({ message: 'Internal server error.', error: error.message });
+    sendSafeError(res, 500, 'Internal server error.');
   }
 };
 
@@ -167,14 +215,20 @@ exports.verifyOtp = async (req, res) => {
   }
 
   try {
+    assertOtpVerifyLimit(email);
+
     const otpRecord = await findValidOtp(email, otpDigits, OTP_PURPOSE.VERIFY_EMAIL);
     if (!otpRecord) {
       return res.status(400).json({ message: 'Invalid or expired OTP.' });
     }
 
     await markOtpUsed(otpRecord.id);
+    clearOtpVerifyAttempts(email);
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: { branch: { select: { name: true } } },
+    });
     if (!user) {
       return res.status(404).json({ message: 'User not found.' });
     }
@@ -184,19 +238,18 @@ exports.verifyOtp = async (req, res) => {
       data: { isVerified: true },
     });
 
-    const token = jwt.sign(
-      { id: user.id, role: user.role, branchId: user.branchId },
-      JWT_SECRET,
-      { expiresIn: '1d' }
-    );
-
-    res.status(200).json({
+    const token = issueToken(user);
+    setAuthCookie(res, token);
+    return res.status(200).json({
       message: 'Email verified successfully!',
       token,
-      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+      user: buildUserResponse(user),
     });
   } catch (error) {
-    res.status(500).json({ message: 'Internal server error.', error: error.message });
+    if (error.statusCode === 429) {
+      return res.status(429).json({ message: error.message });
+    }
+    sendSafeError(res, 500, 'Internal server error.');
   }
 };
 
@@ -233,14 +286,12 @@ exports.forgotPassword = async (req, res) => {
 
   try {
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-      return res.status(404).json({ message: 'No account found with this email.' });
+    if (user) {
+      dispatchPasswordResetOtp(user.email);
     }
 
-    dispatchPasswordResetOtp(user.email);
     res.status(200).json({
-      message: 'Password reset OTP sent to your email.',
-      email: user.email,
+      message: 'If an account exists with this email, a password reset code has been sent.',
     });
   } catch (error) {
     return sendOtpError(res, error, 'Failed to send reset OTP.');
@@ -259,11 +310,10 @@ exports.resetPassword = async (req, res) => {
     return res.status(400).json({ message: 'OTP must be a 6-digit code from your email.' });
   }
 
-  if (newPassword.length < 6) {
-    return res.status(400).json({ message: 'Password must be at least 6 characters.' });
-  }
-
   try {
+    assertPasswordPolicy(newPassword);
+    assertOtpVerifyLimit(email);
+
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       return res.status(404).json({ message: 'User not found.' });
@@ -275,6 +325,7 @@ exports.resetPassword = async (req, res) => {
     }
 
     await markOtpUsed(otpRecord.id);
+    clearOtpVerifyAttempts(email);
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await prisma.user.update({
@@ -282,8 +333,16 @@ exports.resetPassword = async (req, res) => {
       data: { password: hashedPassword },
     });
 
+    revokeUserTokens(user.id);
+
     res.status(200).json({ message: 'Password updated successfully. You can log in now.' });
   } catch (error) {
-    res.status(500).json({ message: 'Internal server error.', error: error.message });
+    if (error.statusCode === 400) {
+      return res.status(400).json({ message: error.message });
+    }
+    if (error.statusCode === 429) {
+      return res.status(429).json({ message: error.message });
+    }
+    sendSafeError(res, 500, 'Internal server error.');
   }
 };

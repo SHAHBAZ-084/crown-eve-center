@@ -65,7 +65,7 @@ exports.getAll = async (req, res) => {
   try {
     const query = { ...req.query };
     // Enforce branchId for non-global owners
-    if (req.user.role === 'BRANCH_OWNER' || req.user.role === 'EMPLOYEE') {
+    if (['BRANCH_OWNER', 'BRANCH_MANAGER', 'EMPLOYEE'].includes(req.user.role)) {
       query.branchId = req.user.branchId;
     }
     const result = await Order.getOrders(query);
@@ -97,6 +97,12 @@ exports.getById = async (req, res) => {
     // Bug 6: Use optional chaining — order.customer may be null for walk-in or system orders
     if (req.user.role === 'CUSTOMER' && order.customer?.id !== req.user.id) {
       return res.status(403).json({ message: 'Access denied' });
+    }
+
+    if (['BRANCH_OWNER', 'BRANCH_MANAGER', 'EMPLOYEE'].includes(req.user.role)) {
+      if (Number(order.branchId) !== Number(req.user.branchId)) {
+        return res.status(403).json({ message: 'Access denied for this branch.' });
+      }
     }
 
     res.json(order);

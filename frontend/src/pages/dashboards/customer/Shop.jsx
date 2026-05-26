@@ -63,7 +63,8 @@ const Shop = () => {
       sortBy: sort,
       order: order || "desc",
       page: page,
-      limit: 12
+      limit: 12,
+      lite: '1',
     };
 
     api.get("/products", { params })

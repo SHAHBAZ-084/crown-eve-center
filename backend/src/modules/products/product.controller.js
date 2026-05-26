@@ -1,4 +1,7 @@
 const Product = require('./product.model');
+const { STAFF_ROLES } = require('../../constants/roles');
+const { sanitizeProductList, sanitizeProduct } = require('../../utils/sanitizeProduct');
+const { assertBranchAccess } = require('../../middleware/scopeBranch');
 
 const slugify = (text) => text.toString().toLowerCase()
   .replace(/\s+/g, '-')           // Replace spaces with -
@@ -9,8 +12,14 @@ const slugify = (text) => text.toString().toLowerCase()
 
 exports.getAll = async (req, res) => {
   try {
-    const result = await Product.getProducts(req.query);
-    res.json(result);
+    const isStaff = req.user && STAFF_ROLES.includes(req.user.role);
+    const query = { ...req.query };
+    if (!isStaff) {
+      query.lite = query.lite || '1';
+      query.publicOnly = true;
+    }
+    const result = await Product.getProducts(query);
+    res.json(isStaff ? result : sanitizeProductList(result));
   } catch (e) {
     res.status(500).json({ message: e.message });
   }
@@ -20,7 +29,13 @@ exports.getById = async (req, res) => {
   try {
     const product = await Product.getProductById(req.params.id);
     if (!product) return res.status(404).json({ message: 'Product not found' });
-    res.json(product);
+
+    const isStaff = req.user && STAFF_ROLES.includes(req.user.role);
+    if (!isStaff && !product.is_active) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.json(isStaff ? product : sanitizeProduct(product));
   } catch (e) {
     res.status(500).json({ message: e.message });
   }
@@ -94,7 +109,13 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const { 
+    const existing = await Product.getProductById(req.params.id);
+    if (!existing) return res.status(404).json({ message: 'Product not found' });
+    if (!assertBranchAccess(req, existing.branchId)) {
+      return res.status(403).json({ message: 'Access denied for this branch.' });
+    }
+
+    const {
       name, description, price, sale_price, stock_qty, 
       categoryId, brandId, is_active, images,
       bikeDetail, partDetail
@@ -174,6 +195,12 @@ exports.update = async (req, res) => {
 
 exports.remove = async (req, res) => {
   try {
+    const existing = await Product.getProductById(req.params.id);
+    if (!existing) return res.status(404).json({ message: 'Product not found' });
+    if (!assertBranchAccess(req, existing.branchId)) {
+      return res.status(403).json({ message: 'Access denied for this branch.' });
+    }
+
     await Product.deleteProduct(req.params.id);
     res.json({ message: 'Product deleted successfully' });
   } catch (e) {

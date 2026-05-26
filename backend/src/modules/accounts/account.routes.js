@@ -5,7 +5,7 @@ const accountCtrl = require('./account.controller');
 const { protect } = require('../../middleware/auth');
 const { allow } = require('../../middleware/rbac');
 
-const allowedRoles = allow('COMPANY_OWNER', 'BRANCH_OWNER', 'EMPLOYEE');
+const allowedRoles = allow('COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER', 'EMPLOYEE');
 
 // Account Category Routes
 router.get('/categories', protect, allowedRoles, categoryCtrl.getAll);

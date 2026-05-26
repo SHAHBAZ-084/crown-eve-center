@@ -1,18 +1,20 @@
 // frontend/src/context/AuthContext.jsx
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import api from '../services/api';
+import { normalizeRole } from '../constants/roles';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('user') || 'null'); }
-    catch { return null; }
+    try {
+      const cached = JSON.parse(localStorage.getItem('user') || 'null');
+      return cached ? { ...cached, role: normalizeRole(cached.role) } : null;
+    } catch {
+      return null;
+    }
   });
-  const [loading, setLoading] = useState(() => {
-    // If we have a cached user, don't block rendering while verifying
-    return !localStorage.getItem('user');
-  });
+  const [loading, setLoading] = useState(() => !localStorage.getItem('user'));
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -20,9 +22,10 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         try {
           const res = await api.get('/auth/me');
-          setUser(res.data.user);
-          localStorage.setItem('user', JSON.stringify(res.data.user));
-        } catch (err) {
+          const nextUser = { ...res.data.user, role: normalizeRole(res.data.user.role) };
+          setUser(nextUser);
+          localStorage.setItem('user', JSON.stringify(nextUser));
+        } catch {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           setUser(null);
@@ -37,13 +40,19 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const res = await api.post('/auth/login', { email, password });
+    const nextUser = { ...res.data.user, role: normalizeRole(res.data.user.role) };
     localStorage.setItem('token', res.data.token);
-    localStorage.setItem('user', JSON.stringify(res.data.user));
-    setUser(res.data.user);
-    return res.data;
+    localStorage.setItem('user', JSON.stringify(nextUser));
+    setUser(nextUser);
+    return { ...res.data, user: nextUser };
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      // Still clear local session if API is unreachable
+    }
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     sessionStorage.clear();

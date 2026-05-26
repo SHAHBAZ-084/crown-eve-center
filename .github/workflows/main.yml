@@ -34,9 +34,9 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DIRECT_URL: ${{ secrets.DIRECT_URL }}
 
-      - name: Prisma DB Push
+      - name: Prisma Migrate Deploy
         working-directory: backend
-        run: npx prisma@6.19.3 db push --accept-data-loss
+        run: npx prisma@6.19.3 migrate deploy
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DIRECT_URL: ${{ secrets.DIRECT_URL }}

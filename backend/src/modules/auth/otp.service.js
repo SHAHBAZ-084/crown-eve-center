@@ -4,6 +4,31 @@ const { sendOtpEmail, sendPasswordResetOtpEmail } = require('../../utils/email.s
 const OTP_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 const OTP_MAX_PER_WINDOW = 15;
 const OTP_EXPIRY_MS = 10 * 60 * 1000;
+const OTP_VERIFY_MAX_ATTEMPTS = 5;
+const OTP_VERIFY_WINDOW_MS = 15 * 60 * 1000;
+
+const verifyAttempts = new Map();
+
+const assertOtpVerifyLimit = (email) => {
+  const key = String(email || '').toLowerCase().trim();
+  const now = Date.now();
+  const entry = verifyAttempts.get(key) || { count: 0, resetAt: now + OTP_VERIFY_WINDOW_MS };
+  if (now > entry.resetAt) {
+    verifyAttempts.set(key, { count: 1, resetAt: now + OTP_VERIFY_WINDOW_MS });
+    return;
+  }
+  entry.count += 1;
+  verifyAttempts.set(key, entry);
+  if (entry.count > OTP_VERIFY_MAX_ATTEMPTS) {
+    const err = new Error('Too many failed OTP attempts. Please wait 15 minutes and request a new code.');
+    err.statusCode = 429;
+    throw err;
+  }
+};
+
+const clearOtpVerifyAttempts = (email) => {
+  verifyAttempts.delete(String(email || '').toLowerCase().trim());
+};
 
 const OTP_PURPOSE = {
   VERIFY_EMAIL: 'VERIFY_EMAIL',
@@ -64,6 +89,8 @@ module.exports = {
   OTP_MAX_PER_WINDOW,
   OTP_WINDOW_MS,
   assertOtpRateLimit,
+  assertOtpVerifyLimit,
+  clearOtpVerifyAttempts,
   sendVerificationOtp,
   sendPasswordResetOtp,
   findValidOtp,

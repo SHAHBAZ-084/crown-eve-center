@@ -13,8 +13,8 @@ const UsersPage = () => {
   const [form, setForm] = useState({ name: "", email: "", password: "", role: "EMPLOYEE", branchId: "" });
   const [saving, setSaving] = useState(false);
 
-  const roles = ["COMPANY_OWNER", "BRANCH_OWNER", "EMPLOYEE", "TECHNICIAN", "CUSTOMER", "MANAGER"];
-  const roleBadge = { COMPANY_OWNER: "badge-orange", BRANCH_OWNER: "badge-blue", EMPLOYEE: "badge-green", TECHNICIAN: "badge-purple", CUSTOMER: "badge-yellow", MANAGER: "badge-red" };
+  const roles = ["COMPANY_OWNER", "BRANCH_OWNER", "BRANCH_MANAGER", "EMPLOYEE", "TECHNICIAN", "CUSTOMER"];
+  const roleBadge = { COMPANY_OWNER: "badge-orange", BRANCH_OWNER: "badge-blue", BRANCH_MANAGER: "badge-red", EMPLOYEE: "badge-green", TECHNICIAN: "badge-purple", CUSTOMER: "badge-yellow" };
 
   const filtered = (users || []).filter(u =>
     (!search || u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase())) &&

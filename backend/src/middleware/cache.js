@@ -17,11 +17,14 @@ const SKIP_PREFIXES = [
 
 const shouldSkipCache = (url) => SKIP_PREFIXES.some((p) => url.startsWith(p));
 
+const hasAuthHeader = (req) =>
+  Boolean(req.headers.authorization) || /(?:^|;\s*)token=/.test(req.headers.cookie || '');
+
 /**
- * Cache GET JSON responses. Key = method + originalUrl (includes query string).
+ * Cache GET JSON responses. Skips authenticated requests and sensitive prefixes.
  */
 const cacheGet = (ttlSeconds = 60) => (req, res, next) => {
-  if (req.method !== 'GET' || shouldSkipCache(req.originalUrl)) {
+  if (req.method !== 'GET' || shouldSkipCache(req.originalUrl) || hasAuthHeader(req)) {
     return next();
   }
 
@@ -45,4 +48,18 @@ const cacheGet = (ttlSeconds = 60) => (req, res, next) => {
 
 const clearCache = () => cacheStore.flushAll();
 
-module.exports = { cacheGet, clearCache, cacheStore };
+/** Clear cache after successful mutations. */
+const invalidateCacheOnWrite = (req, res, next) => {
+  if (!['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
+    return next();
+  }
+
+  res.on('finish', () => {
+    if (res.statusCode >= 200 && res.statusCode < 400) {
+      clearCache();
+    }
+  });
+  next();
+};
+
+module.exports = { cacheGet, clearCache, cacheStore, invalidateCacheOnWrite };
