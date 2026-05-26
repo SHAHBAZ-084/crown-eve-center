@@ -132,7 +132,7 @@ const App = () => {
 
               <Route path="/branch/pos" element={<ProtectedRoute allowedRoles={['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER']}><BranchPOS /></ProtectedRoute>} />
 
-              <Route path="/unauthorized" element={<div>Unauthorized Access</div>} />
+              <Route path="/unauthorized" element={<Navigate to="/" replace />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

@@ -26,4 +26,22 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Response interceptor — auto-logout on 401 (expired/invalid token)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (
+      error.response?.status === 401 &&
+      !error.config?.url?.startsWith('/auth/')
+    ) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      sessionStorage.clear();
+      // Redirect to homepage silently (not /unauthorized)
+      window.location.href = '/';
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;
