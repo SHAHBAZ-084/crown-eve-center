@@ -1,7 +1,7 @@
 /* frontend/src/pages/public/Shop.css */
 
 .shop-container {
-  padding: 20px 1%;
+  padding: calc(var(--nav-height) + 20px) 1% 20px 1%;
   background: #fff;
 }
 
