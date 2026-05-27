@@ -1,6 +1,7 @@
 // frontend/src/pages/dashboards/customer/Orders.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import CustomerPageHeader from "../../../components/customer/CustomerPageHeader";
 import { Badge } from "../../../components/customer/CustomerShared";
 import api from "../../../services/api";
 
@@ -28,12 +29,11 @@ const Orders = () => {
 
   return (
     <div>
-      <div className="pg-hd">
-        <div>
-          <h1>My Orders</h1>
-          <p>Track, manage and view your purchase history.</p>
-        </div>
-      </div>
+      <CustomerPageHeader
+        eyebrow="Account"
+        title="My Orders"
+        subtitle="Track, manage and view your purchase history."
+      />
 
       <div className="tabs">
         {["All", "Active", "Completed", "Cancelled"].map(t => (
@@ -88,7 +88,7 @@ const Orders = () => {
             <div className="ei">📦</div>
             <h3>No orders found</h3>
             <p>You don't have any orders in this category yet.</p>
-            <button className="btn btn-primary btn-sm" onClick={() => navigate("/shop")}>Start Shopping</button>
+            <button className="btn btn-primary btn-sm" onClick={() => navigate("/my/shop")}>Start Shopping</button>
           </div>
         )}
       </div>

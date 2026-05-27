@@ -3,7 +3,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import publicApi from "../../../services/publicApi";
-import { useAuth } from "../../../context/AuthContext";
 import { useCart } from "../../../context/CartContext";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { getImgUrl } from "../../../utils/imgUrl";
@@ -12,7 +11,6 @@ import "../../public/Shop.css";
 const Shop = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
   const { addItem, count } = useCart();
 
   const [cat, setCat] = useState("All");
@@ -23,7 +21,8 @@ const Shop = () => {
   const [page, setPage] = useState(1);
 
   const debouncedSearch = useDebounce(search, 350);
-  const cartPath = user?.role === "CUSTOMER" ? "/my/cart" : "/cart";
+  const cartPath = location.pathname.startsWith('/my/') ? '/my/cart' : '/cart';
+  const productPath = (id) => (location.pathname.startsWith('/my/') ? `/my/product/${id}` : `/product/${id}`);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -190,7 +189,7 @@ const Shop = () => {
               const mainImg = p.images?.find((img) => img.is_primary)?.url || p.images?.[0]?.url;
 
               return (
-                <Link to={`/product/${p.id}`} key={p.id} className="bike-card-new">
+                <Link to={productPath(p.id)} key={p.id} className="bike-card-new">
                   <div className="product-card-img">
                     {mainImg ? (
                       <img

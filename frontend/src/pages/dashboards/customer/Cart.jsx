@@ -32,7 +32,7 @@ const Cart = () => {
       <div className="cart-page-container">
         <div className="cart-page-header">
           <h1 className="cart-title">Shopping Bag <span>({items.length} items)</span></h1>
-          <button className="back-btn" onClick={() => navigate("/shop")}>
+          <button className="back-btn" onClick={() => navigate("/my/shop")}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             Continue Shopping
           </button>

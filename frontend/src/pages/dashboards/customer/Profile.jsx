@@ -1,6 +1,7 @@
 // frontend/src/pages/dashboards/customer/Profile.jsx
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../../context/AuthContext";
+import CustomerPageHeader from "../../../components/customer/CustomerPageHeader";
 import api from "../../../services/api";
 
 const Profile = () => {
@@ -29,12 +30,11 @@ const Profile = () => {
 
   return (
     <div>
-      <div className="pg-hd" style={{ paddingTop: '40px' }}>
-        <div>
-          <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '48px', letterSpacing: '-1px' }}>My Profile</h1>
-          <p style={{ fontSize: '14px', color: 'var(--muted2)' }}>Manage your account settings, security and preferences.</p>
-        </div>
-      </div>
+      <CustomerPageHeader
+        eyebrow="Account"
+        title="My Profile"
+        subtitle="Manage your account settings, security and preferences."
+      />
 
       <div className="g73">
         <div>

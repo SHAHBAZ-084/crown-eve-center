@@ -1,6 +1,6 @@
 // frontend/src/pages/dashboards/customer/ProductDetail.jsx
 import React, { useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import publicApi from "../../../services/publicApi";
 import { useCart } from "../../../context/CartContext";
@@ -10,7 +10,11 @@ import "./ProductDetail.css";
 const ProductDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { addItem } = useCart();
+  const isCustomerPortal = location.pathname.startsWith('/my/');
+  const cartPath = isCustomerPortal ? '/my/cart' : '/cart';
+  const shopPath = isCustomerPortal ? '/my/shop' : '/shop';
 
   const { data: product, isLoading } = useQuery({
     queryKey: ["product", id],
@@ -24,7 +28,7 @@ const ProductDetailPage = () => {
   }, [id]);
 
   if (isLoading) return <div style={{ padding: 100, textAlign: "center", fontSize: 20 }}>Loading...</div>;
-  if (!product) return <div style={{ padding: 100, textAlign: "center" }}><h3>Product not found</h3><button onClick={() => navigate("/")}>Back Home</button></div>;
+  if (!product) return <div style={{ padding: 100, textAlign: "center" }}><h3>Product not found</h3><button onClick={() => navigate(shopPath)}>Back to Shop</button></div>;
 
   const bike = product.bikeDetail || {};
   const mainImg = product.images?.find(img => img.is_primary)?.url || product.images?.[0]?.url;
@@ -66,7 +70,7 @@ const ProductDetailPage = () => {
               ADD TO CART
             </button>
 
-            <button className="buy-now-btn" onClick={() => { addItem(product); navigate("/cart"); }}>
+            <button className="buy-now-btn" onClick={() => { addItem(product); navigate(cartPath); }}>
               BUY NOW
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                 <line x1="5" y1="12" x2="19" y2="12"></line>

@@ -1,6 +1,7 @@
 // frontend/src/pages/dashboards/customer/Bookings.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import CustomerPageHeader from "../../../components/customer/CustomerPageHeader";
 import { Badge } from "../../../components/customer/CustomerShared";
 import api from "../../../services/api";
 
@@ -43,13 +44,16 @@ const Bookings = () => {
 
   return (
     <div>
-      <div className="pg-hd">
-        <div>
-          <h1>My Bookings</h1>
-          <p>View and manage your service appointments.</p>
-        </div>
-        <button className="btn btn-primary btn-sm" onClick={() => navigate("/appointments")}>Book New Service</button>
-      </div>
+      <CustomerPageHeader
+        eyebrow="Services"
+        title="My Bookings"
+        subtitle="View and manage your service appointments."
+        actions={
+          <button className="btn btn-primary btn-sm" onClick={() => navigate("/appointments")}>
+            Book New Service
+          </button>
+        }
+      />
 
       <div className="tabs">
         {["All", "Upcoming", "In Progress", "Completed", "Cancelled"].map(t => (
