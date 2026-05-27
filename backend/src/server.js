@@ -63,17 +63,15 @@ async function connectDatabase() {
 }
 
 async function startServer() {
-  try {
-    await connectDatabase();
-  } catch (err) {
-    logger.error('Database connection failed on startup — check DATABASE_URL / Neon and restart', {
-      message: err.message,
-    });
-  }
-
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`[startup] Crown Eve API listening on port ${PORT} (NODE_ENV=${process.env.NODE_ENV || 'development'}, node=${process.version})`);
     logger.info(`Server running on port ${PORT}`);
+  });
+
+  connectDatabase().catch((err) => {
+    logger.error('Database connection failed — fix DATABASE_URL / Neon and restart', {
+      message: err.message,
+    });
   });
 }
 

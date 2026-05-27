@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getApiUrl } from '../utils/apiUrl';
 
-const AUTH_TIMEOUT_MS = 15000;
+const AUTH_TIMEOUT_MS = 35000;
 
 const api = axios.create({
   baseURL: getApiUrl(),

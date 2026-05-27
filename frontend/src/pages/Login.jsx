@@ -8,6 +8,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -16,6 +17,7 @@ const Login = () => {
     e.preventDefault();
     if (submitting) return;
     setSubmitting(true);
+    setError('');
     try {
       const res = await login(email, password);
       const user = res.user;
@@ -46,10 +48,10 @@ const Login = () => {
         return navigate(`/verify-otp?email=${encodeURIComponent(err.response.data.email || email)}`);
       }
       const msg =
-        err.code === 'ECONNABORTED'
-          ? 'Server is slow or unreachable. Try again in a moment.'
+        err.code === 'ECONNABORTED' || !err.response
+          ? 'Backend server is not responding. Wait 1 minute, then try again. If this keeps happening, the Hostinger API needs a restart.'
           : err.response?.data?.message || 'Invalid credentials or server error';
-      alert(msg);
+      setError(msg);
     } finally {
       setSubmitting(false);
     }
@@ -79,6 +81,12 @@ const Login = () => {
         </div>
         <h2 className="text-5xl font-family-bebas mb-2 tracking-tighter uppercase text-orange-600">Welcome Back.</h2>
         <p className="text-sm text-[#BDBDB8] mb-8">Sign in to your Crown Eve portal to manage your hub.</p>
+
+        {error && (
+          <div className="auth-error-banner" role="alert">
+            {error}
+          </div>
+        )}
         
         <form onSubmit={handleSubmit}>
           <div className="form-group">
