@@ -28,6 +28,8 @@
   padding: 60px 50px;
   position: relative;
   z-index: 2;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
+  border-radius: 4px;
 }
 
 .auth-error-banner {
@@ -39,9 +41,6 @@
   color: #fca5a5;
   font-size: 13px;
   line-height: 1.5;
-}
-  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
-  border-radius: 4px;
 }
 
 .login-card::after, .register-card::after {
