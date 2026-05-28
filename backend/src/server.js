@@ -63,13 +63,15 @@ async function connectDatabase() {
 }
 
 async function startServer() {
-  app.listen(PORT, '0.0.0.0', () => {
+  // Always listen first so Hostinger/Passenger sees the app as alive (no 503)
+  const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`[startup] Crown Eve API listening on port ${PORT} (NODE_ENV=${process.env.NODE_ENV || 'development'}, node=${process.version})`);
     logger.info(`Server running on port ${PORT}`);
   });
 
+  // Background connection attempt
   connectDatabase().catch((err) => {
-    logger.error('Database connection failed — fix DATABASE_URL / Neon and restart', {
+    logger.error('Database connection failed — API will retry on next request', {
       message: err.message,
     });
   });
