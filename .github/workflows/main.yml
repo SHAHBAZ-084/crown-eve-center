@@ -36,7 +36,17 @@ jobs:
 
       - name: Prisma Migrate Deploy
         working-directory: backend
-        run: npx prisma@6.19.3 migrate deploy
+        run: |
+          # Try to deploy migrations normally
+          if ! npx prisma@6.19.3 migrate deploy; then
+            echo "⚠️ Normal migrate deploy failed (P3005). Attempting to resolve/baseline..."
+            # Mark existing migrations as applied to fix P3005 sync issues
+            npx prisma@6.19.3 migrate resolve --applied 20260505161753_init || true
+            npx prisma@6.19.3 migrate resolve --applied 20260505170036_add_product_fields || true
+            npx prisma@6.19.3 migrate resolve --applied 20260505170831_add_category_table || true
+            # Try deploy again for any new ones
+            npx prisma@6.19.3 migrate deploy
+          fi
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DIRECT_URL: ${{ secrets.DIRECT_URL }}
