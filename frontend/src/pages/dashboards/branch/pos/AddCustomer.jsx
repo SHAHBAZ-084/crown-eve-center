@@ -127,7 +127,7 @@ const AddCustomer = ({ user }) => {
             </header>
             
             <form onSubmit={handleAddCustomer} className="p-12 overflow-y-auto space-y-8 custom-scrollbar">
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">First Name *</label>
                   <input required type="text" value={custForm.first_name} onChange={e => setCustForm({...custForm, first_name: e.target.value})} placeholder="e.g. Ali" className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm" />
@@ -138,7 +138,7 @@ const AddCustomer = ({ user }) => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest ml-1">Phone Number *</label>
                   <input required type="tel" value={custForm.phone} onChange={e => setCustForm({...custForm, phone: e.target.value})} placeholder="03XXXXXXXXX" className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm" />

@@ -8,25 +8,34 @@
   --pos-text: #2D1A12;
   --pos-muted: #8D7A71;
   --pos-card: #FFFFFF;
+  --pos-sidebar-width: 280px;
 }
 
 .pos-shell {
   display: flex;
   height: 100vh;
+  height: 100dvh;
   background: var(--pos-bg);
   color: var(--pos-text);
   font-family: 'Inter', sans-serif;
   overflow: hidden;
+  position: relative;
 }
 
+/* ── Sidebar (desktop default) ── */
 .pos-sidebar {
   background: var(--pos-sidebar);
   border-right: 1px solid var(--pos-border);
   display: flex;
   flex-direction: column;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
   overflow: hidden;
-  z-index: 20;
+  z-index: 40;
+}
+
+.pos-sidebar--desktop {
+  width: var(--pos-sidebar-width);
+  min-width: var(--pos-sidebar-width);
 }
 
 .pos-brand {
@@ -35,14 +44,15 @@
   align-items: center;
   gap: 12px;
   margin-bottom: 20px;
+  flex-shrink: 0;
 }
 
 .pos-logo-box {
   width: 48px;
   height: 48px;
-  min-width: 48px; /* Lock width */
-  min-height: 48px; /* Lock height */
-  flex-shrink: 0; /* Prevent shrinking */
+  min-width: 48px;
+  min-height: 48px;
+  flex-shrink: 0;
   background: var(--pos-acc);
   color: white;
   display: flex;
@@ -57,6 +67,7 @@
 .pos-brand-text {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .pos-brand-name {
@@ -91,6 +102,7 @@
   flex: 1;
   overflow-y: auto;
   padding: 0 12px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .pos-menu-group {
@@ -142,22 +154,27 @@
   flex-direction: column;
   background: var(--pos-bg);
   overflow: hidden;
+  min-width: 0;
+  width: 100%;
 }
 
 .pos-header {
   height: 72px;
+  min-height: 72px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 32px;
   background: var(--pos-bg);
   flex-shrink: 0;
+  border-bottom: 1px solid var(--pos-border);
 }
 
 .pos-header-left {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 12px;
+  min-width: 0;
 }
 
 .pos-header-title {
@@ -166,12 +183,16 @@
   color: var(--pos-text);
   text-transform: uppercase;
   letter-spacing: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .pos-header-actions {
   display: flex;
   align-items: center;
   gap: 16px;
+  flex-shrink: 0;
 }
 
 .status-pill {
@@ -231,38 +252,41 @@
 .pos-content {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 0 32px 32px;
+  -webkit-overflow-scrolling: touch;
 }
 
-.pos-header-left .btn-ico {
-  display: none; /* Hide on desktop */
+.pos-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--pos-text);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.pos-menu-toggle:hover {
+  background: var(--pos-acc-soft);
 }
 
 .mobile-close-btn {
-  display: none; /* Hide by default */
+  display: none;
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--pos-muted);
+  cursor: pointer;
+  padding: 4px;
+  flex-shrink: 0;
 }
 
-@media (max-width: 1024px) {
-  .pos-header-left .btn-ico {
-    display: flex !important; /* Force show on mobile */
-    background: none !important;
-    border: none !important;
-    color: var(--pos-text);
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 8px;
-    z-index: 10;
-  }
-
-  .mobile-close-btn {
-    display: flex;
-    margin-left: auto;
-    background: none;
-    border: none;
-    color: var(--pos-muted);
-    cursor: pointer;
-    padding: 4px;
-  }
+.sidebar-overlay {
+  display: none;
 }
 
 .pos-user-card {
@@ -273,6 +297,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
 }
 
 .user-avatar {
@@ -285,11 +310,13 @@
   justify-content: center;
   border-radius: 8px;
   font-weight: 800;
+  flex-shrink: 0;
 }
 
 .user-info {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .user-name {
@@ -311,50 +338,144 @@
   100% { opacity: 1; transform: scale(1); }
 }
 
-/* ── Responsive ── */
+/* ── Shared POS page utilities ── */
+.pos-card {
+  background: white;
+  border: 1px solid var(--pos-border);
+  border-radius: 2.5rem;
+  box-shadow: 0 1px 3px rgba(45, 26, 18, 0.04);
+}
+
+.pos-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pos-table-wrap table {
+  min-width: 560px;
+}
+
+/* ── Tablet & Mobile ── */
 @media (max-width: 1024px) {
-  .pos-sidebar {
+  .pos-sidebar:not(.pos-sidebar--desktop) {
     position: fixed;
-    left: -280px;
     top: 0;
+    left: 0;
     bottom: 0;
-    width: 280px !important;
-    min-width: 280px !important;
-    box-shadow: 20px 0 50px rgba(0,0,0,0.1);
+    width: min(var(--pos-sidebar-width), 85vw);
+    min-width: unset;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 20px 0 50px rgba(0, 0, 0, 0.15);
   }
 
   .pos-sidebar.open {
-    left: 0;
+    transform: translateX(0);
   }
 
   .sidebar-overlay {
+    display: block;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.45);
     backdrop-filter: blur(4px);
-    z-index: 15;
+    z-index: 30;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.3s;
+    pointer-events: none;
+    transition: opacity 0.3s, visibility 0.3s;
   }
 
   .sidebar-overlay.show {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
+  }
+
+  .pos-menu-toggle {
+    display: flex;
+  }
+
+  .mobile-close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .pos-header {
     padding: 0 16px;
-    gap: 12px;
+    height: 64px;
+    min-height: 64px;
   }
 
-  .pos-header-actions {
-    display: none; /* Hide actions on mobile as requested */
+  .pos-header-actions .btn-quick-pos,
+  .pos-header-actions .station-badge {
+    display: none;
+  }
+
+  .pos-content {
+    padding: 0 16px 24px;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .pos-header-title {
-    display: none; /* Hide title on very small screens to save space */
+    font-size: 14px;
+    letter-spacing: 0.5px;
+  }
+
+  .pos-brand {
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  .pos-brand-name {
+    font-size: 18px;
+  }
+
+  .pos-brand-sub {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+  }
+
+  .pos-content {
+    padding: 0 12px 20px;
+  }
+
+  .pos-card {
+    border-radius: 1.5rem;
+  }
+
+  .pos-header-actions {
+    gap: 8px;
+  }
+
+  .status-pill {
+    font-size: 9px;
+    padding: 5px 10px;
+  }
+
+  /* Tables inside any POS screen */
+  .pos-content table {
+    min-width: 520px;
+  }
+
+  .pos-content .overflow-hidden:has(table),
+  .pos-content .rounded-\[2\.5rem\]:has(table),
+  .pos-content .rounded-3xl:has(table) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .pos-content th,
+  .pos-content td {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .pos-header-actions .status-pill span:not(.status-dot) {
+    display: none;
   }
 }

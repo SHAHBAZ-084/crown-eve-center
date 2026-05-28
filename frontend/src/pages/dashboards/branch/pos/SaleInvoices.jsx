@@ -136,24 +136,24 @@ const SaleInvoices = ({ user, queryClient, onInvoiceGenerated }) => {
   };
 
   return (
-    <div className="sale-invoices-container flex flex-col h-full space-y-6">
-      <div className="bg-white p-8 rounded-[2.5rem] border border-[#F3E5DC] shadow-sm max-w-5xl mx-auto w-full">
-        <div className="mb-10 text-center">
-          <h2 className="text-3xl font-black text-[#2D1A12] uppercase tracking-tight">Generate Sale Invoice</h2>
-          <p className="text-[10px] font-bold text-[#8D7A71] uppercase tracking-[0.3em] mt-2">Professional Billing Terminal</p>
+    <div className="sale-invoices-container flex flex-col h-full space-y-4 md:space-y-6">
+      <div className="pos-card p-4 sm:p-6 md:p-8 max-w-5xl mx-auto w-full min-w-0">
+        <div className="mb-6 md:mb-10 text-center">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-[#2D1A12] uppercase tracking-tight">Generate Sale Invoice</h2>
+          <p className="text-[9px] sm:text-[10px] font-bold text-[#8D7A71] uppercase tracking-[0.2em] sm:tracking-[0.3em] mt-2">Professional Billing Terminal</p>
         </div>
 
-        <form onSubmit={handleSiSubmit} className="space-y-10">
+        <form onSubmit={handleSiSubmit} className="space-y-6 md:space-y-10">
           {/* Category Toggle */}
-          <div className="space-y-4">
+          <div className="space-y-3 md:space-y-4">
             <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Product Category</label>
-            <div className="flex gap-4 p-2 bg-[#FFFAF8] border border-[#F3E5DC] rounded-[2rem] w-fit">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 p-2 bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl sm:rounded-[2rem] w-full sm:w-fit">
               <button type="button" onClick={() => setSiForm({ ...siForm, type: 'bike' })}
-                className={`px-8 py-4 rounded-[1.5rem] font-black text-xs uppercase tracking-widest transition-all flex items-center gap-3 ${siForm.type === 'bike' ? 'bg-[#E65100] text-white shadow-lg shadow-[#E65100]/20' : 'text-[#8D7A71] hover:bg-white'}`}>
+                className={`w-full sm:w-auto px-4 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-[1.5rem] font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 ${siForm.type === 'bike' ? 'bg-[#E65100] text-white shadow-lg shadow-[#E65100]/20' : 'text-[#8D7A71] hover:bg-white'}`}>
                 <Icon n="dashboard" size={16} /> Electric Bikes
               </button>
               <button type="button" onClick={() => setSiForm({ ...siForm, type: 'part' })}
-                className={`px-8 py-4 rounded-[1.5rem] font-black text-xs uppercase tracking-widest transition-all flex items-center gap-3 ${siForm.type === 'part' ? 'bg-[#E65100] text-white shadow-lg shadow-[#E65100]/20' : 'text-[#8D7A71] hover:bg-white'}`}>
+                className={`w-full sm:w-auto px-4 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-[1.5rem] font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 ${siForm.type === 'part' ? 'bg-[#E65100] text-white shadow-lg shadow-[#E65100]/20' : 'text-[#8D7A71] hover:bg-white'}`}>
                 <Icon n="inventory" size={16} /> Spare Parts
               </button>
             </div>
@@ -167,7 +167,7 @@ const SaleInvoices = ({ user, queryClient, onInvoiceGenerated }) => {
                 <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[#8D7A71]" size={18} />
                 <input type="text" placeholder={`Search ${siForm.type} by name, model or description...`}
                   value={siItemSearch} onChange={e => setSiItemSearch(e.target.value)}
-                  className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl py-5 pl-16 pr-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm" />
+                  className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl sm:rounded-3xl py-4 sm:py-5 pl-14 sm:pl-16 pr-4 sm:pr-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm" />
               </div>
               {siItemSearch && (
                 <div className="absolute z-20 left-0 right-0 mt-2 bg-white border border-[#F3E5DC] rounded-3xl shadow-2xl overflow-hidden max-h-80 overflow-y-auto custom-scrollbar">
@@ -199,7 +199,7 @@ const SaleInvoices = ({ user, queryClient, onInvoiceGenerated }) => {
           {siForm.items.length > 0 && (
             <div className="space-y-4">
               <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Invoice Items</label>
-              <div className="bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl overflow-hidden">
+              <div className="pos-table-wrap bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl sm:rounded-3xl overflow-hidden">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-[#F3E5DC]/30 border-b border-[#F3E5DC]">
@@ -239,17 +239,17 @@ const SaleInvoices = ({ user, queryClient, onInvoiceGenerated }) => {
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
             {/* Customer Select */}
             <div className="space-y-4">
               <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Customer Type</label>
-              <div className="flex gap-2 p-1 bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl w-fit">
+              <div className="flex flex-col xs:flex-row gap-2 p-1 bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl w-full sm:w-fit">
                 <button type="button" onClick={() => { setSiForm({ ...siForm, customerKind: 'walkin', customerId: '' }); setSiCustomerSearch(''); }}
-                  className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest ${siForm.customerKind === 'walkin' ? 'bg-[#E65100] text-white' : 'text-[#8D7A71]'}`}>
+                  className={`w-full sm:w-auto px-4 py-2.5 sm:py-2 rounded-xl text-[10px] font-black uppercase tracking-widest ${siForm.customerKind === 'walkin' ? 'bg-[#E65100] text-white' : 'text-[#8D7A71]'}`}>
                   Walk-in / Offline
                 </button>
                 <button type="button" onClick={() => { setSiForm({ ...siForm, customerKind: 'online', customerId: '' }); setSiCustomerSearch(''); }}
-                  className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest ${siForm.customerKind === 'online' ? 'bg-[#E65100] text-white' : 'text-[#8D7A71]'}`}>
+                  className={`w-full sm:w-auto px-4 py-2.5 sm:py-2 rounded-xl text-[10px] font-black uppercase tracking-widest ${siForm.customerKind === 'online' ? 'bg-[#E65100] text-white' : 'text-[#8D7A71]'}`}>
                   Online Customer
                 </button>
               </div>
@@ -258,7 +258,7 @@ const SaleInvoices = ({ user, queryClient, onInvoiceGenerated }) => {
                 <Icon n="user" className="absolute left-6 top-1/2 -translate-y-1/2 text-[#8D7A71]" size={18} />
                 <input type="text" placeholder={siForm.customerKind === 'online' ? 'Search name or email...' : 'Search name or phone...'} value={siCustomerSearch}
                   onChange={e => { setSiCustomerSearch(e.target.value); if (siForm.customerId) setSiForm({ ...siForm, customerId: '' }); }}
-                  className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl py-5 pl-16 pr-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm" />
+                  className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl sm:rounded-3xl py-4 sm:py-5 pl-14 sm:pl-16 pr-4 sm:pr-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm" />
                 {siCustomerSearch && !siForm.customerId && (
                   <div className="absolute z-10 left-0 right-0 mt-2 bg-white border border-[#F3E5DC] rounded-3xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto custom-scrollbar">
                     {loadingSiCustomers ? (
@@ -298,19 +298,19 @@ const SaleInvoices = ({ user, queryClient, onInvoiceGenerated }) => {
             {/* Total Summary */}
             <div className="space-y-4">
               <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Invoice Summary</label>
-              <div className="bg-[#E65100] p-8 rounded-[2rem] text-white shadow-xl shadow-[#E65100]/20">
+              <div className="bg-[#E65100] p-5 sm:p-8 rounded-2xl sm:rounded-[2rem] text-white shadow-xl shadow-[#E65100]/20">
                 <div className="text-[10px] font-bold text-[#FFFAF8]/80 uppercase tracking-[0.2em] mb-2">Total Bill Amount</div>
                 <div className="relative">
-                  <span className="absolute left-0 top-1/2 -translate-y-1/2 text-white/80 font-black text-xl">PKR</span>
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 text-white/80 font-black text-lg sm:text-xl">PKR</span>
                   <input type="number" value={siForm.amount} onChange={e => setSiForm({ ...siForm, amount: e.target.value })} placeholder="0"
-                    className="w-full bg-transparent border-b-2 border-white/30 py-2 pl-12 pr-4 outline-none focus:border-white font-black text-4xl text-white placeholder-white/30 transition-colors" />
+                    className="w-full bg-transparent border-b-2 border-white/30 py-2 pl-10 sm:pl-12 pr-4 outline-none focus:border-white font-black text-2xl sm:text-4xl text-white placeholder-white/30 transition-colors" />
                 </div>
               </div>
             </div>
           </div>
 
           <button type="submit"
-            className="w-full bg-[#2D1A12] text-white py-6 rounded-[2.5rem] font-black text-sm uppercase tracking-widest shadow-2xl hover:bg-[#E65100] hover:scale-[1.01] active:scale-95 transition-all mt-6 flex items-center justify-center gap-4">
+            className="w-full bg-[#2D1A12] text-white py-4 sm:py-6 rounded-2xl sm:rounded-[2.5rem] font-black text-xs sm:text-sm uppercase tracking-widest shadow-2xl hover:bg-[#E65100] hover:scale-[1.01] active:scale-95 transition-all mt-4 sm:mt-6 flex items-center justify-center gap-3 sm:gap-4">
             <Icon n="check" size={20} /> Complete Sale &amp; Print Invoice
           </button>
         </form>

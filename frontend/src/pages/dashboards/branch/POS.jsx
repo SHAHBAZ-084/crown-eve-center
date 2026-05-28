@@ -1,5 +1,5 @@
 // frontend/src/pages/dashboards/branch/POS.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
@@ -61,11 +61,35 @@ const formatTime12Hour = (timeString) => {
   return `${hours.toString().padStart(2, '0')}:${minutes} ${ampm}`;
 };
 
+const MOBILE_BREAKPOINT = 1024;
+
 const POS = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [activeMenu, setActiveMenu] = useState("sale-invoices");
-  const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= MOBILE_BREAKPOINT);
+  const [isSidebarOpen, setSidebarOpen] = useState(() => window.innerWidth > MOBILE_BREAKPOINT);
+
+  useEffect(() => {
+    const onResize = () => {
+      const mobile = window.innerWidth <= MOBILE_BREAKPOINT;
+      setIsMobile(mobile);
+      setSidebarOpen(mobile ? false : true);
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile && isSidebarOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobile, isSidebarOpen]);
 
   // Print/Receipt State
   const [generatedInvoice, setGeneratedInvoice] = useState(null);
@@ -344,13 +368,27 @@ const POS = () => {
     }
   };
 
+  const handleMenuSelect = (menuId) => {
+    setActiveMenu(menuId);
+    if (isMobile) setSidebarOpen(false);
+  };
+
   return (
     <div className="pos-shell">
       {/* Mobile Sidebar Overlay */}
-      <div className={`sidebar-overlay ${isSidebarOpen && window.innerWidth <= 1024 ? "show" : ""}`} onClick={() => setSidebarOpen(false)} />
+      {isMobile && (
+        <div
+          className={`sidebar-overlay ${isSidebarOpen ? "show" : ""}`}
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden={!isSidebarOpen}
+        />
+      )}
 
       {/* POS Sidebar */}
-      <div className={`pos-sidebar ${isSidebarOpen ? "open" : ""}`} style={{ width: isSidebarOpen ? 280 : 0, minWidth: isSidebarOpen ? 280 : 0 }}>
+      <div
+        className={`pos-sidebar ${isMobile ? (isSidebarOpen ? "open" : "") : "pos-sidebar--desktop"}`}
+        aria-hidden={isMobile && !isSidebarOpen}
+      >
         <div className="pos-brand">
           <div className="pos-logo-box">CE</div>
           <div className="pos-brand-text">
@@ -373,7 +411,7 @@ const POS = () => {
               {group.items.map(item => (
                 <div 
                   key={item.id} 
-                  onClick={() => { setActiveMenu(item.id); if(window.innerWidth <= 1024) setSidebarOpen(false); }}
+                  onClick={() => handleMenuSelect(item.id)}
                   className={`pos-menu-item ${activeMenu === item.id ? "active" : ""}`}
                 >
                   <Icon n={item.icon} size={16} className="icon" />
@@ -397,11 +435,18 @@ const POS = () => {
       <div className="pos-main">
         <header className="pos-header">
           <div className="pos-header-left">
-            <button className="btn-ico" onClick={() => setSidebarOpen(!isSidebarOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', color: 'inherit' }}>
-              <Icon n="menu" size={20} />
-            </button>
+            {isMobile && (
+              <button
+                type="button"
+                className="btn-ico pos-menu-toggle"
+                onClick={() => setSidebarOpen(true)}
+                aria-label="Open menu"
+              >
+                <Icon n="menu" size={20} />
+              </button>
+            )}
             <div className="pos-header-title">
-              {activeMenu.replace("-", " ")}
+              {activeMenu.replace(/-/g, " ")}
             </div>
           </div>
           
