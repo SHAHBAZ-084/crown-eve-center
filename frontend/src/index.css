@@ -96,6 +96,33 @@ nav {
   border-bottom: 1px solid var(--border);
 }
 
+nav.transparent {
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+nav.transparent .nav-links a {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+nav.transparent .nav-links a:hover {
+  color: var(--orange);
+}
+
+nav.transparent.scrolled {
+  background: rgba(255, 255, 255, 0.98);
+}
+
+nav.transparent .btn-nav-login {
+  color: rgba(255, 255, 255, 0.85);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+nav.transparent .btn-nav-register {
+  background: var(--orange);
+  color: #fff;
+}
+
 nav.scrolled {
   background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(8px);
@@ -1241,7 +1268,7 @@ section {
   gap: 16px;
   padding: 22px 60px;
   background: var(--orange);
-  color: #000;
+  color: #fff;
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 15px;
   font-weight: 800;

@@ -20,7 +20,7 @@ const Home = () => {
     [R2_PUBLIC_URL]
   );
 
-  const { services, products, testimonials, isLoading, servicesLoading, testimonialsLoading } = useHomeData();
+  const { services, products, branches, testimonials, isLoading, servicesLoading, testimonialsLoading } = useHomeData();
   const [currentImg, setCurrentImg] = useState(0);
   const [expandedTestimonial, setExpandedTestimonial] = useState(null);
 
@@ -34,6 +34,28 @@ const Home = () => {
     }, 5000);
     return () => clearInterval(timer);
   }, [images.length]);
+
+  useEffect(() => {
+    const nav = document.querySelector('nav');
+    nav?.classList.add('transparent');
+    return () => nav?.classList.remove('transparent');
+  }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+
+    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [isLoading, servicesLoading, testimonialsLoading, branches.length]);
 
   // Removed full-page skeleton to allow Hero section to render instantly
   return (
@@ -99,7 +121,7 @@ const Home = () => {
 
       {/* FEATURED PRODUCTS */}
       <section id="products">
-        <div className="products-header">
+        <div className="products-header reveal">
           <div>
             <h2 className="section-title" style={{ color: 'var(--orange)' }}>Choose from<br /><span style={{ color: '#111111' }}>Our Best Models.</span></h2>
           </div>
@@ -111,7 +133,7 @@ const Home = () => {
               <div style={{ width: 40, height: 40, border: '4px solid var(--orange)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
             </div>
           ) : products.length > 0 ? (
-            products.slice(0, 3).map((p) => (
+            products.slice(0, 6).map((p) => (
               <div key={p.id} className="product-card bike-card-new" onClick={() => navigate(`/product/${p.id}`)}>
                 <div className="product-card-img">
                   <div className="bike-card-blob"></div>
@@ -155,36 +177,11 @@ const Home = () => {
           <span>What We Do</span>
         </div>
         <h2 className="section-title">Our<br /><span style={{ color: 'var(--orange)' }}>Services.</span></h2>
-        <div className="services-layout">
+        <div className="services-layout reveal">
           <div className="services-list">
-            {servicesLoading ? (
-              <div style={{ padding: '40px 0', display: 'flex', justifyContent: 'center' }}>
-                <div className="w-8 h-8 border-3 border-orange-500 border-t-transparent rounded-full animate-spin" style={{ width: 32, height: 32, border: '3px solid var(--orange)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-              </div>
-            ) : services.length > 0 ? (
-              services.slice(0, 6).map((service, i) => (
-                <div key={service.id} className="service-item">
-                  <div className="service-item-left">
-                    <span className="service-item-num">{String(i + 1).padStart(2, '0')}</span>
-                    <div>
-                      <div className="service-item-name">{service.name}</div>
-                      <div className="service-item-price">
-                        {service.price
-                          ? `PKR ${Number(service.price).toLocaleString()}`
-                          : service.description || 'Contact for pricing'}
-                      </div>
-                    </div>
-                  </div>
-                  <span className="service-item-icon">+</span>
-                </div>
-              ))
-            ) : (
-              <div className="services-paragraph-box" style={{ padding: '40px 0', borderTop: '1px solid #F3E5DC' }}>
-                <p style={{ fontSize: '1.1rem', color: 'var(--muted)', lineHeight: '1.8', fontWeight: 500, maxWidth: '800px' }}>
-                  At <span style={{ color: 'var(--orange)', fontWeight: 900 }}>Crown Hadi EV Center</span>, we provide a comprehensive ecosystem for the modern rider, offering precision-engineered electric motorcycles, advanced battery health diagnostics, high-performance electric motors, and smart digital dashboards. Our certified technicians provide expert maintenance and performance tuning from <span style={{ color: 'var(--white)', fontWeight: 800 }}>10:00 AM to 8:00 PM</span> daily, all backed by a hassle-free warranty to ensure your ultimate peace of mind and an unbeatable riding experience as Pakistan's premium mobility destination with different branches.
-                </p>
-              </div>
-            )}
+            <p className="services-paragraph-text">
+              Book your service in advance — contact our branch, pick a time that works for you, show up on time, and our certified technicians will take care of everything professionally.
+            </p>
           </div>
           <div className="services-cta-panel">
             <h3>Ready to<br /><span style={{ color: 'var(--orange)' }}>Ride</span><br />With Us?</h3>
@@ -198,7 +195,7 @@ const Home = () => {
       </section>
 
       {/* BOOKING CTA BANNER */}
-      <section id="booking" style={{ padding: '200px 5vw', position: 'relative', overflow: 'hidden' }}>
+      <section id="booking" style={{ position: 'relative', overflow: 'hidden' }}>
         <video
           autoPlay
           muted
@@ -221,9 +218,35 @@ const Home = () => {
         </div>
       </section>
 
+      {branches.length > 0 && (
+        <section id="branches">
+          <div className="section-label">
+            <div className="section-label-line"></div>
+            <span>Find Us</span>
+          </div>
+          <h2 className="section-title">
+            Our <span style={{ color: 'var(--orange)' }}>Branches.</span>
+          </h2>
+          <div className="branches-grid reveal">
+            {branches.map((branch, index) => (
+              <div key={branch.id} className="branch-card">
+                <div className="branch-card-tag">{index === 0 ? 'Main Branch' : `Branch 0${index + 1}`}</div>
+                <h3>{branch.name}</h3>
+                <p>{branch.address || branch.location || branch.city}</p>
+                <p className="branch-hours">
+                  {branch.openTime && branch.closeTime
+                    ? `${branch.openTime} – ${branch.closeTime}`
+                    : 'Open Daily · 10:00 AM – 8:00 PM'}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* WHY EVEE SECTION */}
       <section id="why-evee">
-        <div className="why-evee-container">
+        <div className="why-evee-container reveal">
           <div className="why-evee-content">
             <h2 className="why-evee-title" style={{ color: 'var(--orange)' }}>WHY EVEE?</h2>
             <p className="why-evee-desc">
@@ -281,7 +304,7 @@ const Home = () => {
           <span>What Riders Say</span>
         </div>
         <h2 className="section-title">Trusted by<br /><span style={{ color: 'var(--orange)' }}>Riders.</span></h2>
-        <div className="testimonials-grid">
+        <div className="testimonials-grid reveal">
           {testimonialsLoading ? (
             <div style={{ gridColumn: '1 / -1', padding: '60px 0', display: 'flex', justifyContent: 'center' }}>
               <div style={{ width: 32, height: 32, border: '3px solid var(--orange)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
