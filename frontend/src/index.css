@@ -2496,7 +2496,7 @@ footer::after {
 .page-hero {
   position: relative;
   overflow: hidden;
-  padding: calc(var(--nav-height) + 48px) 5vw 80px !important;
+  padding: calc(var(--nav-height) + 56px) 8vw 72px !important;
   min-height: unset !important;
   align-items: center !important;
   justify-content: center !important;
@@ -2504,9 +2504,11 @@ footer::after {
 }
 
 .page-hero--about {
-  min-height: 90vh !important;
-  justify-content: flex-start !important;
+  min-height: clamp(520px, 75vh, 780px) !important;
+  justify-content: center !important;
+  align-items: center !important;
   text-align: left;
+  padding-bottom: 96px !important;
 }
 
 .page-hero--about::after {
@@ -2515,14 +2517,15 @@ footer::after {
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 200px;
+  height: 140px;
   background: linear-gradient(transparent, #ffffff);
   z-index: 2;
   pointer-events: none;
 }
 
 .page-hero--contact {
-  min-height: 70vh !important;
+  min-height: clamp(380px, 48vh, 520px) !important;
+  padding: calc(var(--nav-height) + 48px) 8vw 64px !important;
 }
 
 .page-hero .hero-overlay {
@@ -2532,29 +2535,44 @@ footer::after {
 .page-hero .hero-content.full-width {
   position: relative;
   z-index: 5;
+  width: 100%;
+  max-width: 1140px;
+  margin: 0 auto;
+}
+
+.page-hero--about .about-hero-content {
+  width: 100%;
+  max-width: 680px;
+  margin: 0;
+}
+
+.page-hero--contact .contact-hero-content {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
 }
 
 .page-hero .hero-sub {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 18px;
-  line-height: 1.7;
-  max-width: 560px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: clamp(15px, 1.6vw, 18px);
+  line-height: 1.75;
+  max-width: 520px;
   margin: 0 auto;
   text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
 }
 
 .page-hero--about .hero-sub {
   margin: 0;
-  max-width: 600px;
+  max-width: 520px;
 }
 
 .contact-hero-content h1 {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(56px, 8vw, 100px);
+  font-size: clamp(48px, 6.5vw, 92px);
   font-weight: 700;
   letter-spacing: -1px;
   color: #ffffff;
-  margin: 0 0 16px;
+  margin: 0 0 14px;
   text-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
 }
 
@@ -2804,12 +2822,23 @@ footer::after {
     gap: 40px;
   }
 
+  .page-hero--about {
+    min-height: clamp(460px, 62vh, 620px) !important;
+    padding: calc(var(--nav-height) + 40px) 6vw 72px !important;
+  }
+
   .page-hero--contact {
-    min-height: 55vh !important;
+    min-height: clamp(340px, 42vh, 440px) !important;
+    padding: calc(var(--nav-height) + 36px) 6vw 48px !important;
   }
 
   .contact-hero-content h1 {
-    font-size: 40px;
+    font-size: clamp(40px, 10vw, 56px);
+  }
+
+  .page-hero--about h1,
+  .about-hero-content h1 {
+    font-size: clamp(40px, 11vw, 64px);
   }
 
   .contact-form-card {
@@ -2826,29 +2855,29 @@ footer::after {
 }
 
 .about-hero-content {
-  max-width: 800px;
+  max-width: 680px;
   z-index: 5;
 }
 
 .about-hero-content h1,
 .page-hero--about h1 {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(60px, 10vw, 140px);
+  font-size: clamp(48px, 7vw, 108px);
   font-weight: 900;
-  line-height: 0.9;
+  line-height: 0.92;
   letter-spacing: -2px;
   color: #E8470A;
-  margin-bottom: 40px;
+  margin-bottom: 28px;
   text-transform: uppercase;
   text-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
 }
 
 .page-hero--about p,
 .about-hero-content p {
-  font-size: 20px;
-  color: rgba(255, 255, 255, 0.9);
-  line-height: 1.6;
-  max-width: 600px;
+  font-size: clamp(16px, 1.5vw, 19px);
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 1.7;
+  max-width: 520px;
 }
 
 /* MISSION SECTION */
@@ -3174,15 +3203,9 @@ footer::after {
 
   .page-hero--about h1,
   .about-hero-content h1 {
-    font-size: 80px;
-  }
-}
-
-@media (max-width: 600px) {
-  .page-hero--about h1,
-  .about-hero-content h1 {
-    font-size: 50px;
-    letter-spacing: -2px;
+    font-size: clamp(36px, 12vw, 52px);
+    letter-spacing: -1px;
+    margin-bottom: 20px;
   }
 
   .mission-stats {
