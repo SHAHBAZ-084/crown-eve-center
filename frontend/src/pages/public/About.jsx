@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { getApiUrl } from '../../utils/apiUrl';
+import { getHeroBackgroundStyle, getPublicAssetUrl } from '../../utils/imgUrl';
 
 const About = () => {
   const [successMsg, setSuccessMsg] = useState('');
@@ -7,7 +8,7 @@ const About = () => {
   return (
     <div id="page-about" className="page">
       {/* HERO SECTION */}
-      <section className="about-hero">
+      <section className="about-hero" style={getHeroBackgroundStyle('hero-1', '0.55')}>
         <div className="about-hero-content">
           <h1>Redefining<br />The Ride.</h1>
           <p>
@@ -49,7 +50,7 @@ const About = () => {
           display: 'flex'
         }}>
           <img
-            src="/legacy-bike.png"
+            src={getPublicAssetUrl('legacy-bike')}
             alt="Crown Eve Showroom"
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
@@ -70,7 +71,7 @@ const About = () => {
         {/* FOUNDER & CEO */}
         <div className="about-founder">
           <div className="founder-image-wrapper">
-            <img src="/founder.png" alt="Mohsin Ashraf Ch - Founder & CEO" />
+            <img src={getPublicAssetUrl('founder')} alt="Mohsin Ashraf Ch - Founder & CEO" />
             <div className="founder-badge">Founder & CEO</div>
           </div>
           <div className="founder-content">
@@ -116,7 +117,7 @@ const About = () => {
             <div className="founder-signature">Sufi Muhammad Saleemullah</div>
           </div>
           <div className="founder-image-wrapper">
-            <img src="/cofounder.png" alt="Sufi Muhammad Saleemullah - Co-Founder" />
+            <img src={getPublicAssetUrl('cofounder')} alt="Sufi Muhammad Saleemullah - Co-Founder" />
             <div className="founder-badge" style={{ background: '#111' }}>Co-Founder</div>
           </div>
         </div>

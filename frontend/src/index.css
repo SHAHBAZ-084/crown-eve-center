@@ -1888,9 +1888,10 @@ footer::after {
 }
 
 .about-hero {
-  background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('/hero-1.webp');
+  background: var(--black);
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   padding: 100px 5vw 80px;
   padding-top: calc(var(--nav-height) + 40px);
   position: relative;
@@ -2558,9 +2559,10 @@ footer::after {
 .contact-hero {
   height: 400px;
   padding-top: var(--nav-height);
-  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/hero-2.webp');
+  background-color: var(--black3);
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   display: flex;
   align-items: center;
   padding-left: 10vw;
@@ -2798,9 +2800,10 @@ footer::after {
   height: 90vh;
   min-height: 700px;
   padding-top: var(--nav-height);
-  background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('/hero-1.webp');
+  background-color: var(--black3);
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   background-attachment: fixed;
   display: flex;
   align-items: center;

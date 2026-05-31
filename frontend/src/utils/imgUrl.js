@@ -5,6 +5,17 @@ const R2_PUBLIC = import.meta.env.VITE_R2_PUBLIC_URL?.replace(/\/$/, '');
 
 export const getR2PublicBase = () => R2_PUBLIC || '';
 
+/** Brand static assets (hero slides, marketing images) — R2 in prod, /public fallback locally */
+export const getPublicAssetUrl = (basename) => {
+  const name = basename.replace(/\.(webp|png|jpg|jpeg)$/i, '');
+  if (R2_PUBLIC) return `${R2_PUBLIC}/${name}.webp`;
+  return `/${name}.png`;
+};
+
+export const getHeroBackgroundStyle = (basename, overlay = '0.55') => ({
+  backgroundImage: `linear-gradient(rgba(0, 0, 0, ${overlay}), rgba(0, 0, 0, ${overlay})), url('${getPublicAssetUrl(basename)}')`,
+});
+
 export const getImgUrl = (url) => {
   if (!url) return '';
   if (url.startsWith('http://') || url.startsWith('https://')) return url;

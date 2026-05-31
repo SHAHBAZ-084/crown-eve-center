@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
+import { getHeroBackgroundStyle } from '../../utils/imgUrl';
 
 const Contact = () => {
   const [branches, setBranches] = useState([]);
@@ -38,7 +39,7 @@ const Contact = () => {
   return (
     <div id="page-contact" className="page">
       {/* HERO SECTION */}
-      <section className="contact-hero">
+      <section className="contact-hero" style={getHeroBackgroundStyle('hero-2', '0.5')}>
         <h1>Contact Us</h1>
       </section>
 
