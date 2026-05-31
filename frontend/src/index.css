@@ -1566,7 +1566,7 @@ footer::after {
 
 /* ── RATE US SECTION ── */
 .rate-us-section {
-  background: #FFF8F5;
+  background: var(--black3);
   padding: 100px 5vw;
 }
 
@@ -1594,11 +1594,11 @@ footer::after {
 }
 
 .rate-us-form {
-  background: #FFF;
+  background: var(--black);
   padding: 50px;
   border-radius: 24px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
-  border: 1px solid #F0F0F0;
+  border: 1px solid var(--border);
 }
 
 .rate-us-form .form-grid {
@@ -1888,8 +1888,11 @@ footer::after {
 }
 
 .about-hero {
-  background: var(--black);
+  background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('/hero-1.webp');
+  background-size: cover;
+  background-position: center;
   padding: 100px 5vw 80px;
+  padding-top: calc(var(--nav-height) + 40px);
   position: relative;
   overflow: hidden;
   min-height: 60vh;
@@ -2518,21 +2521,22 @@ footer::after {
 }
 
 .selector-label {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  color: #888;
+  letter-spacing: 3px;
+  color: var(--orange);
+  margin-bottom: 10px;
 }
 
 .branch-selector-premium {
   width: 100%;
   max-width: 400px;
   padding: 14px 20px;
-  border: 2px solid #f0f0f0;
-  border-radius: 8px;
-  background: #fff;
-  font-family: 'Barlow', sans-serif;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--black3);
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 16px;
   font-weight: 600;
   color: #111;
@@ -2547,31 +2551,34 @@ footer::after {
 }
 
 .branch-selector-premium:focus {
-  border-color: #E8470A;
-  box-shadow: 0 5px 15px rgba(232, 71, 10, 0.1);
+  border-color: var(--orange);
+  box-shadow: none;
 }
 
 .contact-hero {
   height: 400px;
-  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1558981806-ec527fa84c39?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+  padding-top: var(--nav-height);
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/hero-2.webp');
   background-size: cover;
   background-position: center;
   display: flex;
   align-items: center;
-  padding: 0 10vw;
+  padding-left: 10vw;
+  padding-right: 10vw;
   position: relative;
 }
 
 .contact-hero h1 {
-  font-family: 'Barlow', sans-serif;
-  font-size: 56px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(56px, 8vw, 100px);
   font-weight: 700;
+  letter-spacing: -1px;
   color: #ffffff;
   margin: 0;
 }
 
 .contact-main {
-  max-width: 800px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 100px 5vw;
 }
@@ -2599,7 +2606,8 @@ footer::after {
 }
 
 .info-block h4 {
-  font-size: 15px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -2655,6 +2663,37 @@ footer::after {
   background: #E8470A;
   color: #fff;
   transform: translateY(-3px);
+}
+
+.visit-us-block {
+  margin-top: 48px;
+  padding: 32px 28px;
+  background: var(--black3);
+  border: 1px solid var(--border);
+}
+
+.visit-us-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 12px;
+}
+
+.visit-us-block h3 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: #111;
+  margin-bottom: 8px;
+}
+
+.visit-us-block p {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.6;
 }
 
 .contact-form-card {
@@ -2758,13 +2797,15 @@ footer::after {
 .about-hero {
   height: 90vh;
   min-height: 700px;
-  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1558981359-219d6364c9c8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+  padding-top: var(--nav-height);
+  background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('/hero-1.webp');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
   display: flex;
   align-items: center;
-  padding: 0 10vw;
+  padding-left: 10vw;
+  padding-right: 10vw;
   position: relative;
 }
 
@@ -2784,11 +2825,11 @@ footer::after {
 }
 
 .about-hero h1 {
-  font-family: 'Barlow', sans-serif;
+  font-family: 'Bebas Neue', sans-serif;
   font-size: clamp(60px, 10vw, 140px);
   font-weight: 900;
   line-height: 0.9;
-  letter-spacing: -4px;
+  letter-spacing: -2px;
   color: #E8470A;
   margin-bottom: 40px;
   text-transform: uppercase;
@@ -2834,7 +2875,8 @@ footer::after {
 }
 
 .stat-item h3 {
-  font-size: 48px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 56px;
   font-weight: 800;
   color: #E8470A;
   margin-bottom: 5px;
@@ -2846,6 +2888,58 @@ footer::after {
   text-transform: uppercase;
   letter-spacing: 2px;
   color: #888;
+}
+
+/* ABOUT SERVICES SUMMARY */
+.about-services-summary {
+  padding: 100px 5vw;
+  background: var(--black2);
+}
+
+.about-services-header {
+  margin-bottom: 60px;
+}
+
+.about-services-header h2 {
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--black);
+  line-height: 1.1;
+}
+
+.about-services-header h2 span {
+  color: var(--orange);
+}
+
+.about-services-header p {
+  max-width: 600px;
+  color: var(--muted);
+  margin-top: 20px;
+  font-weight: 600;
+}
+
+.services-paragraph-container {
+  padding: 60px;
+  background: var(--black);
+  border: 1px solid var(--border);
+  border-radius: 0;
+}
+
+.services-paragraph-container p {
+  font-size: 1.2rem;
+  color: var(--white2);
+  line-height: 1.8;
+  font-weight: 500;
+}
+
+.services-paragraph-container .services-brand {
+  color: var(--orange);
+  font-weight: 900;
+}
+
+.services-paragraph-container .services-hours {
+  color: var(--white);
+  font-weight: 800;
 }
 
 /* PHILOSOPHY SECTION */
@@ -3092,7 +3186,7 @@ footer::after {
 
 /* ── RATE US SECTION ── */
 .rate-us-section {
-  background: #FFF8F5;
+  background: var(--black3);
   padding: 120px 5vw;
 }
 
@@ -3123,11 +3217,11 @@ footer::after {
 }
 
 .rate-us-form {
-  background: #FFF;
+  background: var(--black);
   padding: 60px;
   border-radius: 32px;
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.04);
-  border: 1px solid #F0F0F0;
+  border: 1px solid var(--border);
 }
 
 .rate-us-form .form-grid {
@@ -3194,6 +3288,18 @@ footer::after {
   background: #000;
   transform: translateY(-5px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.rate-success-msg {
+  margin-top: 20px;
+  padding: 16px 20px;
+  background: rgba(232, 71, 10, 0.08);
+  border: 1px solid rgba(232, 71, 10, 0.2);
+  color: var(--orange);
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  border-radius: 8px;
 }
 
 @media (max-width: 768px) {

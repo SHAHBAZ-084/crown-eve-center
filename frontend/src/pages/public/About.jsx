@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getApiUrl } from '../../utils/apiUrl';
 
 const About = () => {
+  const [successMsg, setSuccessMsg] = useState('');
+
   return (
     <div id="page-about" className="page">
       {/* HERO SECTION */}
@@ -24,20 +26,20 @@ const About = () => {
           </p>
           <div className="mission-stats">
             <div className="stat-item">
-              <h3>12+</h3>
-              <p>Showrooms</p>
+              <h3>3+</h3>
+              <p>Branches</p>
             </div>
             <div className="stat-item">
-              <h3>50K+</h3>
+              <h3>1000+</h3>
               <p>Riders Served</p>
             </div>
             <div className="stat-item">
               <h3>100%</h3>
-              <p>Best Batteries</p>
+              <p>Lithium Quality</p>
             </div>
             <div className="stat-item">
-              <h3>8+</h3>
-              <p>Years Excellence</p>
+              <h3>5★</h3>
+              <p>Rated Service</p>
             </div>
           </div>
         </div>
@@ -164,15 +166,15 @@ const About = () => {
       </section>
 
       {/* SERVICES SUMMARY SECTION */}
-      <section className="about-services-summary" style={{ padding: '100px 5vw', background: '#FFFAF8' }}>
-        <div className="section-header" style={{ marginBottom: '60px' }}>
-          <h2 style={{ fontSize: '3rem', fontWeight: 900, color: 'var(--black)' }}>What We<br /><span style={{ color: 'var(--orange)' }}>Provide.</span></h2>
-          <p style={{ maxWidth: '600px', color: 'var(--muted)', marginTop: '20px', fontWeight: 600 }}>At Crown Eve, we don't just sell products; we deliver a complete ecosystem for the modern rider.</p>
+      <section className="about-services-summary">
+        <div className="section-header about-services-header">
+          <h2>What We<br /><span>Provide.</span></h2>
+          <p>At Crown Eve, we don't just sell products; we deliver a complete ecosystem for the modern rider.</p>
         </div>
 
-        <div className="services-paragraph-container" style={{ padding: '60px', background: 'white', borderRadius: '32px', border: '1px solid #F3E5DC', boxShadow: '0 30px 60px rgba(0,0,0,0.02)' }}>
-          <p style={{ fontSize: '1.2rem', color: 'var(--muted)', lineHeight: '1.8', fontWeight: 500 }}>
-            <span style={{ color: 'var(--orange)', fontWeight: 900 }}>Crown Hadi EV Center</span> provides an all-in-one destination for electric mobility enthusiasts as Pakistan's premium mobility destination with different branches, delivering precision-engineered bikes that undergo a rigorous 50-point safety inspection before hitting the road. We provide complete lifecycle support, offering everything from advanced battery health diagnostics and motor tuning to an extensive range of high-performance electric motors, smart digital dashboards, and long-range lithium batteries. Our commitment to the rider community includes expert maintenance services available from <span style={{ color: 'var(--white)', fontWeight: 800 }}>10:00 AM to 8:00 PM</span> and hassle-free warranty claims, ensuring that we provide the freedom to explore with total confidence and peace of mind.
+        <div className="services-paragraph-container">
+          <p>
+            <span className="services-brand">Crown Hadi EV Center</span> provides an all-in-one destination for electric mobility enthusiasts as Pakistan's premium mobility destination with different branches, delivering precision-engineered bikes that undergo a rigorous 50-point safety inspection before hitting the road. We provide complete lifecycle support, offering everything from advanced battery health diagnostics and motor tuning to an extensive range of high-performance electric motors, smart digital dashboards, and long-range lithium batteries. Our commitment to the rider community includes expert maintenance services available from <span className="services-hours">10:00 AM to 8:00 PM</span> and hassle-free warranty claims, ensuring that we provide the freedom to explore with total confidence and peace of mind.
           </p>
         </div>
       </section>
@@ -202,13 +204,15 @@ const About = () => {
                 body: JSON.stringify(data)
               });
               if (res.ok) {
-                alert('Thank you for your rating!');
+                setSuccessMsg('Thank you for your rating! Your feedback helps us serve riders better.');
                 e.target.reset();
               } else {
+                setSuccessMsg('');
                 alert('Failed to submit rating. Please try again.');
               }
             } catch (err) {
               console.error(err);
+              setSuccessMsg('');
               alert('Something went wrong.');
             }
           }}>
@@ -240,6 +244,9 @@ const About = () => {
             </div>
 
             <button type="submit" className="submit-rate-btn">Submit Rating</button>
+            {successMsg && (
+              <p className="rate-success-msg" role="status">{successMsg}</p>
+            )}
           </form>
         </div>
       </section>
