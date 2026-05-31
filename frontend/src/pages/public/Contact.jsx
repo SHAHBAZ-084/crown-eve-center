@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
-import { getHeroBackgroundStyle } from '../../utils/imgUrl';
+import { getPublicAssetUrl } from '../../utils/imgUrl';
 
 const Contact = () => {
   const [branches, setBranches] = useState([]);
@@ -38,9 +38,19 @@ const Contact = () => {
 
   return (
     <div id="page-contact" className="page">
-      {/* HERO SECTION */}
-      <section className="contact-hero" style={getHeroBackgroundStyle('hero-2', '0.5')}>
-        <h1>Contact Us</h1>
+      {/* HERO SECTION — same structure as Home */}
+      <section className="full-screen-hero page-hero page-hero--contact">
+        <div className="hero-slideshow">
+          <div
+            className="hero-slide active"
+            style={{ backgroundImage: `url('${getPublicAssetUrl('hero-2')}')` }}
+          />
+          <div className="hero-overlay" />
+        </div>
+        <div className="contact-hero-content hero-content full-width">
+          <h1>Contact Us</h1>
+          <p className="hero-sub">Reach our team at any Crown Eve branch — we're here to help with sales, service, and support.</p>
+        </div>
       </section>
 
       {/* MAIN CONTENT */}

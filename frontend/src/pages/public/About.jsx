@@ -1,17 +1,24 @@
 import React, { useState } from 'react';
 import { getApiUrl } from '../../utils/apiUrl';
-import { getHeroBackgroundStyle, getPublicAssetUrl } from '../../utils/imgUrl';
+import { getPublicAssetUrl } from '../../utils/imgUrl';
 
 const About = () => {
   const [successMsg, setSuccessMsg] = useState('');
 
   return (
     <div id="page-about" className="page">
-      {/* HERO SECTION */}
-      <section className="about-hero" style={getHeroBackgroundStyle('hero-1', '0.55')}>
-        <div className="about-hero-content">
+      {/* HERO SECTION — same structure as Home */}
+      <section className="full-screen-hero page-hero page-hero--about">
+        <div className="hero-slideshow">
+          <div
+            className="hero-slide active"
+            style={{ backgroundImage: `url('${getPublicAssetUrl('hero-1')}')` }}
+          />
+          <div className="hero-overlay" />
+        </div>
+        <div className="about-hero-content hero-content full-width">
           <h1>Redefining<br />The Ride.</h1>
-          <p>
+          <p className="hero-sub">
             From our humble beginnings to becoming Pakistan's premium mobility destination with different branches, our journey has been fueled by one passion: the future of clean, electric transit.
           </p>
         </div>
