@@ -15,9 +15,12 @@ const Navbar = ({ user: propsUser, logout: propsLogout }) => {
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [location.pathname]);
+
+  const isHomeHero = location.pathname === '/' && !scrolled;
 
   // Close menu when location changes
   useEffect(() => {
@@ -25,7 +28,7 @@ const Navbar = ({ user: propsUser, logout: propsLogout }) => {
   }, [location]);
 
   return (
-    <nav className={`${scrolled ? 'scrolled' : ''} ${menuOpen ? 'menu-open' : ''}`}>
+    <nav className={`${scrolled ? 'scrolled' : ''} ${isHomeHero ? 'transparent' : ''} ${menuOpen ? 'menu-open' : ''}`}>
       <Link to="/" className="logo" style={{ display: 'flex', alignItems: 'center' }}>
         <img src="/logo.png" alt="Crown Hadi EV Center" style={{ height: 'var(--logo-size, 90px)', width: 'auto', objectFit: 'contain', display: 'block' }} />
       </Link>

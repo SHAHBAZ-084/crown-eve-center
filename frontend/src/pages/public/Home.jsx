@@ -36,12 +36,6 @@ const Home = () => {
   }, [images.length]);
 
   useEffect(() => {
-    const nav = document.querySelector('nav');
-    nav?.classList.add('transparent');
-    return () => nav?.classList.remove('transparent');
-  }, []);
-
-  useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
