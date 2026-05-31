@@ -7,7 +7,7 @@
 }
 
 .legal-hero {
-  padding: 120px 24px 64px;
+  padding: calc(var(--nav-height) + 60px) 24px 64px;
   text-align: center;
   background: linear-gradient(180deg, rgba(255, 77, 0, 0.08) 0%, transparent 100%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
@@ -24,7 +24,7 @@
 }
 
 .legal-hero h1 {
-  font-family: var(--font-d, 'Barlow Condensed', sans-serif);
+  font-family: 'Bebas Neue', sans-serif;
   font-size: clamp(2.5rem, 6vw, 4rem);
   font-weight: 900;
   color: #fff;
@@ -42,7 +42,7 @@
 }
 
 .legal-layout {
-  max-width: 920px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 48px 24px 80px;
   display: grid;
@@ -56,7 +56,7 @@
   top: 100px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
+  border-radius: 0;
   padding: 20px;
 }
 
@@ -104,8 +104,8 @@
 }
 
 .legal-body h2 {
-  font-family: var(--font-d, 'Barlow Condensed', sans-serif);
-  font-size: 1.5rem;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(1.6rem, 3vw, 2rem);
   font-weight: 800;
   color: #fff;
   margin: 0 0 14px;
@@ -144,7 +144,7 @@
 }
 
 .legal-highlight {
-  background: rgba(255, 77, 0, 0.08);
+  background: var(--orange-glow);
   border-left: 3px solid var(--orange);
   padding: 16px 20px;
   border-radius: 0 8px 8px 0;
@@ -153,9 +153,9 @@
 }
 
 .legal-contact-card {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+  background: var(--black3);
+  border: 1px solid var(--border);
+  border-radius: 0;
   padding: 24px;
   margin-top: 32px;
 }
@@ -179,14 +179,14 @@
   padding: 20px 24px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
+  border-radius: 0;
   text-decoration: none;
   transition: border-color 0.2s, background 0.2s;
 }
 
 .legal-related-link:hover {
   border-color: var(--orange);
-  background: rgba(255, 77, 0, 0.06);
+  background: var(--orange-glow);
 }
 
 .legal-related-link span {
@@ -206,7 +206,7 @@
 
 @media (max-width: 768px) {
   .legal-hero {
-    padding: 100px 20px 48px;
+    padding: calc(var(--nav-height) + 40px) 20px 48px;
   }
 
   .legal-layout {

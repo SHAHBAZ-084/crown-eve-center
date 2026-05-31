@@ -73,7 +73,7 @@ const TermsOfService = () => (
             <li>Online browsing and purchase of electric bikes, spare parts, and accessories</li>
             <li>Customer account management, order tracking, and booking history</li>
             <li>Service and maintenance appointment scheduling</li>
-            <li>Branch-specific inventory visibility and product information</li>
+            <li>Online appointment booking for service and maintenance</li>
             <li>In-branch point-of-sale and after-sales support at authorized locations</li>
           </ul>
           <p>
@@ -120,9 +120,10 @@ const TermsOfService = () => (
           </p>
           <h3>Payment Methods</h3>
           <p>
-            We accept payment methods as displayed at checkout, which may include cash-on-delivery,
-            bank transfer, and other methods specified during the order process. For bank transfer orders,
-            you may be required to provide a transaction reference or payment screenshot for verification.
+            We accept payment by cash and bank transfer as displayed at checkout and during the order
+            process. Payment confirmation may require a transaction reference submitted through your
+            order dashboard. For bank transfer orders, you may also be required to provide a payment
+            screenshot for verification.
           </p>
           <h3>Pricing &amp; Taxes</h3>
           <p>
@@ -156,8 +157,10 @@ const TermsOfService = () => (
           <h2>6. Service Appointments</h2>
           <p>
             Service bookings made through our platform are subject to branch availability and technician
-            scheduling. Appointment times are estimates; we will notify you of any changes. Cancellation
-            or rescheduling policies may apply and will be communicated at the time of booking.
+            scheduling. Bookings made through the platform require a registered customer account.
+            Appointment slots are subject to branch owner confirmation. Appointment times are estimates;
+            we will notify you of any changes. Cancellation or rescheduling policies may apply and will
+            be communicated at the time of booking.
           </p>
           <p>
             Service pricing displayed online represents base rates. Final charges may vary depending on
@@ -178,6 +181,7 @@ const TermsOfService = () => (
             <li>Proof of purchase (invoice or order reference) is required</li>
             <li>Damage caused by misuse, unauthorized modification, or accidents is not covered</li>
             <li>Spare parts and accessories may have separate return policies based on condition and packaging</li>
+            <li>Battery warranty claims require the original battery unit and purchase documentation from an authorized Crown Eve branch</li>
           </ul>
           <p>
             For warranty inquiries, returns, or exchanges, please contact your nearest branch or visit
