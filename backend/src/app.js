@@ -55,7 +55,7 @@ app.use(compression());
 app.use(express.json({ limit: '2mb' }));
 
 app.use('/api', invalidateCacheOnWrite);
-app.use('/api', cacheGet(45));
+app.use('/api', cacheGet(120));
 
 const authRoutes = require('./modules/auth/auth.routes');
 const branchRoutes = require('./modules/branches/branch.routes');

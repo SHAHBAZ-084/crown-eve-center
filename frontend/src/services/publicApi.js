@@ -19,9 +19,9 @@ publicApi.interceptors.request.use((config) => {
   return config;
 });
 
-const RETRY_STATUSES = new Set([502, 503, 504]);
-const RETRY_DELAY_MS = 1200;
-const MAX_RETRIES = 2;
+const RETRY_STATUSES = new Set([429, 502, 503, 504]);
+const RETRY_DELAY_MS = 1500;
+const MAX_RETRIES = 3;
 
 publicApi.interceptors.response.use(
   (response) => response,
