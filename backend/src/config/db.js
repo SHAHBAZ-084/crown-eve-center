@@ -8,7 +8,8 @@ const buildUrl = (raw) => {
   if (!raw) return raw;
   if (raw.includes('connection_limit')) return raw;
   const sep = raw.includes('?') ? '&' : '?';
-  return `${raw}${sep}connection_limit=5`;
+  const params = ['connection_limit=5', 'connect_timeout=15'];
+  return `${raw}${sep}${params.join('&')}`;
 };
 
 const shouldUseNeonAdapter = () => {

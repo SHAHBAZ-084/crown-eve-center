@@ -110,6 +110,18 @@ app.get('/', (req, res) => {
   });
 });
 
+/** Instant response for nginx/Hostinger — never touches the database. */
+app.get('/health/live', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    alive: true,
+    timestamp: new Date().toISOString(),
+    node: process.version,
+  });
+});
+
+const HEALTH_DB_MS = Number(process.env.HEALTH_DB_TIMEOUT_MS) || 4000;
+
 app.get('/health', async (req, res) => {
   const payload = {
     status: 'OK',
@@ -117,10 +129,19 @@ app.get('/health', async (req, res) => {
     node: process.version,
   };
 
+  const dbCheck = Promise.race([
+    (async () => {
+      const prisma = require('./config/db');
+      await prisma.$queryRaw`SELECT 1`;
+      return 'connected';
+    })(),
+    new Promise((_, reject) => {
+      setTimeout(() => reject(new Error(`Database probe timed out after ${HEALTH_DB_MS}ms`)), HEALTH_DB_MS);
+    }),
+  ]);
+
   try {
-    const prisma = require('./config/db');
-    await prisma.$queryRaw`SELECT 1`;
-    payload.db = 'connected';
+    payload.db = await dbCheck;
     return res.status(200).json(payload);
   } catch (err) {
     payload.status = 'DEGRADED';
