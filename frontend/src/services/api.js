@@ -1,10 +1,14 @@
 import axios from 'axios';
-import { getApiUrl } from '../utils/apiUrl';
+import {
+  getApiUrl,
+  getApiFallbackUrl,
+  isNetworkTransportError,
+  setApiBasePreference,
+} from '../utils/apiUrl';
 
 const AUTH_TIMEOUT_MS = 35000;
 
 const api = axios.create({
-  baseURL: getApiUrl(),
   timeout: 60000,
   withCredentials: true,
   headers: {
@@ -14,6 +18,9 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
+  if (!config.baseURL) {
+    config.baseURL = getApiUrl();
+  }
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -29,7 +36,23 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const config = error.config;
+
+    if (config && !config.__apiFallback && isNetworkTransportError(error)) {
+      const fallback = getApiFallbackUrl(config.baseURL || getApiUrl());
+      if (fallback) {
+        setApiBasePreference(fallback.includes('api.crownevcenter.com') ? 'direct' : 'proxy');
+        config.__apiFallback = true;
+        config.baseURL = fallback;
+        try {
+          return await api.request(config);
+        } catch (retryErr) {
+          return Promise.reject(retryErr);
+        }
+      }
+    }
+
     if (
       error.response?.status === 401 &&
       !error.config?.url?.startsWith('/auth/')

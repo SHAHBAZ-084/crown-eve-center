@@ -1,6 +1,11 @@
 // frontend/src/components/branch/BranchShared.jsx
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { getApiUrl } from "../../utils/apiUrl";
+import {
+  getApiUrl,
+  getApiFallbackUrl,
+  isNetworkTransportError,
+  setApiBasePreference,
+} from "../../utils/apiUrl";
 
 export const getUploadBase = () => getApiUrl().replace('/api', '');
 /** @deprecated use getUploadBase() — kept for existing imports */
@@ -34,16 +39,9 @@ const runQueued = (fn) => {
 };
 
 // ─── API HELPER ──────────────────────────────────────────────────────────────
-export const apiFetch = async (path, options = {}) => {
-  return runQueued(async () => {
-  if (isBranchApiBlocked()) {
-    const err = new Error('Too many requests. Please wait 2 minutes and refresh the page.');
-    err.status = 429;
-    throw err;
-  }
-
+const doFetch = async (base, path, options) => {
   const token = localStorage.getItem(TOKEN_KEY);
-  const res = await fetch(`${getApiUrl()}${path}`, {
+  const res = await fetch(`${base}${path}`, {
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -61,6 +59,30 @@ export const apiFetch = async (path, options = {}) => {
     throw err;
   }
   return res.json();
+};
+
+export const apiFetch = async (path, options = {}) => {
+  return runQueued(async () => {
+    if (isBranchApiBlocked()) {
+      const err = new Error('Too many requests. Please wait 2 minutes and refresh the page.');
+      err.status = 429;
+      throw err;
+    }
+
+    const primary = getApiUrl();
+    try {
+      return await doFetch(primary, path, options);
+    } catch (e) {
+      const isTransport =
+        e.status == null &&
+        (e.name === 'TypeError' || /fetch|network|quic/i.test(String(e.message)));
+      const fallback = getApiFallbackUrl(primary);
+      if (isTransport && fallback) {
+        setApiBasePreference(fallback.includes('api.crownevcenter.com') ? 'direct' : 'proxy');
+        return doFetch(fallback, path, options);
+      }
+      throw e;
+    }
   });
 };
 
