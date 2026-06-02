@@ -8,12 +8,13 @@ const Dashboard = () => {
   const branchId = user?.branchId;
   const branchName = user?.branchName;
 
-  const { data: revSummary } = useFetch(`/reports/revenue/summary?branchId=${branchId}`, [branchId], 5000);
-  const { data: pendingOrders } = useFetch(`/orders/count?branchId=${branchId}&status=PENDING`, [branchId], 5000);
-  const { data: todayAppts } = useFetch(`/appointments/today?branchId=${branchId}`, [branchId], 5000);
-  const { data: stockAlerts } = useFetch(`/inventory/alerts?branchId=${branchId}`, [branchId], 5000);
-  const { data: recentOrders } = useFetch(`/orders?branchId=${branchId}&limit=5&page=1`, [branchId], 5000);
-  const { data: chartData } = useFetch(`/reports/revenue/chart?branchId=${branchId}&period=7d`, [branchId], 5000);
+  const pollMs = branchId ? 60_000 : 0;
+  const { data: revSummary } = useFetch(`/reports/revenue/summary?branchId=${branchId}`, [branchId], pollMs);
+  const { data: pendingOrders } = useFetch(`/orders/count?branchId=${branchId}&status=PENDING`, [branchId], pollMs);
+  const { data: todayAppts } = useFetch(`/appointments/today?branchId=${branchId}`, [branchId], pollMs);
+  const { data: stockAlerts } = useFetch(`/inventory/alerts?branchId=${branchId}`, [branchId], pollMs);
+  const { data: recentOrders } = useFetch(`/orders?branchId=${branchId}&limit=5&page=1`, [branchId], pollMs);
+  const { data: chartData } = useFetch(`/reports/revenue/chart?branchId=${branchId}&period=7d`, [branchId], pollMs);
 
   const maxChart = chartData ? Math.max(...chartData.map(d => d.revenue || d._sum?.total || 0), 1) : 1;
 

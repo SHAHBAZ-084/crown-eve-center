@@ -14,8 +14,9 @@ const Inventory = () => {
   const ds = useDebounce(search);
 
   const params = new URLSearchParams({ branchId, page, limit: 50, type: inventoryType }).toString();
-  const { data, loading, refetch } = useFetch(`/inventory?${params}`, [page, branchId], 5000);
-  const { data: summary, refetch: refetchSummary } = useFetch(`/inventory/summary?branchId=${branchId}`, [branchId], 5000);
+  const pollMs = branchId ? 30_000 : 0;
+  const { data, loading, refetch } = useFetch(`/inventory?${params}`, [page, branchId], pollMs);
+  const { data: summary, refetch: refetchSummary } = useFetch(`/inventory/summary?branchId=${branchId}`, [branchId], pollMs);
 
   const [editing, setEditing] = useState(null); // { id, stock, alertAt }
   const [saving, setSaving] = useState(false);

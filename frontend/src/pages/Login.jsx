@@ -47,10 +47,19 @@ const Login = () => {
       if (err.response?.data?.unverified) {
         return navigate(`/verify-otp?email=${encodeURIComponent(err.response.data.email || email)}`);
       }
-      const msg =
-        err.code === 'ECONNABORTED' || !err.response
-          ? 'Backend server is not responding. Wait 1 minute, then try again. If this keeps happening, the Hostinger API needs a restart.'
-          : err.response?.data?.message || 'Invalid credentials or server error';
+      const status = err.response?.status;
+      let msg = err.response?.data?.message || 'Something went wrong. Please try again.';
+      if (err.code === 'ECONNABORTED' || !err.response) {
+        msg =
+          'Backend server is not responding. Wait 1 minute, then try again. If this keeps happening, the Hostinger API needs a restart.';
+      } else if (status === 401) {
+        msg = err.response?.data?.message || 'Invalid email or password.';
+      } else if (status === 429) {
+        msg = err.response?.data?.message || 'Too many attempts. Please wait 15 minutes and try again.';
+      } else if (status === 503 || status === 504) {
+        msg =
+          'Server is busy or timed out. Wait a minute, then try again. Restart the Hostinger API if this continues.';
+      }
       setError(msg);
     } finally {
       setSubmitting(false);

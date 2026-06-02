@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation, Outlet } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { Icon, ToastContainer, apiFetch } from "./BranchShared";
+import { BRANCH_DASHBOARD_ROLES, normalizeRole } from "../../constants/roles";
+import { Icon, ToastContainer } from "./BranchShared";
 import "../../styles/branch.css";
 
 const NAV = [
@@ -18,25 +19,22 @@ const NAV = [
 ];
 
 const BranchLayout = () => {
-  const { logout } = useAuth();
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { user: authUser, logout, loading: authLoading } = useAuth();
   const [showSidebar, setShowSidebar] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    apiFetch("/auth/me")
-      .then(r => {
-        if (r.user.role !== "BRANCH_OWNER") {
-          navigate("/login");
-        } else {
-          setUser(r.user);
-        }
-      })
-      .catch(() => navigate("/login"))
-      .finally(() => setLoading(false));
-  }, [navigate]);
+    if (authLoading) return;
+    if (!authUser) {
+      navigate("/login");
+      return;
+    }
+    const role = normalizeRole(authUser.role);
+    if (!BRANCH_DASHBOARD_ROLES.includes(role)) {
+      navigate("/unauthorized");
+    }
+  }, [authUser, authLoading, navigate]);
 
   useEffect(() => {
     setShowSidebar(false);
@@ -46,21 +44,22 @@ const BranchLayout = () => {
     logout();
   };
 
-  if (loading) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyCenter: "center", background: "#07070A" }}>
-      <div style={{ width: 36, height: 36, border: "3px solid #0EA5E9", borderTopColor: "transparent", borderRadius: "50%", animation: "spin-loader .8s linear infinite" }} />
-      <style>{"@keyframes spin-loader{to{transform:rotate(360deg)}}"}</style>
-    </div>
-  );
+  if (authLoading || !authUser) {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#07070A" }}>
+        <div style={{ width: 36, height: 36, border: "3px solid #0EA5E9", borderTopColor: "transparent", borderRadius: "50%", animation: "spin-loader .8s linear infinite" }} />
+        <style>{"@keyframes spin-loader{to{transform:rotate(360deg)}}"}</style>
+      </div>
+    );
+  }
 
+  const user = authUser;
   const activeNav = NAV.find(n => location.pathname === n.path) || NAV[0];
 
   return (
     <div id="branch-dashboard-shell">
-      {/* Mobile Overlay */}
       {showSidebar && <div className="sidebar-overlay" onClick={() => setShowSidebar(false)} />}
 
-      {/* Sidebar */}
       <div id="branch-sidebar" className={showSidebar ? "show" : ""}>
         <div className="sb-brand">
           <div className="sb-mark">CE</div>
@@ -75,9 +74,9 @@ const BranchLayout = () => {
             <React.Fragment key={sec}>
               <div className="sb-sec">{sec}</div>
               {NAV.filter(n => n.section === sec).map(item => (
-                <Link 
-                  key={item.id} 
-                  to={item.path} 
+                <Link
+                  key={item.id}
+                  to={item.path}
                   target={item.target || undefined}
                   rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
                   className={`sb-item ${location.pathname === item.path ? "active" : ""}`}
@@ -94,7 +93,7 @@ const BranchLayout = () => {
           <div className="sb-user">
             <div className="sb-avatar">{user?.name?.[0]?.toUpperCase()}</div>
             <div style={{ flex: 1 }}>
-              <div className="sb-uname">{user?.name || "Branch Owner"}</div>
+              <div className="sb-uname">{user?.name || "Branch User"}</div>
               <div className="sb-urole">{user?.branchName || "LOCAL STATION"}</div>
             </div>
           </div>
@@ -104,7 +103,6 @@ const BranchLayout = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="main">
         <div className="branch-topbar">
           <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
@@ -117,7 +115,7 @@ const BranchLayout = () => {
             <div className="live-pill"><span className="live-dot" /> LIVE STATUS</div>
           </div>
         </div>
-        
+
         <Outlet context={{ user }} />
       </div>
 

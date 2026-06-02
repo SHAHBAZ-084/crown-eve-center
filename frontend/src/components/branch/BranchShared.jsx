@@ -1,10 +1,15 @@
 // frontend/src/components/branch/BranchShared.jsx
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { getApiUrl } from "../../utils/apiUrl";
 
 const API_BASE = getApiUrl();
 export const UPLOAD_BASE = API_BASE.replace('/api', '');
 const TOKEN_KEY = "token";
+
+const isPathDisabled = (path) =>
+  !path ||
+  path.includes('branchId=undefined') ||
+  path.includes('branchId=null');
 
 // ─── API HELPER ──────────────────────────────────────────────────────────────
 export const apiFetch = async (path, options = {}) => {
@@ -19,7 +24,9 @@ export const apiFetch = async (path, options = {}) => {
   });
   if (!res.ok) {
     const e = await res.json().catch(() => ({}));
-    throw new Error(e.message || `HTTP ${res.status}`);
+    const err = new Error(e.message || `HTTP ${res.status}`);
+    err.status = res.status;
+    throw err;
   }
   return res.json();
 };
@@ -29,23 +36,48 @@ export function useFetch(path, deps = [], refreshMs = 0) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const backoffUntilRef = useRef(0);
+
+  const disabled = isPathDisabled(path);
 
   const refetch = useCallback(async (showLoading = true) => {
-    if (!path) return;
+    if (disabled) {
+      setLoading(false);
+      return;
+    }
+    if (Date.now() < backoffUntilRef.current) {
+      return;
+    }
     if (showLoading) setLoading(true);
     setError(null);
-    try { setData(await apiFetch(path)); }
-    catch (e) { setError(e.message); }
-    finally { setLoading(false); }
-  }, [path, ...deps]);
+    try {
+      setData(await apiFetch(path));
+    } catch (e) {
+      setError(e.message);
+      if (e.status === 429 || e.status === 503 || e.status === 504) {
+        backoffUntilRef.current = Date.now() + 60_000;
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [path, disabled, ...deps]);
 
   useEffect(() => {
+    if (disabled) {
+      setLoading(false);
+      return undefined;
+    }
     refetch();
     if (refreshMs > 0) {
-      const t = setInterval(() => refetch(false), refreshMs);
+      const t = setInterval(() => {
+        if (Date.now() >= backoffUntilRef.current) {
+          refetch(false);
+        }
+      }, refreshMs);
       return () => clearInterval(t);
     }
-  }, [refetch, refreshMs]);
+    return undefined;
+  }, [refetch, refreshMs, disabled]);
 
   return { data, loading, error, refetch };
 }
@@ -94,6 +126,7 @@ const ICON_PATHS = {
   truck: "M1 3h15v13H1z M16 8l4 2v5h-4 M5.5 21a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z M18.5 21a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
   mail: "M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6",
   menu: "M3 12h18 M3 6h18 M3 18h18",
+  settings: "M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z",
 };
 
 export const Icon = ({ n, size = 16, className = "" }) => {
