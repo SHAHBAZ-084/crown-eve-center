@@ -12,13 +12,6 @@ const Home = () => {
   const navigate = useNavigate();
 
   const R2_PUBLIC_URL = import.meta.env.VITE_R2_PUBLIC_URL;
-  const images = useMemo(
-    () =>
-      R2_PUBLIC_URL
-        ? [`${R2_PUBLIC_URL}/hero-1.webp`, `${R2_PUBLIC_URL}/hero-2.webp`, `${R2_PUBLIC_URL}/hero-3.webp`]
-        : ['/hero-1.png', '/hero-2.png', '/hero-3.png'],
-    [R2_PUBLIC_URL]
-  );
 
   const {
     services,
@@ -33,19 +26,11 @@ const Home = () => {
     servicesLoading,
     testimonialsLoading,
   } = useHomeData();
-  const [currentImg, setCurrentImg] = useState(0);
   const [expandedTestimonial, setExpandedTestimonial] = useState(null);
 
   const toggleTestimonial = useCallback((id) => {
     setExpandedTestimonial((prev) => (prev === id ? null : id));
   }, []);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentImg((prev) => (prev + 1) % images.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [images.length]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -68,14 +53,16 @@ const Home = () => {
     <div id="page-home" className="page">
       {/* HERO */}
       <section id="hero" className="full-screen-hero">
-        <div className="hero-slideshow">
-          {images.map((img, idx) => (
-            <div
-              key={idx}
-              className={`hero-slide ${idx === currentImg ? 'active' : ''}`}
-              style={{ backgroundImage: `url('${img}')` }}
-            />
-          ))}
+        <div className="hero-video-wrapper">
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="hero-video-bg"
+          >
+            <source src={R2_PUBLIC_URL ? `${R2_PUBLIC_URL}/videos/hero-bg.mp4` : '/videos/hero-bg.mp4'} type="video/mp4" />
+          </video>
           <div className="hero-overlay"></div>
         </div>
 
