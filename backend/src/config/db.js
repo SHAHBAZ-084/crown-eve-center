@@ -4,12 +4,22 @@ const { PrismaClient } = require('@prisma/client');
 
 const globalForPrisma = global;
 
-const buildUrl = (raw) => {
+const sanitizeUrl = (raw) => {
   if (!raw) return raw;
-  if (raw.includes('connection_limit')) return raw;
-  const sep = raw.includes('?') ? '&' : '?';
+  // channel_binding breaks many shared hosts (Hostinger) — Neon works with sslmode=require only.
+  return raw
+    .replace(/([?&])channel_binding=[^&]*&?/gi, '$1')
+    .replace(/[?&]$/, '')
+    .replace(/\?&/, '?');
+};
+
+const buildUrl = (raw) => {
+  const cleaned = sanitizeUrl(raw);
+  if (!cleaned) return cleaned;
+  if (cleaned.includes('connection_limit')) return cleaned;
+  const sep = cleaned.includes('?') ? '&' : '?';
   const params = ['connection_limit=5', 'connect_timeout=15'];
-  return `${raw}${sep}${params.join('&')}`;
+  return `${cleaned}${sep}${params.join('&')}`;
 };
 
 const shouldUseNeonAdapter = () => {
