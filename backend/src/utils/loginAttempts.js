@@ -1,6 +1,6 @@
 const NodeCache = require('node-cache');
 
-const MAX_ATTEMPTS = 5;
+const MAX_ATTEMPTS = 8;
 const LOCKOUT_MS = 15 * 60 * 1000;
 
 const attempts = new NodeCache({ stdTTL: LOCKOUT_MS / 1000, checkperiod: 120 });

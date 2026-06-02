@@ -20,7 +20,19 @@ const Home = () => {
     [R2_PUBLIC_URL]
   );
 
-  const { services, products, branches, testimonials, isLoading, servicesLoading, testimonialsLoading } = useHomeData();
+  const {
+    services,
+    products,
+    branches,
+    testimonials,
+    isLoading,
+    isProductsError,
+    isProductsFetching,
+    productsFromCache,
+    refetchProducts,
+    servicesLoading,
+    testimonialsLoading,
+  } = useHomeData();
   const [currentImg, setCurrentImg] = useState(0);
   const [expandedTestimonial, setExpandedTestimonial] = useState(null);
 
@@ -122,9 +134,22 @@ const Home = () => {
           <Link to="/shop" className="view-all">View all bikes →</Link>
         </div>
         <div className="products-grid three-cols">
-          {isLoading ? (
+          {isLoading || (isProductsFetching && products.length === 0) ? (
             <div style={{ gridColumn: '1 / -1', padding: '60px 0', display: 'flex', justifyContent: 'center' }}>
               <div style={{ width: 40, height: 40, border: '4px solid var(--orange)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+            </div>
+          ) : isProductsError && products.length === 0 ? (
+            <div className="no-products" style={{ gridColumn: '1 / -1', textAlign: 'center' }}>
+              <p>We could not load bikes right now (API busy or offline).</p>
+              <button
+                type="button"
+                className="btn-primary"
+                style={{ marginTop: 16 }}
+                disabled={isProductsFetching}
+                onClick={() => refetchProducts()}
+              >
+                {isProductsFetching ? 'Retrying…' : 'Try again'}
+              </button>
             </div>
           ) : products.length > 0 ? (
             products.slice(0, 6).map((p) => (
@@ -159,7 +184,14 @@ const Home = () => {
               </div>
             ))
           ) : (
-            <div className="no-products">Our latest collection is arriving soon.</div>
+            <div className="no-products">
+              No bikes are listed on the shop yet. Add active bike products in the admin panel.
+            </div>
+          )}
+          {productsFromCache && isProductsFetching && products.length > 0 && (
+            <p style={{ gridColumn: '1 / -1', fontSize: 12, color: '#888', textAlign: 'center', marginTop: 8 }}>
+              Showing saved bikes while we refresh…
+            </p>
           )}
         </div>
       </section>

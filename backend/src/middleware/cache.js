@@ -48,18 +48,46 @@ const cacheGet = (ttlSeconds = 60) => (req, res, next) => {
 
 const clearCache = () => cacheStore.flushAll();
 
-/** Clear cache after successful mutations. */
+const CATALOG_CACHE_PREFIXES = [
+  '/api/products',
+  '/api/branches',
+  '/api/categories',
+  '/api/brands',
+  '/api/services',
+  '/api/testimonials',
+];
+
+/** Drop catalog GET cache only — avoids wiping cache on every login and reduces DB spikes. */
+const invalidateCatalogCache = () => {
+  const keys = cacheStore.keys();
+  for (const key of keys) {
+    if (CATALOG_CACHE_PREFIXES.some((p) => key.includes(p))) {
+      cacheStore.del(key);
+    }
+  }
+};
+
+/** Clear catalog cache after successful mutations (not auth/login). */
 const invalidateCacheOnWrite = (req, res, next) => {
   if (!['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
+    return next();
+  }
+  if (req.originalUrl.startsWith('/api/auth')) {
     return next();
   }
 
   res.on('finish', () => {
     if (res.statusCode >= 200 && res.statusCode < 400) {
-      clearCache();
+      invalidateCatalogCache();
     }
   });
   next();
 };
 
-module.exports = { cacheGet, clearCache, cacheStore, invalidateCacheOnWrite };
+module.exports = {
+  cacheGet,
+  clearCache,
+  invalidateCatalogCache,
+  cacheStore,
+  invalidateCacheOnWrite,
+};

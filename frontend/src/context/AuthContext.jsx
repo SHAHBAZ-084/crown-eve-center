@@ -25,10 +25,14 @@ export const AuthProvider = ({ children }) => {
           const nextUser = { ...res.data.user, role: normalizeRole(res.data.user.role) };
           setUser(nextUser);
           localStorage.setItem('user', JSON.stringify(nextUser));
-        } catch {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          setUser(null);
+        } catch (err) {
+          const status = err.response?.status;
+          if (status === 401) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setUser(null);
+          }
+          // 429/503: keep cached session; avoid logout loop during API pressure
         }
       } else {
         setUser(null);

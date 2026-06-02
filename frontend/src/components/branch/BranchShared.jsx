@@ -1,15 +1,47 @@
 // frontend/src/components/branch/BranchShared.jsx
-import React, { useState, useEffect, useCallback } from "react";
-import { getApiUrl } from "../../utils/apiUrl";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import {
+  getApiUrl,
+  getApiFallbackUrl,
+  isNetworkTransportError,
+  setApiBasePreference,
+} from "../../utils/apiUrl";
 
-const API_BASE = getApiUrl();
-export const UPLOAD_BASE = API_BASE.replace('/api', '');
+export const getUploadBase = () => getApiUrl().replace('/api', '');
+/** @deprecated use getUploadBase() — kept for existing imports */
+export const UPLOAD_BASE =
+  typeof window !== 'undefined' ? getUploadBase() : 'https://api.crownevcenter.com';
 const TOKEN_KEY = "token";
 
+const isPathDisabled = (path) =>
+  !path ||
+  path.includes('branchId=undefined') ||
+  path.includes('branchId=null');
+
+let globalBlockedUntil = 0;
+
+export const isBranchApiBlocked = () => Date.now() < globalBlockedUntil;
+
+const blockBranchApi = (ms = 120_000) => {
+  globalBlockedUntil = Math.max(globalBlockedUntil, Date.now() + ms);
+};
+
+let fetchQueue = Promise.resolve();
+const FETCH_GAP_MS = 120;
+
+const runQueued = (fn) => {
+  const run = fetchQueue.then(fn, fn);
+  fetchQueue = run.then(
+    () => new Promise((r) => setTimeout(r, FETCH_GAP_MS)),
+    () => new Promise((r) => setTimeout(r, FETCH_GAP_MS))
+  );
+  return run;
+};
+
 // ─── API HELPER ──────────────────────────────────────────────────────────────
-export const apiFetch = async (path, options = {}) => {
+const doFetch = async (base, path, options) => {
   const token = localStorage.getItem(TOKEN_KEY);
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(`${base}${path}`, {
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -19,33 +51,90 @@ export const apiFetch = async (path, options = {}) => {
   });
   if (!res.ok) {
     const e = await res.json().catch(() => ({}));
-    throw new Error(e.message || `HTTP ${res.status}`);
+    const err = new Error(e.message || `HTTP ${res.status}`);
+    err.status = res.status;
+    if (res.status === 429 || res.status === 503 || res.status === 504) {
+      blockBranchApi(120_000);
+    }
+    throw err;
   }
   return res.json();
 };
 
+export const apiFetch = async (path, options = {}) => {
+  return runQueued(async () => {
+    if (isBranchApiBlocked()) {
+      const err = new Error('Too many requests. Please wait 2 minutes and refresh the page.');
+      err.status = 429;
+      throw err;
+    }
+
+    const primary = getApiUrl();
+    try {
+      return await doFetch(primary, path, options);
+    } catch (e) {
+      const isTransport =
+        e.status == null &&
+        (e.name === 'TypeError' || /fetch|network|quic/i.test(String(e.message)));
+      const fallback = getApiFallbackUrl(primary);
+      if (isTransport && fallback) {
+        setApiBasePreference(fallback.includes('api.crownevcenter.com') ? 'direct' : 'proxy');
+        return doFetch(fallback, path, options);
+      }
+      throw e;
+    }
+  });
+};
+
 // ─── HOOKS ───────────────────────────────────────────────────────────────────
 export function useFetch(path, deps = [], refreshMs = 0) {
+  const pathKey = path == null ? '' : String(path);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const backoffUntilRef = useRef(0);
+
+  const disabled = isPathDisabled(pathKey);
 
   const refetch = useCallback(async (showLoading = true) => {
-    if (!path) return;
+    if (disabled) {
+      setLoading(false);
+      return;
+    }
+    if (Date.now() < backoffUntilRef.current) {
+      return;
+    }
     if (showLoading) setLoading(true);
     setError(null);
-    try { setData(await apiFetch(path)); }
-    catch (e) { setError(e.message); }
-    finally { setLoading(false); }
-  }, [path, ...deps]);
+    try {
+      setData(await apiFetch(pathKey));
+    } catch (e) {
+      setError(e.message);
+      if (e.status === 429 || e.status === 503 || e.status === 504) {
+        backoffUntilRef.current = Date.now() + 120_000;
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [pathKey, disabled, ...deps]);
 
   useEffect(() => {
+    if (disabled || isBranchApiBlocked()) {
+      setLoading(false);
+      return undefined;
+    }
     refetch();
-    if (refreshMs > 0) {
-      const t = setInterval(() => refetch(false), refreshMs);
+    // Auto-polling disabled by default — Hostinger/Vercel rate-limit burst traffic.
+    if (refreshMs > 0 && !isBranchApiBlocked()) {
+      const t = setInterval(() => {
+        if (Date.now() >= backoffUntilRef.current && !isBranchApiBlocked()) {
+          refetch(false);
+        }
+      }, refreshMs);
       return () => clearInterval(t);
     }
-  }, [refetch, refreshMs]);
+    return undefined;
+  }, [refetch, refreshMs, disabled]);
 
   return { data, loading, error, refetch };
 }
@@ -94,6 +183,7 @@ const ICON_PATHS = {
   truck: "M1 3h15v13H1z M16 8l4 2v5h-4 M5.5 21a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z M18.5 21a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
   mail: "M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6",
   menu: "M3 12h18 M3 6h18 M3 18h18",
+  settings: "M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z",
 };
 
 export const Icon = ({ n, size = 16, className = "" }) => {

@@ -8,12 +8,18 @@ const Dashboard = () => {
   const branchId = user?.branchId;
   const branchName = user?.branchName;
 
-  const { data: revSummary } = useFetch(`/reports/revenue/summary?branchId=${branchId}`, [branchId], 5000);
-  const { data: pendingOrders } = useFetch(`/orders/count?branchId=${branchId}&status=PENDING`, [branchId], 5000);
-  const { data: todayAppts } = useFetch(`/appointments/today?branchId=${branchId}`, [branchId], 5000);
-  const { data: stockAlerts } = useFetch(`/inventory/alerts?branchId=${branchId}`, [branchId], 5000);
-  const { data: recentOrders } = useFetch(`/orders?branchId=${branchId}&limit=5&page=1`, [branchId], 5000);
-  const { data: chartData } = useFetch(`/reports/revenue/chart?branchId=${branchId}&period=7d`, [branchId], 5000);
+  const { data: bundle, loading } = useFetch(
+    branchId ? `/reports/branch-dashboard?branchId=${branchId}` : null,
+    [branchId],
+    0
+  );
+
+  const revSummary = bundle?.revSummary;
+  const pendingOrders = bundle?.pendingOrders;
+  const todayAppts = bundle?.todayAppts;
+  const stockAlerts = bundle?.stockAlerts;
+  const recentOrders = bundle?.recentOrders;
+  const chartData = bundle?.chartData;
 
   const maxChart = chartData ? Math.max(...chartData.map(d => d.revenue || d._sum?.total || 0), 1) : 1;
 
@@ -33,7 +39,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* KPI Cards */}
       <div className="sg">
         <div className="sc">
           <div className="sc-icon" style={{ background: "rgba(14,165,233,.12)", color: "var(--acc)" }}><Icon n="dollar" size={18} /></div>
@@ -45,30 +50,29 @@ const Dashboard = () => {
         <div className="sc">
           <div className="sc-icon" style={{ background: "rgba(234,179,8,.12)", color: "var(--yellow)" }}><Icon n="clock" size={18} /></div>
           <div className="sc-label">Pending Orders</div>
-          <div className="sc-val">{pendingOrders?.count ?? "—"}</div>
+          <div className="sc-val">{pendingOrders?.count ?? (loading ? "…" : "—")}</div>
           <div className="sc-trend" style={{ color: "var(--yellow)" }}>Needs attention</div>
         </div>
         <div className="sc">
           <div className="sc-icon" style={{ background: "rgba(34,197,94,.12)", color: "var(--green)" }}><Icon n="appointments" size={18} /></div>
           <div className="sc-label">Today's Bookings</div>
-          <div className="sc-val">{Array.isArray(todayAppts) ? todayAppts.length : "—"}</div>
+          <div className="sc-val">{Array.isArray(todayAppts) ? todayAppts.length : loading ? "…" : "—"}</div>
           <div className="sc-trend t-up">Scheduled today</div>
         </div>
         <div className="sc">
           <div className="sc-icon" style={{ background: "rgba(239,68,68,.12)", color: "var(--red)" }}><Icon n="alert" size={18} /></div>
           <div className="sc-label">Low Stock Alerts</div>
-          <div className="sc-val">{Array.isArray(stockAlerts) ? stockAlerts.length : "—"}</div>
+          <div className="sc-val">{Array.isArray(stockAlerts) ? stockAlerts.length : loading ? "…" : "—"}</div>
           <div className="sc-trend t-dn">{Array.isArray(stockAlerts) && stockAlerts.length > 0 ? "Action required" : "Stock healthy"}</div>
         </div>
       </div>
 
       <div className="dash-row">
-        {/* Revenue chart */}
         <div className="card ci">
           <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 16, display: "flex", justifyContent: "space-between" }}>
             <span>Revenue — Last 7 Days</span>
           </div>
-          {!chartData ? <Sk h={140} r={8} /> : (
+          {loading && !chartData ? <Sk h={140} r={8} /> : !chartData ? <Sk h={140} r={8} /> : (
             <div className="bar-wrap">
               {chartData.map((d, i) => {
                 const val = d.revenue || d._sum?.total || 0;
@@ -85,10 +89,9 @@ const Dashboard = () => {
           )}
         </div>
 
-        {/* Today's appointments */}
         <div className="card ci">
           <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 14 }}>Today's Appointments</div>
-          {!todayAppts ? <TblSk rows={3} /> : Array.isArray(todayAppts) && todayAppts.length === 0
+          {loading && !todayAppts ? <TblSk rows={3} /> : Array.isArray(todayAppts) && todayAppts.length === 0
             ? <div className="empty"><Icon n="appointments" size={32} /><div className="empty-t">No bookings today</div></div>
             : (todayAppts || []).slice(0, 5).map(a => (
               <div key={a.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", borderBottom: "1px solid var(--border)" }}>
@@ -106,11 +109,10 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Recent orders + Stock alerts */}
       <div className="dash-row">
         <div className="card">
           <div style={{ padding: "18px 18px 0", fontWeight: 700, fontSize: 14, marginBottom: 12 }}>Recent Orders</div>
-          {!recentOrders ? <TblSk rows={4} /> : (
+          {loading && !recentOrders ? <TblSk rows={4} /> : (
             <table>
               <thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead>
               <tbody>
@@ -130,7 +132,7 @@ const Dashboard = () => {
 
         <div className="card ci">
           <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 14 }}>Low Stock Alerts</div>
-          {!stockAlerts ? <TblSk rows={3} /> : Array.isArray(stockAlerts) && stockAlerts.length === 0
+          {loading && !stockAlerts ? <TblSk rows={3} /> : Array.isArray(stockAlerts) && stockAlerts.length === 0
             ? <div className="empty"><Icon n="check" size={32} /><div className="empty-t">All stock healthy</div></div>
             : (stockAlerts || []).slice(0, 6).map(item => (
               <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", borderBottom: "1px solid var(--border)" }}>
