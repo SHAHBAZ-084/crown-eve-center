@@ -32,7 +32,7 @@ const writeCachedBikes = (products) => {
 const shouldRetryQuery = (failureCount, error) => {
   const status = error?.response?.status;
   if (status === 401 || status === 403 || status === 404) return false;
-  return failureCount < 4;
+  return failureCount < 3;
 };
 
 const retryDelayMs = (attempt) => Math.min(1200 * 2 ** attempt, 15000);

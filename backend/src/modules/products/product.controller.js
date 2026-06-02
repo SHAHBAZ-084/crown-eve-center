@@ -21,7 +21,12 @@ exports.getAll = async (req, res) => {
     const result = await Product.getProducts(query);
     res.json(isStaff ? result : sanitizeProductList(result));
   } catch (e) {
-    res.status(500).json({ message: e.message });
+    const isDbTimeout =
+      e.message?.includes('timeout') ||
+      e.message?.includes('connect') ||
+      e.code === 'P1001' ||
+      e.code === 'P1008';
+    res.status(isDbTimeout ? 503 : 500).json({ message: e.message });
   }
 };
 
@@ -37,7 +42,12 @@ exports.getById = async (req, res) => {
 
     res.json(isStaff ? product : sanitizeProduct(product));
   } catch (e) {
-    res.status(500).json({ message: e.message });
+    const isDbTimeout =
+      e.message?.includes('timeout') ||
+      e.message?.includes('connect') ||
+      e.code === 'P1001' ||
+      e.code === 'P1008';
+    res.status(isDbTimeout ? 503 : 500).json({ message: e.message });
   }
 };
 

@@ -19,10 +19,6 @@ publicApi.interceptors.request.use((config) => {
   return config;
 });
 
-const RETRY_STATUSES = new Set([429, 502, 503, 504]);
-const RETRY_DELAY_MS = 1500;
-const MAX_RETRIES = 3;
-
 publicApi.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -43,17 +39,7 @@ publicApi.interceptors.response.use(
       }
     }
 
-    const status = error.response?.status;
-    if (!RETRY_STATUSES.has(status)) {
-      return Promise.reject(error);
-    }
-    config.__retryCount = config.__retryCount || 0;
-    if (config.__retryCount >= MAX_RETRIES) {
-      return Promise.reject(error);
-    }
-    config.__retryCount += 1;
-    await new Promise((r) => setTimeout(r, RETRY_DELAY_MS * config.__retryCount));
-    return publicApi(config);
+    return Promise.reject(error);
   }
 );
 

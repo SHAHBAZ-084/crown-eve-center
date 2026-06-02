@@ -134,7 +134,7 @@ const Home = () => {
           <Link to="/shop" className="view-all">View all bikes →</Link>
         </div>
         <div className="products-grid three-cols">
-          {isLoading ? (
+          {isLoading || (isProductsFetching && products.length === 0) ? (
             <div style={{ gridColumn: '1 / -1', padding: '60px 0', display: 'flex', justifyContent: 'center' }}>
               <div style={{ width: 40, height: 40, border: '4px solid var(--orange)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
             </div>
