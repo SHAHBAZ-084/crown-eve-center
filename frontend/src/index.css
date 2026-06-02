@@ -2377,9 +2377,10 @@ footer::after {
     justify-content: center !important;
   }
 
-  .hero-slide {
-    background-size: cover !important;
-    background-position: center center !important;
+  .hero-video-bg {
+    min-width: 100% !important;
+    min-height: 100% !important;
+    object-fit: cover !important;
   }
 
   .hero-content.full-width h1.hero-title {
@@ -2421,26 +2422,23 @@ footer::after {
   text-align: left;
 }
 
-.hero-slideshow {
+.hero-video-wrapper {
   position: absolute;
   inset: 0;
   z-index: 0;
   overflow: hidden;
 }
 
-.hero-slide {
+.hero-video-bg {
   position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  opacity: 0;
-  transition: opacity 1.5s ease-in-out, transform 6s linear;
-  transform: scale(1.1);
-}
-
-.hero-slide.active {
-  opacity: 1;
-  transform: scale(1);
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
 }
 
 .hero-overlay {
