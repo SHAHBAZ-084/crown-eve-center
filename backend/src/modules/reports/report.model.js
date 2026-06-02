@@ -62,9 +62,9 @@ const getBranchStats = (id) => prisma.branch.findUnique({
   where: { id },
   include: {
     _count: {
-      select: { orders: true, appointments: true, products: true }
-    }
-  }
+      select: { orders: true, serviceBookings: true, products: true },
+    },
+  },
 });
 
 const getBranchRevenue = (id) => prisma.order.aggregate({

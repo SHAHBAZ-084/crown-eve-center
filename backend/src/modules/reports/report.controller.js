@@ -67,15 +67,50 @@ exports.compareBranches = async (req, res) => {
   }
 };
 
+const staffBranchRoles = ['BRANCH_OWNER', 'BRANCH_MANAGER', 'EMPLOYEE', 'TECHNICIAN'];
+
 exports.getBranch = async (req, res) => {
   try {
     const branchId = Number(req.params.id);
-    if (req.user.role === 'BRANCH_OWNER' && branchId !== req.user.branchId) {
+    if (!Number.isFinite(branchId)) {
+      return res.status(400).json({ message: 'Invalid branch id' });
+    }
+
+    if (staffBranchRoles.includes(req.user.role) && branchId !== req.user.branchId) {
       return res.status(403).json({ message: 'Access denied' });
     }
-    const stats = await Report.getBranchStats(branchId);
-    const revenue = await Report.getBranchRevenue(branchId);
-    res.json({ ...stats, revenue: revenue._sum.total || 0 });
+
+    const branch = await prisma.branch.findUnique({
+      where: { id: branchId },
+      select: { id: true, name: true, location: true },
+    });
+    if (!branch) {
+      return res.status(404).json({ message: 'Branch not found' });
+    }
+
+    const [orderGroups, revenue, totalAppointments] = await Promise.all([
+      prisma.order.groupBy({
+        by: ['status'],
+        where: { branchId },
+        _count: { id: true },
+      }),
+      Report.getBranchRevenue(branchId),
+      prisma.serviceBooking.count({ where: { branchId } }),
+    ]);
+
+    const countByStatus = (status) =>
+      orderGroups.find((g) => g.status === status)?._count.id || 0;
+
+    const totalOrders = orderGroups.reduce((sum, g) => sum + g._count.id, 0);
+
+    res.json({
+      ...branch,
+      totalOrders,
+      completedOrders: countByStatus('COMPLETED'),
+      pendingOrders: countByStatus('PENDING'),
+      totalAppointments,
+      revenue: revenue._sum.total || 0,
+    });
   } catch (e) {
     res.status(500).json({ message: e.message });
   }
