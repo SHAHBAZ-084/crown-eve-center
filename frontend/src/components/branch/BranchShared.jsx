@@ -2,8 +2,10 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { getApiUrl } from "../../utils/apiUrl";
 
-const API_BASE = getApiUrl();
-export const UPLOAD_BASE = API_BASE.replace('/api', '');
+export const getUploadBase = () => getApiUrl().replace('/api', '');
+/** @deprecated use getUploadBase() — kept for existing imports */
+export const UPLOAD_BASE =
+  typeof window !== 'undefined' ? getUploadBase() : 'https://api.crownevcenter.com';
 const TOKEN_KEY = "token";
 
 const isPathDisabled = (path) =>
@@ -19,8 +21,21 @@ const blockBranchApi = (ms = 120_000) => {
   globalBlockedUntil = Math.max(globalBlockedUntil, Date.now() + ms);
 };
 
+let fetchQueue = Promise.resolve();
+const FETCH_GAP_MS = 120;
+
+const runQueued = (fn) => {
+  const run = fetchQueue.then(fn, fn);
+  fetchQueue = run.then(
+    () => new Promise((r) => setTimeout(r, FETCH_GAP_MS)),
+    () => new Promise((r) => setTimeout(r, FETCH_GAP_MS))
+  );
+  return run;
+};
+
 // ─── API HELPER ──────────────────────────────────────────────────────────────
 export const apiFetch = async (path, options = {}) => {
+  return runQueued(async () => {
   if (isBranchApiBlocked()) {
     const err = new Error('Too many requests. Please wait 2 minutes and refresh the page.');
     err.status = 429;
@@ -28,7 +43,7 @@ export const apiFetch = async (path, options = {}) => {
   }
 
   const token = localStorage.getItem(TOKEN_KEY);
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(`${getApiUrl()}${path}`, {
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -46,6 +61,7 @@ export const apiFetch = async (path, options = {}) => {
     throw err;
   }
   return res.json();
+  });
 };
 
 // ─── HOOKS ───────────────────────────────────────────────────────────────────

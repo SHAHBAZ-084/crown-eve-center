@@ -1,6 +1,8 @@
 // Centralized API URL.
-// Production site (crownevcenter.com / www) uses same-origin /api → Vercel proxies to Hostinger.
-// Avoids CORS when www and api are different hosts; override with VITE_API_URL if needed.
+// Production: call Hostinger API directly (avoids Vercel proxy rate limits / 429).
+// Backend CORS allows crownevcenter.com. Override with VITE_API_URL if needed.
+
+const PRODUCTION_API = 'https://api.crownevcenter.com/api';
 
 export const getApiUrl = () => {
   if (import.meta.env.VITE_API_URL) {
@@ -8,6 +10,10 @@ export const getApiUrl = () => {
   }
 
   if (import.meta.env.MODE === 'production' && typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    if (host === 'crownevcenter.com' || host === 'www.crownevcenter.com') {
+      return PRODUCTION_API;
+    }
     return `${window.location.origin}/api`;
   }
 
