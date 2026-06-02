@@ -27,6 +27,12 @@ function createPrismaClient() {
     return new PrismaClient();
   }
 
+  if (pooledUrl?.includes('neon.tech') && !pooledUrl.includes('pooler')) {
+    console.warn(
+      '[db] Use Neon pooled DATABASE_URL (*-pooler.neon.tech) on Hostinger to avoid 503/timeouts.'
+    );
+  }
+
   if (shouldUseNeonAdapter() && pooledUrl) {
     console.log('[db] Using Neon driver adapter (no native Prisma engine)');
     const { PrismaNeon } = require('@prisma/adapter-neon');

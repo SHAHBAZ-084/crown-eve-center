@@ -7,6 +7,9 @@ const { cacheGet, invalidateCacheOnWrite } = require('./middleware/cache');
 
 const app = express();
 
+// Hostinger reverse proxy + Vercel: required for express-rate-limit and req.ip.
+app.set('trust proxy', true);
+
 const isProduction = process.env.NODE_ENV === 'production';
 
 app.use(
