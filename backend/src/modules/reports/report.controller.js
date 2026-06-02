@@ -1,6 +1,17 @@
 // backend/src/modules/reports/report.controller.js
 const Report = require('./report.model');
+const Order = require('../orders/order.model');
+const Booking = require('../service-bookings/booking.model');
+const Inventory = require('../inventory/inventory.model');
 const prisma = require('../../config/db');
+const resolveBranchId = (req) => {
+  const role = req.user.role;
+  if (role === 'BRANCH_OWNER' || role === 'BRANCH_MANAGER' || role === 'EMPLOYEE' || role === 'TECHNICIAN') {
+    return req.user.branchId;
+  }
+  const requested = Number(req.query.branchId);
+  return Number.isFinite(requested) ? requested : null;
+};
 
 exports.getRevenueSummary = async (req, res) => {
   try {
@@ -74,6 +85,37 @@ exports.getSales = async (req, res) => {
   try {
     const data = await Report.getSalesReport(Number(req.params.id));
     res.json(data);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
+/** One request for branch dashboard — avoids 6 parallel calls and Hostinger/Vercel 429. */
+exports.getBranchDashboard = async (req, res) => {
+  try {
+    const branchId = resolveBranchId(req);
+    if (!branchId) {
+      return res.status(400).json({ message: 'branchId is required for this dashboard.' });
+    }
+
+    const [revSummary, chartData, pendingCount, todayAppts, stockAlerts, recentOrders] =
+      await Promise.all([
+        Report.getRevenueSummary({ branchId }),
+        Report.getRevenueChart({ branchId, days: 7 }),
+        Order.countOrders({ branchId, status: 'PENDING' }),
+        Booking.getTodayBookings(branchId),
+        Inventory.getAlerts(branchId, false),
+        Order.getOrders({ branchId, page: 1, limit: 5 }),
+      ]);
+
+    res.json({
+      revSummary,
+      chartData,
+      pendingOrders: { count: pendingCount },
+      todayAppts,
+      stockAlerts,
+      recentOrders,
+    });
   } catch (e) {
     res.status(500).json({ message: e.message });
   }

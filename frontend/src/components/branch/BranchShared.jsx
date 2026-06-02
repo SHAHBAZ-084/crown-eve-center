@@ -11,8 +11,22 @@ const isPathDisabled = (path) =>
   path.includes('branchId=undefined') ||
   path.includes('branchId=null');
 
+let globalBlockedUntil = 0;
+
+export const isBranchApiBlocked = () => Date.now() < globalBlockedUntil;
+
+const blockBranchApi = (ms = 120_000) => {
+  globalBlockedUntil = Math.max(globalBlockedUntil, Date.now() + ms);
+};
+
 // ─── API HELPER ──────────────────────────────────────────────────────────────
 export const apiFetch = async (path, options = {}) => {
+  if (isBranchApiBlocked()) {
+    const err = new Error('Too many requests. Please wait 2 minutes and refresh the page.');
+    err.status = 429;
+    throw err;
+  }
+
   const token = localStorage.getItem(TOKEN_KEY);
   const res = await fetch(`${API_BASE}${path}`, {
     headers: {
@@ -26,6 +40,9 @@ export const apiFetch = async (path, options = {}) => {
     const e = await res.json().catch(() => ({}));
     const err = new Error(e.message || `HTTP ${res.status}`);
     err.status = res.status;
+    if (res.status === 429 || res.status === 503 || res.status === 504) {
+      blockBranchApi(120_000);
+    }
     throw err;
   }
   return res.json();
@@ -33,12 +50,13 @@ export const apiFetch = async (path, options = {}) => {
 
 // ─── HOOKS ───────────────────────────────────────────────────────────────────
 export function useFetch(path, deps = [], refreshMs = 0) {
+  const pathKey = path == null ? '' : String(path);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const backoffUntilRef = useRef(0);
 
-  const disabled = isPathDisabled(path);
+  const disabled = isPathDisabled(pathKey);
 
   const refetch = useCallback(async (showLoading = true) => {
     if (disabled) {
@@ -51,26 +69,27 @@ export function useFetch(path, deps = [], refreshMs = 0) {
     if (showLoading) setLoading(true);
     setError(null);
     try {
-      setData(await apiFetch(path));
+      setData(await apiFetch(pathKey));
     } catch (e) {
       setError(e.message);
       if (e.status === 429 || e.status === 503 || e.status === 504) {
-        backoffUntilRef.current = Date.now() + 60_000;
+        backoffUntilRef.current = Date.now() + 120_000;
       }
     } finally {
       setLoading(false);
     }
-  }, [path, disabled, ...deps]);
+  }, [pathKey, disabled, ...deps]);
 
   useEffect(() => {
-    if (disabled) {
+    if (disabled || isBranchApiBlocked()) {
       setLoading(false);
       return undefined;
     }
     refetch();
-    if (refreshMs > 0) {
+    // Auto-polling disabled by default — Hostinger/Vercel rate-limit burst traffic.
+    if (refreshMs > 0 && !isBranchApiBlocked()) {
       const t = setInterval(() => {
-        if (Date.now() >= backoffUntilRef.current) {
+        if (Date.now() >= backoffUntilRef.current && !isBranchApiBlocked()) {
           refetch(false);
         }
       }, refreshMs);
