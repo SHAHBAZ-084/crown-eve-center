@@ -4,7 +4,8 @@ import { shouldRetryQuery, queryRetryDelay } from '../utils/queryRetry';
 
 const HOME_BIKES_CACHE_KEY = 'crown_home_bikes_v1';
 
-const normalizeProductsList = (data) => {
+/** API may return { data: [...] } or a bare array */
+const normalizeApiList = (data) => {
   const list = data?.data ?? data;
   return Array.isArray(list) ? list : [];
 };
@@ -33,7 +34,7 @@ const writeCachedBikes = (products) => {
 export function useHomeData() {
   const servicesQuery = useQuery({
     queryKey: ['home', 'services'],
-    queryFn: () => publicApi.get('/services').then((r) => r.data),
+    queryFn: () => publicApi.get('/services').then((r) => normalizeApiList(r.data)),
     staleTime: 5 * 60 * 1000,
     retry: shouldRetryQuery,
     retryDelay: queryRetryDelay,
@@ -45,7 +46,7 @@ export function useHomeData() {
       const res = await publicApi.get('/products', {
         params: { product_type: 'bike', limit: 6, lite: '1' },
       });
-      const list = normalizeProductsList(res.data);
+      const list = normalizeApiList(res.data);
       writeCachedBikes(list);
       return list;
     },
@@ -58,7 +59,8 @@ export function useHomeData() {
 
   const branchesQuery = useQuery({
     queryKey: ['home', 'branches'],
-    queryFn: () => publicApi.get('/branches', { params: { limit: 20 } }).then((r) => r.data),
+    queryFn: () =>
+      publicApi.get('/branches', { params: { limit: 20 } }).then((r) => normalizeApiList(r.data)),
     staleTime: 10 * 60 * 1000,
     retry: shouldRetryQuery,
     retryDelay: queryRetryDelay,
@@ -66,19 +68,18 @@ export function useHomeData() {
 
   const testimonialsQuery = useQuery({
     queryKey: ['home', 'testimonials'],
-    queryFn: () => publicApi.get('/testimonials').then((r) => r.data),
+    queryFn: () => publicApi.get('/testimonials').then((r) => normalizeApiList(r.data)),
     staleTime: 10 * 60 * 1000,
     retry: shouldRetryQuery,
     retryDelay: queryRetryDelay,
   });
 
-  const branchesRaw = branchesQuery.data?.data ?? branchesQuery.data ?? [];
   const products = productsQuery.data ?? [];
 
   return {
     services: servicesQuery.data ?? [],
     products,
-    branches: Array.isArray(branchesRaw) ? branchesRaw : [],
+    branches: branchesQuery.data ?? [],
     testimonials: testimonialsQuery.data ?? [],
     isLoading: productsQuery.isLoading && products.length === 0,
     isProductsError: productsQuery.isError,
