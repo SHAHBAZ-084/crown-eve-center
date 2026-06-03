@@ -21,7 +21,7 @@
   --bbg: rgba(37, 99, 235, 0.1);
   --amber: #D97706;
   --abg: rgba(217, 119, 6, 0.1);
-  --nav: 64px;
+  --nav: 72px;
 
   background: var(--black);
   color: var(--white);
@@ -76,8 +76,9 @@
 }
 
 #customer-dashboard-shell .cnav-logo-img {
-  height: 42px;
+  height: 48px;
   width: auto;
+  max-width: 160px;
   object-fit: contain;
   display: block;
 }
@@ -112,51 +113,50 @@
   font-style: normal;
 }
 
-#customer-dashboard-shell .cnav-links {
+#customer-dashboard-shell .cnav-links--desktop {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
   flex: none;
   position: relative;
   z-index: 1;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-#customer-dashboard-shell .cnav-links::-webkit-scrollbar {
-  display: none;
 }
 
 #customer-dashboard-shell .cnl {
-  padding: 7px 14px;
-  font-size: 11px;
+  padding: 8px 14px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 1.5px;
+  letter-spacing: 1px;
   text-transform: uppercase;
-  color: var(--muted2);
+  color: #52525B;
   background: transparent;
   border: none;
-  border-radius: 4px;
+  border-bottom: 3px solid transparent;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all .2s;
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
   flex-shrink: 0;
   text-decoration: none;
+  white-space: nowrap;
 }
 
-#customer-dashboard-shell .cnl:hover {
-  color: var(--white);
+#customer-dashboard-shell .cnav-links--desktop .cnl:hover {
+  color: #18181B;
   background: rgba(0, 0, 0, 0.04);
 }
 
-#customer-dashboard-shell .cnl.active {
+#customer-dashboard-shell .cnav-links--desktop .cnl.active {
   color: var(--orange);
-  background: transparent;
-  border-bottom: 3px solid var(--orange);
-  border-radius: 0;
+  background: rgba(232, 71, 10, 0.08);
+  border-bottom-color: var(--orange);
   font-weight: 700;
+}
+
+/* Mobile drawer (hidden on desktop) */
+#customer-dashboard-shell .cnav-drawer {
+  display: none;
 }
 
 #customer-dashboard-shell .cnav-right {
@@ -175,13 +175,13 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 8px 18px;
-  background: rgba(232, 71, 10, 0.1);
-  border: 1px solid var(--border2);
-  border-radius: 4px;
+  padding: 8px 16px;
+  background: rgba(232, 71, 10, 0.08);
+  border: 1px solid rgba(232, 71, 10, 0.25);
+  border-radius: 8px;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.2px;
   text-transform: uppercase;
   color: var(--orange);
   cursor: pointer;
@@ -3153,9 +3153,21 @@
   display: block;
   width: 18px;
   height: 2px;
-  background: var(--white);
+  background: #18181B;
   border-radius: 2px;
   transition: transform 0.2s, opacity 0.2s;
+}
+
+#customer-dashboard-shell .cnav-menu-btn.open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+#customer-dashboard-shell .cnav-menu-btn.open span:nth-child(2) {
+  opacity: 0;
+}
+
+#customer-dashboard-shell .cnav-menu-btn.open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
 }
 
 #customer-dashboard-shell .cnav-logo {
@@ -3163,37 +3175,14 @@
   grid-row: 1;
 }
 
-#customer-dashboard-shell .cnav-links {
+#customer-dashboard-shell .cnav-links--desktop {
   grid-column: 2;
   grid-row: 1;
-  justify-content: center;
-  gap: 4px;
 }
 
 #customer-dashboard-shell .cnav-right {
   grid-column: 3;
   grid-row: 1;
-}
-
-#customer-dashboard-shell .cnl {
-  text-decoration: none;
-  white-space: nowrap;
-  font-size: 12px;
-  letter-spacing: 1px;
-  padding: 8px 14px;
-  border-radius: 8px;
-}
-
-#customer-dashboard-shell .cnl.active {
-  color: var(--orange);
-  background: transparent;
-  border-bottom: 3px solid var(--orange);
-  border-radius: 0;
-  font-weight: 700;
-}
-
-#customer-dashboard-shell .cnav-mobile-extra {
-  display: none;
 }
 
 #customer-dashboard-shell .cnav-home-btn {
@@ -3221,10 +3210,11 @@
   letter-spacing: 1.2px;
   text-transform: uppercase;
   color: var(--red);
-  background: transparent;
-  border: 1px solid rgba(220, 38, 38, 0.3);
+  background: #fff;
+  border: 1px solid rgba(220, 38, 38, 0.35);
   border-radius: 8px;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 #customer-dashboard-shell .cnl-logout:hover {
@@ -3429,102 +3419,169 @@
   opacity: 1;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1100px) {
   #customer-dashboard-shell .cnav {
-    grid-template-columns: auto auto 1fr;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
   }
 
   #customer-dashboard-shell .cnav-menu-btn {
     display: flex;
+    grid-column: 1;
   }
 
   #customer-dashboard-shell .cnav-logo {
     grid-column: 2;
+    justify-self: start;
   }
 
-  #customer-dashboard-shell .cnav-links {
+  #customer-dashboard-shell .cnav-links--desktop {
+    display: none;
+  }
+
+  #customer-dashboard-shell .cnav-right {
+    grid-column: 3;
+    justify-self: end;
+    gap: 8px;
+  }
+
+  #customer-dashboard-shell .cnav-drawer {
+    display: flex;
+    flex-direction: column;
     position: fixed;
-    top: var(--nav);
+    top: 0;
     left: 0;
     bottom: 0;
     width: min(300px, 88vw);
+    max-width: 100%;
     background: #18181B;
     border-right: 1px solid rgba(255, 255, 255, 0.08);
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-start;
-    padding: 20px 16px 32px;
-    gap: 4px;
-    transform: translateX(-105%);
-    transition: transform 0.25s ease;
-    z-index: 200;
-    overflow-y: auto;
-    box-shadow: 8px 0 32px rgba(0, 0, 0, 0.25);
-    grid-column: auto;
-    grid-row: auto;
-    overflow-x: visible;
+    z-index: 400;
+    transform: translateX(-100%);
+    transition: transform 0.28s ease;
+    box-shadow: 12px 0 40px rgba(0, 0, 0, 0.35);
+    pointer-events: none;
   }
 
-  #customer-dashboard-shell .cnav-links.open {
+  #customer-dashboard-shell .cnav-drawer.open {
     transform: translateX(0);
+    pointer-events: auto;
   }
 
-  #customer-dashboard-shell .cnav-links .cnl {
-    width: 100%;
-    text-align: left;
-    padding: 14px 16px;
-    font-size: 13px;
-    color: #A1A1AA;
+  #customer-dashboard-shell .cnav-drawer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    flex-shrink: 0;
   }
 
-  #customer-dashboard-shell .cnav-links .cnl:hover {
-    color: #ffffff;
-    background: rgba(232, 71, 10, 0.1);
+  #customer-dashboard-shell .cnav-drawer-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    color: #fff;
   }
 
-  #customer-dashboard-shell .cnav-links .cnl.active {
-    color: #E8470A;
-    border-left: 3px solid #E8470A;
-    border-bottom: none;
-    background: rgba(232, 71, 10, 0.08);
-    border-radius: 6px;
+  #customer-dashboard-shell .cnav-drawer-close {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    font-size: 16px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  #customer-dashboard-shell .cnav-mobile-extra {
+  #customer-dashboard-shell .cnav-drawer-nav {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 16px 14px 32px;
+    overflow-y: auto;
+    flex: 1;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #customer-dashboard-shell .cnav-drawer-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.35);
+    margin: 12px 8px 6px;
+  }
+
+  #customer-dashboard-shell .cnav-drawer-label:first-child {
+    margin-top: 0;
+  }
+
+  #customer-dashboard-shell .cnav-drawer-nav .cnl {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 14px 16px;
+    font-size: 14px;
+    color: #D4D4D8;
+    border-bottom: none;
+    border-left: 3px solid transparent;
+    border-radius: 8px;
+  }
+
+  #customer-dashboard-shell .cnav-drawer-nav .cnl:hover {
+    color: #ffffff;
+    background: rgba(232, 71, 10, 0.12);
+  }
+
+  #customer-dashboard-shell .cnav-drawer-nav .cnl.active {
+    color: #E8470A;
+    border-left-color: #E8470A;
+    border-bottom: none;
+    background: rgba(232, 71, 10, 0.1);
   }
 
   #customer-dashboard-shell .cnl-logout-mobile {
     width: 100%;
     text-align: left;
     padding: 14px 16px;
-    color: var(--red);
-    background: transparent;
-    border: none;
+    margin-top: 4px;
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.08);
+    border: 1px solid rgba(248, 113, 113, 0.2);
+    border-radius: 8px;
     font-size: 13px;
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
   }
 
+  #customer-dashboard-shell .cnav-drawer-nav .cnl-home {
+    color: #D4D4D8;
+  }
+
   #customer-dashboard-shell .cnav-overlay {
     display: block;
     position: fixed;
-    inset: var(--nav) 0 0 0;
-    background: rgba(0, 0, 0, 0.45);
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
     border: none;
-    z-index: 150;
+    z-index: 350;
     cursor: pointer;
   }
+}
 
-  #customer-dashboard-shell .cnav-right {
-    grid-column: 3;
-    justify-self: end;
+@media (min-width: 1101px) {
+  #customer-dashboard-shell .cnav-menu-btn {
+    display: none !important;
+  }
+
+  #customer-dashboard-shell .cnav-drawer {
+    display: none !important;
   }
 }
 
