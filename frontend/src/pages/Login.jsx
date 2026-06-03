@@ -57,7 +57,7 @@ const Login = () => {
       } else if (status === 401) {
         msg = err.response?.data?.message || 'Invalid email or password.';
       } else if (status === 429) {
-        msg = err.response?.data?.message || 'Too many attempts. Please wait 15 minutes and try again.';
+        msg = err.response?.data?.message || 'Too many attempts. Please wait a minute and try again.';
       } else if (status === 503 || status === 504) {
         msg =
           'Server is busy or timed out. Wait a minute, then try again. Restart the Hostinger API if this continues.';

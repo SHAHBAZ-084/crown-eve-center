@@ -1,11 +1,12 @@
 const prisma = require('../../config/db');
 const { sendOtpEmail, sendPasswordResetOtpEmail } = require('../../utils/email.service');
+const { otp: otpLimits } = require('../../config/authLimits');
 
 const OTP_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
-const OTP_MAX_PER_WINDOW = 15;
+const OTP_MAX_PER_WINDOW = otpLimits.maxPerWindow;
 const OTP_EXPIRY_MS = 10 * 60 * 1000;
-const OTP_VERIFY_MAX_ATTEMPTS = 5;
-const OTP_VERIFY_WINDOW_MS = 15 * 60 * 1000;
+const OTP_VERIFY_MAX_ATTEMPTS = otpLimits.verifyMaxAttempts;
+const OTP_VERIFY_WINDOW_MS = otpLimits.verifyWindowMs;
 
 const verifyAttempts = new Map();
 
@@ -20,7 +21,11 @@ const assertOtpVerifyLimit = (email) => {
   entry.count += 1;
   verifyAttempts.set(key, entry);
   if (entry.count > OTP_VERIFY_MAX_ATTEMPTS) {
-    const err = new Error('Too many failed OTP attempts. Please wait 15 minutes and request a new code.');
+    const waitMsg =
+      OTP_VERIFY_WINDOW_MS <= 60_000
+        ? 'Too many failed OTP attempts. Please wait one minute and request a new code.'
+        : 'Too many failed OTP attempts. Please wait 15 minutes and request a new code.';
+    const err = new Error(waitMsg);
     err.statusCode = 429;
     throw err;
   }

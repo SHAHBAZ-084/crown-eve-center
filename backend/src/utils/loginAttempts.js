@@ -1,7 +1,8 @@
 const NodeCache = require('node-cache');
+const { login: loginLimits } = require('../config/authLimits');
 
-const MAX_ATTEMPTS = 8;
-const LOCKOUT_MS = 15 * 60 * 1000;
+const MAX_ATTEMPTS = loginLimits.maxFailedAttempts;
+const LOCKOUT_MS = loginLimits.lockoutMs;
 
 const attempts = new NodeCache({ stdTTL: LOCKOUT_MS / 1000, checkperiod: 120 });
 
@@ -23,5 +24,4 @@ exports.isLoginLocked = (email) => {
   return count >= MAX_ATTEMPTS;
 };
 
-exports.getRemainingLockMessage = () =>
-  'Too many failed login attempts. Please try again in 15 minutes.';
+exports.getRemainingLockMessage = () => loginLimits.lockoutMessage;

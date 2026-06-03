@@ -1,4 +1,5 @@
 const rateLimit = require('express-rate-limit');
+const { rateLimit: limits } = require('../config/authLimits');
 
 const normalizeEmail = (req) => {
   const email = req.body?.email;
@@ -22,19 +23,23 @@ const limiterValidate = {
 };
 
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 20,
+  windowMs: limits.login.windowMs,
+  max: limits.login.max,
   standardHeaders: true,
   legacyHeaders: false,
   skipSuccessfulRequests: true,
   validate: limiterValidate,
   keyGenerator: (req) => limiterKey(req, 'login'),
-  message: { message: 'Too many login attempts for this account. Please try again in 15 minutes.' },
+  message: {
+    message: limits.login.windowMs <= 60_000
+      ? 'Too many login attempts. Please wait one minute and try again.'
+      : 'Too many login attempts for this account. Please try again in 15 minutes.',
+  },
 });
 
 const registerLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
+  windowMs: limits.register.windowMs,
+  max: limits.register.max,
   standardHeaders: true,
   legacyHeaders: false,
   validate: limiterValidate,
@@ -43,8 +48,8 @@ const registerLimiter = rateLimit({
 });
 
 const otpLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 30,
+  windowMs: limits.otp.windowMs,
+  max: limits.otp.max,
   standardHeaders: true,
   legacyHeaders: false,
   validate: limiterValidate,
