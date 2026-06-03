@@ -131,6 +131,13 @@ exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
+    if (!JWT_SECRET) {
+      logger.error('Login blocked: JWT_SECRET is not set on the server');
+      return res.status(503).json({
+        message: 'Login is temporarily unavailable. Server auth is not configured.',
+      });
+    }
+
     if (isLoginLocked(email)) {
       return res.status(429).json({ message: getRemainingLockMessage() });
     }
@@ -177,6 +184,7 @@ exports.login = async (req, res) => {
     clearLoginAttempts(email);
     return sendAuthResponse(res, user);
   } catch (error) {
+    logger.error('Login failed', { email, message: error.message, stack: error.stack });
     sendSafeError(res, 500, 'Internal server error.');
   }
 };

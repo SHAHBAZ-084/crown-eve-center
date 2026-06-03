@@ -60,6 +60,13 @@ app.use(
 app.use(compression());
 app.use(express.json({ limit: '2mb' }));
 
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return res.status(400).json({ message: 'Invalid JSON in request body.' });
+  }
+  next(err);
+});
+
 app.use('/api', invalidateCacheOnWrite);
 app.use('/api', cacheGet(120));
 

@@ -14,12 +14,27 @@ const {
   verifyOtpSchema,
 } = require('./auth.schema');
 
-router.post('/register', registerLimiter, validate(registerSchema), authController.register);
-router.post('/login', loginLimiter, validate(loginSchema), authController.login);
-router.post('/verify-otp', otpLimiter, validate(verifyOtpSchema), authController.verifyOtp);
-router.post('/resend-otp', otpLimiter, authController.resendOtp);
-router.post('/forgot-password', otpLimiter, validate(forgotPasswordSchema), authController.forgotPassword);
-router.post('/reset-password', otpLimiter, validate(resetPasswordSchema), authController.resetPassword);
+const wrapAsync = (fn) => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
+
+const safeLimiter = (limiter) => (req, res, next) => {
+  limiter(req, res, (err) => {
+    if (err) {
+      const logger = require('../../config/logger');
+      logger.warn('Rate limiter skipped', { path: req.path, code: err.code, message: err.message });
+      return next();
+    }
+    next();
+  });
+};
+
+router.post('/register', safeLimiter(registerLimiter), validate(registerSchema), wrapAsync(authController.register));
+router.post('/login', validate(loginSchema), safeLimiter(loginLimiter), wrapAsync(authController.login));
+router.post('/verify-otp', safeLimiter(otpLimiter), validate(verifyOtpSchema), wrapAsync(authController.verifyOtp));
+router.post('/resend-otp', safeLimiter(otpLimiter), wrapAsync(authController.resendOtp));
+router.post('/forgot-password', safeLimiter(otpLimiter), validate(forgotPasswordSchema), wrapAsync(authController.forgotPassword));
+router.post('/reset-password', safeLimiter(otpLimiter), validate(resetPasswordSchema), wrapAsync(authController.resetPassword));
 router.post('/logout', protect, authController.logout);
 router.get('/me', protect, authController.getMe);
 router.put('/profile', protect, authController.updateProfile);

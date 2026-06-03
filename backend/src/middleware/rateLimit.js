@@ -16,11 +16,8 @@ const limiterKey = (req, prefix) => {
   return `${prefix}:ip:${req.ip || req.socket?.remoteAddress || 'unknown'}`;
 };
 
-// Hostinger sets X-Forwarded-For / Forwarded — avoid ValidationError if trust proxy lags on deploy.
-const limiterValidate = {
-  xForwardedForHeader: false,
-  forwardedHeader: false,
-};
+// Hostinger + Express 5 + Vercel proxy: strict validation throws ERR_ERL_* → 500 on login.
+const limiterValidate = false;
 
 const loginLimiter = rateLimit({
   windowMs: limits.login.windowMs,

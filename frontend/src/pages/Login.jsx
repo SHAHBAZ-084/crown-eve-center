@@ -58,6 +58,10 @@ const Login = () => {
         msg = err.response?.data?.message || 'Invalid email or password.';
       } else if (status === 429) {
         msg = err.response?.data?.message || 'Too many attempts. Please wait a minute and try again.';
+      } else if (status === 500) {
+        msg =
+          err.response?.data?.message ||
+          'Server error during login. Ensure Hostinger has JWT_SECRET set and the API was restarted after the latest deploy.';
       } else if (status === 503 || status === 504) {
         msg =
           'Server is busy or timed out. Wait a minute, then try again. Restart the Hostinger API if this continues.';
