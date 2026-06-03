@@ -5,6 +5,9 @@ import { getImgUrl } from '../../utils/imgUrl';
 import { useHomeData } from '../../hooks/useHomeData';
 import PageSkeleton from '../../components/ui/PageSkeleton';
 import PublicFooter from '../../components/public/PublicFooter';
+import CatalogProductImage from '../../components/catalog/CatalogProductImage';
+import ProductGridSkeleton from '../../components/catalog/ProductGridSkeleton';
+import { HERO_VIDEO, BOOKING_VIDEO } from '../../constants/mediaDimensions';
 import './Home.css';
 
 const Home = () => {
@@ -59,6 +62,8 @@ const Home = () => {
             muted
             loop
             playsInline
+            width={HERO_VIDEO.width}
+            height={HERO_VIDEO.height}
             className="hero-video-bg"
           >
             <source src={R2_PUBLIC_URL ? `${R2_PUBLIC_URL}/videos/hero-bg.mp4` : '/videos/hero-bg.mp4'} type="video/mp4" />
@@ -120,12 +125,11 @@ const Home = () => {
           </div>
           <Link to={user?.role === 'CUSTOMER' ? '/my/shop' : '/shop'} className="view-all">View all bikes →</Link>
         </div>
-        <div className="products-grid three-cols">
-          {isLoading || (isProductsFetching && products.length === 0) ? (
-            <div style={{ gridColumn: '1 / -1', padding: '60px 0', display: 'flex', justifyContent: 'center' }}>
-              <div style={{ width: 40, height: 40, border: '4px solid var(--orange)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-            </div>
-          ) : isProductsError && products.length === 0 ? (
+        {isLoading || (isProductsFetching && products.length === 0) ? (
+          <ProductGridSkeleton count={6} className="products-grid three-cols products-grid--reserved products-grid--loading" />
+        ) : (
+        <div className="products-grid three-cols products-grid--reserved">
+          {isProductsError && products.length === 0 ? (
             <div className="no-products" style={{ gridColumn: '1 / -1', textAlign: 'center' }}>
               <p>We could not load bikes right now (API busy or offline).</p>
               <button
@@ -144,12 +148,7 @@ const Home = () => {
                 <div className="product-card-img">
                   <div className="bike-card-blob"></div>
                   {p.images && p.images.length > 0 ? (
-                    <img
-                      src={getImgUrl(p.images[0].url)}
-                      alt={p.name}
-                      className="bike-main-img"
-                      loading="lazy"
-                    />
+                    <CatalogProductImage src={getImgUrl(p.images[0].url)} alt={p.name} />
                   ) : (
                     <div className="placeholder-img">[ {p.name} ]</div>
                   )}
@@ -181,6 +180,7 @@ const Home = () => {
             </p>
           )}
         </div>
+        )}
       </section>
 
       {/* SERVICES */}
@@ -214,8 +214,9 @@ const Home = () => {
           muted
           loop
           playsInline
-          preload="none"
-          loading="lazy"
+          preload="metadata"
+          width={BOOKING_VIDEO.width}
+          height={BOOKING_VIDEO.height}
           className="booking-video-bg"
         >
           <source src={R2_PUBLIC_URL ? `${R2_PUBLIC_URL}/videos/ride-bg.webm` : '/videos/ride-bg.webm'} type="video/webm" />

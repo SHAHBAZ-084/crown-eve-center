@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { getApiUrl } from '../../utils/apiUrl';
 import { getPublicAssetUrl } from '../../utils/imgUrl';
+import { ABOUT_PHILOSOPHY_VIDEO } from '../../constants/mediaDimensions';
 
 const About = () => {
   const [successMsg, setSuccessMsg] = useState('');
@@ -145,6 +146,8 @@ const About = () => {
               loop
               muted
               playsInline
+              width={ABOUT_PHILOSOPHY_VIDEO.width}
+              height={ABOUT_PHILOSOPHY_VIDEO.height}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </div>

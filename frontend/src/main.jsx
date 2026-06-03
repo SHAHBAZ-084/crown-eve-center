@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 import './index.css'
+import './styles/catalog-layout.css'
 import App from './App.jsx'
 import ErrorBoundary from './components/ErrorBoundary'
 // Auto-reload on Vite preload errors (new deployment chunk name mismatch)

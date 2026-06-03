@@ -226,7 +226,8 @@
 
 .product-card-img {
   position: relative;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 4 / 3;
+  min-height: 200px;
   background: #f8f9fa;
   display: flex;
   align-items: center;

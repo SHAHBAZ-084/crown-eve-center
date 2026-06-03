@@ -7,6 +7,7 @@ import { useCart } from "../../../context/CartContext";
 import { getImgUrl } from "../../../utils/imgUrl";
 import "./ProductDetail.css";
 import { CustomerLoading } from "../../../components/customer/CustomerUI";
+import { PRODUCT_DETAIL_IMAGE } from "../../../constants/mediaDimensions";
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -99,7 +100,15 @@ const ProductDetailPage = () => {
         <div className="product-image-col">
           <div className="detail-image-blob"></div>
           {mainImg ? (
-            <img src={getImgUrl(mainImg)} alt={product.name} className="detail-main-img" />
+            <img
+              src={getImgUrl(mainImg)}
+              alt={product.name}
+              className="detail-main-img"
+              width={PRODUCT_DETAIL_IMAGE.width}
+              height={PRODUCT_DETAIL_IMAGE.height}
+              loading="eager"
+              decoding="async"
+            />
           ) : (
             <div className="placeholder-img">[ {product.name} ]</div>
           )}

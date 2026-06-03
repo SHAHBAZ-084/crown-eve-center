@@ -7,7 +7,9 @@ import { useCart } from "../../../context/CartContext";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { getImgUrl } from "../../../utils/imgUrl";
 import CustomerPageHeader from "../../../components/customer/CustomerPageHeader";
-import { CustomerLoading, CustomerEmpty } from "../../../components/customer/CustomerUI";
+import { CustomerEmpty } from "../../../components/customer/CustomerUI";
+import CatalogProductImage from "../../../components/catalog/CatalogProductImage";
+import ProductGridSkeleton from "../../../components/catalog/ProductGridSkeleton";
 import { Search } from "lucide-react";
 import "../../public/Shop.css";
 
@@ -182,10 +184,10 @@ const Shop = () => {
       </div>
 
       {showLoading ? (
-        <div className="card"><CustomerLoading message="Loading catalog…" /></div>
+        <ProductGridSkeleton count={8} className="products-grid" />
       ) : products.length > 0 ? (
         <>
-          <div className="products-grid">
+          <div className="products-grid products-grid--reserved">
             {products.map((p) => {
               const mainImg = p.images?.find((img) => img.is_primary)?.url || p.images?.[0]?.url;
 
@@ -193,13 +195,7 @@ const Shop = () => {
                 <Link to={productPath(p.id)} key={p.id} className="bike-card-new">
                   <div className="product-card-img">
                     {mainImg ? (
-                      <img
-                        src={getImgUrl(mainImg)}
-                        alt={p.name}
-                        className="bike-main-img"
-                        loading="lazy"
-                        decoding="async"
-                      />
+                      <CatalogProductImage src={getImgUrl(mainImg)} alt={p.name} />
                     ) : (
                       <div className="placeholder-img">{p.name}</div>
                     )}
