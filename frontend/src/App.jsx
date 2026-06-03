@@ -6,6 +6,8 @@ import { CartProvider } from './context/CartContext';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import PageSuspense from './components/PageSuspense';
+import CustomerPortalGate from './components/customer/CustomerPortalGate';
+import { RedirectTrackToMy } from './components/customer/CustomerRouteRedirect';
 
 // Public Pages
 const Home = lazy(() => import('./pages/public/Home'));
@@ -72,16 +74,16 @@ const App = () => {
           <Routes>
             <Route element={<Layout isPublic />}>
               <Route path="/" element={<Home />} />
-              <Route path="/shop" element={<CustomerShop />} />
-              <Route path="/product/:id" element={<ProductDetail />} />
+              <Route path="/shop" element={<CustomerPortalGate><CustomerShop /></CustomerPortalGate>} />
+              <Route path="/product/:id" element={<CustomerPortalGate><ProductDetail /></CustomerPortalGate>} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
 
-              <Route path="/track/:id" element={<ProtectedRoute><TrackOrder /></ProtectedRoute>} />
-              <Route path="/cart" element={<PublicCart />} />
-              <Route path="/checkout" element={<PublicCheckout />} />
+              <Route path="/track/:id" element={<ProtectedRoute><CustomerPortalGate><TrackOrder /></CustomerPortalGate></ProtectedRoute>} />
+              <Route path="/cart" element={<CustomerPortalGate><PublicCart /></CustomerPortalGate>} />
+              <Route path="/checkout" element={<CustomerPortalGate><PublicCheckout /></CustomerPortalGate>} />
             </Route>
 
             <Route path="/login" element={<PageSuspense><Login /></PageSuspense>} />
@@ -122,7 +124,8 @@ const App = () => {
               <Route path="/my/product/:id" element={<ProductDetail />} />
               <Route path="/my/cart" element={<CustomerCart />} />
               <Route path="/my/checkout" element={<CustomerCheckout />} />
-              <Route path="/track/:id" element={<CustomerTrack />} />
+              <Route path="/my/track/:id" element={<CustomerTrack />} />
+              <Route path="/track/:id" element={<RedirectTrackToMy />} />
               <Route path="/my/book-service" element={<CustomerBookService />} />
               <Route path="/appointments" element={<Navigate to="/my/book-service" replace />} />
             </Route>

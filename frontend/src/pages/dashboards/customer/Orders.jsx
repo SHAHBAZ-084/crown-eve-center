@@ -85,7 +85,7 @@ const Orders = () => {
                       <td className="mono" style={{ fontWeight: 600 }}>PKR {Number(o.total).toLocaleString()}</td>
                       <td><Badge status={o.status} /></td>
                       <td>
-                        <button type="button" className="ca" onClick={() => navigate(`/track/${o.id}`)}>Track →</button>
+                        <button type="button" className="ca" onClick={() => navigate(`/my/track/${o.id}`)}>Track →</button>
                       </td>
                     </tr>
                   ))}
@@ -104,7 +104,7 @@ const Orders = () => {
                   <div className="ts" style={{ marginBottom: 8 }}>
                     {o.items?.length || 0} items · PKR {Number(o.total).toLocaleString()}
                   </div>
-                  <button type="button" className="ca" onClick={() => navigate(`/track/${o.id}`)}>Track order →</button>
+                  <button type="button" className="ca" onClick={() => navigate(`/my/track/${o.id}`)}>Track order →</button>
                 </div>
               ))}
             </div>

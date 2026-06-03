@@ -175,7 +175,7 @@ const Dashboard = () => {
                 </p>
                 <div className="ce-panel-row">
                   <span className="ce-order-total">PKR {(activeOrder.total ?? 0).toLocaleString()}</span>
-                  <button type="button" className="ca" onClick={() => navigate(`/track/${activeOrder.id}`)}>Track Order →</button>
+                  <button type="button" className="ca" onClick={() => navigate(`/my/track/${activeOrder.id}`)}>Track Order →</button>
                 </div>
               </div>
               <div className="ce-progress">

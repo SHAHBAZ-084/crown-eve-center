@@ -37,10 +37,10 @@ const Navbar = ({ user: propsUser, logout: propsLogout }) => {
       <ul className={`nav-links ${menuOpen ? 'active' : ''}`}>
         <li><Link to="/">Home</Link></li>
         <li className="dropdown-parent">
-          <Link to="/shop">Products <span className="dropdown-arrow">▾</span></Link>
+          <Link to={user?.role === 'CUSTOMER' ? '/my/shop' : '/shop'}>Products <span className="dropdown-arrow">▾</span></Link>
           <ul className="dropdown-menu-ultra">
-            <li><Link to="/shop?type=bike">Bikes</Link></li>
-            <li><Link to="/shop?type=part">Spare Parts</Link></li>
+            <li><Link to={user?.role === 'CUSTOMER' ? '/my/shop?type=bike' : '/shop?type=bike'}>Bikes</Link></li>
+            <li><Link to={user?.role === 'CUSTOMER' ? '/my/shop?type=part' : '/shop?type=part'}>Spare Parts</Link></li>
           </ul>
         </li>
         <li><Link to="/#services">Services</Link></li>
@@ -92,7 +92,7 @@ const Navbar = ({ user: propsUser, logout: propsLogout }) => {
         )}
 
         <Link
-          to="/cart"
+          to={user?.role === 'CUSTOMER' ? '/my/cart' : '/cart'}
           aria-label="Cart"
           style={{ display: 'flex', alignItems: 'center', color: 'inherit', marginRight: 8 }}
         >

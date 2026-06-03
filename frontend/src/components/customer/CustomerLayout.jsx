@@ -10,7 +10,7 @@ import '../../styles/customer-ui.css';
 const NAV_LINKS = [
   { label: 'Dashboard', to: '/my/dashboard', match: (p) => p === '/my/dashboard' },
   { label: 'Shop', to: '/my/shop', match: (p) => p.startsWith('/my/shop') || p.startsWith('/my/product') },
-  { label: 'Orders', to: '/my/orders', match: (p) => p.startsWith('/my/orders') || p.startsWith('/track/') },
+  { label: 'Orders', to: '/my/orders', match: (p) => p.startsWith('/my/orders') || p.startsWith('/my/track/') || p.startsWith('/track/') },
   { label: 'Bookings', to: '/my/bookings', match: (p) => p.startsWith('/my/bookings') },
   { label: 'Book Service', to: '/my/book-service', match: (p) => p.startsWith('/my/book-service') || p.startsWith('/appointments') },
 ];

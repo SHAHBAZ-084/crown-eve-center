@@ -218,7 +218,7 @@ const CheckoutPage = () => {
     if (branches.length === 0) return (
       <div className="empty-state" style={{ padding: 40 }}>
         <p style={{ fontSize: 13, color: "var(--muted2)" }}>No branch has these items in stock.</p>
-        <button className="btn btn-ghost" onClick={() => navigate("/shop")}>Back to Shop</button>
+        <button className="btn btn-ghost" onClick={() => navigate("/my/shop")}>Back to Shop</button>
       </div>
     );
     if (isSplit) return (

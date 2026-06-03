@@ -73,7 +73,7 @@ const Home = () => {
 
           <p className="hero-sub">Crown Hadi EV Center delivers premium electric bikes, expert servicing, and best-in-class lithium batteries — engineered for the road, built for the rider.</p>
           <div className="hero-ctas">
-            <Link to="/shop" className="btn-primary">
+            <Link to={user?.role === 'CUSTOMER' ? '/my/shop' : '/shop'} className="btn-primary">
               <span>Explore Bikes</span>
               <span className="arrow">→</span>
             </Link>
@@ -118,7 +118,7 @@ const Home = () => {
           <div>
             <h2 className="section-title" style={{ color: 'var(--orange)' }}>Choose from<br /><span style={{ color: '#111111' }}>Our Best Models.</span></h2>
           </div>
-          <Link to="/shop" className="view-all">View all bikes →</Link>
+          <Link to={user?.role === 'CUSTOMER' ? '/my/shop' : '/shop'} className="view-all">View all bikes →</Link>
         </div>
         <div className="products-grid three-cols">
           {isLoading || (isProductsFetching && products.length === 0) ? (
@@ -227,7 +227,7 @@ const Home = () => {
             <h2>Ready to<br />Ride?</h2>
             <p>Browse our full catalog of premium EV bikes, long-range batteries, and smart digital dashboards. Find your next ride today.</p>
           </div>
-          <Link to="/shop" className="btn-booking">Shop The Collection →</Link>
+          <Link to={user?.role === 'CUSTOMER' ? '/my/shop' : '/shop'} className="btn-booking">Shop The Collection →</Link>
         </div>
       </section>
 
