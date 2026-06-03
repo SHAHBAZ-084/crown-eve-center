@@ -7,7 +7,7 @@ import PageSkeleton from '../../components/ui/PageSkeleton';
 import PublicFooter from '../../components/public/PublicFooter';
 import CatalogProductImage from '../../components/catalog/CatalogProductImage';
 import ProductGridSkeleton from '../../components/catalog/ProductGridSkeleton';
-import { HERO_VIDEO, BOOKING_VIDEO } from '../../constants/mediaDimensions';
+import { HERO_VIDEO } from '../../constants/mediaDimensions';
 import './Home.css';
 
 const Home = () => {
@@ -206,21 +206,21 @@ const Home = () => {
       </section>
 
       {/* BOOKING CTA BANNER */}
-      <section id="booking" style={{ position: 'relative', overflow: 'hidden' }}>
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          width={BOOKING_VIDEO.width}
-          height={BOOKING_VIDEO.height}
-          className="booking-video-bg"
-        >
-          <source src={getPublicVideoUrl('ride-bg', 'webm')} type="video/webm" />
-          <source src={getPublicVideoUrl('ride-bg', 'mp4')} type="video/mp4" />
-        </video>
-        <div className="booking-overlay"></div>
+      <section id="booking" className="booking-cta">
+        <div className="booking-media" aria-hidden="true">
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            className="booking-video-bg"
+          >
+            <source src={getPublicVideoUrl('ride-bg', 'mp4')} type="video/mp4" />
+            <source src={getPublicVideoUrl('ride-bg', 'webm')} type="video/webm" />
+          </video>
+        </div>
+        <div className="booking-overlay" />
 
         <div className="booking-inner">
           <div className="booking-text">

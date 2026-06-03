@@ -129,17 +129,4 @@
   }
 }
 
-/* Full-viewport hero already sized in Home.css; videos get width/height attrs in JSX */
-#booking,
-section#booking {
-  min-height: 320px;
-  position: relative;
-}
-
-.booking-video-bg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+/* Ready to Ride booking video — full layout in index.css */

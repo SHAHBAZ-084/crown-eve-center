@@ -1302,15 +1302,7 @@ h1.hero-title .line3 {
   line-height: 1.7;
 }
 
-#booking {
-  padding: 140px 5vw !important;
-}
-
-@media (max-width: 768px) {
-  #booking {
-    padding: 100px 5vw !important;
-  }
-}
+/* Booking CTA video layout — see index.css #booking; no extra padding overrides */
 
 #branches {
   padding: 100px 5vw;
