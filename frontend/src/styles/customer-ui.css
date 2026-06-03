@@ -1194,6 +1194,56 @@
   }
 }
 
+/* Book service */
+#customer-dashboard-shell .ce-book-service-form {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 28px;
+}
+
+#customer-dashboard-shell .ce-form-block {
+  margin-bottom: 20px;
+}
+
+#customer-dashboard-shell .ce-form-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ce-text-soft);
+  margin-bottom: 8px;
+}
+
+#customer-dashboard-shell .ce-book-service .fi,
+#customer-dashboard-shell .ce-book-service .ce-select {
+  width: 100%;
+  background: var(--ce-surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-family: var(--ce-font);
+  font-size: 14px;
+  color: var(--ce-text);
+}
+
+#customer-dashboard-shell .ce-book-service .fi:focus,
+#customer-dashboard-shell .ce-book-service .ce-select:focus {
+  outline: none;
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px rgba(232, 71, 10, 0.12);
+}
+
+#customer-dashboard-shell .ce-book-service-note {
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--ce-text-muted);
+  text-align: center;
+  line-height: 1.5;
+}
+
 /* Page wrap */
 #customer-dashboard-shell .page-wrap {
   max-width: 1280px;

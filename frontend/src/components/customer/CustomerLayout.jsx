@@ -12,7 +12,7 @@ const NAV_LINKS = [
   { label: 'Shop', to: '/my/shop', match: (p) => p.startsWith('/my/shop') || p.startsWith('/my/product') },
   { label: 'Orders', to: '/my/orders', match: (p) => p.startsWith('/my/orders') || p.startsWith('/track/') },
   { label: 'Bookings', to: '/my/bookings', match: (p) => p.startsWith('/my/bookings') },
-  { label: 'Book Service', to: '/appointments', match: (p) => p.startsWith('/appointments') },
+  { label: 'Book Service', to: '/my/book-service', match: (p) => p.startsWith('/my/book-service') || p.startsWith('/appointments') },
 ];
 
 const linkClass = (match, isActive) => `cnl${match || isActive ? ' active' : ''}`;

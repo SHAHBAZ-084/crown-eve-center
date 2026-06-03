@@ -27,7 +27,7 @@ const QUICK_ACTIONS = [
   { Icon: ShoppingBag, label: "Browse Shop", path: "/my/shop" },
   { Icon: ClipboardList, label: "My Orders", path: "/my/orders" },
   { Icon: CalendarDays, label: "My Bookings", path: "/my/bookings" },
-  { Icon: Wrench, label: "Book Service", path: "/appointments" },
+  { Icon: Wrench, label: "Book Service", path: "/my/book-service" },
 ];
 
 const Dashboard = () => {
@@ -98,7 +98,7 @@ const Dashboard = () => {
   const heroLinks = [
     { label: "Browse Shop", path: "/my/shop", Icon: ShoppingBag, primary: true },
     { label: "My Orders", path: "/my/orders", Icon: ClipboardList },
-    { label: "Book Service", path: "/appointments", Icon: Wrench },
+    { label: "Book Service", path: "/my/book-service", Icon: Wrench },
   ];
 
   return (
@@ -227,7 +227,7 @@ const Dashboard = () => {
           ) : (
             <div className="ce-empty-inline">
               <p className="ce-muted">No service requests.</p>
-              <button type="button" className="ca" onClick={() => navigate("/appointments")}>Book service →</button>
+              <button type="button" className="ca" onClick={() => navigate("/my/book-service")}>Book service →</button>
             </div>
           )}
         </div>

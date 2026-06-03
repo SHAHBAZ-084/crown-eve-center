@@ -9,7 +9,6 @@ import PageSuspense from './components/PageSuspense';
 
 // Public Pages
 const Home = lazy(() => import('./pages/public/Home'));
-const Appointments = lazy(() => import('./pages/appointments/Appointments'));
 const TrackOrder = lazy(() => import('./pages/public/TrackOrder'));
 const About = lazy(() => import('./pages/public/About'));
 const Contact = lazy(() => import('./pages/public/Contact'));
@@ -60,6 +59,7 @@ const CustomerShop = lazy(() => import('./pages/dashboards/customer/Shop'));
 const CustomerCart = lazy(() => import('./pages/dashboards/customer/Cart'));
 const CustomerCheckout = lazy(() => import('./pages/dashboards/customer/Checkout'));
 const CustomerTrack = lazy(() => import('./pages/dashboards/customer/TrackOrder'));
+const CustomerBookService = lazy(() => import('./pages/dashboards/customer/BookService'));
 const ProductDetail = lazy(() => import('./pages/dashboards/customer/ProductDetail'));
 
 import { BRANCH_DASHBOARD_ROLES } from './constants/roles';
@@ -123,7 +123,8 @@ const App = () => {
               <Route path="/my/cart" element={<CustomerCart />} />
               <Route path="/my/checkout" element={<CustomerCheckout />} />
               <Route path="/track/:id" element={<CustomerTrack />} />
-              <Route path="/appointments" element={<Appointments />} />
+              <Route path="/my/book-service" element={<CustomerBookService />} />
+              <Route path="/appointments" element={<Navigate to="/my/book-service" replace />} />
             </Route>
 
             <Route

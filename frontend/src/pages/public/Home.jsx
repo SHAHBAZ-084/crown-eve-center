@@ -78,7 +78,7 @@ const Home = () => {
               <span className="arrow">→</span>
             </Link>
             {user && (
-              <Link to="/appointments" className="btn-ghost">
+              <Link to={user?.role === 'CUSTOMER' ? '/my/book-service' : '/appointments'} className="btn-ghost">
                 <span className="btn-ghost-line"></span>
                 Book A Service
               </Link>
@@ -199,7 +199,7 @@ const Home = () => {
           <div className="services-cta-panel">
             <h3>Ready to<br /><span style={{ color: 'var(--orange)' }}>Ride</span><br />With Us?</h3>
             <p>Our certified technicians are ready to keep your ride in peak condition. Sign in to schedule online in under 2 minutes — choose your branch, pick a slot, and we handle the rest.</p>
-            <Link to={user ? "/appointments" : "/login"} className="btn-primary">
+            <Link to={user ? (user.role === 'CUSTOMER' ? '/my/book-service' : '/appointments') : '/login'} className="btn-primary">
               <span>{user ? "Book Now" : "Sign In to Book"}</span>
               <span className="arrow">→</span>
             </Link>

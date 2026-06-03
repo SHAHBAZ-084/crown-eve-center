@@ -35,7 +35,7 @@ const PublicFooter = () => {
           <ul>
             <li><Link to="/shop">Shop Bikes</Link></li>
             <li><Link to="/shop?type=part">Parts Catalog</Link></li>
-            {user && <li><Link to="/appointments">Book Service</Link></li>}
+            {user && <li><Link to={user.role === 'CUSTOMER' ? '/my/book-service' : '/appointments'}>Book Service</Link></li>}
             <li><Link to="/about">About Us</Link></li>
             <li><Link to="/contact">Contact</Link></li>
           </ul>

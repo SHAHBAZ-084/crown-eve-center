@@ -45,7 +45,7 @@ const Navbar = ({ user: propsUser, logout: propsLogout }) => {
         </li>
         <li><Link to="/#services">Services</Link></li>
         <li><Link to="/about">About</Link></li>
-        {user && <li><Link to="/appointments">Book Service</Link></li>}
+        {user && <li><Link to={user.role === 'CUSTOMER' ? '/my/book-service' : '/appointments'}>Book Service</Link></li>}
         <li><Link to="/contact">Contact</Link></li>
         {/* On mobile, show auth links inside menu if not in header */}
         <li className="mobile-auth-links">

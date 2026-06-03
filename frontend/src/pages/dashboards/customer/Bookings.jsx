@@ -45,7 +45,7 @@ const Bookings = () => {
         title="My Bookings"
         subtitle="View and manage your service appointments."
         actions={
-          <button type="button" className="btn btn-primary btn-sm" onClick={() => navigate("/appointments")}>
+          <button type="button" className="btn btn-primary btn-sm" onClick={() => navigate("/my/book-service")}>
             Book New Service
           </button>
         }
@@ -67,7 +67,7 @@ const Bookings = () => {
             title="No bookings found"
             description={`You don't have any ${tab.toLowerCase()} appointments at the moment.`}
             actionLabel="Book Your First Service"
-            onAction={() => navigate("/appointments")}
+            onAction={() => navigate("/my/book-service")}
           />
         </div>
       )}
