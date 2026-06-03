@@ -1,8 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 export default function NotFound() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const shopPath = user?.role === 'CUSTOMER' ? '/my/shop' : '/shop';
 
   return (
     <>
@@ -193,7 +196,7 @@ export default function NotFound() {
             </svg>
             Ride Home
           </button>
-          <button className="notfound-btn-g" onClick={() => navigate('/shop')}>
+          <button className="notfound-btn-g" onClick={() => navigate(shopPath)}>
             Browse Shop
           </button>
         </div>

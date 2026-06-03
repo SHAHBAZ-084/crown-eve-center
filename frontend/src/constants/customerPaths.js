@@ -20,6 +20,28 @@ export const CUSTOMER_ROUTE_ALIASES = {
   '/checkout': CUSTOMER_PATHS.checkout,
 };
 
+/** Role-based post-login / legacy URL fixes */
+export const ROLE_ROUTE_ALIASES = {
+  CUSTOMER: CUSTOMER_ROUTE_ALIASES,
+  COMPANY_OWNER: { '/owner': '/owner/dashboard' },
+  BRANCH_OWNER: { '/branch': '/branch/dashboard' },
+  BRANCH_MANAGER: { '/branch': '/branch/dashboard' },
+  EMPLOYEE: { '/branch': '/branch/dashboard' },
+  TECHNICIAN: { '/branch': '/branch/dashboard' },
+};
+
+export function normalizeRoleRedirect(path, role) {
+  if (!path || typeof path !== 'string') return path;
+  if (role === 'CUSTOMER') return normalizeCustomerRedirect(path);
+  const qIndex = path.indexOf('?');
+  const pathname = qIndex >= 0 ? path.slice(0, qIndex) : path;
+  const search = qIndex >= 0 ? path.slice(qIndex) : '';
+  const aliases = ROLE_ROUTE_ALIASES[role] || {};
+  const mapped = aliases[pathname];
+  if (mapped) return `${mapped}${search}`;
+  return path;
+}
+
 export function normalizeCustomerRedirect(path) {
   if (!path || typeof path !== 'string') return path;
   const qIndex = path.indexOf('?');

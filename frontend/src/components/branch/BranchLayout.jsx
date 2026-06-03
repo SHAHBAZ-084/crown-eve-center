@@ -13,6 +13,7 @@ const NAV = [
   { id: "inventory",    label: "Inventory",      icon: "inventory",    path: "/branch/inventory",    section: "Operations" },
   { id: "products",     label: "Products",       icon: "products",     path: "/branch/products",     section: "Operations" },
   { id: "services",     label: "Services",       icon: "services",     path: "/branch/services",     section: "Service Bay" },
+  { id: "appointments", label: "Appointments",   icon: "appointments", path: "/branch/appointments", section: "Service Bay" },
   { id: "suppliers",    label: "Suppliers",      icon: "suppliers",    path: "/branch/suppliers",    section: "Procurement" },
   { id: "reports",      label: "Reports",        icon: "reports",      path: "/branch/reports",      section: "Admin" },
   { id: "settings",     label: "System Settings",  icon: "settings",     path: "/branch/settings",     section: "Admin" },
@@ -79,7 +80,7 @@ const BranchLayout = () => {
                   to={item.path}
                   target={item.target || undefined}
                   rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
-                  className={`sb-item ${location.pathname === item.path ? "active" : ""}`}
+                  className={`sb-item ${location.pathname === item.path || (item.path !== '/branch/pos' && location.pathname.startsWith(item.path + '/')) ? "active" : ""}`}
                 >
                   <Icon n={item.icon} />
                   {item.label}

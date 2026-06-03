@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { normalizeCustomerRedirect } from '../constants/customerPaths';
+import { normalizeRoleRedirect } from '../constants/customerPaths';
 import './auth/Auth.css';
 
 const Login = () => {
@@ -29,8 +29,7 @@ const Login = () => {
 
       // Redirect to the intended page, or fallback based on role
       if (from) {
-        const target = user.role === 'CUSTOMER' ? normalizeCustomerRedirect(from) : from;
-        navigate(target, { replace: true });
+        navigate(normalizeRoleRedirect(from, user.role), { replace: true });
       } else if (user.role === 'COMPANY_OWNER') {
         navigate('/owner/dashboard');
       } else if (user.role === 'BRANCH_OWNER' || user.role === 'BRANCH_MANAGER') {

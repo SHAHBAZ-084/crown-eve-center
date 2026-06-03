@@ -47,6 +47,9 @@ const PublicFooter = () => {
             <li><Link to="/register">Register</Link></li>
             {user && (
               <>
+                {user.role === 'CUSTOMER' && (
+                  <li><Link to="/my/dashboard">My Dashboard</Link></li>
+                )}
                 <li><Link to="/my/orders">My Orders</Link></li>
                 <li><Link to="/my/bookings">My Bookings</Link></li>
               </>
