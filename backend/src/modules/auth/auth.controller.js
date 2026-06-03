@@ -2,6 +2,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const prisma = require('../../config/db');
+const logger = require('../../config/logger');
 const {
   OTP_PURPOSE,
   sendVerificationOtp,
@@ -158,6 +159,12 @@ exports.login = async (req, res) => {
         message: 'Please verify your email before logging in.',
         unverified: true,
         email: user.email,
+      });
+    }
+
+    if (!user.password) {
+      return res.status(401).json({
+        message: 'This account uses social sign-in. Please sign in with Google.',
       });
     }
 

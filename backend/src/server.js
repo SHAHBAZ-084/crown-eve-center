@@ -28,7 +28,7 @@ let app, prisma, logger;
 try {
   require('./config/loadEnv');
   app = require('./app');
-  app.set('trust proxy', true);
+  app.set('trust proxy', 1);
   prisma = require('./config/db');
   logger = require('./config/logger');
 } catch (err) {

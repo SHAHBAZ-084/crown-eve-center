@@ -7,8 +7,8 @@ const { cacheGet, invalidateCacheOnWrite } = require('./middleware/cache');
 
 const app = express();
 
-// Hostinger reverse proxy + Vercel: required for express-rate-limit and req.ip.
-app.set('trust proxy', true);
+// Hostinger reverse proxy: trust only the first hop (not all proxies).
+app.set('trust proxy', 1);
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -93,6 +93,7 @@ app.use('/api/parts', partRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/services', serviceRoutes);
+// Customer UI uses /bookings; branch/POS uses /appointments — same router (alias).
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/appointments', bookingRoutes);
 app.use('/api/suppliers', supplierRoutes);

@@ -13,6 +13,7 @@ const VerifyOtp = () => {
 
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   
   const [timer, setTimer] = useState(60);
@@ -71,12 +72,13 @@ const VerifyOtp = () => {
   const handleResend = async () => {
     if (!canResend) return;
     setError('');
-    
+    setSuccess('');
+
     try {
       await api.post('/auth/resend-otp', { email });
       setTimer(60);
       setCanResend(false);
-      alert('A new OTP has been sent to your email.');
+      setSuccess('A new OTP has been sent to your email.');
     } catch (err) {
       const msg = err.response?.data?.message || 'Failed to resend OTP.';
       setError(msg);
@@ -92,7 +94,8 @@ const VerifyOtp = () => {
           We sent a 6-digit code to <strong>{email}</strong>
         </p>
 
-        {error && <div style={{ color: 'red', marginBottom: '16px', fontSize: '14px' }}>{error}</div>}
+        {error && <div className="form-error" role="alert">{error}</div>}
+        {success && <div className="auth-success-banner" role="status">{success}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group" style={{ marginBottom: '20px' }}>

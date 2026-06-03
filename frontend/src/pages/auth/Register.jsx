@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LOGO_URL } from '../../constants/mediaAssets';
+import { PAKISTAN_CITIES } from '../../constants/pakistanCities';
 import api from '../../services/api';
 import './Auth.css';
 
@@ -15,14 +16,16 @@ const Register = () => {
     confirmPassword: '',
     city: ''
   });
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     if (formData.password !== formData.confirmPassword) {
-      return alert('Passwords do not match');
+      setError('Passwords do not match.');
+      return;
     }
     if (submitting) return;
     setSubmitting(true);
@@ -56,6 +59,12 @@ const Register = () => {
         <h2 className="text-5xl font-family-bebas mb-2 tracking-tighter uppercase text-black">Create Account.</h2>
         <p className="text-sm text-muted mb-8">Join Crown Eve — browse bikes, book services, track your orders.</p>
         
+        {error && (
+          <div className="form-error" role="alert">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           {/* Stacked Layout for cleaner vertical profile */}
           <div className="form-group">
@@ -120,19 +129,22 @@ const Register = () => {
             />
           </div>
           <div className="form-group">
-            <label>City</label>
-            <select 
+            <label htmlFor="register-city">City</label>
+            <input
+              id="register-city"
+              type="text"
+              list="pakistan-cities"
+              placeholder="Type or select your city"
               value={formData.city}
-              onChange={(e) => setFormData({...formData, city: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+              autoComplete="address-level2"
               required
-            >
-              <option value="">Select your city</option>
-              <option>Lahore</option>
-              <option>Karachi</option>
-              <option>Islamabad</option>
-              <option>Faisalabad</option>
-              <option>Rawalpindi</option>
-            </select>
+            />
+            <datalist id="pakistan-cities">
+              {PAKISTAN_CITIES.map((city) => (
+                <option key={city} value={city} />
+              ))}
+            </datalist>
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '24px' }}>
             <input type="checkbox" id="terms" style={{ marginTop: '3px', accentColor: 'var(--orange)' }} required />

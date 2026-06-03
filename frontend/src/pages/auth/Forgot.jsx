@@ -14,12 +14,14 @@ const Forgot = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [otpError, setOtpError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSendOtp = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setLoading(true);
     try {
       await api.post('/auth/forgot-password', { email });
@@ -45,6 +47,7 @@ const Forgot = () => {
   const handleResetPassword = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     if (!validateOtpField()) return;
     if (newPassword !== confirmPassword) {
       setError('Passwords do not match.');
@@ -61,8 +64,8 @@ const Forgot = () => {
         otp: otp.trim(),
         newPassword,
       });
-      alert('Password updated successfully. Please log in.');
-      navigate('/login');
+      setSuccess('Password updated successfully. Redirecting to login…');
+      setTimeout(() => navigate('/login'), 1500);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to reset password.');
     } finally {
@@ -90,11 +93,8 @@ const Forgot = () => {
             : `Enter the OTP sent to ${email} and your new password.`}
         </p>
 
-        {error && (
-          <div style={{ color: '#ef4444', marginBottom: '16px', fontSize: '14px' }} role="alert">
-            {error}
-          </div>
-        )}
+        {error && <div className="form-error" role="alert">{error}</div>}
+        {success && <div className="auth-success-banner" role="status">{success}</div>}
 
         {step === 1 ? (
           <form onSubmit={handleSendOtp}>
