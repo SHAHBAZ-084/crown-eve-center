@@ -89,6 +89,9 @@ async function startServer() {
     logger.info(`Server running on port ${PORT}`);
   });
 
+  httpServer.keepAliveTimeout = 65000;
+  httpServer.headersTimeout = 66000;
+
   // Background connection attempt
   connectDatabase().catch((err) => {
     logger.error('Database connection failed — API will retry on next request', {

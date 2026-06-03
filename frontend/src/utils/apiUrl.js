@@ -26,12 +26,8 @@ export const getApiUrl = () => {
   }
 
   if (import.meta.env.MODE === 'production' && typeof window !== 'undefined') {
-    const host = window.location.hostname;
-    if (host === 'crownevcenter.com' || host === 'www.crownevcenter.com') {
-      const pref = sessionStorage.getItem(STORAGE_KEY);
-      if (pref === 'proxy') return getProxiedApiUrl();
-      return DIRECT_API;
-    }
+    // Always use same-origin proxy — avoids CORS entirely
+    // Vercel rewrites /api/* → https://api.crownevcenter.com/api/*
     return `${window.location.origin}/api`;
   }
 

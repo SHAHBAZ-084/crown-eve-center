@@ -20,6 +20,8 @@ const shouldSkipCache = (url) => SKIP_PREFIXES.some((p) => url.startsWith(p));
 const hasAuthHeader = (req) =>
   Boolean(req.headers.authorization) || /(?:^|;\s*)token=/.test(req.headers.cookie || '');
 
+const inFlight = new Map();
+
 /**
  * Cache GET JSON responses. Skips authenticated requests and sensitive prefixes.
  */
@@ -35,10 +37,25 @@ const cacheGet = (ttlSeconds = 60) => (req, res, next) => {
     return res.json(hit);
   }
 
+  if (inFlight.has(key)) {
+    inFlight.get(key).push({ res });
+    return;
+  }
+
+  inFlight.set(key, []);
+
   const originalJson = res.json.bind(res);
   res.json = (body) => {
     if (res.statusCode >= 200 && res.statusCode < 300) {
       cacheStore.set(key, body, ttlSeconds);
+      const waiters = inFlight.get(key) || [];
+      inFlight.delete(key);
+      for (const waiter of waiters) {
+        waiter.res.setHeader('X-Cache', 'STAMPEDE-HIT');
+        waiter.res.json(body);
+      }
+    } else {
+      inFlight.delete(key);
     }
     res.setHeader('X-Cache', 'MISS');
     return originalJson(body);

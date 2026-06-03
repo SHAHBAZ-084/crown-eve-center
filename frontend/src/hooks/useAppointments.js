@@ -14,7 +14,7 @@ export const useTodayAppointments = (branchId) => {
   return useQuery({
     queryKey: ['appointments-today', branchId],
     queryFn: () => api.get('/appointments/today', { params: { branchId } }).then(r => r.data),
-    staleTime: 30000,
+    staleTime: 5 * 60 * 1000,
   });
 };
 

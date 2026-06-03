@@ -1,13 +1,13 @@
 // frontend/src/hooks/useOrders.js
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import api from '../services/api';
 
 export const useOrders = ({ branchId, page = 1, status = '', limit = 10 }) => {
   return useQuery({
     queryKey: ['orders', branchId, page, status],
     queryFn: () => api.get('/orders', { params: { branchId, page, status, limit } }).then(r => r.data),
-    staleTime: 30000,
-    keepPreviousData: true,
+    staleTime: 3 * 60 * 1000,
+    placeholderData: keepPreviousData,
   });
 };
 
@@ -15,7 +15,8 @@ export const useOrderCount = (branchId, status = 'PENDING') => {
   return useQuery({
     queryKey: ['order-count', branchId, status],
     queryFn: () => api.get('/orders/count', { params: { branchId, status } }).then(r => r.data),
-    refetchInterval: 60000, // 60s as per checklist
+    staleTime: 5 * 60 * 1000,
+    enabled: !!branchId,
   });
 };
 
