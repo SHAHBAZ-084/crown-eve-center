@@ -1,8 +1,11 @@
 // frontend/src/pages/dashboards/customer/TrackOrder.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { Package } from "lucide-react";
 import api from "../../../services/api";
 import { STATUS_TIMELINE, STATUS_BADGE } from "../../../components/customer/CustomerShared";
+import CustomerPageHeader from "../../../components/customer/CustomerPageHeader";
+import { CustomerLoading, CustomerAlert } from "../../../components/customer/CustomerUI";
 
 const TrackOrder = () => {
   const { id } = useParams();
@@ -25,23 +28,27 @@ const TrackOrder = () => {
   const total = order?.total ?? order?.items?.reduce((s, i) => s + (i.price ?? 0) * (i.quantity ?? 1), 0) ?? 0;
 
   return (
-    <div>
-      <div className="pg-hd">
-        <div>
-          <button className="ca" onClick={() => navigate(-1)} style={{ marginBottom: 12 }}>← Back to Orders</button>
-          <h1>Track Order <span style={{ color: "var(--orange)" }}>#{String(id).padStart(6, '0')}</span></h1>
-          <p>Real-time updates for your Crown Eve purchase.</p>
-        </div>
-        {badge && (
-          <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", marginBottom: 4 }}>Current Status</div>
-            <div className={`badge ${badge.cls}`} style={{ fontSize: 12, padding: "6px 16px" }}>{badge.label}</div>
-          </div>
-        )}
-      </div>
+    <div className="ce-page">
+      <CustomerPageHeader
+        eyebrow={
+          <button type="button" className="ca" onClick={() => navigate(-1)} style={{ marginBottom: 0 }}>
+            ← Back to Orders
+          </button>
+        }
+        title={<>Track Order <span style={{ color: "var(--orange)" }}>#{String(id).padStart(6, "0")}</span></>}
+        subtitle="Real-time updates for your Crown Eve purchase."
+        actions={
+          badge ? (
+            <div className="ce-track-status">
+              <span className="ce-meta-label">Current Status</span>
+              <span className={`badge ${badge.cls}`}>{badge.label}</span>
+            </div>
+          ) : null
+        }
+      />
 
-      {loading && <div className="card" style={{ textAlign: "center", padding: 40, color: "var(--muted2)" }}>Loading order…</div>}
-      {error && <div className="card" style={{ textAlign: "center", padding: 40, color: "var(--red)" }}>{error}</div>}
+      {loading && <CustomerLoading message="Loading order…" />}
+      {error && <CustomerAlert type="error">{error}</CustomerAlert>}
 
       {order && (
         <div className="g73">
@@ -71,42 +78,44 @@ const TrackOrder = () => {
             <div className="card" style={{ marginBottom: 20 }}>
               <div className="ch"><div className="ct">Order Summary</div></div>
               {(order.items || []).map((item, idx) => (
-                <div key={idx} style={{ display: "flex", gap: 12, marginBottom: 14, alignItems: "center" }}>
-                  <div style={{ width: 44, height: 44, background: "var(--black3)", borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🏍️</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700 }}>{item.product?.name || item.name || "Product"}</div>
-                    <div style={{ fontSize: 11, color: "var(--muted2)" }}>Qty: {item.quantity}</div>
+                <div key={idx} className="ce-line-item">
+                  <div className="ce-line-item-icon">
+                    <Package size={20} strokeWidth={1.5} />
                   </div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: "var(--orange)" }}>
+                  <div className="ce-line-item-body">
+                    <div className="ce-line-item-title">{item.product?.name || item.name || "Product"}</div>
+                    <div className="ce-line-item-sub">Qty: {item.quantity}</div>
+                  </div>
+                  <div className="ce-line-item-price">
                     PKR {((item.price ?? 0) * (item.quantity ?? 1)).toLocaleString()}
                   </div>
                 </div>
               ))}
               <div className="divider" />
               <div className="trow">
-                <span style={{ fontSize: 12, color: "var(--muted2)" }}>Order ID</span>
-                <span className="mono" style={{ fontWeight: 600 }}>#{String(id).padStart(6, '0')}</span>
+                <span className="ce-muted">Order ID</span>
+                <span className="mono" style={{ fontWeight: 600 }}>#{String(id).padStart(6, "0")}</span>
               </div>
               <div className="trow">
-                <span style={{ fontSize: 12, color: "var(--muted2)" }}>Placed</span>
+                <span className="ce-muted">Placed</span>
                 <span style={{ fontSize: 12 }}>{new Date(order.createdAt).toLocaleDateString("en-PK", { dateStyle: "medium" })}</span>
               </div>
               {order.branch?.name && (
                 <div className="trow">
-                  <span style={{ fontSize: 12, color: "var(--muted2)" }}>Branch</span>
+                  <span className="ce-muted">Branch</span>
                   <span style={{ fontSize: 12 }}>{order.branch.name}</span>
                 </div>
               )}
               <div className="trow" style={{ marginTop: 10 }}>
                 <span style={{ fontSize: 14, fontWeight: 700 }}>Total Paid</span>
-                <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, color: "var(--orange)" }}>PKR {total.toLocaleString()}</span>
+                <span className="ce-order-total" style={{ fontSize: 24 }}>PKR {total.toLocaleString()}</span>
               </div>
             </div>
 
             <div className="card">
               <div className="ch"><div className="ct">Need Help?</div></div>
-              <p style={{ fontSize: 12, color: "var(--muted2)", lineHeight: 1.6, marginBottom: 16 }}>Contact our support team for help with your order.</p>
-              <button className="btn btn-ghost btn-xs" style={{ width: "100%" }}>Contact Support</button>
+              <p className="ce-muted" style={{ lineHeight: 1.6, marginBottom: 16 }}>Contact our support team for help with your order.</p>
+              <button type="button" className="btn btn-ghost btn-xs" style={{ width: "100%" }}>Contact Support</button>
             </div>
           </div>
         </div>

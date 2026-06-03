@@ -6,6 +6,9 @@ import publicApi from "../../../services/publicApi";
 import { useCart } from "../../../context/CartContext";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { getImgUrl } from "../../../utils/imgUrl";
+import CustomerPageHeader from "../../../components/customer/CustomerPageHeader";
+import { CustomerLoading, CustomerEmpty } from "../../../components/customer/CustomerUI";
+import { Search } from "lucide-react";
 import "../../public/Shop.css";
 
 const Shop = () => {
@@ -114,38 +117,36 @@ const Shop = () => {
   };
 
   return (
-    <div className="shop-container">
-      <div className="pg-hd">
-        <div>
-          <h1>Premium Catalog</h1>
-          <p>
-            Showing {products.length} of {totalItems} items
-            {isFetching && !showLoading ? " · updating…" : ""}
-          </p>
-        </div>
-        <div className="pg-actions">
-          <div className="fsearch">
-            <span>🔍</span>
-            <input
-              placeholder="Search models or parts..."
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setPage(1);
-              }}
-            />
-          </div>
-          <button className="premium-cart-btn" onClick={() => navigate(cartPath)}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
-              <path d="M3 6h18"></path>
-              <path d="M16 10a4 4 0 0 1-8 0"></path>
-            </svg>
-            <span>Cart</span>
-            {count > 0 && <span className="cart-badge">{count}</span>}
-          </button>
-        </div>
-      </div>
+    <div className="ce-page ce-shop shop-container">
+      <CustomerPageHeader
+        eyebrow="Shop"
+        title="Premium Catalog"
+        subtitle={`Showing ${products.length} of ${totalItems} items${isFetching && !showLoading ? " · updating…" : ""}`}
+        actions={
+          <>
+            <div className="fsearch">
+              <Search size={16} aria-hidden />
+              <input
+                placeholder="Search models or parts..."
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+              />
+            </div>
+            <button type="button" className="premium-cart-btn" onClick={() => navigate(cartPath)}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+                <path d="M3 6h18" />
+                <path d="M16 10a4 4 0 0 1-8 0" />
+              </svg>
+              <span>Cart</span>
+              {count > 0 && <span className="cart-badge">{count}</span>}
+            </button>
+          </>
+        }
+      />
 
       <div className="filter-bar-premium">
         <div className="filter-group">
@@ -181,7 +182,7 @@ const Shop = () => {
       </div>
 
       {showLoading ? (
-        <div style={{ padding: 100, textAlign: "center" }}>Loading Catalog...</div>
+        <div className="card"><CustomerLoading message="Loading catalog…" /></div>
       ) : products.length > 0 ? (
         <>
           <div className="products-grid">
@@ -264,10 +265,13 @@ const Shop = () => {
           )}
         </>
       ) : (
-        <div className="empty-state">
-          <h3>No products found</h3>
-          <p>Try adjusting your search or filters to find what you're looking for.</p>
-          <button className="btn-clear" onClick={clearFilters}>Clear All Filters</button>
+        <div className="card">
+          <CustomerEmpty
+            title="No products found"
+            description="Try adjusting your search or filters to find what you're looking for."
+            actionLabel="Clear All Filters"
+            onAction={clearFilters}
+          />
         </div>
       )}
     </div>

@@ -28,7 +28,7 @@ const Cart = () => {
     .reduce((acc, i) => acc + (i.sale_price || i.price) * i.qty, 0);
 
   return (
-    <div className="cart-page-ultra">
+    <div className="cart-page-ultra ce-cart-page ce-page">
       <div className="cart-page-container">
         <div className="cart-page-header">
           <h1 className="cart-title">Shopping Bag <span>({items.length} items)</span></h1>

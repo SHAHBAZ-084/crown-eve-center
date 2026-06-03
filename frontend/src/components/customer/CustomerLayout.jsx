@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import PageSuspense from '../PageSuspense';
 import '../../styles/customer.css';
+import '../../styles/customer-ui.css';
 
 const NAV_LINKS = [
   { label: 'Dashboard', to: '/my/dashboard', match: (p) => p === '/my/dashboard' },

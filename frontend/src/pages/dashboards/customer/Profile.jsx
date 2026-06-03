@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import CustomerPageHeader from "../../../components/customer/CustomerPageHeader";
+import { CustomerAlert } from "../../../components/customer/CustomerUI";
 import api from "../../../services/api";
 
 const Profile = () => {
@@ -28,8 +29,10 @@ const Profile = () => {
     }
   };
 
+  const initial = user?.name ? user.name[0].toUpperCase() : "C";
+
   return (
-    <div>
+    <div className="ce-page">
       <CustomerPageHeader
         eyebrow="Account"
         title="My Profile"
@@ -38,104 +41,88 @@ const Profile = () => {
 
       <div className="g73">
         <div>
-          <div className="card" style={{ marginBottom: 24, borderTop: '2px solid var(--orange)' }}>
+          <div className="card ce-card-accent" style={{ marginBottom: 24 }}>
             <div className="ch"><div className="ct">Personal Information</div></div>
             <div className="fgrid">
               <div className="fg">
                 <label>Full Name</label>
-                <input className="fi" value={name} onChange={e => setName(e.target.value)} style={{ background: 'var(--black2)' }} />
+                <input className="fi" value={name} onChange={e => setName(e.target.value)} />
               </div>
               <div className="fg">
                 <label>Email Address</label>
-                <input className="fi" defaultValue={user?.email} disabled style={{ background: 'var(--black2)', opacity: 0.6 }} />
+                <input className="fi" defaultValue={user?.email} disabled />
               </div>
             </div>
             <div className="fgrid">
               <div className="fg">
                 <label>Phone Number</label>
-                <input className="fi" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+92 300 0000000" style={{ background: 'var(--black2)' }} />
+                <input className="fi" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+92 300 0000000" />
               </div>
               <div className="fg">
                 <label>City</label>
-                <select className="fs" defaultValue="Lahore" style={{ background: 'var(--black2)' }}>
+                <select className="fs" defaultValue="Lahore">
                   <option>Lahore</option>
                   <option>Karachi</option>
                   <option>Islamabad</option>
                 </select>
               </div>
             </div>
-            {status.error && <div style={{ color: "var(--red)", fontSize: 12, marginTop: 10 }}>{status.error}</div>}
-            {status.success && <div style={{ color: "var(--green)", fontSize: 12, marginTop: 10 }}>{status.success}</div>}
-            <button className="btn btn-primary" onClick={handleUpdate} disabled={status.loading} style={{ marginTop: 16 }}>
-              {status.loading ? "Updating..." : "Update Profile"}
+            {status.error && <CustomerAlert type="error">{status.error}</CustomerAlert>}
+            {status.success && <CustomerAlert type="success">{status.success}</CustomerAlert>}
+            <button type="button" className="btn btn-primary" onClick={handleUpdate} disabled={status.loading} style={{ marginTop: 16 }}>
+              {status.loading ? "Updating…" : "Update Profile"}
             </button>
           </div>
 
-          <div className="card" style={{ borderTop: '2px solid var(--border)' }}>
+          <div className="card">
             <div className="ch"><div className="ct">Security & Password</div></div>
             <div className="fg">
               <label>Current Password</label>
-              <input className="fi" type="password" placeholder="••••••••" style={{ background: 'var(--black2)' }} />
+              <input className="fi" type="password" placeholder="••••••••" />
             </div>
             <div className="fgrid">
               <div className="fg">
                 <label>New Password</label>
-                <input className="fi" type="password" value={pass} onChange={e => setPass(e.target.value)} placeholder="••••••••" style={{ background: 'var(--black2)' }} />
+                <input className="fi" type="password" value={pass} onChange={e => setPass(e.target.value)} placeholder="••••••••" />
               </div>
               <div className="fg">
                 <label>Confirm New Password</label>
-                <input className="fi" type="password" placeholder="••••••••" style={{ background: 'var(--black2)' }} />
+                <input className="fi" type="password" placeholder="••••••••" />
               </div>
             </div>
-            <button className="btn btn-ghost" style={{ marginTop: 16 }}>Change Password</button>
+            <button type="button" className="btn btn-ghost" style={{ marginTop: 16 }}>Change Password</button>
           </div>
         </div>
 
         <div>
-          <div className="card" style={{ textAlign: "center", padding: "40px 24px", marginBottom: 24, background: 'linear-gradient(135deg, var(--card) 0%, var(--black3) 100%)' }}>
-            <div style={{ 
-              width: 90, height: 90, background: "var(--orange)", 
-              clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-              margin: "0 auto 20px", display: "flex", alignItems: "center", justifyContent: "center", 
-              fontSize: 32, fontWeight: 900, color: "#fff", fontFamily: "'Bebas Neue', sans-serif"
-            }}>
-              {user?.name ? user.name[0].toUpperCase() : "C"}
-            </div>
-            <div style={{ fontSize: 24, fontWeight: 700, fontFamily: "'Barlow Condensed',sans-serif", marginBottom: 4, letterSpacing: '1px', textTransform: 'uppercase' }}>{user?.name || "Customer"}</div>
-            <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: "var(--muted2)", letterSpacing: '2px', marginBottom: 24 }}>Member since {new Date(user?.createdAt || Date.now()).getFullYear()}</div>
-            
+          <div className="card ce-profile-hero">
+            <div className="ce-profile-avatar">{initial}</div>
+            <div className="ce-profile-name">{user?.name || "Customer"}</div>
+            <div className="ce-profile-since">Member since {new Date(user?.createdAt || Date.now()).getFullYear()}</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div className="trow" style={{ background: "rgba(255,77,0,0.05)", padding: "14px", borderRadius: 4, border: '1px solid rgba(232,71,10,0.1)' }}>
-                <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: "var(--muted2)", letterSpacing: '1px' }}>Loyalty Tier</span>
-                <span className="badge bg-o" style={{ fontSize: 10 }}>Gold Member</span>
+              <div className="trow" style={{ background: "rgba(232,71,10,0.06)", padding: 14, borderRadius: 8, border: "1px solid rgba(232,71,10,0.12)" }}>
+                <span className="ce-meta-label">Loyalty Tier</span>
+                <span className="badge bg-o">Gold Member</span>
               </div>
-              <div className="trow" style={{ background: "rgba(255,255,255,0.02)", padding: "14px", borderRadius: 4, border: '1px solid var(--border)' }}>
-                <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: "var(--muted2)", letterSpacing: '1px' }}>Crown Points</span>
-                <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 20, color: "var(--orange)" }}>1,240</span>
+              <div className="trow" style={{ padding: 14, borderRadius: 8, border: "1px solid var(--border)" }}>
+                <span className="ce-meta-label">Crown Points</span>
+                <span className="ce-order-total" style={{ fontSize: 22 }}>1,240</span>
               </div>
             </div>
           </div>
 
           <div className="card">
-            <div className="ch"><div className="ct">Dashboard Preferences</div></div>
-            <div className="trow" style={{ padding: '12px 0' }}>
-              <span style={{ fontSize: 13, fontWeight: 600 }}>Email Notifications</span>
-              <div style={{ width: 40, height: 20, background: 'var(--orange)', borderRadius: 20, position: 'relative' }}>
-                <div style={{ width: 14, height: 14, background: '#fff', borderRadius: '50%', position: 'absolute', top: 3, right: 3 }} />
+            <div className="ch"><div className="ct">Preferences</div></div>
+            {[
+              { label: "Email Notifications", on: true },
+              { label: "Order SMS Updates", on: true },
+              { label: "Marketing Alerts", on: false },
+            ].map((pref) => (
+              <div key={pref.label} className="trow">
+                <span style={{ fontSize: 14, fontWeight: 500 }}>{pref.label}</span>
+                <button type="button" className={`ce-toggle${pref.on ? " is-on" : ""}`} aria-label={pref.label} />
               </div>
-            </div>
-            <div className="trow" style={{ padding: '12px 0' }}>
-              <span style={{ fontSize: 13, fontWeight: 600 }}>Order SMS Updates</span>
-              <div style={{ width: 40, height: 20, background: 'var(--orange)', borderRadius: 20, position: 'relative' }}>
-                <div style={{ width: 14, height: 14, background: '#fff', borderRadius: '50%', position: 'absolute', top: 3, right: 3 }} />
-              </div>
-            </div>
-            <div className="trow" style={{ padding: '12px 0' }}>
-              <span style={{ fontSize: 13, fontWeight: 600 }}>Marketing Alerts</span>
-              <div style={{ width: 40, height: 20, background: 'var(--black3)', border: '1px solid var(--border)', borderRadius: 20, position: 'relative' }}>
-                <div style={{ width: 14, height: 14, background: 'var(--muted)', borderRadius: '50%', position: 'absolute', top: 2, left: 3 }} />
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>

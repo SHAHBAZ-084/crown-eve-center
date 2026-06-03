@@ -6,6 +6,7 @@ import publicApi from "../../../services/publicApi";
 import { useCart } from "../../../context/CartContext";
 import { getImgUrl } from "../../../utils/imgUrl";
 import "./ProductDetail.css";
+import { CustomerLoading } from "../../../components/customer/CustomerUI";
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -27,15 +28,30 @@ const ProductDetailPage = () => {
     window.scrollTo(0, 0);
   }, [id]);
 
-  if (isLoading) return <div style={{ padding: 100, textAlign: "center", fontSize: 20 }}>Loading...</div>;
-  if (!product) return <div style={{ padding: 100, textAlign: "center" }}><h3>Product not found</h3><button onClick={() => navigate(shopPath)}>Back to Shop</button></div>;
+  if (isLoading) {
+    return isCustomerPortal ? (
+      <div className="ce-page"><CustomerLoading message="Loading product…" /></div>
+    ) : (
+      <div style={{ padding: 100, textAlign: "center", fontSize: 20 }}>Loading...</div>
+    );
+  }
+  if (!product) {
+    return isCustomerPortal ? (
+      <div className="ce-page ce-empty">
+        <h3>Product not found</h3>
+        <button type="button" className="btn btn-primary btn-sm" onClick={() => navigate(shopPath)}>Back to Shop</button>
+      </div>
+    ) : (
+      <div style={{ padding: 100, textAlign: "center" }}><h3>Product not found</h3><button onClick={() => navigate(shopPath)}>Back to Shop</button></div>
+    );
+  }
 
   const bike = product.bikeDetail || {};
   const mainImg = product.images?.find(img => img.is_primary)?.url || product.images?.[0]?.url;
 
 
   return (
-    <div className="product-detail-page">
+    <div className={`product-detail-page${isCustomerPortal ? " ce-product-detail ce-page" : ""}`}>
       {/* TOP SECTION */}
       <div className="product-top-section">
         <div className="product-info-col">

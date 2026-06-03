@@ -1,7 +1,9 @@
 // frontend/src/pages/dashboards/customer/Orders.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Package } from "lucide-react";
 import CustomerPageHeader from "../../../components/customer/CustomerPageHeader";
+import { CustomerLoading, CustomerEmpty, CustomerCount } from "../../../components/customer/CustomerUI";
 import { Badge } from "../../../components/customer/CustomerShared";
 import api from "../../../services/api";
 
@@ -28,7 +30,7 @@ const Orders = () => {
   });
 
   return (
-    <div>
+    <div className="ce-page">
       <CustomerPageHeader
         eyebrow="Account"
         title="My Orders"
@@ -37,59 +39,76 @@ const Orders = () => {
 
       <div className="tabs">
         {["All", "Active", "Completed", "Cancelled"].map(t => (
-          <button key={t} className={`tab ${tab === t ? "on" : ""}`} onClick={() => setTab(t)}>{t}</button>
+          <button key={t} type="button" className={`tab ${tab === t ? "on" : ""}`} onClick={() => setTab(t)}>{t}</button>
         ))}
       </div>
 
       <div className="card">
         <div className="ch">
           <div className="ct">Recent Transactions</div>
-          <div style={{ fontSize: 11, color: "var(--muted)" }}>{filtered.length} Orders found</div>
+          <CustomerCount count={filtered.length} suffix="orders" />
         </div>
 
         {loading ? (
-          <div style={{ padding: 40, textAlign: "center", color: "var(--muted)" }}>Loading orders...</div>
+          <CustomerLoading message="Loading orders…" />
+        ) : filtered.length === 0 ? (
+          <CustomerEmpty
+            icon={Package}
+            title="No orders found"
+            description={`You don't have any orders in the ${tab.toLowerCase()} category yet.`}
+            actionLabel="Start Shopping"
+            onAction={() => navigate("/my/shop")}
+          />
         ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table className="tbl">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Date</th>
-                  <th>Items</th>
-                  <th>Total</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map(o => (
-                  <tr key={o.id}>
-                    <td className="mono" style={{ color: "var(--orange)" }}>#{o.id}</td>
-                    <td>{new Date(o.createdAt).toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "numeric" })}</td>
-                    <td>
-                      <div className="tm">{o.items?.length || 0} Item{o.items?.length !== 1 ? "s" : ""}</div>
-                      <div className="ts">{o.items?.[0]?.product?.name || "—"}{o.items?.length > 1 ? "..." : ""}</div>
-                    </td>
-                    <td className="mono" style={{ fontWeight: 600 }}>PKR {Number(o.total).toLocaleString()}</td>
-                    <td><Badge status={o.status} /></td>
-                    <td>
-                      <button className="ca" onClick={() => navigate(`/track/${o.id}`)}>Track →</button>
-                    </td>
+          <>
+            <div className="ce-table-wrap" style={{ overflowX: "auto" }}>
+              <table className="tbl">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Date</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </thead>
+                <tbody>
+                  {filtered.map(o => (
+                    <tr key={o.id}>
+                      <td className="mono" style={{ color: "var(--orange)" }}>#{o.id}</td>
+                      <td>{new Date(o.createdAt).toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "numeric" })}</td>
+                      <td>
+                        <div className="tm">{o.items?.length || 0} Item{o.items?.length !== 1 ? "s" : ""}</div>
+                        <div className="ts">{o.items?.[0]?.product?.name || "—"}{o.items?.length > 1 ? "..." : ""}</div>
+                      </td>
+                      <td className="mono" style={{ fontWeight: 600 }}>PKR {Number(o.total).toLocaleString()}</td>
+                      <td><Badge status={o.status} /></td>
+                      <td>
+                        <button type="button" className="ca" onClick={() => navigate(`/track/${o.id}`)}>Track →</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-        {!loading && filtered.length === 0 && (
-          <div className="empty-state">
-            <div className="ei">📦</div>
-            <h3>No orders found</h3>
-            <p>You don't have any orders in this category yet.</p>
-            <button className="btn btn-primary btn-sm" onClick={() => navigate("/my/shop")}>Start Shopping</button>
-          </div>
+            <div className="ce-order-cards">
+              {filtered.map(o => (
+                <div key={o.id} className="ce-order-card">
+                  <div className="ce-order-card-top">
+                    <span className="ce-order-card-id">#{o.id}</span>
+                    <Badge status={o.status} />
+                  </div>
+                  <div className="tm">{new Date(o.createdAt).toLocaleDateString("en-PK")}</div>
+                  <div className="ts" style={{ marginBottom: 8 }}>
+                    {o.items?.length || 0} items · PKR {Number(o.total).toLocaleString()}
+                  </div>
+                  <button type="button" className="ca" onClick={() => navigate(`/track/${o.id}`)}>Track order →</button>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>

@@ -263,22 +263,36 @@ const CheckoutPage = () => {
   };
 
   if (!items.length && !placedOrder) return (
-    <div className="empty-state"><div className="ei">🛒</div><h3>Your cart is empty</h3><button className="btn btn-primary" onClick={() => navigate("/shop")}>Start Shopping</button></div>
+    <div className="ce-checkout-page ce-page">
+      <div className="ce-empty">
+        <h3>Your cart is empty</h3>
+        <p className="ce-muted">Add items from the shop to continue checkout.</p>
+        <button type="button" className="btn btn-primary" onClick={() => navigate("/my/shop")}>Start Shopping</button>
+      </div>
+    </div>
   );
 
   if (placedOrder) return (
-    <div style={{ textAlign: "center", padding: "80px 20px" }}>
-      <div style={{ width: 80, height: 80, background: "var(--gbg)", border: "1px solid rgba(34,197,94,0.3)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, margin: "0 auto 24px" }}>✓</div>
-      <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 52, letterSpacing: -1, marginBottom: 8 }}>Order <span style={{ color: "var(--orange)" }}>Placed!</span></div>
-      <div style={{ fontSize: 14, color: "var(--white2)", maxWidth: 380, margin: "0 auto 8px", lineHeight: 1.7 }}>Wait for branch manager to confirm payment.</div>
-      <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 22, color: "var(--orange)", margin: "16px 0 32px" }}>#{placedOrder.id}</div>
-      <div style={{ display: "flex", gap: 10, justifyContent: "center" }}><button className="btn btn-ghost" onClick={() => navigate("/my/orders")}>My Orders</button><button className="btn btn-primary" onClick={() => navigate("/shop")}>Shop More</button></div>
+    <div className="ce-checkout-page ce-page ce-checkout-success">
+      <div className="ce-checkout-success-icon">✓</div>
+      <h1 className="ce-checkout-success-title">Order <span>Placed!</span></h1>
+      <p className="ce-muted">Wait for branch manager to confirm payment.</p>
+      <p className="ce-checkout-order-id">#{placedOrder.id}</p>
+      <div className="ce-checkout-success-actions">
+        <button type="button" className="btn btn-ghost" onClick={() => navigate("/my/orders")}>My Orders</button>
+        <button type="button" className="btn btn-primary" onClick={() => navigate("/my/shop")}>Shop More</button>
+      </div>
     </div>
   );
 
   return (
-    <div>
-      <div className="pg-hd"><div><h1>Checkout</h1><p>Step {step} of 4</p></div></div>
+    <div className="ce-checkout-page ce-page">
+      <div className="customer-page-header">
+        <div className="customer-page-header-main">
+          <h1>Checkout</h1>
+          <p>Step {step} of 4</p>
+        </div>
+      </div>
       <div className="step-bar" style={{ marginBottom: 28 }}>
         {[{ n: 1, l: "Address" }, { n: 2, l: "Branch" }, { n: 3, l: "Payment" }, { n: 4, l: "Confirm" }].map((s, i) => (
           <div key={s.n} style={{ display: "flex", alignItems: "center", flex: i < 3 ? 1 : 0 }}>

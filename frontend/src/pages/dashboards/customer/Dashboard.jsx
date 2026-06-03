@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import api from "../../../services/api";
+import { CustomerMeta } from "../../../components/customer/CustomerUI";
 
 const ACTIVE_STATUSES = ["PENDING", "PROCESSING", "pending", "processing"];
 
@@ -84,8 +85,10 @@ const Dashboard = () => {
     return n.toLocaleString();
   };
 
+  const progressLabels = ["Placed", "Confirmed", "Preparing", "Delivery", "Done"];
+
   return (
-    <div>
+    <div className="ce-page">
       <div className="welcome-banner">
         <div className="welcome-banner-inner">
           <div>
@@ -120,7 +123,7 @@ const Dashboard = () => {
         <div className="stat">
           <div className="si"><Banknote size={28} strokeWidth={1.5} /></div>
           <div className="sl">Total Spent</div>
-          <div className="sv" style={{ color: "var(--orange)" }}>{loadingOrders ? "—" : fmtSpent(totalSpent)}</div>
+          <div className="sv ce-sv-accent">{loadingOrders ? "—" : fmtSpent(totalSpent)}</div>
           <span className="sc neu">{totalOrders} order{totalOrders !== 1 ? "s" : ""} lifetime</span>
         </div>
         <div className="stat">
@@ -136,40 +139,39 @@ const Dashboard = () => {
           <div className="ch"><div className="ct">Active Order</div><button type="button" className="ca" onClick={() => navigate("/my/orders")}>View all →</button></div>
           {activeOrder ? (
             <>
-              <div style={{ background: "var(--black3)", border: "1px solid var(--border)", borderRadius: 6, padding: "16px 18px", marginBottom: 16 }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+              <div className="ce-panel" style={{ marginBottom: 16 }}>
+                <div className="ce-panel-row" style={{ marginBottom: 12 }}>
                   <span className="mono" style={{ color: "var(--orange)", fontSize: 13 }}>#{String(activeOrder.id).padStart(6, '0')}</span>
-                  <span className="badge bg-b" style={{ fontSize: 9 }}>{activeOrder.status}</span>
+                  <span className="badge bg-b">{activeOrder.status}</span>
                 </div>
-                <div style={{ fontSize: 13, color: "var(--white2)", marginBottom: 16 }}>
+                <p className="ce-muted" style={{ marginBottom: 16 }}>
                   {(activeOrder.items || []).map(i => i.product?.name || i.name || "Product").join(", ") || "Order items"}
-                </div>
-                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
-                  <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 28, color: "var(--orange)" }}>
-                    PKR {(activeOrder.total ?? 0).toLocaleString()}
-                  </div>
-                  <button type="button" className="ca" onClick={() => navigate(`/track/${activeOrder.id}`)} style={{ fontSize: 10 }}>Track Order →</button>
+                </p>
+                <div className="ce-panel-row">
+                  <span className="ce-order-total">PKR {(activeOrder.total ?? 0).toLocaleString()}</span>
+                  <button type="button" className="ca" onClick={() => navigate(`/track/${activeOrder.id}`)}>Track Order →</button>
                 </div>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
+              <div className="ce-progress">
                 {[0, 1, 2, 3, 4].map((i) => {
                   const filled = (i + 1) <= currentStep;
                   const lineFilled = currentStep > i + 1;
                   return (
                     <React.Fragment key={i}>
-                      <div style={{ width: 10, height: 10, borderRadius: "50%", background: filled ? "var(--orange)" : "var(--card2)", border: filled ? "none" : "2px solid var(--border)" }} />
-                      {i < 4 && <div style={{ flex: 1, height: 2, background: lineFilled ? "var(--orange)" : "var(--border)" }} />}
+                      <div className={`ce-progress-dot ${filled ? "is-done" : "is-pending"}`} />
+                      {i < 4 && <div className={`ce-progress-line ${lineFilled ? "is-done" : "is-pending"}`} />}
                     </React.Fragment>
                   );
                 })}
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, fontSize: 9, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", color: "var(--muted)" }}>
-                <span>Placed</span><span>Confirmed</span><span>Preparing</span><span>Delivery</span><span>Done</span>
+              <div className="ce-progress-labels">
+                {progressLabels.map((label) => <span key={label}>{label}</span>)}
               </div>
             </>
           ) : (
-            <div style={{ textAlign: "center", padding: "30px 0", color: "var(--muted2)", fontSize: 13 }}>
-              No active orders. <button type="button" className="ca" onClick={() => navigate("/my/shop")}>Browse shop →</button>
+            <div className="ce-empty-inline">
+              <p className="ce-muted">No active orders.</p>
+              <button type="button" className="ca" onClick={() => navigate("/my/shop")}>Browse shop →</button>
             </div>
           )}
         </div>
@@ -181,32 +183,25 @@ const Dashboard = () => {
               const latest = bookings[0];
               return (
                 <>
-                  <div style={{ background: "var(--black3)", border: "1px solid var(--border)", borderRadius: 6, padding: "20px", display: "flex", gap: 16, alignItems: "flex-start" }}>
-                    <div style={{ width: 44, height: 44, background: "rgba(14,165,233,.1)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--acc)" }}>
-                      <Wrench size={20} />
-                    </div>
+                  <div className="ce-booking-head">
+                    <div className="ce-booking-icon"><Wrench size={20} /></div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 2 }}>{latest.service?.name || "General Maintenance"}</div>
-                      <div style={{ fontSize: 12, color: "var(--muted2)" }}>{latest.branch?.name || "Main Branch"}</div>
+                      <div className="ce-booking-title">{latest.service?.name || "General Maintenance"}</div>
+                      <div className="ce-booking-sub">{latest.branch?.name || "Main Branch"}</div>
                     </div>
-                    <span className="badge badge-orange" style={{ fontSize: 9 }}>{latest.status}</span>
+                    <span className="badge bg-o">{latest.status}</span>
                   </div>
                   <div className="g2" style={{ marginTop: 14 }}>
-                    <div style={{ background: "var(--black3)", padding: "12px", borderRadius: 4, border: "1px solid var(--border)" }}>
-                      <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", color: "var(--muted)", marginBottom: 4 }}>Requested Date</div>
-                      <div style={{ fontSize: 13, fontWeight: 600 }}>{new Date(latest.booking_date).toLocaleDateString("en-PK", { dateStyle: "medium" })}</div>
-                    </div>
-                    <div style={{ background: "var(--black3)", padding: "12px", borderRadius: 4, border: "1px solid var(--border)" }}>
-                      <div style={{ fontSize: 9, fontWeight: 700, textTransform: "uppercase", color: "var(--muted)", marginBottom: 4 }}>Current Status</div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: "var(--orange)" }}>{latest.status}</div>
-                    </div>
+                    <CustomerMeta label="Requested Date" value={new Date(latest.booking_date).toLocaleDateString("en-PK", { dateStyle: "medium" })} />
+                    <CustomerMeta label="Current Status" value={latest.status} highlight />
                   </div>
                 </>
               );
             })()
           ) : (
-            <div style={{ textAlign: "center", padding: "30px 0", color: "var(--muted2)", fontSize: 13 }}>
-              No service requests. <button type="button" className="ca" onClick={() => navigate("/appointments")}>Book service →</button>
+            <div className="ce-empty-inline">
+              <p className="ce-muted">No service requests.</p>
+              <button type="button" className="ca" onClick={() => navigate("/appointments")}>Book service →</button>
             </div>
           )}
         </div>
