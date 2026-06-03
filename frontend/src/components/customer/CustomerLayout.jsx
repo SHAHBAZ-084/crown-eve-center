@@ -53,8 +53,11 @@ const CustomerLayout = () => {
         </button>
 
         <NavLink to="/my/dashboard" className="cnav-logo">
-          <div className="logo-hex">CE</div>
-          <span className="logo-txt">Crown <em>Eve</em></span>
+          <img
+            src="/logo.png"
+            alt="Crown Eve Center"
+            className="cnav-logo-img"
+          />
         </NavLink>
 
         <nav className={`cnav-links${menuOpen ? ' open' : ''}`} aria-label="Customer navigation">
