@@ -139,9 +139,6 @@ const CustomerLayout = () => {
           >
             Profile
           </NavLink>
-          <NavLink to="/" className="cnl cnl-home" onClick={closeMenu}>
-            Back to Website
-          </NavLink>
           <button type="button" className="cnl cnl-logout-mobile" onClick={() => { closeMenu(); logout(); }}>
             Logout
           </button>

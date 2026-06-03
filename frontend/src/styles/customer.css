@@ -3585,10 +3585,6 @@
     text-transform: uppercase;
   }
 
-  #customer-dashboard-shell .cnav-drawer-nav .cnl-home {
-    color: #D4D4D8;
-  }
-
   #customer-dashboard-shell .cnav-overlay {
     display: block;
     position: fixed;
