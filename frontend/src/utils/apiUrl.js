@@ -26,12 +26,35 @@ export const getApiUrl = () => {
   }
 
   if (import.meta.env.MODE === 'production' && typeof window !== 'undefined') {
-    // Always use same-origin proxy — avoids CORS entirely
-    // Vercel rewrites /api/* → https://api.crownevcenter.com/api/*
+    const pref = sessionStorage.getItem(STORAGE_KEY);
+    if (pref === 'proxy') return getProxiedApiUrl();
+    if (pref === 'direct') return DIRECT_API;
+    const host = window.location.hostname;
+    if (host === 'crownevcenter.com' || host === 'www.crownevcenter.com') {
+      return DIRECT_API;
+    }
     return `${window.location.origin}/api`;
   }
 
   return 'http://localhost:5000/api';
+};
+
+/** Vercel SPA catch-all can return index.html (200) or 405 for /api — not the real backend. */
+export const isMisroutedProxyResponse = (response, config) => {
+  if (!config?.baseURL || typeof window === 'undefined') return false;
+  const originApi = `${window.location.origin}/api`;
+  if (!config.baseURL.startsWith(originApi)) return false;
+  if (response?.status === 405) return true;
+  const ct = response?.headers?.['content-type'] || '';
+  return ct.includes('text/html');
+};
+
+export const shouldRetryViaDirectApi = (error, config) => {
+  if (!config || config.__apiFallback) return false;
+  if (isNetworkTransportError(error)) return true;
+  const res = error?.response;
+  if (res && isMisroutedProxyResponse(res, config)) return true;
+  return false;
 };
 
 /** True when the browser never got an HTTP response (QUIC timeout, DNS, offline, etc.). */

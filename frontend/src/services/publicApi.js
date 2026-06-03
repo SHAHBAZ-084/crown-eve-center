@@ -2,8 +2,9 @@ import axios from 'axios';
 import {
   getApiUrl,
   getApiFallbackUrl,
-  isNetworkTransportError,
+  isMisroutedProxyResponse,
   setApiBasePreference,
+  shouldRetryViaDirectApi,
 } from '../utils/apiUrl';
 
 /** Catalog reads without Authorization — enables server-side GET cache for all visitors. */
@@ -19,23 +20,38 @@ publicApi.interceptors.request.use((config) => {
   return config;
 });
 
+const retryPublicWithFallback = async (config) => {
+  const fallback = getApiFallbackUrl(config.baseURL || getApiUrl());
+  if (!fallback) return null;
+  setApiBasePreference(fallback.includes('api.crownevcenter.com') ? 'direct' : 'proxy');
+  config.__apiFallback = true;
+  config.baseURL = fallback;
+  return publicApi.request(config);
+};
+
 publicApi.interceptors.response.use(
-  (response) => response,
+  async (response) => {
+    const config = response.config;
+    if (config && !config.__apiFallback && isMisroutedProxyResponse(response, config)) {
+      try {
+        const retried = await retryPublicWithFallback(config);
+        if (retried) return retried;
+      } catch (retryErr) {
+        return Promise.reject(retryErr);
+      }
+    }
+    return response;
+  },
   async (error) => {
     const config = error.config;
     if (!config) return Promise.reject(error);
 
-    if (!config.__apiFallback && isNetworkTransportError(error)) {
-      const fallback = getApiFallbackUrl(config.baseURL || getApiUrl());
-      if (fallback) {
-        setApiBasePreference(fallback.includes('api.crownevcenter.com') ? 'direct' : 'proxy');
-        config.__apiFallback = true;
-        config.baseURL = fallback;
-        try {
-          return await publicApi.request(config);
-        } catch (retryErr) {
-          return Promise.reject(retryErr);
-        }
+    if (shouldRetryViaDirectApi(error, config)) {
+      try {
+        const retried = await retryPublicWithFallback(config);
+        if (retried) return retried;
+      } catch (retryErr) {
+        return Promise.reject(retryErr);
       }
     }
 

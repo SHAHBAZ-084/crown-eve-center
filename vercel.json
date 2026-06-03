@@ -40,6 +40,7 @@
     { "source": "/api/:path*", "destination": "https://api.crownevcenter.com/api/:path*" }
   ],
   "routes": [
+    { "src": "/api/(.*)", "dest": "https://api.crownevcenter.com/api/$1" },
     { "src": "^/assets/(.*)", "dest": "frontend/assets/$1" },
     { "src": "^/videos/(.*)", "dest": "frontend/videos/$1" },
     { "src": "^/(.*\\.(js|css|png|jpg|jpeg|svg|gif|ico|json|woff2?|xml|txt|webm|mp4|ogg|mov))$", "dest": "frontend/$1" },

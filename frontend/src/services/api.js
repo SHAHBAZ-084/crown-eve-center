@@ -2,8 +2,9 @@ import axios from 'axios';
 import {
   getApiUrl,
   getApiFallbackUrl,
-  isNetworkTransportError,
+  isMisroutedProxyResponse,
   setApiBasePreference,
+  shouldRetryViaDirectApi,
 } from '../utils/apiUrl';
 
 const AUTH_TIMEOUT_MS = 35000;
@@ -34,22 +35,37 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+const retryWithApiFallback = async (config) => {
+  const fallback = getApiFallbackUrl(config.baseURL || getApiUrl());
+  if (!fallback) return null;
+  setApiBasePreference(fallback.includes('api.crownevcenter.com') ? 'direct' : 'proxy');
+  config.__apiFallback = true;
+  config.baseURL = fallback;
+  return api.request(config);
+};
+
 api.interceptors.response.use(
-  (response) => response,
+  async (response) => {
+    const config = response.config;
+    if (config && !config.__apiFallback && isMisroutedProxyResponse(response, config)) {
+      try {
+        const retried = await retryWithApiFallback(config);
+        if (retried) return retried;
+      } catch (retryErr) {
+        return Promise.reject(retryErr);
+      }
+    }
+    return response;
+  },
   async (error) => {
     const config = error.config;
 
-    if (config && !config.__apiFallback && isNetworkTransportError(error)) {
-      const fallback = getApiFallbackUrl(config.baseURL || getApiUrl());
-      if (fallback) {
-        setApiBasePreference(fallback.includes('api.crownevcenter.com') ? 'direct' : 'proxy');
-        config.__apiFallback = true;
-        config.baseURL = fallback;
-        try {
-          return await api.request(config);
-        } catch (retryErr) {
-          return Promise.reject(retryErr);
-        }
+    if (config && shouldRetryViaDirectApi(error, config)) {
+      try {
+        const retried = await retryWithApiFallback(config);
+        if (retried) return retried;
+      } catch (retryErr) {
+        return Promise.reject(retryErr);
       }
     }
 
