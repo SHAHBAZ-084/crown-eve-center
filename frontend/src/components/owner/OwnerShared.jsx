@@ -24,23 +24,27 @@ export const api = async (path, options = {}) => {
 };
 
 export function useFetch(path, deps = []) {
+  const pathKey = path == null ? '' : String(path);
+  const depsKey = JSON.stringify(deps);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const refetch = useCallback(async () => {
-    if (!path) return;
+    if (!pathKey) return;
     setLoading(true);
     setError(null);
     try {
-      const d = await api(path);
+      const d = await api(pathKey);
       setData(d);
     } catch (e) {
       setError(e.message);
     } finally {
       setLoading(false);
     }
-  }, [path, ...deps]);
-  useEffect(() => { refetch(); }, [refetch]);
+  }, [pathKey, depsKey]);
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
   return { data, loading, error, refetch };
 }
 

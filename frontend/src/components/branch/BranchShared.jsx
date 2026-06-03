@@ -96,6 +96,8 @@ export function useFetch(path, deps = [], refreshMs = 0) {
 
   const disabled = isPathDisabled(pathKey);
 
+  const depsKey = JSON.stringify(deps);
+
   const refetch = useCallback(async (showLoading = true) => {
     if (disabled) {
       setLoading(false);
@@ -116,7 +118,7 @@ export function useFetch(path, deps = [], refreshMs = 0) {
     } finally {
       setLoading(false);
     }
-  }, [pathKey, disabled, ...deps]);
+  }, [pathKey, disabled, depsKey]);
 
   useEffect(() => {
     if (disabled || isBranchApiBlocked()) {
