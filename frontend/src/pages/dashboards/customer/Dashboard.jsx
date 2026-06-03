@@ -95,30 +95,6 @@ const Dashboard = () => {
     .slice(0, 2)
     .toUpperCase();
 
-  const snapshots = [
-    {
-      label: "Active Orders",
-      value: loadingOrders ? "—" : String(activeOrders.length),
-      hint: activeOrder ? `Order #${String(activeOrder.id).padStart(6, "0")}` : "No active order",
-      path: "/my/orders",
-      Icon: ShoppingBag,
-    },
-    {
-      label: "Bookings",
-      value: loadingBookings ? "—" : String((Array.isArray(bookings) ? bookings : []).length),
-      hint: upcomingBookings.length ? `${upcomingBookings.length} upcoming` : "None scheduled",
-      path: "/my/bookings",
-      Icon: CalendarDays,
-    },
-    {
-      label: "Total Spent",
-      value: loadingOrders ? "—" : `PKR ${fmtSpent(totalSpent)}`,
-      hint: totalOrders ? `${totalOrders} lifetime order${totalOrders !== 1 ? "s" : ""}` : "No orders yet",
-      path: "/my/orders",
-      Icon: Banknote,
-    },
-  ];
-
   const heroLinks = [
     { label: "Browse Shop", path: "/my/shop", Icon: ShoppingBag, primary: true },
     { label: "My Orders", path: "/my/orders", Icon: ClipboardList },
@@ -154,24 +130,6 @@ const Dashboard = () => {
               </button>
             ))}
           </div>
-        </div>
-
-        <div className="ce-welcome-snapshots">
-          {snapshots.map(({ label, value, hint, path, Icon }) => (
-            <button
-              key={label}
-              type="button"
-              className="ce-welcome-stat"
-              onClick={() => navigate(path)}
-            >
-              <span className="ce-welcome-stat-icon">
-                <Icon size={20} strokeWidth={1.75} aria-hidden />
-              </span>
-              <span className="ce-welcome-stat-value">{value}</span>
-              <span className="ce-welcome-stat-label">{label}</span>
-              <span className="ce-welcome-stat-hint">{hint}</span>
-            </button>
-          ))}
         </div>
       </section>
 
