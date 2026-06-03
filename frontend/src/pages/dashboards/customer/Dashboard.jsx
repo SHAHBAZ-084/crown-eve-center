@@ -87,25 +87,100 @@ const Dashboard = () => {
 
   const progressLabels = ["Placed", "Confirmed", "Preparing", "Delivery", "Done"];
 
+  const firstName = user?.name?.split(" ")[0] || "Customer";
+  const initials = (user?.name || "CE")
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  const snapshots = [
+    {
+      label: "Active Orders",
+      value: loadingOrders ? "—" : String(activeOrders.length),
+      hint: activeOrder ? `#${String(activeOrder.id).padStart(6, "0")}` : "None in progress",
+      path: "/my/orders",
+      Icon: ShoppingBag,
+    },
+    {
+      label: "Bookings",
+      value: loadingBookings ? "—" : String((Array.isArray(bookings) ? bookings : []).length),
+      hint: upcomingBookings.length ? `${upcomingBookings.length} upcoming` : "No upcoming",
+      path: "/my/bookings",
+      Icon: CalendarDays,
+    },
+    {
+      label: "Total Spent",
+      value: loadingOrders ? "—" : `PKR ${fmtSpent(totalSpent)}`,
+      hint: `${totalOrders} order${totalOrders !== 1 ? "s" : ""} lifetime`,
+      path: "/my/orders",
+      Icon: Banknote,
+    },
+  ];
+
+  const heroLinks = [
+    { label: "Browse Shop", path: "/my/shop", Icon: ShoppingBag, primary: true },
+    { label: "My Orders", path: "/my/orders", Icon: ClipboardList },
+    { label: "Book Service", path: "/appointments", Icon: Wrench },
+  ];
+
   return (
     <div className="ce-page">
-      <div className="welcome-banner">
-        <div className="welcome-banner-inner">
-          <div>
-            <div className="welcome-banner-label">Welcome back</div>
-            <h1>
-              {user?.name?.split(" ")[0] || "Customer"} <span className="accent">Terminal</span>
-            </h1>
-            <div className="welcome-banner-meta">
-              {user?.email} · Member since {new Date(user?.createdAt || Date.now()).getFullYear()}
+      <section className="welcome-banner ce-welcome-hero" aria-label="Account overview">
+        <div className="ce-welcome-grid">
+          <div className="ce-welcome-user">
+            <div className="ce-welcome-avatar" aria-hidden>{initials}</div>
+            <div>
+              <div className="welcome-banner-label">Welcome back</div>
+              <h1>Hi, {firstName}</h1>
+              <p className="welcome-banner-meta">
+                {user?.email}
+                <span className="ce-welcome-dot" aria-hidden>·</span>
+                Member since {new Date(user?.createdAt || Date.now()).getFullYear()}
+              </p>
             </div>
           </div>
-          <div className="welcome-banner-actions">
-            <button className="btn btn-ghost btn-sm" type="button" onClick={() => navigate("/my/shop")}>Browse Shop</button>
-            <button className="btn btn-primary btn-sm" type="button" onClick={() => navigate("/appointments")}>Book Service</button>
+
+          <div className="ce-welcome-snapshots">
+            {snapshots.map(({ label, value, hint, path, Icon }) => (
+              <button
+                key={label}
+                type="button"
+                className="ce-welcome-stat"
+                onClick={() => navigate(path)}
+              >
+                <span className="ce-welcome-stat-icon">
+                  <Icon size={18} strokeWidth={1.75} aria-hidden />
+                </span>
+                <span className="ce-welcome-stat-body">
+                  <span className="ce-welcome-stat-value">{value}</span>
+                  <span className="ce-welcome-stat-label">{label}</span>
+                  <span className="ce-welcome-stat-hint">{hint}</span>
+                </span>
+                <ChevronRight className="ce-welcome-stat-chevron" size={14} aria-hidden />
+              </button>
+            ))}
+          </div>
+
+          <div className="ce-welcome-links-wrap">
+            <span className="ce-welcome-links-title">Quick links</span>
+            <div className="ce-welcome-links">
+              {heroLinks.map(({ label, path, Icon, primary }) => (
+                <button
+                  key={label}
+                  type="button"
+                  className={`ce-welcome-link${primary ? " is-primary" : ""}`}
+                  onClick={() => navigate(path)}
+                >
+                  <Icon size={16} strokeWidth={1.75} aria-hidden />
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
       <div className="stats-row">
         <div className="stat">

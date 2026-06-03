@@ -38,6 +38,273 @@
   gap: var(--ce-gap);
 }
 
+/* Dashboard welcome hero */
+#customer-dashboard-shell .welcome-banner.ce-welcome-hero {
+  background: linear-gradient(120deg, #fff 0%, #fff8f5 45%, #fff 100%);
+  color: var(--ce-text);
+  border: 1px solid var(--border);
+  border-left: none;
+  border-radius: var(--ce-radius-lg);
+  padding: 24px 28px;
+  margin-bottom: 8px;
+  box-shadow: var(--ce-shadow);
+  overflow: hidden;
+}
+
+#customer-dashboard-shell .welcome-banner.ce-welcome-hero::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--orange) 0%, #ff9a6c 100%);
+  border-radius: var(--ce-radius-lg) 0 0 var(--ce-radius-lg);
+}
+
+#customer-dashboard-shell .welcome-banner.ce-welcome-hero::after {
+  content: '';
+  position: absolute;
+  right: -40px;
+  top: -60px;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, rgba(232, 71, 10, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+  opacity: 1;
+  font-size: unset;
+}
+
+#customer-dashboard-shell .ce-welcome-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(220px, 1.1fr) minmax(280px, 1.6fr) minmax(160px, 0.9fr);
+  gap: 20px 24px;
+  align-items: stretch;
+}
+
+#customer-dashboard-shell .ce-welcome-user {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+#customer-dashboard-shell .ce-welcome-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, var(--orange) 0%, #ff6b35 100%);
+  color: #fff;
+  font-family: var(--ce-font-display);
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 6px 18px rgba(232, 71, 10, 0.28);
+}
+
+#customer-dashboard-shell .ce-welcome-hero .welcome-banner-label {
+  color: var(--orange);
+  margin-bottom: 4px;
+  font-family: var(--ce-font);
+}
+
+#customer-dashboard-shell .ce-welcome-hero h1 {
+  font-family: var(--ce-font-display) !important;
+  font-size: clamp(22px, 3vw, 28px) !important;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15 !important;
+  color: var(--ce-text) !important;
+  margin: 0 0 6px;
+}
+
+#customer-dashboard-shell .ce-welcome-hero .welcome-banner-meta {
+  font-size: 12px;
+  color: var(--ce-text-muted);
+  line-height: 1.5;
+  margin: 0;
+  word-break: break-word;
+}
+
+#customer-dashboard-shell .ce-welcome-dot {
+  margin: 0 6px;
+  opacity: 0.5;
+}
+
+#customer-dashboard-shell .ce-welcome-snapshots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  align-self: center;
+}
+
+#customer-dashboard-shell .ce-welcome-stat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 12px 12px 10px;
+  background: var(--ce-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--ce-radius);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  font-family: var(--ce-font);
+}
+
+#customer-dashboard-shell .ce-welcome-stat:hover {
+  border-color: rgba(232, 71, 10, 0.35);
+  box-shadow: var(--ce-shadow-md);
+  transform: translateY(-1px);
+}
+
+#customer-dashboard-shell .ce-welcome-stat-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(232, 71, 10, 0.08);
+  color: var(--orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+#customer-dashboard-shell .ce-welcome-stat-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+#customer-dashboard-shell .ce-welcome-stat-value {
+  font-family: var(--ce-font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ce-text);
+  line-height: 1.2;
+}
+
+#customer-dashboard-shell .ce-welcome-stat-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ce-text-soft);
+}
+
+#customer-dashboard-shell .ce-welcome-stat-hint {
+  font-size: 11px;
+  color: var(--ce-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#customer-dashboard-shell .ce-welcome-stat-chevron {
+  color: var(--ce-text-soft);
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+#customer-dashboard-shell .ce-welcome-stat:hover .ce-welcome-stat-chevron {
+  opacity: 1;
+  transform: translateX(2px);
+  color: var(--orange);
+}
+
+#customer-dashboard-shell .ce-welcome-links-wrap {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  padding-left: 8px;
+  border-left: 1px solid var(--border);
+}
+
+#customer-dashboard-shell .ce-welcome-links-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ce-text-soft);
+}
+
+#customer-dashboard-shell .ce-welcome-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#customer-dashboard-shell .ce-welcome-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--ce-surface);
+  color: var(--ce-text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--ce-font);
+}
+
+#customer-dashboard-shell .ce-welcome-link:hover {
+  border-color: var(--orange);
+  color: var(--orange);
+  background: rgba(232, 71, 10, 0.04);
+}
+
+#customer-dashboard-shell .ce-welcome-link.is-primary {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: #fff;
+  clip-path: none;
+}
+
+#customer-dashboard-shell .ce-welcome-link.is-primary:hover {
+  background: var(--orange2, #c73a08);
+  color: #fff;
+}
+
+@media (max-width: 1100px) {
+  #customer-dashboard-shell .ce-welcome-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #customer-dashboard-shell .ce-welcome-links-wrap {
+    border-left: none;
+    padding-left: 0;
+    padding-top: 4px;
+    border-top: 1px solid var(--border);
+  }
+
+  #customer-dashboard-shell .ce-welcome-links {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 640px) {
+  #customer-dashboard-shell .ce-welcome-snapshots {
+    grid-template-columns: 1fr;
+  }
+
+  #customer-dashboard-shell .welcome-banner.ce-welcome-hero {
+    padding: 18px 16px;
+  }
+}
+
 /* Typography overrides */
 #customer-dashboard-shell .ct,
 #customer-dashboard-shell .customer-page-header h1,
