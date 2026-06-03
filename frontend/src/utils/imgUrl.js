@@ -26,10 +26,10 @@ export const getPublicAssetUrl = (basename) => {
   return `/${name}.png`;
 };
 
-/** Marketing / hero videos — prefer WebM; caller may add MP4 fallback in <video> */
-export const getPublicVideoUrl = (basename, format = 'webm') => {
+/** Marketing / hero videos — MP4 is the deployed format on Vercel; WebM optional on R2 */
+export const getPublicVideoUrl = (basename, format = 'mp4') => {
   const name = basename.replace(/\.(webm|mp4|mov)$/i, '');
-  const ext = format === 'mp4' ? 'mp4' : 'webm';
+  const ext = format === 'webm' ? 'webm' : 'mp4';
   if (R2_PUBLIC) return `${R2_PUBLIC}/videos/${name}.${ext}`;
   return `/videos/${name}.${ext}`;
 };

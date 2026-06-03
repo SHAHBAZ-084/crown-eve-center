@@ -64,7 +64,6 @@ const Home = () => {
             height={HERO_VIDEO.height}
             className="hero-video-bg"
           >
-            <source src={getPublicVideoUrl('hero-bg')} type="video/webm" />
             <source src={getPublicVideoUrl('hero-bg', 'mp4')} type="video/mp4" />
           </video>
           <div className="hero-overlay"></div>
@@ -218,7 +217,8 @@ const Home = () => {
           height={BOOKING_VIDEO.height}
           className="booking-video-bg"
         >
-          <source src={getPublicVideoUrl('ride-bg')} type="video/webm" />
+          <source src={getPublicVideoUrl('ride-bg', 'webm')} type="video/webm" />
+          <source src={getPublicVideoUrl('ride-bg', 'mp4')} type="video/mp4" />
         </video>
         <div className="booking-overlay"></div>
 
