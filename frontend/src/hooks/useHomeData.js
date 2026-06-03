@@ -1,9 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import publicApi from '../services/publicApi';
 import { shouldRetryQuery, queryRetryDelay } from '../utils/queryRetry';
-import { normalizeApiList } from '../utils/normalizeApiList';
 
 const HOME_BIKES_CACHE_KEY = 'crown_home_bikes_v1';
+
+/** API may return { data: [...] } or a bare array */
+const normalizeApiList = (data) => {
+  const list = data?.data ?? data;
+  return Array.isArray(list) ? list : [];
+};
 
 const readCachedBikes = () => {
   try {
@@ -42,7 +47,7 @@ export function useHomeData() {
         params: { product_type: 'bike', limit: 6, lite: '1' },
       });
       const list = normalizeApiList(res.data);
-      if (list.length) writeCachedBikes(list);
+      writeCachedBikes(list);
       return list;
     },
     staleTime: 5 * 60 * 1000,
@@ -84,7 +89,5 @@ export function useHomeData() {
     servicesLoading: servicesQuery.isLoading,
     branchesLoading: branchesQuery.isLoading,
     testimonialsLoading: testimonialsQuery.isLoading,
-    isTestimonialsError: testimonialsQuery.isError,
-    refetchTestimonials: testimonialsQuery.refetch,
   };
 }

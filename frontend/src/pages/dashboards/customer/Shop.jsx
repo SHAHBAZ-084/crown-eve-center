@@ -6,7 +6,6 @@ import publicApi from "../../../services/publicApi";
 import { useCart } from "../../../context/CartContext";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { getImgUrl } from "../../../utils/imgUrl";
-import { normalizePaginated } from "../../../utils/normalizeApiList";
 import CustomerPageHeader from "../../../components/customer/CustomerPageHeader";
 import { CustomerEmpty } from "../../../components/customer/CustomerUI";
 import CatalogProductImage from "../../../components/catalog/CatalogProductImage";
@@ -68,18 +67,17 @@ const Shop = () => {
     data: productsResult,
     isLoading,
     isFetching,
-    isError: isProductsError,
-    refetch: refetchProducts,
   } = useQuery({
     queryKey: ["shop", "products", productParams],
-    queryFn: () =>
-      publicApi.get("/products", { params: productParams }).then((r) => normalizePaginated(r.data)),
+    queryFn: () => publicApi.get("/products", { params: productParams }).then((r) => r.data),
     staleTime: 2 * 60 * 1000,
     placeholderData: keepPreviousData,
-    retry: 2,
   });
 
-  const products = productsResult?.data ?? [];
+  const products = useMemo(() => {
+    const d = productsResult?.data ?? productsResult;
+    return Array.isArray(d) ? d : [];
+  }, [productsResult]);
 
   const totalPages = productsResult?.meta?.totalPages || 1;
   const totalItems = productsResult?.meta?.total || 0;
@@ -262,18 +260,11 @@ const Shop = () => {
             </div>
           )}
         </>
-      ) : isProductsError ? (
-        <div className="card" style={{ textAlign: "center", padding: 32 }}>
-          <p>Could not load products. The server may be busy — please try again.</p>
-          <button type="button" className="btn btn-primary btn-sm" style={{ marginTop: 16 }} onClick={() => refetchProducts()}>
-            Retry
-          </button>
-        </div>
       ) : (
         <div className="card">
           <CustomerEmpty
             title="No products found"
-            description="Try adjusting your search or filters. Seeded parts must be active in the database."
+            description="Try adjusting your search or filters to find what you're looking for."
             actionLabel="Clear All Filters"
             onAction={clearFilters}
           />
