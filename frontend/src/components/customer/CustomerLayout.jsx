@@ -105,13 +105,13 @@ const CustomerLayout = () => {
         aria-label="Mobile navigation"
       >
         <div className="cnav-drawer-head">
-          <span className="cnav-drawer-title">Menu</span>
+          <img src="/logo.png" alt="Crown Eve Center" className="cnav-drawer-logo" />
           <button type="button" className="cnav-drawer-close" aria-label="Close menu" onClick={closeMenu}>
             ✕
           </button>
         </div>
 
-        <nav className="cnav-drawer-nav">
+        <nav className="cnav-drawer-nav" aria-label="Mobile menu links">
           <p className="cnav-drawer-label">Navigation</p>
           {NAV_LINKS.map((link) => (
             <NavLink

@@ -40,6 +40,26 @@
   font-family: 'Barlow', sans-serif;
 }
 
+/* NAV — reset global index.css `nav { position: fixed; height: ... }` */
+#customer-dashboard-shell nav.cnav-links--desktop,
+#customer-dashboard-shell nav.cnav-drawer-nav {
+  position: static;
+  inset: auto;
+  width: auto;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: none;
+  box-shadow: none;
+  z-index: auto;
+  transition: none;
+}
+
 /* NAV */
 #customer-dashboard-shell .cnav {
   position: fixed;
@@ -3477,11 +3497,12 @@
     flex-shrink: 0;
   }
 
-  #customer-dashboard-shell .cnav-drawer-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px;
-    letter-spacing: 1px;
-    color: #fff;
+  #customer-dashboard-shell .cnav-drawer-logo {
+    height: 40px;
+    width: auto;
+    max-width: 180px;
+    object-fit: contain;
+    display: block;
   }
 
   #customer-dashboard-shell .cnav-drawer-close {
@@ -3498,13 +3519,17 @@
     justify-content: center;
   }
 
-  #customer-dashboard-shell .cnav-drawer-nav {
+  #customer-dashboard-shell nav.cnav-drawer-nav {
     display: flex;
     flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
     gap: 4px;
     padding: 16px 14px 32px;
+    overflow-x: hidden;
     overflow-y: auto;
-    flex: 1;
+    flex: 1 1 auto;
+    min-height: 0;
     -webkit-overflow-scrolling: touch;
   }
 
