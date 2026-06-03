@@ -33,7 +33,7 @@ const writeCachedBikes = (products) => {
 export function useHomeData() {
   const servicesQuery = useQuery({
     queryKey: ['home', 'services'],
-    queryFn: () => publicApi.get('/services').then((r) => r.data),
+    queryFn: () => publicApi.get('/services').then((r) => { const d = r.data?.data ?? r.data; return Array.isArray(d) ? d : []; }),
     staleTime: 5 * 60 * 1000,
     retry: shouldRetryQuery,
     retryDelay: queryRetryDelay,
@@ -58,7 +58,7 @@ export function useHomeData() {
 
   const branchesQuery = useQuery({
     queryKey: ['home', 'branches'],
-    queryFn: () => publicApi.get('/branches', { params: { limit: 20 } }).then((r) => r.data),
+    queryFn: () => publicApi.get('/branches', { params: { limit: 20 } }).then((r) => { const d = r.data?.data ?? r.data; return Array.isArray(d) ? d : []; }),
     staleTime: 10 * 60 * 1000,
     retry: shouldRetryQuery,
     retryDelay: queryRetryDelay,
@@ -66,7 +66,7 @@ export function useHomeData() {
 
   const testimonialsQuery = useQuery({
     queryKey: ['home', 'testimonials'],
-    queryFn: () => publicApi.get('/testimonials').then((r) => r.data),
+    queryFn: () => publicApi.get('/testimonials').then((r) => { const d = r.data?.data ?? r.data; return Array.isArray(d) ? d : []; }),
     staleTime: 10 * 60 * 1000,
     retry: shouldRetryQuery,
     retryDelay: queryRetryDelay,

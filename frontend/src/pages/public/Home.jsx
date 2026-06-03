@@ -216,8 +216,8 @@ const Home = () => {
             preload="metadata"
             className="booking-video-bg"
           >
-            <source src={getPublicVideoUrl('ride-bg', 'mp4')} type="video/mp4" />
             <source src={getPublicVideoUrl('ride-bg', 'webm')} type="video/webm" />
+            <source src={getPublicVideoUrl('ride-bg', 'mp4')} type="video/mp4" />
           </video>
         </div>
         <div className="booking-overlay" />
