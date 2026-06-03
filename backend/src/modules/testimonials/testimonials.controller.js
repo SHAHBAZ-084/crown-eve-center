@@ -3,7 +3,7 @@ const testimonialModel = require('./testimonials.model');
 const getTestimonials = async (req, res) => {
   try {
     const testimonials = await testimonialModel.getAllApprovedTestimonials();
-    res.json(testimonials);
+    res.json({ data: testimonials });
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch testimonials', error: error.message });
   }

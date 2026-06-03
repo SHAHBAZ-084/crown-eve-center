@@ -26,6 +26,8 @@ const Home = () => {
     refetchProducts,
     servicesLoading,
     testimonialsLoading,
+    isTestimonialsError,
+    refetchTestimonials,
   } = useHomeData();
   const [expandedTestimonial, setExpandedTestimonial] = useState(null);
 
@@ -341,57 +343,17 @@ const Home = () => {
                 </div>
               </div>
             ))
+          ) : isTestimonialsError ? (
+            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px 0' }}>
+              <p style={{ color: 'var(--white2)', marginBottom: 16 }}>Reviews could not load. The catalog API may be busy — try again.</p>
+              <button type="button" className="btn-primary" onClick={() => refetchTestimonials()}>
+                Reload reviews
+              </button>
+            </div>
           ) : (
-            <>
-              <div className="testimonial-card">
-                <div className="stars">★★★★★</div>
-                <p
-                  className={`testimonial-text ${expandedTestimonial === 'fallback-1' ? 'expanded' : ''}`}
-                  onClick={() => toggleTestimonial('fallback-1')}
-                >
-                  "Crown Eve is the only place I trust with my Duke. The technicians are certified, the parts are genuine, and the service is fast. Nothing compares."
-                </p>
-                <div className="testimonial-author">
-                  <div className="author-avatar">AK</div>
-                  <div className="author-info">
-                    <div className="author-name">Ali Kamran</div>
-                    <div className="author-role">KTM Duke Owner, Lahore</div>
-                  </div>
-                </div>
-              </div>
-              <div className="testimonial-card">
-                <div className="stars">★★★★★</div>
-                <p
-                  className={`testimonial-text ${expandedTestimonial === 'fallback-2' ? 'expanded' : ''}`}
-                  onClick={() => toggleTestimonial('fallback-2')}
-                >
-                  "Booked my full service online in 2 minutes. Got an update when the tech started and when it was done. This is how bike service should work."
-                </p>
-                <div className="testimonial-author">
-                  <div className="author-avatar">SH</div>
-                  <div className="author-info">
-                    <div className="author-name">Sara Hussain</div>
-                    <div className="author-role">Yamaha R15 Owner, Karachi</div>
-                  </div>
-                </div>
-              </div>
-              <div className="testimonial-card">
-                <div className="stars">★★★★★</div>
-                <p
-                  className={`testimonial-text ${expandedTestimonial === 'fallback-3' ? 'expanded' : ''}`}
-                  onClick={() => toggleTestimonial('fallback-3')}
-                >
-                  "Excellent battery backup and performance! The premium lithium-ion battery provides incredible long range, and the high-performance electric drive is extremely smooth."
-                </p>
-                <div className="testimonial-author">
-                  <div className="author-avatar">MR</div>
-                  <div className="author-info">
-                    <div className="author-name">Muhammad Raza</div>
-                    <div className="author-role">Crown EV Owner, Bahawalnagar</div>
-                  </div>
-                </div>
-              </div>
-            </>
+            <p style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--white2)', padding: '40px 0' }}>
+              No approved reviews yet. Share your experience from the About page.
+            </p>
           )}
         </div>
       </section>
