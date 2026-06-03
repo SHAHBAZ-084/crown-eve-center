@@ -34,67 +34,64 @@ const CustomerLayout = () => {
     };
   }, [menuOpen]);
 
-  const initials = user?.name
-    ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
-    : 'CU';
-
   const closeMenu = () => setMenuOpen(false);
 
   return (
     <div id="customer-dashboard-shell">
-      <header className="cnav">
-        <button
-          type="button"
-          className={`cnav-menu-btn${menuOpen ? ' open' : ''}`}
-          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-          aria-expanded={menuOpen}
-          onClick={() => setMenuOpen((v) => !v)}
-        >
-          <span />
-          <span />
-          <span />
-        </button>
-
-        <NavLink to="/my/dashboard" className="cnav-logo" onClick={closeMenu}>
-          <img src="/logo.png" alt="Crown Eve Center" className="cnav-logo-img" />
+      <header className="cnav scrolled">
+        <NavLink to="/my/dashboard" className="cnav-logo logo" onClick={closeMenu}>
+          <img
+            src="/logo.png"
+            alt="Crown Eve Center"
+            className="cnav-logo-img"
+            style={{ height: 'var(--cnav-logo-size, 65px)', width: 'auto', objectFit: 'contain', display: 'block' }}
+          />
         </NavLink>
 
-        <nav className="cnav-links cnav-links--desktop" aria-label="Customer navigation">
-          {NAV_LINKS.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={({ isActive }) => linkClass(link.match(location.pathname), isActive)}
-            >
-              {link.label}
-            </NavLink>
-          ))}
+        <nav className="cnav-links--desktop" aria-label="Customer navigation">
+          <ul className="cnav-nav-list">
+            {NAV_LINKS.map((link) => (
+              <li key={link.to}>
+                <NavLink
+                  to={link.to}
+                  className={({ isActive }) => linkClass(link.match(location.pathname), isActive)}
+                >
+                  {link.label}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
         </nav>
 
-        <div className="cnav-right">
-          <NavLink to="/my/cart" className="cart-btn" title="Cart">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
-              <path d="M3 6h18" />
-              <path d="M16 10a4 4 0 0 1-8 0" />
+        <div className="cnav-actions">
+          <NavLink to="/my/cart" className="cnav-cart-link" aria-label="Cart" title="Cart">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <path d="M16 10a4 4 0 01-8 0" />
             </svg>
-            <span>Cart</span>
-            {count > 0 && <span className="cart-count">{count}</span>}
+            {count > 0 && <span className="cnav-cart-badge">{count}</span>}
           </NavLink>
 
-          <button type="button" className="cnav-home-btn" onClick={() => navigate('/')} title="Public website">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-              <path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5z" />
-            </svg>
+          <button type="button" className="cnav-profile-btn" onClick={() => navigate('/my/profile')}>
+            <span className="cnav-user-name">{user?.name?.split(' ')[0] || 'Account'}</span>
+            <span className="cnav-user-role">Customer</span>
           </button>
 
-          <button type="button" className="user-pill" onClick={() => navigate('/my/profile')}>
-            <div className="ua">{initials}</div>
-            <span className="user-name-pill">{user?.name?.split(' ')[0] || 'Account'}</span>
-          </button>
-
-          <button type="button" className="cnl-logout" onClick={logout}>
+          <button type="button" className="btn-nav-login" onClick={logout}>
             Logout
+          </button>
+
+          <button
+            type="button"
+            className={`cnav-hamburger${menuOpen ? ' open' : ''}`}
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((v) => !v)}
+          >
+            <div className={`bar ${menuOpen ? 'open' : ''}`} />
+            <div className={`bar ${menuOpen ? 'open' : ''}`} />
+            <div className={`bar ${menuOpen ? 'open' : ''}`} />
           </button>
         </div>
       </header>
