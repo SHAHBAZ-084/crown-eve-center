@@ -10,6 +10,9 @@ export async function uploadMedia(file, options = {}) {
   if (!file) throw new Error('No file selected');
 
   const field = options.field || (file.type.startsWith('video/') ? 'video' : 'image');
+  if (field === 'video' && file.type !== 'video/webm') {
+    throw new Error('Videos must be WebM (.webm) format.');
+  }
   const formData = new FormData();
   formData.append(field, file);
 

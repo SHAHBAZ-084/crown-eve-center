@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { normalizeRoleRedirect } from '../constants/customerPaths';
+import { LOGO_URL } from '../constants/mediaAssets';
 import './auth/Auth.css';
 
 const Login = () => {
@@ -72,7 +73,7 @@ const Login = () => {
       <div className="login-card">
         <div style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div className="logo" style={{ display: 'inline-flex', alignItems: 'center' }}>
-            <img src="/logo.png" alt="Crown Hadi EV Center" style={{ height: '80px', width: 'auto', objectFit: 'contain' }} />
+            <img src={LOGO_URL} alt="Crown Hadi EV Center" style={{ height: '80px', width: 'auto', objectFit: 'contain' }} />
           </div>
           <button
             onClick={() => navigate('/')}

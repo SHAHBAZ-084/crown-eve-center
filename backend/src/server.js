@@ -63,9 +63,28 @@ async function connectDatabase() {
   logger.info('Database connected');
 }
 
+let httpServer;
+
+async function shutdown(signal) {
+  logger.info(`Shutting down (${signal})`);
+  if (httpServer) {
+    await new Promise((resolve) => httpServer.close(resolve));
+  }
+  try {
+    await prisma.$disconnect();
+    logger.info('Database disconnected');
+  } catch (err) {
+    logger.error('Prisma disconnect failed', { message: err.message });
+  }
+  process.exit(0);
+}
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+
 async function startServer() {
   // Always listen first so Hostinger/Passenger sees the app as alive (no 503)
-  const server = app.listen(PORT, '0.0.0.0', () => {
+  httpServer = app.listen(PORT, '0.0.0.0', () => {
     console.log(`[startup] Crown Eve API listening on port ${PORT} (NODE_ENV=${process.env.NODE_ENV || 'development'}, node=${process.version})`);
     logger.info(`Server running on port ${PORT}`);
   });

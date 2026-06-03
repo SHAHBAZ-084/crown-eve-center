@@ -54,7 +54,7 @@ function assertR2Config() {
   }
 }
 
-async function uploadBuffer(key, buffer, contentType = 'image/png') {
+async function uploadBuffer(key, buffer, contentType = 'image/webp') {
   assertR2Config();
   const r2 = await getR2Client();
   const normalizedKey = key.replace(/^\/+/, '');

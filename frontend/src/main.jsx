@@ -6,6 +6,7 @@ import './index.css'
 import './styles/catalog-layout.css'
 import App from './App.jsx'
 import ErrorBoundary from './components/ErrorBoundary'
+import { shouldRetryQuery, queryRetryDelay } from './utils/queryRetry'
 // Auto-reload on Vite preload errors (new deployment chunk name mismatch)
 window.addEventListener('vite:preloadError', (event) => {
   const lastReload = sessionStorage.getItem('last-chunk-reload');
@@ -21,12 +22,8 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      retry: (failureCount, error) => {
-        const status = error?.response?.status;
-        if (status === 401 || status === 403 || status === 404) return false;
-        return failureCount < 3;
-      },
-      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 12000),
+      retry: shouldRetryQuery,
+      retryDelay: queryRetryDelay,
       staleTime: 2 * 60 * 1000,
       gcTime: 10 * 60 * 1000,
     },

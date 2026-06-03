@@ -4,6 +4,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import PageSuspense from '../PageSuspense';
+import { LOGO_URL } from '../../constants/mediaAssets';
 import '../../styles/customer.css';
 import '../../styles/customer-ui.css';
 
@@ -42,7 +43,7 @@ const CustomerLayout = () => {
       <header className="cnav scrolled">
         <NavLink to="/my/dashboard" className="cnav-logo logo" onClick={closeMenu}>
           <img
-            src="/logo.png"
+            src={LOGO_URL}
             alt="Crown Eve Center"
             className="cnav-logo-img"
             style={{ height: 'var(--cnav-logo-size, 65px)', width: 'auto', objectFit: 'contain', display: 'block' }}
@@ -103,7 +104,7 @@ const CustomerLayout = () => {
         aria-label="Mobile navigation"
       >
         <div className="cnav-drawer-head">
-          <img src="/logo.png" alt="Crown Eve Center" className="cnav-drawer-logo" />
+          <img src={LOGO_URL} alt="Crown Eve Center" className="cnav-drawer-logo" />
           <button type="button" className="cnav-drawer-close" aria-label="Close menu" onClick={closeMenu}>
             ✕
           </button>

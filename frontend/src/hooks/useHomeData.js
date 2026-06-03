@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import publicApi from '../services/publicApi';
+import { shouldRetryQuery, queryRetryDelay } from '../utils/queryRetry';
 
 const HOME_BIKES_CACHE_KEY = 'crown_home_bikes_v1';
 
@@ -29,21 +30,13 @@ const writeCachedBikes = (products) => {
   }
 };
 
-const shouldRetryQuery = (failureCount, error) => {
-  const status = error?.response?.status;
-  if (status === 401 || status === 403 || status === 404) return false;
-  return failureCount < 3;
-};
-
-const retryDelayMs = (attempt) => Math.min(1200 * 2 ** attempt, 15000);
-
 export function useHomeData() {
   const servicesQuery = useQuery({
     queryKey: ['home', 'services'],
     queryFn: () => publicApi.get('/services').then((r) => r.data),
     staleTime: 5 * 60 * 1000,
     retry: shouldRetryQuery,
-    retryDelay: retryDelayMs,
+    retryDelay: queryRetryDelay,
   });
 
   const productsQuery = useQuery({
@@ -60,7 +53,7 @@ export function useHomeData() {
     gcTime: 30 * 60 * 1000,
     placeholderData: () => readCachedBikes(),
     retry: shouldRetryQuery,
-    retryDelay: retryDelayMs,
+    retryDelay: queryRetryDelay,
   });
 
   const branchesQuery = useQuery({
@@ -68,7 +61,7 @@ export function useHomeData() {
     queryFn: () => publicApi.get('/branches', { params: { limit: 20 } }).then((r) => r.data),
     staleTime: 10 * 60 * 1000,
     retry: shouldRetryQuery,
-    retryDelay: retryDelayMs,
+    retryDelay: queryRetryDelay,
   });
 
   const testimonialsQuery = useQuery({
@@ -76,7 +69,7 @@ export function useHomeData() {
     queryFn: () => publicApi.get('/testimonials').then((r) => r.data),
     staleTime: 10 * 60 * 1000,
     retry: shouldRetryQuery,
-    retryDelay: retryDelayMs,
+    retryDelay: queryRetryDelay,
   });
 
   const branchesRaw = branchesQuery.data?.data ?? branchesQuery.data ?? [];

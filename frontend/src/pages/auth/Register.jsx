@@ -1,6 +1,7 @@
 // frontend/src/pages/auth/Register.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { LOGO_URL } from '../../constants/mediaAssets';
 import api from '../../services/api';
 import './Auth.css';
 
@@ -50,7 +51,7 @@ const Register = () => {
     <div id="page-register" className="page">
       <div className="register-card">
         <Link to="/" className="logo" style={{ marginBottom: '32px', display: 'inline-flex', alignItems: 'center' }}>
-          <img src="/logo.png" alt="Crown Hadi EV Center" style={{ height: '80px', width: 'auto', objectFit: 'contain' }} />
+          <img src={LOGO_URL} alt="Crown Hadi EV Center" style={{ height: '80px', width: 'auto', objectFit: 'contain' }} />
         </Link>
         <h2 className="text-5xl font-family-bebas mb-2 tracking-tighter uppercase text-black">Create Account.</h2>
         <p className="text-sm text-muted mb-8">Join Crown Eve — browse bikes, book services, track your orders.</p>

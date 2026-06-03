@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { LOGO_URL } from '../../constants/mediaAssets';
 
 const PublicFooter = () => {
   const { user } = useAuth();
@@ -10,7 +11,7 @@ const PublicFooter = () => {
       <div className="footer-top">
         <div className="footer-brand">
           <Link to="/" className="logo" style={{ display: 'flex', alignItems: 'center' }}>
-            <img src="/logo.png" alt="Crown Eve Center" style={{ height: '90px', width: 'auto', objectFit: 'contain' }} />
+            <img src={LOGO_URL} alt="Crown Eve Center" style={{ height: '90px', width: 'auto', objectFit: 'contain' }} />
           </Link>
           <p>
             Pakistan&apos;s premium mobility destination with multiple branches. Premium EV bikes,

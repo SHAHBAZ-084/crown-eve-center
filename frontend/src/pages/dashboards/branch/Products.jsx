@@ -551,7 +551,7 @@ const Products = () => {
                     <Icon n="upload" size={12} /> {img.url ? "Change Image" : "Upload Image"}
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/jpeg,image/png,image/gif,image/webp"
                       style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer" }}
                       onChange={async (e) => {
                         const file = e.target.files[0];

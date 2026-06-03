@@ -3,6 +3,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const { uploadBuffer, deleteByUrl, assertR2Config } = require('../../utils/r2-upload');
+const { prepareUpload, isVideoMime } = require('../../utils/mediaConvert');
 const { protect } = require('../../middleware/auth');
 const { allow } = require('../../middleware/rbac');
 
@@ -27,7 +28,7 @@ const upload = multer({
       (IMAGE_TYPES.test(file.mimetype) && IMAGE_EXT.test(ext)) ||
       (VIDEO_TYPES.test(file.mimetype) && VIDEO_EXT.test(ext));
     if (!ok) {
-      return cb(new Error('Allowed: images (jpg, png, webp, gif) and videos (mp4, webm, mov)'));
+      return cb(new Error('Allowed: images (jpg, png, gif — stored as WebP) and videos (WebM .webm only)'));
     }
     cb(null, true);
   },
@@ -39,7 +40,8 @@ const pickFile = (req) => {
   return f.image?.[0] || f.video?.[0] || f.file?.[0] || null;
 };
 
-const isVideoFile = (file) => VIDEO_TYPES.test(file.mimetype) || VIDEO_EXT.test(path.extname(file.originalname));
+const isVideoFile = (file) =>
+  isVideoMime(file.mimetype) || VIDEO_EXT.test(path.extname(file.originalname));
 
 router.post(
   '/',
@@ -66,20 +68,21 @@ router.post(
 
     try {
       assertR2Config();
-      const ext = path.extname(file.originalname).toLowerCase() || (video ? '.mp4' : '.jpg');
+      const prepared = await prepareUpload(file, video);
       const folder = video ? 'uploads/videos' : 'uploads/images';
-      const key = `${folder}/${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
-      const url = await uploadBuffer(key, file.buffer, file.mimetype);
+      const key = `${folder}/${Date.now()}-${Math.round(Math.random() * 1e9)}${prepared.ext}`;
+      const url = await uploadBuffer(key, prepared.buffer, prepared.contentType);
 
       res.json({
         url,
         key,
         type: video ? 'video' : 'image',
-        contentType: file.mimetype,
+        contentType: prepared.contentType,
       });
     } catch (err) {
       console.error('R2 upload error:', err);
-      res.status(500).json({ message: 'Upload failed' });
+      const msg = err.message || 'Upload failed';
+      res.status(err.message?.includes('must be') ? 400 : 500).json({ message: msg });
     }
   }
 );

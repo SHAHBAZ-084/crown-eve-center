@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { getImgUrl } from '../../utils/imgUrl';
+import { getImgUrl, getPublicAssetUrl, getPublicVideoUrl } from '../../utils/imgUrl';
 import { useHomeData } from '../../hooks/useHomeData';
 import PageSkeleton from '../../components/ui/PageSkeleton';
 import PublicFooter from '../../components/public/PublicFooter';
@@ -13,8 +13,6 @@ import './Home.css';
 const Home = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-
-  const R2_PUBLIC_URL = import.meta.env.VITE_R2_PUBLIC_URL;
 
   const {
     services,
@@ -66,7 +64,7 @@ const Home = () => {
             height={HERO_VIDEO.height}
             className="hero-video-bg"
           >
-            <source src={R2_PUBLIC_URL ? `${R2_PUBLIC_URL}/videos/hero-bg.mp4` : '/videos/hero-bg.mp4'} type="video/mp4" />
+            <source src={getPublicVideoUrl('hero-bg')} type="video/webm" />
           </video>
           <div className="hero-overlay"></div>
         </div>
@@ -219,7 +217,7 @@ const Home = () => {
           height={BOOKING_VIDEO.height}
           className="booking-video-bg"
         >
-          <source src={R2_PUBLIC_URL ? `${R2_PUBLIC_URL}/videos/ride-bg.webm` : '/videos/ride-bg.webm'} type="video/webm" />
+          <source src={getPublicVideoUrl('ride-bg')} type="video/webm" />
         </video>
         <div className="booking-overlay"></div>
 
@@ -301,7 +299,7 @@ const Home = () => {
 
           <div className="why-evee-visual">
             <div className="why-evee-img-wrapper">
-              <img src={R2_PUBLIC_URL ? `${R2_PUBLIC_URL}/1-3.webp` : '/1-3.png'} alt="Evee Electric Scooter" className="scooter-visual" loading="lazy" />
+              <img src={getPublicAssetUrl('1-3')} alt="Evee Electric Scooter" className="scooter-visual" loading="lazy" />
               <div className="evee-visual-overlay">
                 <div className="evee-main-text-float">evee</div>
                 <div className="evee-sub-text-float">I am Evee. Are you?</div>

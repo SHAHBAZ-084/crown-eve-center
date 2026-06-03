@@ -41,8 +41,14 @@ const isAllowedOrigin = (origin) => {
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (isAllowedOrigin(origin)) callback(null, origin || true);
-      else callback(null, false);
+      if (isAllowedOrigin(origin)) {
+        callback(null, origin || true);
+        return;
+      }
+      if (origin && !isProduction) {
+        console.warn('[cors] Blocked origin:', origin);
+      }
+      callback(null, false);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { LOGO_URL } from '../../constants/mediaAssets';
 
 const Navbar = ({ user: propsUser, logout: propsLogout }) => {
   const { user: authUser, logout: authLogout } = useAuth();
@@ -31,7 +32,7 @@ const Navbar = ({ user: propsUser, logout: propsLogout }) => {
   return (
     <nav className={`${scrolled ? 'scrolled' : ''} ${isHeroNav ? 'transparent' : ''} ${menuOpen ? 'menu-open' : ''}`}>
       <Link to="/" className="logo" style={{ display: 'flex', alignItems: 'center' }}>
-        <img src="/logo.png" alt="Crown Hadi EV Center" style={{ height: 'var(--logo-size, 90px)', width: 'auto', objectFit: 'contain', display: 'block' }} />
+        <img src={LOGO_URL} alt="Crown Hadi EV Center" style={{ height: 'var(--logo-size, 90px)', width: 'auto', objectFit: 'contain', display: 'block' }} />
       </Link>
 
       <ul className={`nav-links ${menuOpen ? 'active' : ''}`}>

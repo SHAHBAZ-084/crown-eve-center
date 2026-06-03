@@ -94,8 +94,10 @@ async function seedProduct(p, refs, imageUrlCache, r2Enabled, stats) {
       const filePath = path.join(IMG_DIR, p.imageFile);
       if (fs.existsSync(filePath)) {
         const buffer = fs.readFileSync(filePath);
-        const key = `products/parts/${p.item_code.replace(/[^a-zA-Z0-9-_]/g, '_')}.png`;
-        imageUrl = await uploadBuffer(key, buffer, 'image/png');
+        const key = `products/parts/${p.item_code.replace(/[^a-zA-Z0-9-_]/g, '_')}.webp`;
+        const { imageBufferToWebp } = require('../src/utils/mediaConvert');
+        const webpBuffer = await imageBufferToWebp(buffer);
+        imageUrl = await uploadBuffer(key, webpBuffer, 'image/webp');
         imageUrlCache.set(p.item_code, imageUrl);
         stats.uploaded += 1;
       }

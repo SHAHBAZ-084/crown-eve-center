@@ -1,6 +1,8 @@
 // backend/src/modules/products/product.model.js
 const prisma = require('../../config/db');
 
+const MAX_PAGE_LIMIT = 50;
+
 const getProducts = async ({
   page = 1,
   limit = 20,
@@ -13,7 +15,9 @@ const getProducts = async ({
   lite,
   publicOnly,
 }) => {
-  const skip = (page - 1) * limit;
+  const safePage = Math.max(1, Number(page) || 1);
+  const safeLimit = Math.min(MAX_PAGE_LIMIT, Math.max(1, Number(limit) || 20));
+  const skip = (safePage - 1) * safeLimit;
   const isLite = lite === 'true' || lite === '1';
   const activeOnly = publicOnly === true || publicOnly === 'true' || publicOnly === '1';
 
@@ -85,9 +89,9 @@ const getProducts = async ({
     data,
     meta: {
       total,
-      page: Number(page),
-      limit: Number(limit),
-      totalPages: Math.ceil(total / limit),
+      page: safePage,
+      limit: safeLimit,
+      totalPages: Math.ceil(total / safeLimit),
     }
   };
 };
