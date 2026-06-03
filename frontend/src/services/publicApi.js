@@ -4,7 +4,7 @@ import {
   getApiFallbackUrl,
   isMisroutedProxyResponse,
   setApiBasePreference,
-  shouldRetryViaDirectApi,
+  shouldRetryViaProxy,
 } from '../utils/apiUrl';
 
 /** Catalog reads without Authorization — enables server-side GET cache for all visitors. */
@@ -46,7 +46,7 @@ publicApi.interceptors.response.use(
     const config = error.config;
     if (!config) return Promise.reject(error);
 
-    if (shouldRetryViaDirectApi(error, config)) {
+    if (shouldRetryViaProxy(error, config)) {
       try {
         const retried = await retryPublicWithFallback(config);
         if (retried) return retried;

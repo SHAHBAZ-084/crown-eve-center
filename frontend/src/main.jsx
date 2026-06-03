@@ -7,6 +7,9 @@ import './styles/catalog-layout.css'
 import App from './App.jsx'
 import ErrorBoundary from './components/ErrorBoundary'
 import { shouldRetryQuery, queryRetryDelay } from './utils/queryRetry'
+import { clearStaleApiPreference } from './utils/apiUrl'
+
+clearStaleApiPreference()
 // Auto-reload on Vite preload errors (new deployment chunk name mismatch)
 const CHUNK_RELOAD_COOLDOWN_MS = 60_000;
 const CHUNK_RELOAD_JITTER_MS = 3000;

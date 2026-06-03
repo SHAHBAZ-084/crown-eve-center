@@ -9,11 +9,16 @@ const normalizeEmail = (req) => {
   return null;
 };
 
-/** Per-email when possible; otherwise per real client IP (requires trust proxy). */
+/** Per-email when possible. Avoid bare IP behind Vercel/Hostinger CDN (one IP = all users → 429). */
 const limiterKey = (req, prefix) => {
   const email = normalizeEmail(req);
   if (email) return `${prefix}:email:${email}`;
-  return `${prefix}:ip:${req.ip || req.socket?.remoteAddress || 'unknown'}`;
+  const forwarded = req.headers['x-forwarded-for'];
+  const clientIp =
+    typeof forwarded === 'string' && forwarded.trim()
+      ? forwarded.split(',')[0].trim()
+      : req.ip || req.socket?.remoteAddress || 'unknown';
+  return `${prefix}:ip:${clientIp}`;
 };
 
 // Hostinger + Express 5 + Vercel proxy: strict validation throws ERR_ERL_* → 500 on login.

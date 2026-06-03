@@ -4,7 +4,7 @@ import {
   getApiFallbackUrl,
   isMisroutedProxyResponse,
   setApiBasePreference,
-  shouldRetryViaDirectApi,
+  shouldRetryViaProxy,
 } from '../utils/apiUrl';
 
 const AUTH_TIMEOUT_MS = 35000;
@@ -38,7 +38,7 @@ api.interceptors.request.use((config) => {
 const retryWithApiFallback = async (config) => {
   const fallback = getApiFallbackUrl(config.baseURL || getApiUrl());
   if (!fallback) return null;
-  setApiBasePreference(fallback.includes('api.crownevcenter.com') ? 'direct' : 'proxy');
+  setApiBasePreference('proxy');
   config.__apiFallback = true;
   config.baseURL = fallback;
   return api.request(config);
@@ -60,7 +60,7 @@ api.interceptors.response.use(
   async (error) => {
     const config = error.config;
 
-    if (config && shouldRetryViaDirectApi(error, config)) {
+    if (config && shouldRetryViaProxy(error, config)) {
       try {
         const retried = await retryWithApiFallback(config);
         if (retried) return retried;

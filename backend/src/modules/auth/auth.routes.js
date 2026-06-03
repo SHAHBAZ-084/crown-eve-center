@@ -4,6 +4,7 @@ const router = express.Router();
 const authController = require('./auth.controller');
 const { protect } = require('../../middleware/auth');
 const { loginLimiter, registerLimiter, otpLimiter } = require('../../middleware/rateLimit');
+const { relaxed: authLimitsRelaxed } = require('../../config/authLimits');
 
 const validate = require('../../middleware/validate');
 const {
@@ -18,6 +19,8 @@ const wrapAsync = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
 };
 
+const noop = (req, res, next) => next();
+
 const safeLimiter = (limiter) => (req, res, next) => {
   limiter(req, res, (err) => {
     if (err) {
@@ -29,12 +32,15 @@ const safeLimiter = (limiter) => (req, res, next) => {
   });
 };
 
-router.post('/register', safeLimiter(registerLimiter), validate(registerSchema), wrapAsync(authController.register));
-router.post('/login', validate(loginSchema), safeLimiter(loginLimiter), wrapAsync(authController.login));
-router.post('/verify-otp', safeLimiter(otpLimiter), validate(verifyOtpSchema), wrapAsync(authController.verifyOtp));
-router.post('/resend-otp', safeLimiter(otpLimiter), wrapAsync(authController.resendOtp));
-router.post('/forgot-password', safeLimiter(otpLimiter), validate(forgotPasswordSchema), wrapAsync(authController.forgotPassword));
-router.post('/reset-password', safeLimiter(otpLimiter), validate(resetPasswordSchema), wrapAsync(authController.resetPassword));
+/** When relaxed, skip express-rate-limit (shared CDN IP was causing site-wide 429). */
+const rl = authLimitsRelaxed ? noop : safeLimiter;
+
+router.post('/register', rl(registerLimiter), validate(registerSchema), wrapAsync(authController.register));
+router.post('/login', validate(loginSchema), rl(loginLimiter), wrapAsync(authController.login));
+router.post('/verify-otp', rl(otpLimiter), validate(verifyOtpSchema), wrapAsync(authController.verifyOtp));
+router.post('/resend-otp', rl(otpLimiter), wrapAsync(authController.resendOtp));
+router.post('/forgot-password', rl(otpLimiter), validate(forgotPasswordSchema), wrapAsync(authController.forgotPassword));
+router.post('/reset-password', rl(otpLimiter), validate(resetPasswordSchema), wrapAsync(authController.resetPassword));
 router.post('/logout', protect, authController.logout);
 router.get('/me', protect, authController.getMe);
 router.put('/profile', protect, authController.updateProfile);

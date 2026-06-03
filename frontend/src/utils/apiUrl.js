@@ -11,6 +11,14 @@ export const getProxiedApiUrl = () => {
   return DIRECT_API;
 };
 
+/** Drop stale "direct" preference from older builds that caused CORS + 429 storms. */
+export const clearStaleApiPreference = () => {
+  if (typeof window === 'undefined') return;
+  if (isCrownProductionSite() && sessionStorage.getItem(STORAGE_KEY) === 'direct') {
+    sessionStorage.removeItem(STORAGE_KEY);
+  }
+};
+
 export const setApiBasePreference = (mode) => {
   if (typeof window === 'undefined') return;
   if (mode === 'proxy' || mode === 'direct') {
@@ -20,18 +28,21 @@ export const setApiBasePreference = (mode) => {
   }
 };
 
+export const isCrownProductionSite = () => {
+  if (typeof window === 'undefined') return false;
+  const host = window.location.hostname;
+  return host === 'crownevcenter.com' || host === 'www.crownevcenter.com';
+};
+
 export const getApiUrl = () => {
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL.replace(/\/$/, '');
   }
 
   if (import.meta.env.MODE === 'production' && typeof window !== 'undefined') {
-    const pref = sessionStorage.getItem(STORAGE_KEY);
-    if (pref === 'proxy') return getProxiedApiUrl();
-    if (pref === 'direct') return DIRECT_API;
-    const host = window.location.hostname;
-    if (host === 'crownevcenter.com' || host === 'www.crownevcenter.com') {
-      return DIRECT_API;
+    // Same-origin /api proxy — no CORS, Vercel rewrites to Hostinger API.
+    if (isCrownProductionSite()) {
+      return getProxiedApiUrl();
     }
     return `${window.location.origin}/api`;
   }
@@ -49,11 +60,21 @@ export const isMisroutedProxyResponse = (response, config) => {
   return ct.includes('text/html');
 };
 
-export const shouldRetryViaDirectApi = (error, config) => {
-  if (!config || config.__apiFallback) return false;
-  if (isNetworkTransportError(error)) return true;
-  const res = error?.response;
-  if (res && isMisroutedProxyResponse(res, config)) return true;
+/** Retry via same-origin proxy when direct API fails (CORS) or proxy returned HTML/405. */
+export const shouldRetryViaProxy = (error, config) => {
+  if (!config || config.__apiFallback || !isCrownProductionSite()) return false;
+  const base = config.baseURL || '';
+  const onDirect = base.includes('api.crownevcenter.com');
+  const onProxy = base.startsWith(`${window.location.origin}/api`);
+
+  if (onDirect && (isNetworkTransportError(error) || error?.response?.status === 429)) {
+    return true;
+  }
+  if (onProxy) {
+    const res = error?.response;
+    if (res && isMisroutedProxyResponse(res, config)) return true;
+    if (isNetworkTransportError(error)) return false;
+  }
   return false;
 };
 
@@ -71,11 +92,10 @@ export const isNetworkTransportError = (err) => {
 
 export const getApiFallbackUrl = (currentBase) => {
   if (!currentBase || typeof window === 'undefined') return null;
-  if (currentBase.includes('api.crownevcenter.com')) {
+  // Production site: only fall back to same-origin proxy (never cross-origin direct).
+  if (currentBase.includes('api.crownevcenter.com') && isCrownProductionSite()) {
+    setApiBasePreference('proxy');
     return getProxiedApiUrl();
-  }
-  if (window.location.hostname === 'crownevcenter.com' || window.location.hostname === 'www.crownevcenter.com') {
-    return DIRECT_API;
   }
   return null;
 };

@@ -57,6 +57,17 @@ app.use(
     maxAge: 86400,
   })
 );
+
+// Ensure CORS headers on error/rate-limit responses (some proxies strip them).
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && isAllowedOrigin(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Vary', 'Origin');
+  }
+  next();
+});
 app.use(compression());
 app.use(express.json({ limit: '2mb' }));
 
