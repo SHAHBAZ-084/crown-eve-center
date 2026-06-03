@@ -1,10 +1,33 @@
 // frontend/src/pages/dashboards/customer/Dashboard.jsx v1.0.1-safe
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  ShoppingBag,
+  CalendarDays,
+  Banknote,
+  Wrench,
+  ClipboardList,
+  ChevronRight,
+} from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import api from "../../../services/api";
 
 const ACTIVE_STATUSES = ["PENDING", "PROCESSING", "pending", "processing"];
+
+const STATUS_STEP = {
+  PENDING: 1,
+  PROCESSING: 2,
+  CONFIRMED: 3,
+  OUT_FOR_DELIVERY: 4,
+  COMPLETED: 5,
+};
+
+const QUICK_ACTIONS = [
+  { Icon: ShoppingBag, label: "Browse Shop", path: "/my/shop" },
+  { Icon: ClipboardList, label: "My Orders", path: "/my/orders" },
+  { Icon: CalendarDays, label: "My Bookings", path: "/my/bookings" },
+  { Icon: Wrench, label: "Book Service", path: "/appointments" },
+];
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -52,6 +75,8 @@ const Dashboard = () => {
 
   const { totalOrders, activeOrders, totalSpent, upcomingBookings, nextBooking, recentOrder, activeOrder } = data;
 
+  const currentStep = STATUS_STEP[activeOrder?.status?.toUpperCase()] || 1;
+
   const fmtSpent = (n) => {
     if (typeof n !== 'number') return '0';
     if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
@@ -61,56 +86,54 @@ const Dashboard = () => {
 
   return (
     <div>
-      {/* Welcome Banner */}
       <div className="welcome-banner">
-        <div style={{ position: "absolute", top: -40, right: -20, width: 200, height: 200, background: "radial-gradient(circle,rgba(232,71,10,0.08),transparent 70%)", pointerEvents: "none" }} />
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
+        <div className="welcome-banner-inner">
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase", color: "var(--orange)", marginBottom: 6 }}>Welcome back</div>
-            <h1 style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: "clamp(40px, 5vw, 64px)", lineHeight: 0.9, letterSpacing: -2, marginBottom: 8 }}>
-              {user?.name?.split(" ")[0] || "Customer"} <span style={{ color: "var(--orange)" }}>Terminal</span>
+            <div className="welcome-banner-label">Welcome back</div>
+            <h1>
+              {user?.name?.split(" ")[0] || "Customer"} <span className="accent">Terminal</span>
             </h1>
-            <div style={{ fontSize: 13, color: "var(--white2)" }}>{user?.email} · Member since {new Date(user?.createdAt || Date.now()).getFullYear()}</div>
+            <div className="welcome-banner-meta">
+              {user?.email} · Member since {new Date(user?.createdAt || Date.now()).getFullYear()}
+            </div>
           </div>
-          <div style={{ display: "flex", gap: 10 }}>
-            <button className="btn btn-ghost btn-sm" onClick={() => navigate("/my/shop")}>Browse Shop</button>
-            <button className="btn btn-primary btn-sm" onClick={() => navigate("/appointments")}>Book Service</button>
+          <div className="welcome-banner-actions">
+            <button className="btn btn-ghost btn-sm" type="button" onClick={() => navigate("/my/shop")}>Browse Shop</button>
+            <button className="btn btn-primary btn-sm" type="button" onClick={() => navigate("/appointments")}>Book Service</button>
           </div>
         </div>
       </div>
 
-      {/* Stats */}
       <div className="stats-row">
         <div className="stat">
-          <div className="si">◫</div>
+          <div className="si"><ShoppingBag size={28} strokeWidth={1.5} /></div>
           <div className="sl">Active Orders</div>
           <div className="sv">{loadingOrders ? "—" : activeOrders.length}</div>
           <span className="sc neu">{activeOrder ? `#${String(activeOrder.id).padStart(6, '0')} · ${activeOrder.status}` : "No active orders"}</span>
         </div>
         <div className="stat">
-          <div className="si">📅</div>
+          <div className="si"><CalendarDays size={28} strokeWidth={1.5} /></div>
           <div className="sl">Total Bookings</div>
           <div className="sv">{loadingBookings ? "—" : (Array.isArray(bookings) ? bookings : []).length}</div>
           <span className="sc neu">{(Array.isArray(bookings) ? bookings : []).length > 0 ? "Lifetime requests" : "No bookings yet"}</span>
         </div>
         <div className="stat">
-          <div className="si">₨</div>
+          <div className="si"><Banknote size={28} strokeWidth={1.5} /></div>
           <div className="sl">Total Spent</div>
           <div className="sv" style={{ color: "var(--orange)" }}>{loadingOrders ? "—" : fmtSpent(totalSpent)}</div>
           <span className="sc neu">{totalOrders} order{totalOrders !== 1 ? "s" : ""} lifetime</span>
         </div>
         <div className="stat">
-          <div className="si">🏍️</div>
+          <div className="si"><Wrench size={28} strokeWidth={1.5} /></div>
           <div className="sl">Services Done</div>
           <div className="sv">{loadingBookings ? "—" : (Array.isArray(bookings) ? bookings : []).filter(b => b && (b.status || "").toLowerCase() === "completed").length}</div>
           <span className="sc up">Completed services</span>
         </div>
       </div>
 
-      {/* Active Order + Booking Status */}
       <div className="g2" style={{ marginBottom: 20 }}>
         <div className="card">
-          <div className="ch"><div className="ct">Active Order</div><button className="ca" onClick={() => navigate("/my/orders")}>View all →</button></div>
+          <div className="ch"><div className="ct">Active Order</div><button type="button" className="ca" onClick={() => navigate("/my/orders")}>View all →</button></div>
           {activeOrder ? (
             <>
               <div style={{ background: "var(--black3)", border: "1px solid var(--border)", borderRadius: 6, padding: "16px 18px", marginBottom: 16 }}>
@@ -125,16 +148,20 @@ const Dashboard = () => {
                   <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 28, color: "var(--orange)" }}>
                     PKR {(activeOrder.total ?? 0).toLocaleString()}
                   </div>
-                  <button className="ca" onClick={() => navigate(`/track/${activeOrder.id}`)} style={{ fontSize: 10 }}>Track Order →</button>
+                  <button type="button" className="ca" onClick={() => navigate(`/track/${activeOrder.id}`)} style={{ fontSize: 10 }}>Track Order →</button>
                 </div>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
-                {[1, ACTIVE_STATUSES.includes(activeOrder.status) ? 1 : 0, 0, 0, 0].map((v, i) => (
-                  <React.Fragment key={i}>
-                    <div style={{ width: 10, height: 10, borderRadius: "50%", background: v ? "var(--orange)" : "var(--card2)", border: v ? "none" : "2px solid var(--border)" }} />
-                    {i < 4 && <div style={{ flex: 1, height: 2, background: v ? "var(--orange)" : "var(--border)" }} />}
-                  </React.Fragment>
-                ))}
+                {[0, 1, 2, 3, 4].map((i) => {
+                  const filled = (i + 1) <= currentStep;
+                  const lineFilled = currentStep > i + 1;
+                  return (
+                    <React.Fragment key={i}>
+                      <div style={{ width: 10, height: 10, borderRadius: "50%", background: filled ? "var(--orange)" : "var(--card2)", border: filled ? "none" : "2px solid var(--border)" }} />
+                      {i < 4 && <div style={{ flex: 1, height: 2, background: lineFilled ? "var(--orange)" : "var(--border)" }} />}
+                    </React.Fragment>
+                  );
+                })}
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, fontSize: 9, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", color: "var(--muted)" }}>
                 <span>Placed</span><span>Confirmed</span><span>Preparing</span><span>Delivery</span><span>Done</span>
@@ -142,20 +169,22 @@ const Dashboard = () => {
             </>
           ) : (
             <div style={{ textAlign: "center", padding: "30px 0", color: "var(--muted2)", fontSize: 13 }}>
-              No active orders. <button className="ca" onClick={() => navigate("/my/shop")}>Browse shop →</button>
+              No active orders. <button type="button" className="ca" onClick={() => navigate("/my/shop")}>Browse shop →</button>
             </div>
           )}
         </div>
 
         <div className="card">
-          <div className="ch"><div className="ct">Booking Status</div><button className="ca" onClick={() => navigate("/my/bookings")}>View all →</button></div>
+          <div className="ch"><div className="ct">Booking Status</div><button type="button" className="ca" onClick={() => navigate("/my/bookings")}>View all →</button></div>
           {bookings && bookings.length > 0 ? (
             (() => {
-              const latest = bookings[0]; // Already sorted by desc in model
+              const latest = bookings[0];
               return (
                 <>
                   <div style={{ background: "var(--black3)", border: "1px solid var(--border)", borderRadius: 6, padding: "20px", display: "flex", gap: 16, alignItems: "flex-start" }}>
-                    <div style={{ width: 44, height: 44, background: "rgba(14,165,233,.1)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, color: "var(--acc)" }}>🔧</div>
+                    <div style={{ width: 44, height: 44, background: "rgba(14,165,233,.1)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--acc)" }}>
+                      <Wrench size={20} />
+                    </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 2 }}>{latest.service?.name || "General Maintenance"}</div>
                       <div style={{ fontSize: 12, color: "var(--muted2)" }}>{latest.branch?.name || "Main Branch"}</div>
@@ -177,28 +206,26 @@ const Dashboard = () => {
             })()
           ) : (
             <div style={{ textAlign: "center", padding: "30px 0", color: "var(--muted2)", fontSize: 13 }}>
-              No service requests. <button className="ca" onClick={() => navigate("/appointments")}>Book service →</button>
+              No service requests. <button type="button" className="ca" onClick={() => navigate("/appointments")}>Book service →</button>
             </div>
           )}
         </div>
       </div>
 
-      {/* Quick Actions */}
       <div className="ch" style={{ marginTop: 32 }}><div className="ct">Quick Actions</div></div>
       <div className="g4">
-        {[
-          { ico: "🛒", label: "Browse Shop", path: "/my/shop" },
-          { ico: "📋", label: "My Orders", path: "/my/orders" },
-          { ico: "📅", label: "My Bookings", path: "/my/bookings" },
-          { ico: "🔧", label: "Book Service", path: "/appointments" },
-        ].map(a => (
+        {QUICK_ACTIONS.map(({ Icon, label, path }) => (
           <div
-            key={a.label}
-            onClick={() => navigate(a.path)}
-            style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, padding: "24px 20px", textAlign: "center", cursor: "pointer", transition: "all .2s", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}
+            key={label}
+            role="button"
+            tabIndex={0}
+            className="quick-action-card"
+            onClick={() => navigate(path)}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") navigate(path); }}
           >
-            <div style={{ fontSize: 28 }}>{a.ico}</div>
-            <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 14, fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase" }}>{a.label}</div>
+            <Icon size={28} color="var(--orange)" strokeWidth={1.5} />
+            <div className="quick-action-label">{label}</div>
+            <ChevronRight className="quick-action-chevron" size={12} aria-hidden />
           </div>
         ))}
       </div>
