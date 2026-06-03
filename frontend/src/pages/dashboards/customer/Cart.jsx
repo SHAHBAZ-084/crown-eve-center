@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../../../context/CartContext";
 import { getImgUrl } from "../../../utils/imgUrl";
-import { CART_ITEM_IMAGE } from "../../../constants/mediaDimensions";
+import CatalogProductImage from "../../../components/catalog/CatalogProductImage";
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -70,13 +70,10 @@ const Cart = () => {
                         
                         <div className="item-visual-box">
                           {mainImg ? (
-                            <img
+                            <CatalogProductImage
                               src={getImgUrl(mainImg)}
                               alt={item.name}
-                              width={CART_ITEM_IMAGE.width}
-                              height={CART_ITEM_IMAGE.height}
-                              loading="lazy"
-                              decoding="async"
+                              className="cart-item-img"
                             />
                           ) : (
                             <div className="item-fallback-icon">📦</div>

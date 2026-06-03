@@ -1,20 +1,55 @@
-import React from 'react';
-import { CATALOG_PRODUCT_IMAGE } from '../../constants/mediaDimensions';
+import React, { useEffect, useState, useCallback } from 'react';
+
+const ALT_EXTS = ['.png', '.jpg', '.jpeg', '.webp'];
+
+export const buildFallbackChain = (src) => {
+  if (!src) return [];
+  const m = src.match(/^(.*?)(\.(webp|png|jpe?g|gif))?(\?.*)?$/i);
+  if (!m) return [src];
+  const base = m[1];
+  const query = m[4] || '';
+  const chain = [];
+  for (const ext of ALT_EXTS) {
+    const candidate = `${base}${ext}${query}`;
+    if (!chain.includes(candidate)) chain.push(candidate);
+  }
+  if (!chain.includes(src)) chain.unshift(src);
+  else {
+    chain.splice(chain.indexOf(src), 1);
+    chain.unshift(src);
+  }
+  return chain;
+};
 
 /**
- * Product card image with fixed width/height to reduce CLS while CSS handles responsive sizing.
+ * Product card image — tries WebP then PNG/JPG if CDN only has legacy files.
  */
 const CatalogProductImage = ({ src, alt, className = 'bike-main-img' }) => {
-  if (!src) return null;
+  const [chain, setChain] = useState(() => buildFallbackChain(src));
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const next = buildFallbackChain(src);
+    setChain(next);
+    setIndex(0);
+  }, [src]);
+
+  const handleError = useCallback(() => {
+    setIndex((i) => (i < chain.length - 1 ? i + 1 : i));
+  }, [chain.length]);
+
+  if (!src || !chain.length) return null;
+
+  const currentSrc = chain[index] || src;
+
   return (
     <img
-      src={src}
+      src={currentSrc}
       alt={alt || ''}
       className={className}
-      width={CATALOG_PRODUCT_IMAGE.width}
-      height={CATALOG_PRODUCT_IMAGE.height}
       loading="lazy"
       decoding="async"
+      onError={handleError}
     />
   );
 };

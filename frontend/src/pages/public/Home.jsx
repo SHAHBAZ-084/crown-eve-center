@@ -65,6 +65,7 @@ const Home = () => {
             className="hero-video-bg"
           >
             <source src={getPublicVideoUrl('hero-bg')} type="video/webm" />
+            <source src={getPublicVideoUrl('hero-bg', 'mp4')} type="video/mp4" />
           </video>
           <div className="hero-overlay"></div>
         </div>
