@@ -19,7 +19,7 @@ const wrapAsync = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
 };
 
-const noop = (req, res, next) => next();
+const noop = (_limiter) => (req, res, next) => next();
 
 const safeLimiter = (limiter) => (req, res, next) => {
   limiter(req, res, (err) => {
