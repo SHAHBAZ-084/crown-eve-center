@@ -1,4 +1,4 @@
-// Singleton PrismaClient — Neon driver adapter avoids native engine panics on Hostinger/Node 22.
+// Singleton PrismaClient — Neon HTTP driver for Hostinger (blocks WebSocket + TCP 5432).
 
 const { PrismaClient } = require('@prisma/client');
 
@@ -13,12 +13,15 @@ const sanitizeUrl = (raw) => {
     .replace(/\?&/, '?');
 };
 
-const buildUrl = (raw) => {
+const buildUrl = (raw, { forHttpAdapter = false } = {}) => {
   const cleaned = sanitizeUrl(raw);
   if (!cleaned) return cleaned;
   if (cleaned.includes('connection_limit')) return cleaned;
   const sep = cleaned.includes('?') ? '&' : '?';
-  const params = ['connection_limit=5', 'connect_timeout=15'];
+  // HTTP adapter: one logical connection; native pool: small limit for shared hosting.
+  const params = forHttpAdapter
+    ? ['connect_timeout=15']
+    : ['connection_limit=5', 'connect_timeout=15'];
   return `${cleaned}${sep}${params.join('&')}`;
 };
 
@@ -29,8 +32,16 @@ const shouldUseNeonAdapter = () => {
   return url.includes('neon.tech');
 };
 
+/** PrismaNeon (Pool) uses WebSocket — fails on Hostinger and most Node 22 setups. Default: HTTP. */
+const shouldUseNeonHttpAdapter = () => {
+  if (process.env.PRISMA_NEON_HTTP === '0') return false;
+  return true;
+};
+
 function createPrismaClient() {
-  const pooledUrl = buildUrl(process.env.DATABASE_URL);
+  const pooledUrl = buildUrl(process.env.DATABASE_URL, {
+    forHttpAdapter: shouldUseNeonHttpAdapter(),
+  });
   const directUrl = buildUrl(process.env.DIRECT_URL || process.env.DATABASE_URL);
 
   if (!pooledUrl && !directUrl) {
@@ -45,9 +56,19 @@ function createPrismaClient() {
   }
 
   if (shouldUseNeonAdapter() && pooledUrl) {
-    console.log('[db] Using Neon driver adapter (HTTP fetch transport, no WebSocket)');
+    if (shouldUseNeonHttpAdapter()) {
+      console.log('[db] PrismaNeonHTTP (HTTPS fetch — no WebSocket/TCP)');
+      const { PrismaNeonHTTP } = require('@prisma/adapter-neon');
+      const adapter = new PrismaNeonHTTP(pooledUrl);
+      return new PrismaClient({
+        adapter,
+        log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
+      });
+    }
+
+    console.log('[db] PrismaNeon Pool (WebSocket — requires PRISMA_NEON_HTTP=1 on Hostinger)');
     const { neonConfig } = require('@neondatabase/serverless');
-    neonConfig.fetchConnectionCache = true;
+    neonConfig.poolQueryViaFetch = true;
     neonConfig.useSecureWebSocket = false;
     neonConfig.pipelineTLS = false;
     neonConfig.pipelineConnect = false;

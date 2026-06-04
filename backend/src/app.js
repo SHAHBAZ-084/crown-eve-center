@@ -145,7 +145,7 @@ app.get('/health/live', (req, res) => {
   });
 });
 
-const HEALTH_DB_MS = Number(process.env.HEALTH_DB_TIMEOUT_MS) || 4000;
+const HEALTH_DB_MS = Number(process.env.HEALTH_DB_TIMEOUT_MS) || 15000;
 
 app.get('/health', async (req, res) => {
   const payload = {
