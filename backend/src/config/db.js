@@ -45,7 +45,13 @@ function createPrismaClient() {
   }
 
   if (shouldUseNeonAdapter() && pooledUrl) {
-    console.log('[db] Using Neon driver adapter (no native Prisma engine)');
+    console.log('[db] Using Neon driver adapter (HTTP fetch transport, no WebSocket)');
+    const { neonConfig } = require('@neondatabase/serverless');
+    neonConfig.fetchConnectionCache = true;
+    neonConfig.useSecureWebSocket = false;
+    neonConfig.pipelineTLS = false;
+    neonConfig.pipelineConnect = false;
+
     const { PrismaNeon } = require('@prisma/adapter-neon');
     const adapter = new PrismaNeon({ connectionString: pooledUrl });
     return new PrismaClient({
