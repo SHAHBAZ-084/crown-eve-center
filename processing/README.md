@@ -3,8 +3,9 @@
 ## Commands (from `backend/`)
 
 ```bash
-npm run parse:catalog   # Extract products + images from ../abc.pdf
-npm run seed:products   # Upload images to R2 + seed DB (both branches)
+npm run parse:catalog          # Extract products + images from ../abc.pdf
+npm run seed:products          # Upload images to R2 + seed DB (both branches)
+npm run repair:catalog-images  # Re-parse + force re-upload + fix DB links (wrong pictures)
 ```
 
 Requires: `DATABASE_URL`, `R2_*` env vars in `backend/.env` or `config.env`.
