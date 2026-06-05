@@ -78,16 +78,16 @@ const Forgot = () => {
       <div className="login-card">
         <Link
           to="/login"
-          className="form-link"
+          className="auth-forgot-link button3"
           style={{ display: 'inline-block', marginBottom: '24px' }}
         >
           ← Back to Login
         </Link>
 
-        <h2 className="text-5xl font-family-bebas mb-2 tracking-tighter uppercase text-orange-600">
+        <h2 className="text-5xl font-family-bebas mb-2 tracking-tighter uppercase">
           Reset Password
         </h2>
-        <p className="text-sm text-[#BDBDB8] mb-8">
+        <p className="auth-subtext text-sm mb-8">
           {step === 1
             ? 'Enter your email — we will send a 6-digit OTP.'
             : `Enter the OTP sent to ${email} and your new password.`}
@@ -99,82 +99,106 @@ const Forgot = () => {
         {step === 1 ? (
           <form onSubmit={handleSendOtp}>
             <div className="form-group">
-              <label htmlFor="forgot-email">Email Address</label>
-              <input
-                id="forgot-email"
-                name="email"
-                type="email"
-                placeholder="you@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+              <label className="auth-label" htmlFor="forgot-email">Email Address</label>
+              <div className="auth-field">
+                <svg className="auth-field-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5L4 8V6l8 5 8-5v2z" />
+                </svg>
+                <input
+                  className="auth-input"
+                  id="forgot-email"
+                  name="email"
+                  type="email"
+                  placeholder="you@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
             </div>
-            <button type="submit" className="form-submit" disabled={loading}>
+            <button type="submit" className="form-submit auth-btn-primary" disabled={loading}>
               {loading ? 'Sending...' : 'Send OTP →'}
             </button>
           </form>
         ) : (
           <form onSubmit={handleResetPassword} noValidate>
             <div className="form-group">
-              <label htmlFor="forgot-otp">6-digit OTP</label>
-              <input
-                id="forgot-otp"
-                name="otp"
-                type="text"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                placeholder="Enter 6-digit code"
-                value={otp}
-                onChange={(e) => {
-                  setOtp(e.target.value.replace(/\D/g, '').slice(0, 6));
-                  if (otpError) setOtpError('');
-                }}
-                onBlur={validateOtpField}
-                style={{
-                  textAlign: 'center',
-                  letterSpacing: '4px',
-                  fontWeight: 'bold',
-                  borderColor: otpError ? '#ef4444' : undefined,
-                }}
-                aria-invalid={otpError ? 'true' : 'false'}
-                aria-describedby={otpError ? 'forgot-otp-error' : undefined}
-              />
+              <label className="auth-label" htmlFor="forgot-otp">6-digit OTP</label>
+              <div className="auth-field">
+                <svg className="auth-field-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 1L3 5v6c0 5.6 3.8 10.7 9 12 5.2-1.3 9-6.4 9-12V5l-9-4zm0 10.9A2.9 2.9 0 1114.9 9 2.9 2.9 0 0112 11.9z" />
+                </svg>
+                <input
+                  className="auth-input"
+                  id="forgot-otp"
+                  name="otp"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  placeholder="Enter 6-digit code"
+                  value={otp}
+                  onChange={(e) => {
+                    setOtp(e.target.value.replace(/\D/g, '').slice(0, 6));
+                    if (otpError) setOtpError('');
+                  }}
+                  onBlur={validateOtpField}
+                  style={{
+                    textAlign: 'center',
+                    letterSpacing: '4px',
+                    fontWeight: 'bold',
+                    borderColor: otpError ? '#ef4444' : undefined,
+                  }}
+                  aria-invalid={otpError ? 'true' : 'false'}
+                  aria-describedby={otpError ? 'forgot-otp-error' : undefined}
+                />
+              </div>
               {otpError && (
-                <p id="forgot-otp-error" style={{ color: '#ef4444', fontSize: '13px', marginTop: '8px' }}>
+                <p id="forgot-otp-error" className="auth-field-error">
                   {otpError}
                 </p>
               )}
             </div>
             <div className="form-group">
-              <label htmlFor="forgot-new-password">New Password</label>
-              <input
-                id="forgot-new-password"
-                name="newPassword"
-                type="password"
-                placeholder="••••••••"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                minLength={6}
-                required
-              />
+              <label className="auth-label" htmlFor="forgot-new-password">New Password</label>
+              <div className="auth-field">
+                <svg className="auth-field-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M18 8h-1V6a5 5 0 00-10 0v2H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V10a2 2 0 00-2-2zm-6 9a2 2 0 110-4 2 2 0 010 4zm3-9H9V6a3 3 0 016 0v2z" />
+                </svg>
+                <input
+                  className="auth-input"
+                  id="forgot-new-password"
+                  name="newPassword"
+                  type="password"
+                  placeholder="••••••••"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  minLength={6}
+                  required
+                />
+              </div>
             </div>
             <div className="form-group">
-              <label htmlFor="forgot-confirm-password">Confirm Password</label>
-              <input
-                id="forgot-confirm-password"
-                name="confirmPassword"
-                type="password"
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                minLength={6}
-                required
-              />
+              <label className="auth-label" htmlFor="forgot-confirm-password">Confirm Password</label>
+              <div className="auth-field">
+                <svg className="auth-field-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M18 8h-1V6a5 5 0 00-10 0v2H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V10a2 2 0 00-2-2zm-6 9a2 2 0 110-4 2 2 0 010 4zm3-9H9V6a3 3 0 016 0v2z" />
+                </svg>
+                <input
+                  className="auth-input"
+                  id="forgot-confirm-password"
+                  name="confirmPassword"
+                  type="password"
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  minLength={6}
+                  required
+                />
+              </div>
             </div>
             <button
               type="submit"
-              className="form-submit"
+              className="form-submit auth-btn-primary"
               disabled={loading}
               onClick={(e) => {
                 if (!validateOtpField()) {
@@ -186,8 +210,8 @@ const Forgot = () => {
             </button>
             <button
               type="button"
-              className="form-link"
-              style={{ marginTop: '16px', background: 'none', border: 'none', cursor: 'pointer' }}
+              className="auth-forgot-link button3"
+              style={{ display: 'block', width: '100%', marginTop: '16px' }}
               onClick={() => {
                 setStep(1);
                 setOtp('');

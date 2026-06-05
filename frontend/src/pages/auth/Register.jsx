@@ -53,11 +53,11 @@ const Register = () => {
   return (
     <div id="page-register" className="page">
       <div className="register-card">
-        <Link to="/" className="logo" style={{ marginBottom: '32px', display: 'inline-flex', alignItems: 'center' }}>
-          <img src={LOGO_URL} alt="Crown Hadi EV Center" style={{ height: '80px', width: 'auto', objectFit: 'contain' }} />
+        <Link to="/" className="auth-logo">
+          <img src={LOGO_URL} alt="Crown Hadi EV Center" />
         </Link>
-        <h2 className="text-5xl font-family-bebas mb-2 tracking-tighter uppercase text-black">Create Account.</h2>
-        <p className="text-sm text-muted mb-8">Join Crown Eve — browse bikes, book services, track your orders.</p>
+        <h2 className="text-5xl font-family-bebas mb-2 tracking-tighter uppercase">Create Account.</h2>
+        <p className="auth-subtext text-sm mb-8">Join Crown Eve — browse bikes, book services, track your orders.</p>
         
         {error && (
           <div className="form-error" role="alert">
@@ -66,99 +66,140 @@ const Register = () => {
         )}
 
         <form onSubmit={handleSubmit}>
-          {/* Stacked Layout for cleaner vertical profile */}
           <div className="form-group">
-            <label>First Name</label>
-            <input 
-              type="text" 
-              placeholder="Ali"
-              value={formData.firstName}
-              onChange={(e) => setFormData({...formData, firstName: e.target.value})}
-              required
-            />
+            <label className="auth-label">First Name</label>
+            <div className="auth-field">
+              <svg className="auth-field-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+              </svg>
+              <input
+                className="auth-input"
+                type="text"
+                placeholder="Ali"
+                value={formData.firstName}
+                onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                required
+              />
+            </div>
           </div>
           <div className="form-group">
-            <label>Last Name</label>
-            <input 
-              type="text" 
-              placeholder="Khan"
-              value={formData.lastName}
-              onChange={(e) => setFormData({...formData, lastName: e.target.value})}
-              required
-            />
+            <label className="auth-label">Last Name</label>
+            <div className="auth-field">
+              <svg className="auth-field-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+              </svg>
+              <input
+                className="auth-input"
+                type="text"
+                placeholder="Khan"
+                value={formData.lastName}
+                onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                required
+              />
+            </div>
           </div>
           <div className="form-group">
-            <label>Email Address</label>
-            <input 
-              type="email" 
-              placeholder="ali@email.com"
-              value={formData.email}
-              onChange={(e) => setFormData({...formData, email: e.target.value})}
-              required
-            />
+            <label className="auth-label">Email Address</label>
+            <div className="auth-field">
+              <svg className="auth-field-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5L4 8V6l8 5 8-5v2z" />
+              </svg>
+              <input
+                className="auth-input"
+                type="email"
+                placeholder="ali@email.com"
+                value={formData.email}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                required
+              />
+            </div>
           </div>
           <div className="form-group">
-            <label>Phone Number</label>
-            <input 
-              type="tel" 
-              placeholder="+92 300 0000000"
-              value={formData.phone}
-              onChange={(e) => setFormData({...formData, phone: e.target.value})}
-              required
-            />
+            <label className="auth-label">Phone Number</label>
+            <div className="auth-field">
+              <svg className="auth-field-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.1 21 3 13.9 3 5c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z" />
+              </svg>
+              <input
+                className="auth-input"
+                type="tel"
+                placeholder="+92 300 0000000"
+                value={formData.phone}
+                onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                required
+              />
+            </div>
           </div>
           <div className="form-group">
-            <label>Password</label>
-            <input 
-              type="password" 
-              placeholder="Min 8 chars, upper, lower, number"
-              value={formData.password}
-              onChange={(e) => setFormData({...formData, password: e.target.value})}
-              minLength={8}
-              required
-            />
+            <label className="auth-label">Password</label>
+            <div className="auth-field">
+              <svg className="auth-field-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M18 8h-1V6a5 5 0 00-10 0v2H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V10a2 2 0 00-2-2zm-6 9a2 2 0 110-4 2 2 0 010 4zm3-9H9V6a3 3 0 016 0v2z" />
+              </svg>
+              <input
+                className="auth-input"
+                type="password"
+                placeholder="Min 8 chars, upper, lower, number"
+                value={formData.password}
+                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                minLength={8}
+                required
+              />
+            </div>
           </div>
           <div className="form-group">
-            <label>Confirm Password</label>
-            <input 
-              type="password" 
-              placeholder="••••••••"
-              value={formData.confirmPassword}
-              onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-              required
-            />
+            <label className="auth-label">Confirm Password</label>
+            <div className="auth-field">
+              <svg className="auth-field-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M18 8h-1V6a5 5 0 00-10 0v2H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V10a2 2 0 00-2-2zm-6 9a2 2 0 110-4 2 2 0 010 4zm3-9H9V6a3 3 0 016 0v2z" />
+              </svg>
+              <input
+                className="auth-input"
+                type="password"
+                placeholder="••••••••"
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                required
+              />
+            </div>
           </div>
           <div className="form-group">
-            <label htmlFor="register-city">City</label>
-            <input
-              id="register-city"
-              type="text"
-              list="pakistan-cities"
-              placeholder="Type or select your city"
-              value={formData.city}
-              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-              autoComplete="address-level2"
-              required
-            />
+            <label className="auth-label" htmlFor="register-city">City</label>
+            <div className="auth-field">
+              <svg className="auth-field-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5A2.5 2.5 0 1112 6a2.5 2.5 0 010 5.5z" />
+              </svg>
+              <input
+                className="auth-input"
+                id="register-city"
+                type="text"
+                list="pakistan-cities"
+                placeholder="Type or select your city"
+                value={formData.city}
+                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                autoComplete="address-level2"
+                required
+              />
+            </div>
             <datalist id="pakistan-cities">
               {PAKISTAN_CITIES.map((city) => (
                 <option key={city} value={city} />
               ))}
             </datalist>
           </div>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '24px' }}>
-            <input type="checkbox" id="terms" style={{ marginTop: '3px', accentColor: 'var(--orange)' }} required />
-            <label htmlFor="terms" style={{ fontSize: '12px', color: 'var(--white2)', lineHeight: '1.6', cursor: 'pointer' }}>
+          <div className="auth-terms-row">
+            <input type="checkbox" id="terms" required />
+            <label htmlFor="terms">
               I agree to the <Link to="/terms" className="form-link">Terms of Service</Link> and <Link to="/privacy" className="form-link">Privacy Policy</Link>
             </label>
           </div>
-          <button type="submit" className="form-submit" disabled={submitting}>
+          <button type="submit" className="form-submit auth-btn-primary" disabled={submitting}>
             {submitting ? 'Creating account…' : 'Create My Account →'}
           </button>
         </form>
         
-        <div className="form-divider">— or —</div>
-        <div style={{ textAlign: 'center', fontSize: '13px', color: 'var(--white2)' }}>
+        <div className="auth-divider">or</div>
+        <div className="auth-footer-text">
           Already have an account? <Link to="/login" className="form-link">Sign in</Link>
         </div>
       </div>
