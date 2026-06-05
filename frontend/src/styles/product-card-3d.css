@@ -1,189 +1,98 @@
-/* Crown Eve — 3D product card (Uiverse-inspired, orange only) */
-
-.products-grid,
-.bikes-grid,
-#products .products-grid {
-  perspective: 1100px;
-}
+/* Crown Eve — clean product card (no dark orange frame) */
 
 .bike-card-new,
 .product-card.bike-card-new {
   position: relative;
   height: 100%;
   min-height: 360px;
-  padding: 8px;
-  border: none;
-  border-radius: 28px;
-  overflow: visible;
-  background: linear-gradient(135deg, #ff7a3d 0%, #e8470a 52%, #c73d09 100%);
-  transform-style: preserve-3d;
-  transition: transform 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
-  box-shadow:
-    rgba(139, 45, 8, 0) 40px 50px 25px -40px,
-    rgba(139, 45, 8, 0.18) 0 25px 25px -5px;
+  padding: 0;
+  border: 1px solid #f0f0f0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   text-decoration: none;
   display: flex;
   flex-direction: column;
   cursor: pointer;
 }
 
-/* Decorative circles (top-right) */
 .bike-card-new::before,
 .bike-card-new::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 1;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  transition: transform 0.5s ease-in-out;
-}
-
-.bike-card-new::before {
-  width: 130px;
-  height: 130px;
-  top: 10px;
-  right: 10px;
-  background: rgba(255, 140, 80, 0.22);
-  box-shadow: rgba(100, 100, 111, 0.15) -8px 8px 18px 0;
-  transform: translate3d(0, 0, 24px);
-}
-
-.bike-card-new::after {
-  width: 72px;
-  height: 72px;
-  top: 22px;
-  right: 22px;
-  background: rgba(255, 180, 120, 0.35);
-  transform: translate3d(0, 0, 48px);
-  transition-delay: 0.35s;
+  display: none;
 }
 
 .bike-card-new:hover {
-  transform: rotate3d(1, 1, 0, 14deg) translateY(-6px);
-  box-shadow:
-    rgba(139, 45, 8, 0.28) 30px 50px 25px -40px,
-    rgba(139, 45, 8, 0.12) 0 25px 30px 0;
+  transform: translateY(-5px);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.1);
 }
 
-.bike-card-new:hover::before {
-  transform: translate3d(0, 0, 40px);
-}
-
-.bike-card-new:hover::after {
-  transform: translate3d(0, 0, 64px);
-}
-
-/* Image area + glass sheen */
+/* Image area */
 .bike-card-new .product-card-img {
   position: relative;
-  z-index: 2;
+  z-index: 1;
   flex-shrink: 0;
   aspect-ratio: 4 / 3;
   min-height: 180px;
   margin: 0;
-  padding: 12px;
+  padding: 14px;
   border: none;
-  border-radius: 22px 22px 42% 22px;
-  background: rgba(255, 255, 255, 0.12);
+  border-radius: 0;
+  background: #f8f9fa;
   overflow: hidden;
-  transform: translate3d(0, 0, 20px);
-  transform-style: preserve-3d;
-  transition: transform 0.5s ease-in-out;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .bike-card-new .product-card-img::before {
-  content: '';
-  position: absolute;
-  inset: 6px;
-  border-radius: 18px 18px 48% 18px;
-  border-top-right-radius: 100%;
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.28) 0%,
-    rgba(255, 255, 255, 0.82) 100%
-  );
-  border-left: 1px solid rgba(255, 255, 255, 0.55);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
-  transform: translate3d(0, 0, 14px);
-  pointer-events: none;
-  z-index: 2;
-  transition: transform 0.5s ease-in-out;
+  display: none;
 }
 
 .bike-card-new .bike-card-blob {
-  position: absolute;
-  width: 70%;
-  height: 55%;
-  top: 15%;
-  right: 5%;
-  background: rgba(255, 120, 60, 0.45);
-  opacity: 1;
-  z-index: 0;
-  border-radius: 50%;
-  filter: blur(22px);
-  transform: translate3d(0, 0, 8px);
-  transition: transform 0.5s ease-in-out;
-}
-
-.bike-card-new:hover .bike-card-blob {
-  transform: translate3d(0, 0, 28px) scale(1.08);
-  filter: blur(26px);
+  display: none;
 }
 
 .bike-card-new .bike-main-img,
 .bike-card-new .product-card-img img,
 .bike-card-new .product-card-img .bike-main-img {
   position: relative;
-  z-index: 3;
+  z-index: 2;
   width: 100%;
   height: 100%;
   object-fit: contain;
-  transition: transform 0.5s ease-in-out;
+  transition: transform 0.4s ease;
 }
 
 .bike-card-new:hover .bike-main-img,
 .bike-card-new:hover .product-card-img img {
-  transform: scale(1.06) translate3d(0, -4px, 30px);
+  transform: scale(1.04);
 }
 
 .bike-card-new .placeholder-img {
   position: relative;
-  z-index: 3;
-  color: rgba(255, 255, 255, 0.85);
+  z-index: 2;
+  color: #888;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   text-align: center;
 }
 
-/* Content panel (glass) */
+/* Content */
 .bike-card-new .product-card-body {
   position: relative;
-  z-index: 2;
+  z-index: 1;
   flex: 1;
   display: flex;
   flex-direction: column;
-  margin-top: 6px;
-  padding: 18px 20px 16px;
+  margin-top: 0;
+  padding: 20px 22px 18px;
   border: none;
-  border-radius: 18px;
-  background: linear-gradient(
-    0deg,
-    rgba(255, 255, 255, 0.38) 0%,
-    rgba(255, 255, 255, 0.9) 100%
-  );
-  border-left: 1px solid rgba(255, 255, 255, 0.65);
-  transform: translate3d(0, 0, 26px);
-  transition: transform 0.5s ease-in-out;
-}
-
-.bike-card-new:hover .product-card-body {
-  transform: translate3d(0, 0, 34px);
+  border-radius: 0;
+  background: #fff;
 }
 
 .bike-card-new .product-cat {
-  color: #c73d09;
+  color: #888;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 1.4px;
@@ -193,7 +102,7 @@
 
 .bike-card-new .bike-name-new {
   display: block;
-  color: #9a3412;
+  color: #1a1a1a;
   font-weight: 800;
   font-size: 18px;
   line-height: 1.2;
@@ -207,7 +116,7 @@
 
 .bike-card-new .bike-price-new {
   display: block;
-  color: rgba(154, 52, 18, 0.72);
+  color: #636e72;
   font-family: 'Barlow', sans-serif;
   font-size: 15px;
   font-weight: 600;
@@ -219,86 +128,70 @@
 .bike-card-new .bike-card-footer {
   margin-top: auto;
   padding-top: 14px;
-  border-top: 1px solid rgba(232, 71, 10, 0.12);
+  border-top: 1px solid #f0f0f0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transform: translate3d(0, 0, 8px);
 }
 
 .bike-card-new .check-details {
   font-size: 13px;
   font-weight: 700;
   color: #e8470a;
-  transition: transform 0.2s ease-in-out;
+  transition: color 0.2s ease;
 }
 
 .bike-card-new:hover .check-details {
-  transform: translate3d(0, 0, 8px);
+  color: #c73d09;
 }
 
 .bike-card-new .arrow-circle {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: none;
+  border: 1.5px solid #eee;
   background: #fff;
-  color: #c73d09;
+  color: #444;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: rgba(139, 45, 8, 0.35) 0 7px 5px -5px;
-  transition: transform 0.2s ease-in-out, background 0.2s ease-in-out, color 0.2s ease-in-out;
+  box-shadow: none;
+  transition: all 0.25s ease;
 }
 
 .bike-card-new:hover .arrow-circle {
-  transform: translate3d(0, 0, 14px);
   background: #1a1a1a;
+  border-color: #1a1a1a;
   color: #fff;
+  transform: translateX(3px);
 }
 
 .bike-card-new .out-of-stock-tag {
-  z-index: 4;
-  background: rgba(26, 26, 26, 0.85);
+  z-index: 3;
+  background: rgba(26, 26, 26, 0.88);
   color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-/* Customer portal shop — same 3D orange theme */
+/* Customer portal shop */
 #customer-dashboard-shell .ce-shop .bike-card-new {
-  border: none;
-  border-radius: 28px;
-  box-shadow:
-    rgba(139, 45, 8, 0) 40px 50px 25px -40px,
-    rgba(139, 45, 8, 0.18) 0 25px 25px -5px;
+  border: 1px solid #f0f0f0;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
 #customer-dashboard-shell .ce-shop .bike-card-new:hover {
-  transform: rotate3d(1, 1, 0, 14deg) translateY(-6px);
-  border-color: transparent;
-  box-shadow:
-    rgba(139, 45, 8, 0.28) 30px 50px 25px -40px,
-    rgba(139, 45, 8, 0.12) 0 25px 30px 0;
+  transform: translateY(-5px);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.1);
 }
 
 #customer-dashboard-shell .ce-shop .product-card-img {
-  background: rgba(255, 255, 255, 0.12);
-  border-bottom: none;
-}
-
-@media (max-width: 768px) {
-  .bike-card-new:hover,
-  #customer-dashboard-shell .ce-shop .bike-card-new:hover {
-    transform: translateY(-4px);
-  }
+  background: #f8f9fa;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .bike-card-new,
-  .bike-card-new::before,
-  .bike-card-new::after,
-  .bike-card-new .product-card-img,
-  .bike-card-new .product-card-body,
+  .bike-card-new .bike-main-img,
   .bike-card-new .arrow-circle {
     transition: none;
   }
