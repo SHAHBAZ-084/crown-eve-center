@@ -123,11 +123,17 @@ const ServiceInvoices = ({ user, queryClient, onPrintReceipt }) => {
         booking_time: svForm.bookingTime,
         status: "COMPLETED",
         customer_notes: finalNotes,
-        final_price: grandTotal
+        final_price: grandTotal,
+        partsUsed: svForm.selectedParts.map((p) => ({
+          productId: p.id,
+          quantity: p.qty,
+          price: p.price,
+          name: p.name,
+        })),
       };
 
       await api.post('/appointments', payload);
-      alert("Walk-in service ticket successfully created and completed!");
+      alert("Walk-in service ticket created — parts stock updated!");
       setSvForm({
         customerId: '',
         serviceId: '',
@@ -143,6 +149,8 @@ const ServiceInvoices = ({ user, queryClient, onPrintReceipt }) => {
       setSvPartSearch("");
       setShowNewServiceModal(false);
       refetchSvHistory();
+      queryClient.invalidateQueries({ queryKey: ['sv-parts'] });
+      queryClient.invalidateQueries({ queryKey: ['pos-products-list'] });
     } catch (err) {
       alert("Failed to submit service invoice: " + (err.response?.data?.message || err.message));
     }
@@ -168,9 +176,17 @@ const ServiceInvoices = ({ user, queryClient, onPrintReceipt }) => {
   };
 
   const addPartToSv = (product) => {
+    if (product.stock_qty <= 0) {
+      alert(`Insufficient stock! "${product.name}" is out of stock.`);
+      return;
+    }
     setSvForm(prev => {
       const exists = prev.selectedParts.find(p => p.id === product.id);
       if (exists) {
+        if (exists.qty + 1 > (exists.stock ?? product.stock_qty)) {
+          alert(`Insufficient stock! Only ${exists.stock ?? product.stock_qty} unit(s) available.`);
+          return prev;
+        }
         return {
           ...prev,
           selectedParts: prev.selectedParts.map(p => p.id === product.id ? { ...p, qty: p.qty + 1 } : p)
@@ -183,6 +199,7 @@ const ServiceInvoices = ({ user, queryClient, onPrintReceipt }) => {
           name: product.name,
           price: product.price,
           qty: 1,
+          stock: product.stock_qty,
           model: product.partDetail?.model || ""
         }]
       };
@@ -191,10 +208,23 @@ const ServiceInvoices = ({ user, queryClient, onPrintReceipt }) => {
   };
 
   const updateSvPartQty = (id, delta) => {
-    setSvForm(prev => ({
-      ...prev,
-      selectedParts: prev.selectedParts.map(p => p.id === id ? { ...p, qty: Math.max(1, p.qty + delta) } : p)
-    }));
+    setSvForm(prev => {
+      let overStock = false;
+      const newParts = prev.selectedParts.map(p => {
+        if (p.id !== id) return p;
+        const nextQty = p.qty + delta;
+        if (nextQty > (p.stock ?? 0)) {
+          overStock = true;
+          return p;
+        }
+        return { ...p, qty: Math.max(1, nextQty) };
+      });
+      if (overStock) {
+        alert("Insufficient stock! Cannot exceed available quantity.");
+        return prev;
+      }
+      return { ...prev, selectedParts: newParts };
+    });
   };
 
   const removeSvPart = (id) => {

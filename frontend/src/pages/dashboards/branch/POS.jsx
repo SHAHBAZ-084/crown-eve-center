@@ -19,47 +19,7 @@ import PurchaseInvoices from './pos/PurchaseInvoices';
 import ServiceInvoices from './pos/ServiceInvoices';
 import AccountLedger from './pos/AccountLedger';
 import DebitTrailBalance from './pos/DebitTrailBalance';
-
-// Utility helper functions for Walk-in Customers & Date/Time formatting
-const getWalkInCustomerName = (notes) => {
-  if (!notes) return "Walk-in Customer";
-  const match = notes.match(/Walk-in Service:\s*([^(|]+)/i) || notes.match(/Walk-in:\s*([^(|]+)/i);
-  return match ? match[1].trim() : "Walk-in Customer";
-};
-
-const getWalkInCustomerPhone = (notes) => {
-  if (!notes) return "";
-  const match = notes.match(/Walk-in Service:\s*[^(|]+\(([^)]*)\)/i) || notes.match(/Walk-in:\s*[^(|]+\(([^)]*)\)/i);
-  return match && match[1] ? match[1].trim() : "";
-};
-
-const generateServiceId = (uuidStr) => {
-  if (!uuidStr) return "000000";
-  let hash = 0;
-  for (let i = 0; i < uuidStr.length; i++) {
-    hash = (hash << 5) - hash + uuidStr.charCodeAt(i);
-    hash |= 0;
-  }
-  return (Math.abs(hash) % 900000 + 100000).toString();
-};
-
-const formatDate = (isoString) => {
-  if (!isoString) return "";
-  const date = new Date(isoString);
-  if (isNaN(date)) return isoString;
-  return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-').toUpperCase();
-};
-
-const formatTime12Hour = (timeString) => {
-  if (!timeString) return "";
-  let [hours, minutes] = timeString.split(':');
-  if (!hours || !minutes) return timeString;
-  hours = parseInt(hours, 10);
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  hours = hours % 12;
-  hours = hours ? hours : 12;
-  return `${hours.toString().padStart(2, '0')}:${minutes} ${ampm}`;
-};
+import ServiceThermalReceipt, { normalizeServiceBooking } from '../../../components/branch/ServiceThermalReceipt';
 
 const MOBILE_BREAKPOINT = 1024;
 
@@ -239,106 +199,6 @@ const POS = () => {
     );
   };
 
-  const renderServiceReceiptModal = () => {
-    if (!serviceReceiptData) return null;
-    const { item, type } = serviceReceiptData;
-
-    const name = getWalkInCustomerName(item.customer_notes);
-    const phone = getWalkInCustomerPhone(item.customer_notes);
-    const serviceName = item.service?.name || "Maintenance & Tuning";
-    const displayId = generateServiceId(item.id);
-    const formattedDate = formatDate(item.booking_date);
-    const formattedTime = formatTime12Hour(item.booking_time);
-    
-    let laborStr = "0";
-    let partsStr = "0";
-    const billMatch = item.customer_notes?.match(/Bill:\s*Labor\s*([^,]+),\s*Parts\s*([^\s\[]+)/i);
-    if (billMatch) {
-      laborStr = billMatch[1].trim();
-      partsStr = billMatch[2].trim();
-    }
-
-    return (
-      <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 print:p-0 print:static">
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-md print:hidden" onClick={() => setServiceReceiptData(null)} />
-        <div className="relative bg-white w-full max-w-lg rounded-[3rem] overflow-hidden shadow-2xl flex flex-col max-h-[95vh] print:shadow-none print:rounded-none print:max-h-none print:w-full">
-          <header className="px-10 py-7 border-b border-[#F3E5DC] flex justify-between items-center bg-[#FFFAF8] print:hidden">
-            <div>
-              <h2 className="text-xl font-black text-[#2D1A12]">{type === 'TICKET' ? 'SERVICE BOOKING TICKET' : 'SERVICE FINAL BILL'}</h2>
-              <p className="text-[10px] font-bold text-[#8D7A71] uppercase tracking-[0.2em] mt-1">Ready for Print</p>
-            </div>
-            <div className="flex gap-4">
-              <button onClick={printInvoice} className="bg-white border border-[#F3E5DC] px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-[#FFFAF8]">
-                 Print Ticket
-              </button>
-              <button className="w-10 h-10 bg-white border border-[#F3E5DC] rounded-full flex items-center justify-center text-[#8D7A71]" onClick={() => setServiceReceiptData(null)}>
-                <Icon n="close" size={20} />
-              </button>
-            </div>
-          </header>
-
-          <div id="printable-service-receipt" className="p-10 overflow-y-auto space-y-8 custom-scrollbar print:p-8 print:overflow-visible text-center">
-            {/* Header */}
-            <div>
-              <div className="text-3xl font-black text-[#E65100]">CROWN EVE</div>
-              <div className="text-[10px] font-bold text-[#8D7A71] uppercase tracking-[0.2em] mt-1">{type === 'TICKET' ? 'SERVICE BOOKING TICKET' : 'SERVICE FINAL BILL'}</div>
-            </div>
-
-            {/* Ticket Info */}
-            <div className="bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl p-6 text-left space-y-3">
-              <div className="flex justify-between items-center border-b border-dashed border-[#F3E5DC] pb-3">
-                <span className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest">TICKET ID</span>
-                <span className="text-sm font-black text-[#2D1A12]">#{displayId}</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-dashed border-[#F3E5DC] pb-3">
-                <span className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest">DATE & TIME</span>
-                <span className="text-xs font-bold text-[#2D1A12]">{formattedDate} @ {formattedTime}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest">STATUS</span>
-                <span className="text-xs font-black text-[#E65100] uppercase tracking-widest">{item.status}</span>
-              </div>
-            </div>
-
-            {/* Customer Info */}
-            <div className="text-left space-y-1 py-4 border-y border-dashed border-[#F3E5DC]">
-              <div className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest mb-2">Customer & Service</div>
-              <div className="font-black text-[#2D1A12] text-lg">{name}</div>
-              <div className="text-xs font-bold text-[#8D7A71]">{phone || 'N/A'}</div>
-              <div className="text-sm font-black text-[#E65100] mt-2">{serviceName}</div>
-            </div>
-
-            {/* Bill Info */}
-            {type === 'BILL' && (
-              <div className="text-left space-y-3 pt-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest">LABOR CHARGES</span>
-                  <span className="text-xs font-black text-[#2D1A12]">PKR {laborStr}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-black text-[#8D7A71] uppercase tracking-widest">PARTS TOTAL</span>
-                  <span className="text-xs font-black text-[#2D1A12]">PKR {partsStr}</span>
-                </div>
-                <div className="flex justify-between items-center pt-4 border-t border-[#F3E5DC] text-[#E65100]">
-                  <span className="text-sm font-black uppercase tracking-widest">GRAND TOTAL</span>
-                  <span className="text-xl font-black">PKR {item.final_price?.toLocaleString() || 0}</span>
-                </div>
-              </div>
-            )}
-
-            {/* Footer */}
-            <div className="pt-6 text-center">
-              <div className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] leading-relaxed">
-                Thank you for choosing<br/>Crown Eve Center!
-              </div>
-              <div className="text-[8px] text-[#8D7A71] mt-3 font-bold uppercase">Please bring this ticket for collection.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   const renderContent = () => {
     switch (activeMenu) {
       case "add-customer":
@@ -468,7 +328,13 @@ const POS = () => {
         </main>
       </div>
       {renderInvoiceModal()}
-      {renderServiceReceiptModal()}
+      {serviceReceiptData && (
+        <ServiceThermalReceipt
+          type={serviceReceiptData.type}
+          booking={normalizeServiceBooking(serviceReceiptData.item, user)}
+          onClose={() => setServiceReceiptData(null)}
+        />
+      )}
     </div>
   );
 };

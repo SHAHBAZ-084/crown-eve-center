@@ -29,18 +29,20 @@ exports.getOne = async (req, res) => {
   }
 };
 
+const STAFF_ROLES = new Set(['BRANCH_OWNER', 'BRANCH_MANAGER', 'EMPLOYEE']);
+
 exports.create = async (req, res) => {
   try {
     let { serviceId } = req.body;
-    
+    const isStaff = STAFF_ROLES.has(req.user.role);
+
     // If no service selected (new simple form), find a default or create one
     if (!serviceId) {
       let defaultService = await prisma.service.findFirst({
         where: { name: 'General Maintenance' }
       });
-      
+
       if (!defaultService) {
-        // Get the first branch ID to satisfy the relation
         const firstBranch = await prisma.branch.findFirst();
         defaultService = await prisma.service.create({
           data: {
@@ -58,9 +60,10 @@ exports.create = async (req, res) => {
       ...req.body,
       serviceId,
       customerId: req.user.id,
-      status: 'pending'
+      branchId: req.body.branchId ? Number(req.body.branchId) : req.user.branchId,
+      status: isStaff && req.body.status ? req.body.status : 'pending',
     };
-    
+
     const booking = await Booking.createBooking(data);
     res.status(201).json(booking);
   } catch (e) {

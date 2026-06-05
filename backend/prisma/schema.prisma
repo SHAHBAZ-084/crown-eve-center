@@ -298,6 +298,8 @@ model ServiceBooking {
   status         String   @default("pending") // pending / confirmed / done / cancelled
   customer_notes String?
   final_price    Float?
+  partsUsed      Json?
+  stockDeducted  Boolean  @default(false)
   createdAt      DateTime @default(now())
 
   @@index([branchId])
