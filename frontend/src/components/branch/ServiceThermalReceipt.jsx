@@ -1,6 +1,8 @@
 // Shared thermal receipt for service booking ticket & final bill (POS + Branch Services)
 import React, { useState, useEffect } from 'react';
-import { Modal, apiFetch } from './BranchShared';
+import { X, Printer } from 'lucide-react';
+import { apiFetch } from './BranchShared';
+import './ServiceThermalReceipt.css';
 import {
   getWalkInCustomerName,
   getWalkInCustomerPhone,
@@ -587,28 +589,51 @@ export const ServiceThermalReceiptBody = ({ type, booking }) => {
 
 const ServiceThermalReceipt = ({ type, booking, onClose }) => {
   const isBill = type === 'BILL';
+  const title = isBill ? 'Service Final Bill' : 'Service Booking Ticket';
 
   return (
-    <Modal
-      title={`${isBill ? 'FINAL INVOICE BILL' : 'BOOKING CONFIRMATION'} RECEIPT`}
-      onClose={onClose}
-      footer={
-        <>
-          <button className="btn btn-s btn-sm" onClick={onClose}>
+    <div
+      className="service-receipt-overlay"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+    >
+      <div className="service-receipt-dialog" onClick={(e) => e.stopPropagation()}>
+        <header className="service-receipt-header">
+          <div>
+            <div className="service-receipt-title">{title}</div>
+            <div className="service-receipt-subtitle">Ready for print</div>
+          </div>
+          <button
+            type="button"
+            className="service-receipt-close-icon"
+            onClick={onClose}
+            aria-label="Close"
+          >
+            <X size={18} strokeWidth={2.5} />
+          </button>
+        </header>
+
+        <div className="service-receipt-body-wrap">
+          <ServiceThermalReceiptBody type={isBill ? 'BILL' : 'BOOKING'} booking={booking} />
+        </div>
+
+        <footer className="service-receipt-footer">
+          <button type="button" className="service-receipt-btn service-receipt-btn--ghost" onClick={onClose}>
             Close
           </button>
           <button
-            className="btn btn-p btn-sm"
-            style={{ background: '#FF4D00', color: '#FFF' }}
+            type="button"
+            className="service-receipt-btn service-receipt-btn--print"
             onClick={() => window.print()}
           >
-            Print Thermal Ticket
+            <Printer size={14} strokeWidth={2.5} />
+            Print Ticket
           </button>
-        </>
-      }
-    >
-      <ServiceThermalReceiptBody type={isBill ? 'BILL' : 'BOOKING'} booking={booking} />
-    </Modal>
+        </footer>
+      </div>
+    </div>
   );
 };
 
