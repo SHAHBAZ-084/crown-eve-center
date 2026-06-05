@@ -1,7 +1,21 @@
 // backend/src/modules/orders/order.model.js
 const prisma = require('../../config/db');
+const { runInTransaction } = require('../../config/transaction');
 const { syncInventoryToPartsAndProducts } = require('../inventory/inventory.utils');
 const { postSaleInvoiceLedger } = require('../../services/ledger.service');
+
+const restoreStockRollbacks = async (rollbacks) => {
+  for (const { productId, qty } of rollbacks) {
+    try {
+      await prisma.product.update({
+        where: { id: productId },
+        data: { stock_qty: { increment: qty } },
+      });
+    } catch {
+      // best-effort undo when HTTP mode cannot roll back automatically
+    }
+  }
+};
 
 const createOrder = async (data) => {
   const {
@@ -10,7 +24,10 @@ const createOrder = async (data) => {
     tracking_id, customer_name, customer_phone, notes, items
   } = data;
 
-  return prisma.$transaction(async (tx) => {
+  const stockRollbacks = [];
+
+  try {
+    return await runInTransaction(async (tx) => {
     // Fix 3: Idempotency guard — return the existing order if this transaction_id was already processed
     if (transaction_id) {
       const existingOrder = await tx.order.findFirst({ where: { transaction_id } });
@@ -45,6 +62,8 @@ const createOrder = async (data) => {
       if (result.count === 0) {
         throw new Error(`Insufficient stock for product "${product.name}". Requested: ${qtyRequested}.`);
       }
+
+      stockRollbacks.push({ productId: pId, qty: qtyRequested });
     }
 
     // 1. Create the order
@@ -161,10 +180,16 @@ const createOrder = async (data) => {
     }
 
     return order;
-  }, {
-    maxWait: 15000, // 15 seconds to connect
-    timeout: 30000  // 30 seconds max execution time
-  });
+    }, {
+      maxWait: 15000,
+      timeout: 30000,
+    });
+  } catch (err) {
+    if (stockRollbacks.length) {
+      await restoreStockRollbacks(stockRollbacks);
+    }
+    throw err;
+  }
 };
 
 const getOrders = async ({ page = 1, limit = 20, branchId, status, type, customerId }) => {

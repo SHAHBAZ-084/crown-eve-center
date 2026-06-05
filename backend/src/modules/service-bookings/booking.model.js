@@ -1,5 +1,6 @@
 // backend/src/modules/service-bookings/booking.model.js
 const prisma = require('../../config/db');
+const { runInTransaction } = require('../../config/transaction');
 const {
   normalizeStockItems,
   deductItemsStock,
@@ -49,7 +50,7 @@ const createBooking = async (data) => {
   const items = normalizeStockItems(partsUsed);
   const shouldDeduct = isCompletedStatus(status) && items.length > 0;
 
-  return prisma.$transaction(async (tx) => {
+  return runInTransaction(async (tx) => {
     if (shouldDeduct) {
       await deductItemsStock(tx, branchId, items);
     }
@@ -110,7 +111,7 @@ const updateBooking = async (id, data) => {
 };
 
 const deleteBooking = async (id) => {
-  return prisma.$transaction(async (tx) => {
+  return runInTransaction(async (tx) => {
     const booking = await tx.serviceBooking.findUnique({ where: { id } });
     if (!booking) throw new Error('Booking not found');
 

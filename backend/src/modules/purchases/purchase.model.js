@@ -1,5 +1,6 @@
 // backend/src/modules/purchases/purchase.model.js
 const prisma = require('../../config/db');
+const { runInTransaction } = require('../../config/transaction');
 const { syncInventoryToPartsAndProducts } = require('../inventory/inventory.utils');
 const { postPurchaseInvoiceLedger } = require('../../services/ledger.service');
 
@@ -38,7 +39,7 @@ const getPurchases = async ({ page = 1, limit = 20, branchId, supplierId }) => {
 const createPurchase = async (data) => {
   const { supplierId, branchId, total, items, remarks, documentNo, purchaseNo, partyInvoiceNo } = data;
 
-  return prisma.$transaction(async (tx) => {
+  return runInTransaction(async (tx) => {
     // 1. Create the purchase record
     const purchase = await tx.purchase.create({
       data: {

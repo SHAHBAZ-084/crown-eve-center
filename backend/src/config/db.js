@@ -33,11 +33,16 @@ const shouldUseNeonAdapter = () => {
 };
 
 /**
- * PrismaNeonHTTP cannot run prisma.$transaction (POS sale/purchase/service invoices break).
- * Default: Pool + poolQueryViaFetch (HTTPS-friendly, transactions supported).
- * Set PRISMA_NEON_HTTP=1 only if Pool fails — POS writes will not work.
+ * Hostinger blocks WebSocket (non-101). Default Neon driver = HTTP (fetch).
+ * HTTP cannot use prisma.$transaction — use runInTransaction() in config/transaction.js.
+ * Set PRISMA_NEON_HTTP=0 to try Pool+WebSocket if your host allows it.
  */
-const shouldUseNeonHttpAdapter = () => process.env.PRISMA_NEON_HTTP === '1';
+const shouldUseNeonHttpAdapter = () => {
+  if (process.env.PRISMA_NEON_HTTP === '0') return false;
+  return true;
+};
+
+let activeAdapterMode = 'native';
 
 function createPrismaClient() {
   const pooledUrl = buildUrl(process.env.DATABASE_URL, {
@@ -58,10 +63,8 @@ function createPrismaClient() {
 
   if (shouldUseNeonAdapter() && pooledUrl) {
     if (shouldUseNeonHttpAdapter()) {
-      console.warn(
-        '[db] PrismaNeonHTTP: interactive transactions disabled — sale/purchase invoices will fail.'
-      );
-      console.log('[db] PrismaNeonHTTP (HTTPS fetch — no WebSocket/TCP)');
+      activeAdapterMode = 'http';
+      console.log('[db] PrismaNeonHTTP (HTTPS fetch — Hostinger-safe, no WebSocket)');
       const { PrismaNeonHTTP } = require('@prisma/adapter-neon');
       const adapter = new PrismaNeonHTTP(pooledUrl);
       return new PrismaClient({
@@ -70,7 +73,8 @@ function createPrismaClient() {
       });
     }
 
-    console.log('[db] PrismaNeon Pool (WebSocket — requires PRISMA_NEON_HTTP=1 on Hostinger)');
+    activeAdapterMode = 'pool';
+    console.log('[db] PrismaNeon Pool (WebSocket — omit PRISMA_NEON_HTTP=0 on Hostinger if you see non-101 errors)');
     const { neonConfig } = require('@neondatabase/serverless');
     neonConfig.poolQueryViaFetch = true;
     neonConfig.useSecureWebSocket = false;
@@ -85,6 +89,7 @@ function createPrismaClient() {
     });
   }
 
+  activeAdapterMode = 'native';
   console.log('[db] Using native Prisma engine');
   return new PrismaClient({
     datasources: {
@@ -98,4 +103,11 @@ if (!globalForPrisma.prisma) {
   globalForPrisma.prisma = createPrismaClient();
 }
 
-module.exports = globalForPrisma.prisma;
+const client = globalForPrisma.prisma;
+
+const supportsInteractiveTransactions = () => activeAdapterMode !== 'http';
+const getAdapterMode = () => activeAdapterMode;
+
+module.exports = client;
+module.exports.supportsInteractiveTransactions = supportsInteractiveTransactions;
+module.exports.getAdapterMode = getAdapterMode;
