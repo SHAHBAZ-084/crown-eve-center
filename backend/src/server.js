@@ -9,18 +9,45 @@ try {
   // ignore
 }
 
+let httpServer;
+let crashReportActive = false;
+
 function serveCrashReport(err) {
+  if (crashReportActive) {
+    console.error('[FATAL] Error during crash report serving:', err);
+    process.exit(1);
+  }
+  crashReportActive = true;
+
+  try {
+    if (httpServer) {
+      httpServer.close();
+    }
+  } catch (closeErr) {
+    console.error('Error closing main server:', closeErr);
+  }
+
   const http = require('http');
   const server = http.createServer((req, res) => {
     res.writeHead(500, { 'Content-Type': 'text/plain' });
-    res.end('Crown Eve API Startup Error:\\n\\n' + (err ? err.stack : 'Unknown error'));
+    res.end('Crown Eve API Startup Error:\n\n' + (err ? err.stack : 'Unknown error'));
   });
+
+  server.on('error', (serverErr) => {
+    console.error('[FATAL] Fallback server failed to start:', serverErr);
+    process.exit(1);
+  });
+
   const port = process.env.PORT || 3000;
   server.listen(port, () => console.log(`[fallback] Serving crash report on port ${port}`));
 }
 
 process.on('uncaughtException', (err) => {
   console.error('[FATAL] Uncaught Exception:', err);
+  if (httpServer && httpServer.listening) {
+    console.error('Process exiting due to uncaught exception in running server.');
+    process.exit(1);
+  }
   serveCrashReport(err);
 });
 
@@ -63,7 +90,7 @@ async function connectDatabase() {
   logger.info('Database connected');
 }
 
-let httpServer;
+// httpServer is declared at the top of the file
 
 async function shutdown(signal) {
   logger.info(`Shutting down (${signal})`);
