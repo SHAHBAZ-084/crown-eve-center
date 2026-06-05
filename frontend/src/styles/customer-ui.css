@@ -1,8 +1,8 @@
-/* ── Customer portal design system (Plus Jakarta Sans + Outfit) ── */
+/* ── Customer portal design system (DM Sans body + Outfit headings) ── */
 
 #customer-dashboard-shell {
-  --ce-font: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  --ce-font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  --ce-font: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --ce-font-display: 'Outfit', system-ui, sans-serif;
   --ce-text: #111827;
   --ce-text-muted: #6B7280;
   --ce-text-soft: #9CA3AF;

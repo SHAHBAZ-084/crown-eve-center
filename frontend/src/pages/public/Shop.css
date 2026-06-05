@@ -33,7 +33,7 @@
 }
 
 .shop-container .customer-page-header h1 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: clamp(2.25rem, 4.5vw, 3.25rem);
   line-height: 0.95;
   color: #1a1a1a;
@@ -63,7 +63,7 @@
 }
 
 .pg-hd h1 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: clamp(2.25rem, 4.5vw, 3.25rem);
   line-height: 0.95;
   color: #1a1a1a;
@@ -129,7 +129,7 @@
   color: #e8470a;
   padding: 0 20px;
   border-radius: 12px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-weight: 700;
   font-size: 13px;
   text-transform: uppercase;
@@ -349,7 +349,7 @@
   color: #fff;
   border: none;
   padding: 12px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -389,7 +389,7 @@
 }
 
 .bike-name-new {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 17px;
   font-weight: 800;
   color: #111;
@@ -402,7 +402,7 @@
 }
 
 .bike-price-new {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: var(--font-body);
   font-size: 22px;
   color: var(--orange);
   font-weight: 500;
@@ -450,7 +450,7 @@
 }
 
 .empty-state h3 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 42px;
   color: var(--orange);
   margin-bottom: 15px;

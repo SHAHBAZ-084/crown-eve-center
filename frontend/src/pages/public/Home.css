@@ -34,7 +34,7 @@
   left: 5vw;
   top: 50%;
   transform: translateY(-50%);
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 22vw;
   color: rgba(232, 71, 10, 0.04);
   line-height: 1;
@@ -86,7 +86,7 @@
 }
 
 h1.hero-title {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: clamp(72px, 9vw, 140px);
   line-height: 0.9;
   letter-spacing: -2px;
@@ -129,7 +129,7 @@ h1.hero-title .line3 {
 }
 
 .stat-num {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 42px;
   color: var(--orange);
   line-height: 1;
@@ -189,7 +189,7 @@ h1.hero-title .line3 {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 14px;
   letter-spacing: 4px;
   color: var(--muted);
@@ -341,7 +341,7 @@ h1.hero-title .line3 {
   align-items: center;
   gap: 24px;
   padding: 0 40px;
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 18px;
   letter-spacing: 3px;
   color: rgba(255, 255, 255, 0.3);
@@ -431,7 +431,7 @@ h1.hero-title .line3 {
 }
 
 .feature-num {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 80px;
   color: rgba(17, 17, 17, 0.05);
   line-height: 1;
@@ -477,7 +477,7 @@ h1.hero-title .line3 {
 }
 
 .feature-title {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 28px;
   font-weight: 800;
   letter-spacing: 1px;
@@ -593,7 +593,7 @@ h1.hero-title .line3 {
   background: var(--orange);
   color: #fff !important;
   padding: 10px 28px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 2px;
@@ -625,7 +625,7 @@ h1.hero-title .line3 {
 }
 
 .product-name {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 24px;
   font-weight: 800;
   letter-spacing: .5px;
@@ -648,7 +648,7 @@ h1.hero-title .line3 {
 }
 
 .product-price {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 28px;
   color: var(--orange);
   letter-spacing: 1px;
@@ -744,13 +744,13 @@ h1.hero-title .line3 {
 }
 
 .service-item-num {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 18px;
   color: var(--muted);
 }
 
 .service-item-name {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 22px;
   font-weight: 700;
   letter-spacing: .5px;
@@ -788,7 +788,7 @@ h1.hero-title .line3 {
 }
 
 .services-cta-panel h3 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 52px;
   line-height: 0.9;
   margin-bottom: 20px;
@@ -815,7 +815,7 @@ h1.hero-title .line3 {
   position: absolute;
   top: 5%;
   right: -5%;
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 25vw;
   color: rgba(232, 71, 10, 0.04);
   line-height: 1;
@@ -861,7 +861,7 @@ h1.hero-title .line3 {
   position: absolute;
   top: 30px;
   left: 40px;
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 100px;
   color: rgba(232, 71, 10, 0.08);
   line-height: 1;
@@ -912,7 +912,7 @@ h1.hero-title .line3 {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 20px;
   font-weight: 700;
   color: var(--orange);
@@ -978,7 +978,7 @@ h1.hero-title .line3 {
 }
 
 .hero-headline {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: clamp(64px, 10vw, 140px);
   line-height: 0.88;
   letter-spacing: -2px;
@@ -1031,7 +1031,7 @@ h1.hero-title .line3 {
 }
 
 .hero-stat-num {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 44px;
   color: var(--orange);
   line-height: 1;
@@ -1157,7 +1157,7 @@ h1.hero-title .line3 {
 }
 
 .bike-name-new {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 26px;
   font-weight: 700;
   color: #2D3436;
@@ -1166,6 +1166,7 @@ h1.hero-title .line3 {
 }
 
 .bike-price-new {
+  font-family: var(--font-body);
   font-size: 16px;
   color: #636E72;
   font-weight: 500;
@@ -1242,7 +1243,7 @@ h1.hero-title .line3 {
 }
 
 .why-evee-title {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: clamp(60px, 6vw, 90px);
   line-height: 1;
   margin-bottom: 24px;
@@ -1287,7 +1288,7 @@ h1.hero-title .line3 {
 }
 
 .feat-info h4 {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 22px;
   font-weight: 700;
   color: var(--white);
@@ -1339,7 +1340,7 @@ h1.hero-title .line3 {
 }
 
 .branch-card h3 {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 26px;
   font-weight: 800;
   color: var(--white);
@@ -1459,7 +1460,7 @@ h1.hero-title .line3 {
   position: absolute;
   top: 10%;
   right: -5%;
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 15vw;
   color: rgba(232, 71, 10, 0.05);
   line-height: 1;
@@ -1470,7 +1471,7 @@ h1.hero-title .line3 {
   position: absolute;
   bottom: 15%;
   right: 0;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;

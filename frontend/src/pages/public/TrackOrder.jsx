@@ -56,7 +56,7 @@ const PublicTrackOrder = () => {
       <div className="main-wrap">
         <div className="page-wrap">
           <div className="pg-hd" style={{ textAlign: 'center', display: 'block', marginBottom: '40px', paddingTop: '60px' }}>
-            <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '56px', letterSpacing: '-1px', marginBottom: '8px' }}>
+            <h1 style={{ fontSize: '56px', letterSpacing: '-1px', marginBottom: '8px' }}>
               Track Your Build
             </h1>
             <p style={{ fontSize: '14px', color: 'var(--muted2)', maxWidth: '500px', margin: '0 auto' }}>
@@ -138,7 +138,7 @@ const PublicTrackOrder = () => {
                   )}
                   <div className="trow" style={{ marginTop: 10 }}>
                     <span style={{ fontSize: 14, fontWeight: 700 }}>Total</span>
-                    <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 24, color: "var(--orange)" }}>PKR {total.toLocaleString()}</span>
+                    <span className="mono" style={{ fontSize: 20, fontWeight: 700, color: "var(--orange)" }}>PKR {total.toLocaleString()}</span>
                   </div>
                 </div>
 

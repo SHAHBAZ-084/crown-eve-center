@@ -22,13 +22,13 @@
 
 .booking-sidebar-summary { background: var(--black2); padding: 40px 28px; position: sticky; top: 100px; align-self: start; }
 
-.booking-sidebar-summary h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 1px solid #E8E8E8; }
+.booking-sidebar-summary h3 { font-family: 'DM Sans', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 1px solid #E8E8E8; }
 
 .summary-item { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 14px; color: var(--white2); }
 
 .summary-item strong { color: var(--white); }
 
-.summary-total { border-top: 1px solid #E8E8E8; margin-top: 20px; padding-top: 20px; display: flex; justify-content: space-between; font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: .5px; }
+.summary-total { border-top: 1px solid #E8E8E8; margin-top: 20px; padding-top: 20px; display: flex; justify-content: space-between; font-family: 'DM Sans', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: .5px; }
 
 .summary-total span { color: var(--orange); }
 
@@ -38,7 +38,7 @@
 
 .service-option:hover, .service-option.selected { border-color: var(--orange); background: rgba(232, 71, 10, 0.06); }
 
-.service-option-name { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: .5px; margin-bottom: 4px; }
+.service-option-name { font-family: 'DM Sans', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: .5px; margin-bottom: 4px; }
 
 .service-option-price { font-size: 13px; color: var(--orange); font-weight: 600; }
 
@@ -50,7 +50,7 @@
 
 .date-btn .day-name { font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
 
-.date-btn .day-num { font-family: 'Bebas Neue', sans-serif; font-size: 22px; line-height: 1; }
+.date-btn .day-num { font-family: 'Outfit', sans-serif; font-size: 22px; line-height: 1; }
 
 .time-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 32px; }
 
@@ -58,4 +58,4 @@
 
 .time-btn:hover, .time-btn.selected { border-color: var(--orange); background: rgba(232, 71, 10, 0.08); color: var(--orange); }
 
-.form-section-title { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #E8E8E8; color: var(--white); }
+.form-section-title { font-family: 'DM Sans', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #E8E8E8; color: var(--white); }

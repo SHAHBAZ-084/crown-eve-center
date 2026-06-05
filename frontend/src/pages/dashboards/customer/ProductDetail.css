@@ -30,7 +30,7 @@
 }
 
 .product-name-large {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 96px;
   line-height: 0.85;
   color: var(--orange);
@@ -60,7 +60,7 @@
   color: #111111;
   /* Changed from green to black */
   margin-bottom: 10px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
 }
 
 .price-label {
@@ -148,7 +148,7 @@
 }
 
 .section-heading-orange {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 48px;
   color: var(--orange);
   margin-bottom: 50px;

@@ -10,7 +10,7 @@ export default function NotFound() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Outfit:wght@500;600;700;800&display=swap');
         .notfound-wrap * { box-sizing: border-box; margin: 0; padding: 0; }
         .notfound-wrap {
           min-height: 100vh;
@@ -60,7 +60,7 @@ export default function NotFound() {
         .skid-l { transform: rotate(-4deg) translateX(-6px); }
         .skid-r { transform: rotate(4deg) translateX(6px); }
         .notfound-num {
-          font-family: 'Bebas Neue', sans-serif;
+          font-family: 'Outfit', sans-serif;
           font-size: clamp(120px, 25vw, 220px);
           color: #FF4D00;
           line-height: .88;

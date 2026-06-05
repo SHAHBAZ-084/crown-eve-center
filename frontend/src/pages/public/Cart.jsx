@@ -21,7 +21,7 @@ const Cart = () => {
         <div className="page-wrap">
           <div className="pg-hd" style={{ paddingTop: '40px' }}>
             <div>
-              <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '48px', letterSpacing: '-1px' }}>Your Cart</h1>
+              <h1 style={{ fontSize: '48px', letterSpacing: '-1px' }}>Your Cart</h1>
               <p style={{ fontSize: '14px', color: 'var(--muted2)' }}>{items.length} items currently in your selection.</p>
             </div>
             <button className="btn btn-ghost btn-sm" onClick={() => navigate("/shop")}>
@@ -76,7 +76,7 @@ const Cart = () => {
                 <div className="divider" style={{ margin: '20px 0' }} />
                 <div className="trow" style={{ padding: "10px 0" }}>
                   <span style={{ fontSize: 16, fontWeight: 700 }}>Estimated Total</span>
-                  <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '36px', color: "var(--orange)" }}>
+                  <span className="mono" style={{ fontSize: '28px', fontWeight: 700, color: "var(--orange)" }}>
                     PKR {(total || 0).toLocaleString()}
                   </span>
                 </div>

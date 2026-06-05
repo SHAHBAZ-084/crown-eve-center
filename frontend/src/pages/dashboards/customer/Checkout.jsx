@@ -334,7 +334,7 @@ const CheckoutPage = () => {
                     <div className="divider" style={{ margin: "12px 0" }} />
                   </div>
                 ))}
-                <div className="trow" style={{ padding: "10px 0" }}><span style={{ fontWeight: 700 }}>Total Payable</span><span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 28, color: "var(--orange)" }}>PKR {grandTotal.toLocaleString()}</span></div>
+                <div className="trow" style={{ padding: "10px 0" }}><span style={{ fontWeight: 700 }}>Total Payable</span><span className="mono" style={{ fontSize: 24, fontWeight: 700, color: "var(--orange)" }}>PKR {grandTotal.toLocaleString()}</span></div>
               </div>
               <div style={{ background: "var(--black3)", border: "1px solid var(--border)", borderRadius: 6, padding: "12px 16px", marginBottom: 16, fontSize: 13 }}>
                 <div style={{ fontWeight: 700, marginBottom: 4 }}>Delivery to: {addr.name}</div>

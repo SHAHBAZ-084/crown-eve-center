@@ -5,6 +5,9 @@
 @tailwind utilities;
 
 :root {
+  --font-body: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-heading: 'Outfit', system-ui, sans-serif;
+  --font-heading-alt: 'Outfit', system-ui, sans-serif;
   --orange: #E8470A;
   --orange-light: #C73A08;
   --orange-glow: rgba(232, 71, 10, 0.12);
@@ -38,8 +41,17 @@ html {
 body {
   background: var(--black);
   color: var(--white);
-  font-family: 'Barlow', sans-serif;
+  font-family: var(--font-body);
   overflow-x: hidden;
+}
+
+button,
+input,
+select,
+textarea,
+label,
+option {
+  font-family: inherit;
 }
 
 ::selection {
@@ -179,7 +191,7 @@ nav.scrolled .btn-nav-register {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 18px;
   color: #fff;
   letter-spacing: 1px;
@@ -208,7 +220,7 @@ nav.scrolled .btn-nav-register {
 }
 
 .logo-text {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 22px;
   font-weight: 700;
   letter-spacing: 3px;
@@ -342,7 +354,7 @@ nav.scrolled .btn-nav-register {
   border: 1.5px solid var(--orange);
   color: var(--orange);
   background: transparent;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 2px;
@@ -362,7 +374,7 @@ nav.scrolled .btn-nav-register {
   padding: 10px 28px;
   background: var(--orange);
   color: #fff;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 2px;
@@ -439,7 +451,7 @@ nav.scrolled .btn-nav-register {
   left: 5vw;
   top: 50%;
   transform: translateY(-50%);
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 22vw;
   color: rgba(255, 77, 0, 0.04);
   line-height: 1;
@@ -491,7 +503,7 @@ nav.scrolled .btn-nav-register {
 }
 
 h1.hero-title {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: clamp(72px, 9vw, 140px);
   line-height: 0.9;
   letter-spacing: -2px;
@@ -531,7 +543,7 @@ h1.hero-title .line3 {
   gap: 12px;
   padding: 16px 40px;
   color: #fff;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 2px;
@@ -617,7 +629,7 @@ h1.hero-title .line3 {
 }
 
 .stat-num {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 42px;
   color: var(--orange);
   line-height: 1;
@@ -677,7 +689,7 @@ h1.hero-title .line3 {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 14px;
   letter-spacing: 4px;
   color: var(--muted);
@@ -823,7 +835,7 @@ h1.hero-title .line3 {
   align-items: center;
   gap: 24px;
   padding: 0 40px;
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 18px;
   letter-spacing: 3px;
   color: rgba(255, 255, 255, 0.3);
@@ -880,7 +892,7 @@ section {
 }
 
 .section-title {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: clamp(48px, 6vw, 90px);
   line-height: 0.92;
   letter-spacing: -1px;
@@ -958,7 +970,7 @@ section {
 }
 
 .feature-num {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 60px;
   color: rgba(17, 17, 17, 0.05);
   line-height: 1;
@@ -988,7 +1000,7 @@ section {
 }
 
 .feature-title {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 24px;
   font-weight: 700;
   letter-spacing: 1px;
@@ -1082,7 +1094,7 @@ section {
   background: var(--orange);
   color: #fff;
   padding: 10px 28px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 2px;
@@ -1113,7 +1125,7 @@ section {
 }
 
 .product-name {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 22px;
   font-weight: 700;
   letter-spacing: .5px;
@@ -1128,7 +1140,7 @@ section {
 }
 
 .product-price {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 28px;
   color: var(--orange);
   letter-spacing: 1px;
@@ -1188,13 +1200,13 @@ section {
 }
 
 .service-item-num {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 18px;
   color: var(--muted);
 }
 
 .service-item-name {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 22px;
   font-weight: 700;
   letter-spacing: .5px;
@@ -1232,7 +1244,7 @@ section {
 }
 
 .services-cta-panel h3 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 52px;
   line-height: 0.9;
   margin-bottom: 20px;
@@ -1306,7 +1318,7 @@ section {
 }
 
 .booking-text h2 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: clamp(56px, 7vw, 100px);
   line-height: 0.9;
   color: #fff;
@@ -1330,7 +1342,7 @@ section {
   padding: 22px 60px;
   background: var(--orange);
   color: #fff;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 15px;
   font-weight: 800;
   letter-spacing: 3px;
@@ -1392,7 +1404,7 @@ section {
   position: absolute;
   top: 10%;
   right: -5%;
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 20vw;
   color: rgba(255, 255, 255, 0.02);
   line-height: 1;
@@ -1430,7 +1442,7 @@ section {
   position: absolute;
   top: 20px;
   right: 40px;
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 80px;
   color: rgba(232, 71, 10, 0.1);
   line-height: 1;
@@ -1471,7 +1483,7 @@ section {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 18px;
   font-weight: 700;
   color: var(--orange);
@@ -1572,7 +1584,7 @@ footer::after {
 }
 
 .footer-col h4 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 22px;
   font-weight: 500;
   letter-spacing: 2px;
@@ -1640,7 +1652,7 @@ footer::after {
 }
 
 .rate-us-header h2 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 48px;
   color: #111;
   letter-spacing: 2px;
@@ -1772,7 +1784,7 @@ footer::after {
   border: 1px solid #E8E8E8;
   color: var(--white);
   padding: 14px 18px;
-  font-family: 'Barlow', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 14px;
   outline: none;
   transition: border-color .3s;
@@ -1791,7 +1803,7 @@ footer::after {
   background: var(--orange);
   color: #fff;
   border: none;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 16px;
   font-weight: 700;
   letter-spacing: 3px;
@@ -1978,7 +1990,7 @@ footer::after {
 }
 
 .value-title {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 22px;
   font-weight: 700;
   letter-spacing: .5px;
@@ -2011,7 +2023,7 @@ footer::after {
 }
 
 .contact-info h2 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 80px;
   line-height: 0.9;
   color: #000;
@@ -2069,7 +2081,7 @@ footer::after {
 }
 
 .contact-form-panel h2 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 60px;
   line-height: 0.9;
   letter-spacing: -1px;
@@ -2162,7 +2174,7 @@ footer::after {
 }
 
 .booking-sidebar-summary h3 {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 20px;
   font-weight: 700;
   letter-spacing: 1px;
@@ -2190,7 +2202,7 @@ footer::after {
   padding-top: 20px;
   display: flex;
   justify-content: space-between;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 22px;
   font-weight: 700;
   letter-spacing: .5px;
@@ -2221,7 +2233,7 @@ footer::after {
 }
 
 .service-option-name {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 18px;
   font-weight: 700;
   letter-spacing: .5px;
@@ -2264,7 +2276,7 @@ footer::after {
 }
 
 .date-btn .day-num {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 22px;
   line-height: 1;
 }
@@ -2293,7 +2305,7 @@ footer::after {
 }
 
 .form-section-title {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 18px;
   font-weight: 700;
   letter-spacing: 1px;
@@ -2624,7 +2636,7 @@ footer::after {
 }
 
 .contact-hero-content h1 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: clamp(48px, 6.5vw, 92px);
   font-weight: 700;
   letter-spacing: -1px;
@@ -2664,7 +2676,7 @@ footer::after {
   border: 1px solid var(--border);
   border-radius: 0;
   background: var(--black3);
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 16px;
   font-weight: 600;
   color: #111;
@@ -2690,7 +2702,7 @@ footer::after {
 }
 
 .contact-left h2 {
-  font-family: 'Barlow', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 42px;
   font-weight: 800;
   line-height: 1.1;
@@ -2712,7 +2724,7 @@ footer::after {
 }
 
 .info-block h4 {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 16px;
   font-weight: 800;
   text-transform: uppercase;
@@ -2789,7 +2801,7 @@ footer::after {
 }
 
 .visit-us-block h3 {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 24px;
   font-weight: 800;
   color: #111;
@@ -2918,7 +2930,7 @@ footer::after {
 
 .about-hero-content h1,
 .page-hero--about h1 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: clamp(48px, 7vw, 108px);
   font-weight: 900;
   line-height: 0.92;
@@ -2969,7 +2981,7 @@ footer::after {
 }
 
 .stat-item h3 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 56px;
   font-weight: 800;
   color: #E8470A;
@@ -3291,7 +3303,7 @@ footer::after {
 }
 
 .rate-us-header h2 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 56px;
   color: #111;
   letter-spacing: 2px;
@@ -3537,4 +3549,49 @@ footer::after {
   .about-join h2 {
     font-size: 32px;
   }
+}
+
+/* ── Heading fonts (body uses DM Sans via --font-body) ── */
+h1,
+h2,
+.hero-title,
+.font-family-bebas,
+[class*='font-family-bebas'],
+.ct,
+.pg-hd h1,
+.customer-page-header h1,
+.shop-container .customer-page-header h1,
+.about-join h2,
+.login-card h2,
+.register-card h2 {
+  font-family: var(--font-heading) !important;
+}
+
+h3,
+h4,
+h5,
+h6,
+.bike-name-new,
+.product-name,
+.feature-title,
+.value-title,
+.service-item-name,
+.service-option-name,
+.form-section-title,
+.info-block h4,
+.visit-us-block h3,
+.booking-sidebar-summary h3 {
+  font-family: var(--font-heading-alt) !important;
+}
+
+#customer-dashboard-shell h1,
+#customer-dashboard-shell h2,
+#customer-dashboard-shell h3,
+#customer-dashboard-shell h4,
+#customer-dashboard-shell .customer-page-header h1,
+#customer-dashboard-shell .welcome-banner h1,
+#customer-dashboard-shell .ct,
+#customer-dashboard-shell .cart-title,
+#customer-dashboard-shell .sv {
+  font-family: var(--ce-font-display) !important;
 }

@@ -6,6 +6,10 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['DM Sans', 'system-ui', '-apple-system', 'sans-serif'],
+        heading: ['Outfit', 'system-ui', 'sans-serif'],
+      },
       colors: {
         primary: {
           50: '#fff4ed',

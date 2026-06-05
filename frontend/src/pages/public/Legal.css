@@ -24,7 +24,7 @@
 }
 
 .legal-hero h1 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: clamp(2.5rem, 6vw, 4rem);
   font-weight: 900;
   color: #fff;
@@ -104,7 +104,7 @@
 }
 
 .legal-body h2 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: clamp(1.6rem, 3vw, 2rem);
   font-weight: 800;
   color: #fff;

@@ -26,7 +26,7 @@
 
   background: var(--black);
   color: var(--white);
-  font-family: 'Barlow', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   min-height: 100vh;
 }
 
@@ -38,7 +38,7 @@
 
 #customer-dashboard-shell button {
   cursor: pointer;
-  font-family: 'Barlow', sans-serif;
+  font-family: 'DM Sans', sans-serif;
 }
 
 /* NAV — reset global index.css `nav { position: fixed; height: ... }` */
@@ -274,7 +274,7 @@
 }
 
 #customer-dashboard-shell .ct {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 1.5px;
@@ -314,7 +314,7 @@
   align-items: center;
   gap: 7px;
   padding: 9px 20px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 1.5px;
@@ -429,7 +429,7 @@
   border: 1px solid var(--border);
   color: var(--white);
   padding: 10px 13px;
-  font-family: 'Barlow', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 13px;
   outline: none;
   transition: border-color .2s;
@@ -446,7 +446,7 @@
   border: 1px solid var(--border);
   color: var(--white);
   padding: 10px 13px;
-  font-family: 'Barlow', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 13px;
   outline: none;
   transition: border-color .2s;
@@ -470,7 +470,7 @@
   border: 1px solid var(--border);
   color: var(--white);
   padding: 10px 13px;
-  font-family: 'Barlow', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 13px;
   outline: none;
   transition: border-color .2s;
@@ -596,7 +596,7 @@
 }
 
 #customer-dashboard-shell .sv {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 36px;
   line-height: 1;
   letter-spacing: -1px;
@@ -810,7 +810,7 @@
 }
 
 #customer-dashboard-shell .mt {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 21px;
   font-weight: 700;
   letter-spacing: 1px;
@@ -1000,7 +1000,7 @@
 }
 
 #customer-dashboard-shell .prod-name {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 20px;
   font-weight: 700;
   letter-spacing: .3px;
@@ -1020,7 +1020,7 @@
 }
 
 #customer-dashboard-shell .prod-price {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 26px;
   color: var(--orange);
   letter-spacing: .5px;
@@ -1121,7 +1121,7 @@
 }
 
 #customer-dashboard-shell .svc-name {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 19px;
   font-weight: 700;
   letter-spacing: .3px;
@@ -1136,7 +1136,7 @@
 }
 
 #customer-dashboard-shell .svc-price {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 24px;
   color: var(--orange);
 }
@@ -1181,7 +1181,7 @@
 }
 
 #customer-dashboard-shell .dd {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 20px;
   color: var(--white);
   line-height: 1;
@@ -1256,7 +1256,7 @@
 }
 
 #customer-dashboard-shell .pg-hd h1 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 44px;
   line-height: 1;
   letter-spacing: -1px;
@@ -1289,7 +1289,7 @@
 }
 
 #customer-dashboard-shell .empty-state h3 {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 22px;
   font-weight: 700;
   letter-spacing: 1px;
@@ -1520,7 +1520,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 12px;
   font-weight: 700;
   color: #fff;
@@ -1564,7 +1564,7 @@
 }
 
 .ct {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 1.5px;
@@ -1594,7 +1594,7 @@
   justify-content: center;
   gap: 7px;
   padding: 9px 20px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 1.5px;
@@ -1710,7 +1710,7 @@
   border: 1px solid var(--border);
   color: var(--white);
   padding: 10px 13px;
-  font-family: 'Barlow', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 13px;
   outline: none;
   transition: border-color .2s;
@@ -1843,7 +1843,7 @@
 }
 
 .sv {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 40px;
   line-height: 1;
   letter-spacing: -1px;
@@ -2044,7 +2044,7 @@
 }
 
 .mt {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 21px;
   font-weight: 700;
   letter-spacing: 1px;
@@ -2186,7 +2186,7 @@
 }
 
 .prod-name {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 20px;
   font-weight: 700;
   letter-spacing: .3px;
@@ -2206,7 +2206,7 @@
 }
 
 .prod-price {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 26px;
   color: var(--orange);
 }
@@ -2315,7 +2315,7 @@
 
 /* MISC */
 .pg-hd h1 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 44px;
   line-height: 1;
   letter-spacing: -1px;
@@ -2380,7 +2380,7 @@
 }
 
 .prod-name {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 20px;
   font-weight: 700;
   letter-spacing: .3px;
@@ -2400,7 +2400,7 @@
 }
 
 .prod-price {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 26px;
   color: var(--orange);
 }
@@ -2509,7 +2509,7 @@
 
 /* MISC */
 .pg-hd h1 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 44px;
   line-height: 1;
   letter-spacing: -1px;
@@ -2620,7 +2620,7 @@
 }
 
 .cart-title {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 34px;
   font-weight: 700;
   color: var(--orange);
@@ -2796,7 +2796,7 @@
 }
 
 .item-display-name {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 26px;
   font-weight: 700;
   color: #000;
@@ -2876,7 +2876,7 @@
 
 .price-tag-now {
   display: block;
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 32px;
   color: #000;
   line-height: 1;
@@ -2902,7 +2902,7 @@
 }
 
 .summary-heading {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 26px;
   font-weight: 700;
   color: var(--orange);
@@ -2964,7 +2964,7 @@
 }
 
 .total-value-ultra {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 52px;
   color: var(--orange);
   line-height: 0.9;
@@ -3032,7 +3032,7 @@
 }
 
 .empty-bag-view h2 {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 36px;
   font-weight: 700;
   color: var(--orange);
@@ -3111,7 +3111,7 @@
   }
   .item-mobile-price {
     display: block;
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Outfit', sans-serif;
     font-size: 22px;
     color: var(--orange);
     margin-top: 10px;
@@ -3150,7 +3150,7 @@
 }
 
 #customer-dashboard-shell .customer-page-header h1 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: clamp(36px, 5vw, 52px);
   line-height: 0.95;
   letter-spacing: -0.5px;
@@ -3199,7 +3199,7 @@
   position: absolute;
   top: -8px;
   right: 24px;
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 120px;
   line-height: 1;
   opacity: 0.04;
@@ -3227,7 +3227,7 @@
 }
 
 #customer-dashboard-shell .welcome-banner h1 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: clamp(40px, 5vw, 64px);
   line-height: 0.9;
   letter-spacing: -2px;
@@ -3292,7 +3292,7 @@
 }
 
 #customer-dashboard-shell .quick-action-card .quick-action-label {
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 1.5px;
@@ -3468,7 +3468,7 @@
     margin-top: 8px;
     padding: 12px 28px;
     text-align: center;
-    font-family: 'Barlow Condensed', sans-serif;
+    font-family: 'DM Sans', sans-serif;
     font-size: 13px;
     font-weight: 700;
     letter-spacing: 2px;
@@ -3570,7 +3570,7 @@
 }
 
 #customer-dashboard-shell .sv {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 42px;
   line-height: 1;
   color: var(--white);
@@ -3616,7 +3616,7 @@
 }
 
 #customer-dashboard-shell .ct {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 20px;
   letter-spacing: 1px;
   color: var(--white);
