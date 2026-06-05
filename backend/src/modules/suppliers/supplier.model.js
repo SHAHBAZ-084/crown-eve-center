@@ -5,7 +5,7 @@ const { ensureSupplierAccount } = require('../../services/ledger.service');
 const getAllSuppliers = ({ page = 1, limit = 100 } = {}) => {
   const take = Math.min(Number(limit) || 100, 200);
   const skip = (Math.max(Number(page) || 1, 1) - 1) * take;
-  return prisma.$transaction([
+  return Promise.all([
     prisma.supplier.findMany({
       skip,
       take,

@@ -32,11 +32,12 @@ const shouldUseNeonAdapter = () => {
   return url.includes('neon.tech');
 };
 
-/** PrismaNeon (Pool) uses WebSocket — fails on Hostinger and most Node 22 setups. Default: HTTP. */
-const shouldUseNeonHttpAdapter = () => {
-  if (process.env.PRISMA_NEON_HTTP === '0') return false;
-  return true;
-};
+/**
+ * PrismaNeonHTTP cannot run prisma.$transaction (POS sale/purchase/service invoices break).
+ * Default: Pool + poolQueryViaFetch (HTTPS-friendly, transactions supported).
+ * Set PRISMA_NEON_HTTP=1 only if Pool fails — POS writes will not work.
+ */
+const shouldUseNeonHttpAdapter = () => process.env.PRISMA_NEON_HTTP === '1';
 
 function createPrismaClient() {
   const pooledUrl = buildUrl(process.env.DATABASE_URL, {
@@ -57,6 +58,9 @@ function createPrismaClient() {
 
   if (shouldUseNeonAdapter() && pooledUrl) {
     if (shouldUseNeonHttpAdapter()) {
+      console.warn(
+        '[db] PrismaNeonHTTP: interactive transactions disabled — sale/purchase invoices will fail.'
+      );
       console.log('[db] PrismaNeonHTTP (HTTPS fetch — no WebSocket/TCP)');
       const { PrismaNeonHTTP } = require('@prisma/adapter-neon');
       const adapter = new PrismaNeonHTTP(pooledUrl);
