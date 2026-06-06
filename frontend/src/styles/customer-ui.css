@@ -1071,6 +1071,39 @@
   margin-bottom: 10px;
 }
 
+#customer-dashboard-shell .ce-shop .shop-add-to-cart-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 40px;
+  margin-bottom: 10px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 10px;
+  background: var(--orange);
+  color: #fff;
+  font-family: var(--ce-font);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+#customer-dashboard-shell .ce-shop .shop-add-to-cart-btn:hover:not(:disabled) {
+  background: #d63d08;
+  box-shadow: 0 6px 16px rgba(232, 71, 10, 0.28);
+  transform: translateY(-1px);
+}
+
+#customer-dashboard-shell .ce-shop .shop-add-to-cart-btn:disabled {
+  background: var(--ce-surface-3);
+  color: var(--ce-text-soft);
+  cursor: not-allowed;
+}
+
 #customer-dashboard-shell .ce-shop .bike-card-footer {
   padding-top: 10px;
   border-top-color: var(--border);
