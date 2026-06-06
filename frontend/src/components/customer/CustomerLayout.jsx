@@ -46,11 +46,10 @@ const CustomerLayout = () => {
             src={LOGO_URL}
             alt="Crown Eve Center"
             className="cnav-logo-img"
-            style={{ height: 'var(--cnav-logo-size, 65px)', width: 'auto', objectFit: 'contain', display: 'block' }}
           />
         </NavLink>
 
-        <nav className="cnav-links--desktop" aria-label="Customer navigation">
+        <div className="cnav-links--desktop" role="navigation" aria-label="Customer navigation">
           <ul className="cnav-nav-list">
             {NAV_LINKS.map((link) => (
               <li key={link.to}>
@@ -63,7 +62,7 @@ const CustomerLayout = () => {
               </li>
             ))}
           </ul>
-        </nav>
+        </div>
 
         <div className="cnav-actions">
           <NavLink to="/my/cart" className="cnav-cart-link" aria-label="Cart" title="Cart">
@@ -110,7 +109,7 @@ const CustomerLayout = () => {
           </button>
         </div>
 
-        <nav className="cnav-drawer-nav" aria-label="Mobile menu links">
+        <div className="cnav-drawer-nav" role="navigation" aria-label="Mobile menu links">
           <p className="cnav-drawer-label">Navigation</p>
           {NAV_LINKS.map((link) => (
             <NavLink
@@ -141,7 +140,7 @@ const CustomerLayout = () => {
           <button type="button" className="cnl cnl-logout-mobile" onClick={() => { closeMenu(); logout(); }}>
             Logout
           </button>
-        </nav>
+        </div>
       </aside>
 
       {menuOpen && (
