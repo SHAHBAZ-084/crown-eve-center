@@ -22,7 +22,7 @@ const {
 } = require('../../utils/loginAttempts');
 const { assertPasswordPolicy } = require('../../utils/passwordPolicy');
 const { normalizeRole } = require('../../constants/roles');
-const { verifyGoogleIdToken } = require('./google.service');
+const { verifyGoogleIdToken, getGoogleClientId } = require('./google.service');
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -126,6 +126,14 @@ exports.register = async (req, res) => {
     if (error.statusCode === 429) return sendOtpError(res, error);
     sendSafeError(res, 500, 'Internal server error.');
   }
+};
+
+exports.getGoogleConfig = (req, res) => {
+  const clientId = getGoogleClientId();
+  res.json({
+    enabled: Boolean(clientId),
+    clientId: clientId || null,
+  });
 };
 
 exports.googleAuth = async (req, res) => {

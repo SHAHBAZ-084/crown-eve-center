@@ -1,7 +1,6 @@
 // frontend/src/App.jsx
 import React, { lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import Layout from './components/Layout';
@@ -66,8 +65,6 @@ const CustomerBookService = lazy(() => import('./pages/dashboards/customer/BookS
 const ProductDetail = lazy(() => import('./pages/dashboards/customer/ProductDetail'));
 
 import { BRANCH_DASHBOARD_ROLES } from './constants/roles';
-
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
 const AppRoutes = () => (
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -147,22 +144,12 @@ const AppRoutes = () => (
         </BrowserRouter>
 );
 
-const App = () => {
-  const tree = (
-    <AuthProvider>
-      <CartProvider>
-        <AppRoutes />
-      </CartProvider>
-    </AuthProvider>
-  );
-
-  if (!GOOGLE_CLIENT_ID) return tree;
-
-  return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      {tree}
-    </GoogleOAuthProvider>
-  );
-};
+const App = () => (
+  <AuthProvider>
+    <CartProvider>
+      <AppRoutes />
+    </CartProvider>
+  </AuthProvider>
+);
 
 export default App;

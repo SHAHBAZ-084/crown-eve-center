@@ -5,7 +5,7 @@ import { LOGO_URL } from '../../constants/mediaAssets';
 import { PAKISTAN_CITIES } from '../../constants/pakistanCities';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
-import GoogleSignInButton, { isGoogleSignInEnabled } from '../../components/auth/GoogleSignInButton';
+import GoogleAuthSection from '../../components/auth/GoogleAuthSection';
 import { getPostLoginPath } from '../../utils/authRedirect';
 import './Auth.css';
 
@@ -91,16 +91,12 @@ const Register = () => {
           </div>
         )}
 
-        {isGoogleSignInEnabled() && (
-          <>
-            <GoogleSignInButton
-              onSuccess={handleGoogleSuccess}
-              onError={(msg) => setError(msg)}
-              disabled={authBusy}
-            />
-            <div className="auth-divider">or</div>
-          </>
-        )}
+        <GoogleAuthSection
+          mode="signup"
+          onSuccess={handleGoogleSuccess}
+          onError={(msg) => setError(msg)}
+          disabled={authBusy}
+        />
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">

@@ -36,6 +36,7 @@ const safeLimiter = (limiter) => (req, res, next) => {
 /** When relaxed, skip express-rate-limit (shared CDN IP was causing site-wide 429). */
 const rl = authLimitsRelaxed ? noop : safeLimiter;
 
+router.get('/google-config', authController.getGoogleConfig);
 router.post('/register', rl(registerLimiter), validate(registerSchema), wrapAsync(authController.register));
 router.post('/login', validate(loginSchema), rl(loginLimiter), wrapAsync(authController.login));
 router.post('/google', validate(googleAuthSchema), rl(loginLimiter), wrapAsync(authController.googleAuth));

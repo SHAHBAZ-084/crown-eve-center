@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LOGO_URL } from '../constants/mediaAssets';
-import GoogleSignInButton, { isGoogleSignInEnabled } from '../components/auth/GoogleSignInButton';
+import GoogleAuthSection from '../components/auth/GoogleAuthSection';
 import { getPostLoginPath } from '../utils/authRedirect';
 import './auth/Auth.css';
 
@@ -107,16 +107,12 @@ const Login = () => {
           </div>
         )}
 
-        {isGoogleSignInEnabled() && (
-          <>
-            <GoogleSignInButton
-              onSuccess={handleGoogleSuccess}
-              onError={(msg) => setError(msg)}
-              disabled={authBusy}
-            />
-            <div className="form-divider">or</div>
-          </>
-        )}
+        <GoogleAuthSection
+          mode="signin"
+          onSuccess={handleGoogleSuccess}
+          onError={(msg) => setError(msg)}
+          disabled={authBusy}
+        />
         
         <form onSubmit={handleSubmit}>
           <div className="form-group">
