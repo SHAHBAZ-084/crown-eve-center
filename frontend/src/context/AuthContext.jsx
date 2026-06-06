@@ -42,13 +42,22 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  const login = async (email, password) => {
-    const res = await api.post('/auth/login', { email, password });
-    const nextUser = { ...res.data.user, role: normalizeRole(res.data.user.role) };
-    localStorage.setItem('token', res.data.token);
+  const persistSession = (data) => {
+    const nextUser = { ...data.user, role: normalizeRole(data.user.role) };
+    localStorage.setItem('token', data.token);
     localStorage.setItem('user', JSON.stringify(nextUser));
     setUser(nextUser);
-    return { ...res.data, user: nextUser };
+    return { ...data, user: nextUser };
+  };
+
+  const login = async (email, password) => {
+    const res = await api.post('/auth/login', { email, password });
+    return persistSession(res.data);
+  };
+
+  const loginWithGoogle = async (credential) => {
+    const res = await api.post('/auth/google', { credential });
+    return persistSession(res.data);
   };
 
   const logout = async () => {
@@ -65,7 +74,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );

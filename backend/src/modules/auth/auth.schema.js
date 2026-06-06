@@ -40,10 +40,17 @@ const verifyOtpSchema = z.object({
   }),
 });
 
+const googleAuthSchema = z.object({
+  body: z.object({
+    credential: z.string().min(20, 'Invalid Google credential'),
+  }),
+});
+
 module.exports = {
   registerSchema,
   loginSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
   verifyOtpSchema,
+  googleAuthSchema,
 };

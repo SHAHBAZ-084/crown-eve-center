@@ -2,16 +2,18 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { normalizeRoleRedirect } from '../constants/customerPaths';
 import { LOGO_URL } from '../constants/mediaAssets';
+import GoogleSignInButton, { isGoogleSignInEnabled } from '../components/auth/GoogleSignInButton';
+import { getPostLoginPath } from '../utils/authRedirect';
 import './auth/Auth.css';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [googleSubmitting, setGoogleSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -24,26 +26,7 @@ const Login = () => {
       const res = await login(email, password);
       const user = res.user;
       
-      const searchParams = new URLSearchParams(location.search);
-      const redirectQuery = searchParams.get('redirect');
-      const from = location.state?.from || redirectQuery || null;
-
-      // Redirect to the intended page, or fallback based on role
-      if (from) {
-        navigate(normalizeRoleRedirect(from, user.role), { replace: true });
-      } else if (user.role === 'COMPANY_OWNER') {
-        navigate('/owner/dashboard');
-      } else if (user.role === 'BRANCH_OWNER' || user.role === 'BRANCH_MANAGER') {
-        navigate('/branch/dashboard');
-      } else if (user.role === 'CUSTOMER') {
-        navigate('/my/dashboard');
-      } else if (user.role === 'EMPLOYEE') {
-        navigate('/branch/pos');
-      } else if (user.role === 'TECHNICIAN') {
-        navigate('/branch/appointments');
-      } else {
-        navigate('/');
-      }
+      navigate(getPostLoginPath(user, location), { replace: true });
     } catch (err) {
       console.error('Login error:', err);
       if (err.response?.data?.unverified) {
@@ -71,6 +54,27 @@ const Login = () => {
       setSubmitting(false);
     }
   };
+
+  const handleGoogleSuccess = async (credential) => {
+    if (googleSubmitting || submitting) return;
+    setGoogleSubmitting(true);
+    setError('');
+    try {
+      const res = await loginWithGoogle(credential);
+      navigate(getPostLoginPath(res.user, location), { replace: true });
+    } catch (err) {
+      const msg =
+        err.response?.data?.message ||
+        (err.code === 'ECONNABORTED' || !err.response
+          ? 'Server is not responding. Try again in a moment.'
+          : 'Google sign-in failed. Please try again.');
+      setError(msg);
+    } finally {
+      setGoogleSubmitting(false);
+    }
+  };
+
+  const authBusy = submitting || googleSubmitting;
 
   return (
     <div id="page-login" className="page">
@@ -102,6 +106,17 @@ const Login = () => {
             {error}
           </div>
         )}
+
+        {isGoogleSignInEnabled() && (
+          <>
+            <GoogleSignInButton
+              onSuccess={handleGoogleSuccess}
+              onError={(msg) => setError(msg)}
+              disabled={authBusy}
+            />
+            <div className="form-divider">or</div>
+          </>
+        )}
         
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -127,13 +142,12 @@ const Login = () => {
               required
             />
           </div>
-          <button type="submit" className="form-submit" disabled={submitting}>
+          <button type="submit" className="form-submit" disabled={authBusy}>
             {submitting ? 'Signing in…' : 'Sign In To Portal →'}
           </button>
         </form>
-        
-        <div className="form-divider">— or —</div>
-        <div style={{ textAlign: 'center', fontSize: '13px', color: 'var(--white2)' }}>
+
+        <div style={{ textAlign: 'center', fontSize: '13px', color: 'var(--white2)', marginTop: '24px' }}>
           Don't have an account? <Link to="/register" className="form-link">Register</Link>
         </div>
       </div>

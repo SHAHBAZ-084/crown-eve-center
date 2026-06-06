@@ -1,6 +1,7 @@
 // frontend/src/App.jsx
 import React, { lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import Layout from './components/Layout';
@@ -66,10 +67,9 @@ const ProductDetail = lazy(() => import('./pages/dashboards/customer/ProductDeta
 
 import { BRANCH_DASHBOARD_ROLES } from './constants/roles';
 
-const App = () => {
-  return (
-    <AuthProvider>
-      <CartProvider>
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+
+const AppRoutes = () => (
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <Routes>
             <Route element={<Layout isPublic />}>
@@ -145,8 +145,23 @@ const App = () => {
             <Route path="*" element={<PageSuspense><NotFound /></PageSuspense>} />
           </Routes>
         </BrowserRouter>
+);
+
+const App = () => {
+  const tree = (
+    <AuthProvider>
+      <CartProvider>
+        <AppRoutes />
       </CartProvider>
     </AuthProvider>
+  );
+
+  if (!GOOGLE_CLIENT_ID) return tree;
+
+  return (
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      {tree}
+    </GoogleOAuthProvider>
   );
 };
 

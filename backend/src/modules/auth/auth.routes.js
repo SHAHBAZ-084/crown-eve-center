@@ -13,6 +13,7 @@ const {
   forgotPasswordSchema,
   resetPasswordSchema,
   verifyOtpSchema,
+  googleAuthSchema,
 } = require('./auth.schema');
 
 const wrapAsync = (fn) => (req, res, next) => {
@@ -37,6 +38,7 @@ const rl = authLimitsRelaxed ? noop : safeLimiter;
 
 router.post('/register', rl(registerLimiter), validate(registerSchema), wrapAsync(authController.register));
 router.post('/login', validate(loginSchema), rl(loginLimiter), wrapAsync(authController.login));
+router.post('/google', validate(googleAuthSchema), rl(loginLimiter), wrapAsync(authController.googleAuth));
 router.post('/verify-otp', rl(otpLimiter), validate(verifyOtpSchema), wrapAsync(authController.verifyOtp));
 router.post('/resend-otp', rl(otpLimiter), wrapAsync(authController.resendOtp));
 router.post('/forgot-password', rl(otpLimiter), validate(forgotPasswordSchema), wrapAsync(authController.forgotPassword));

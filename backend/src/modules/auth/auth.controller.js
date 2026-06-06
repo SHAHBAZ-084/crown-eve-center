@@ -22,6 +22,7 @@ const {
 } = require('../../utils/loginAttempts');
 const { assertPasswordPolicy } = require('../../utils/passwordPolicy');
 const { normalizeRole } = require('../../constants/roles');
+const { verifyGoogleIdToken } = require('./google.service');
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -124,6 +125,90 @@ exports.register = async (req, res) => {
     }
     if (error.statusCode === 429) return sendOtpError(res, error);
     sendSafeError(res, 500, 'Internal server error.');
+  }
+};
+
+exports.googleAuth = async (req, res) => {
+  const { credential } = req.body;
+
+  try {
+    if (!JWT_SECRET) {
+      return res.status(503).json({
+        message: 'Login is temporarily unavailable. Server auth is not configured.',
+      });
+    }
+
+    const { googleId, email, name } = await verifyGoogleIdToken(credential);
+
+    let user = await prisma.user.findFirst({
+      where: { OR: [{ googleId }, { email }] },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        branchId: true,
+        password: true,
+        googleId: true,
+        isVerified: true,
+        branch: { select: { name: true } },
+      },
+    });
+
+    if (user) {
+      const updates = {};
+      if (!user.googleId) updates.googleId = googleId;
+      if (!user.isVerified) updates.isVerified = true;
+      if (Object.keys(updates).length) {
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: updates,
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            branchId: true,
+            password: true,
+            googleId: true,
+            isVerified: true,
+            branch: { select: { name: true } },
+          },
+        });
+      }
+    } else {
+      user = await prisma.user.create({
+        data: {
+          email,
+          name,
+          googleId,
+          password: null,
+          role: 'CUSTOMER',
+          branchId: null,
+          isVerified: true,
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          branchId: true,
+          password: true,
+          googleId: true,
+          isVerified: true,
+          branch: { select: { name: true } },
+        },
+      });
+    }
+
+    clearLoginAttempts(email);
+    return sendAuthResponse(res, user);
+  } catch (error) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    logger.error('Google auth failed', { message: error.message, stack: error.stack });
+    sendSafeError(res, 500, 'Google sign-in failed. Please try again.');
   }
 };
 

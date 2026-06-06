@@ -4,6 +4,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { LOGO_URL } from '../../constants/mediaAssets';
 import { PAKISTAN_CITIES } from '../../constants/pakistanCities';
 import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
+import GoogleSignInButton, { isGoogleSignInEnabled } from '../../components/auth/GoogleSignInButton';
+import { getPostLoginPath } from '../../utils/authRedirect';
 import './Auth.css';
 
 const Register = () => {
@@ -18,7 +21,9 @@ const Register = () => {
   });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [googleSubmitting, setGoogleSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { loginWithGoogle } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,6 +55,27 @@ const Register = () => {
     }
   };
 
+  const handleGoogleSuccess = async (credential) => {
+    if (googleSubmitting || submitting) return;
+    setGoogleSubmitting(true);
+    setError('');
+    try {
+      const res = await loginWithGoogle(credential);
+      navigate(getPostLoginPath(res.user), { replace: true });
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          (err.code === 'ECONNABORTED' || !err.response
+            ? 'Server is not responding. Try again in a moment.'
+            : 'Google sign-up failed. Please try again.')
+      );
+    } finally {
+      setGoogleSubmitting(false);
+    }
+  };
+
+  const authBusy = submitting || googleSubmitting;
+
   return (
     <div id="page-register" className="page">
       <div className="register-card">
@@ -63,6 +89,17 @@ const Register = () => {
           <div className="form-error" role="alert">
             {error}
           </div>
+        )}
+
+        {isGoogleSignInEnabled() && (
+          <>
+            <GoogleSignInButton
+              onSuccess={handleGoogleSuccess}
+              onError={(msg) => setError(msg)}
+              disabled={authBusy}
+            />
+            <div className="auth-divider">or</div>
+          </>
         )}
 
         <form onSubmit={handleSubmit}>
@@ -193,13 +230,12 @@ const Register = () => {
               I agree to the <Link to="/terms" className="form-link">Terms of Service</Link> and <Link to="/privacy" className="form-link">Privacy Policy</Link>
             </label>
           </div>
-          <button type="submit" className="form-submit auth-btn-primary" disabled={submitting}>
+          <button type="submit" className="form-submit auth-btn-primary" disabled={authBusy}>
             {submitting ? 'Creating account…' : 'Create My Account →'}
           </button>
         </form>
-        
-        <div className="auth-divider">or</div>
-        <div className="auth-footer-text">
+
+        <div className="auth-footer-text" style={{ marginTop: '24px' }}>
           Already have an account? <Link to="/login" className="form-link">Sign in</Link>
         </div>
       </div>
