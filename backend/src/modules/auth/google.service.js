@@ -1,6 +1,10 @@
 const { OAuth2Client } = require('google-auth-library');
 
-const getGoogleClientId = () => process.env.GOOGLE_CLIENT_ID || '';
+// Public OAuth Web client ID — matches frontend when Hostinger env is unset.
+const DEFAULT_GOOGLE_CLIENT_ID =
+  '225130453736-jl6ulha3l8qc92qhboiapn4t7rkum54n.apps.googleusercontent.com';
+
+const getGoogleClientId = () => process.env.GOOGLE_CLIENT_ID || DEFAULT_GOOGLE_CLIENT_ID;
 
 const verifyGoogleIdToken = async (idToken) => {
   const clientId = getGoogleClientId();

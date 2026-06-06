@@ -26,6 +26,18 @@ const { verifyGoogleIdToken, getGoogleClientId } = require('./google.service');
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
+const userAuthSelect = {
+  id: true,
+  name: true,
+  email: true,
+  role: true,
+  branchId: true,
+  password: true,
+  googleId: true,
+  isVerified: true,
+  branch: { select: { name: true } },
+};
+
 const getJwtSecret = () => {
   if (!JWT_SECRET) {
     throw new Error('JWT_SECRET env var not set.');
@@ -150,17 +162,7 @@ exports.googleAuth = async (req, res) => {
 
     let user = await prisma.user.findFirst({
       where: { OR: [{ googleId }, { email }] },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        branchId: true,
-        password: true,
-        googleId: true,
-        isVerified: true,
-        branch: { select: { name: true } },
-      },
+      select: userAuthSelect,
     });
 
     if (user) {
@@ -168,24 +170,18 @@ exports.googleAuth = async (req, res) => {
       if (!user.googleId) updates.googleId = googleId;
       if (!user.isVerified) updates.isVerified = true;
       if (Object.keys(updates).length) {
-        user = await prisma.user.update({
+        // PrismaNeonHTTP: update + nested select in one call throws — split write and read.
+        await prisma.user.update({
           where: { id: user.id },
           data: updates,
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-            branchId: true,
-            password: true,
-            googleId: true,
-            isVerified: true,
-            branch: { select: { name: true } },
-          },
+        });
+        user = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: userAuthSelect,
         });
       }
     } else {
-      user = await prisma.user.create({
+      const created = await prisma.user.create({
         data: {
           email,
           name,
@@ -195,17 +191,10 @@ exports.googleAuth = async (req, res) => {
           branchId: null,
           isVerified: true,
         },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-          branchId: true,
-          password: true,
-          googleId: true,
-          isVerified: true,
-          branch: { select: { name: true } },
-        },
+      });
+      user = await prisma.user.findUnique({
+        where: { id: created.id },
+        select: userAuthSelect,
       });
     }
 
