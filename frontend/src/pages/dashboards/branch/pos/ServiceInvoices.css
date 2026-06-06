@@ -17,7 +17,7 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  background: rgba(45, 26, 18, 0.45);
+  background: rgba(230, 81, 0, 0.35);
   backdrop-filter: blur(6px);
 }
 
@@ -46,8 +46,8 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 1.25rem 1.5rem;
-  background: linear-gradient(135deg, #2d1a12 0%, #3d261c 100%);
-  color: #fffaf8;
+  background: linear-gradient(135deg, #ff8f00 0%, #e65100 45%, #d84315 100%);
+  color: #fff;
   flex-shrink: 0;
 }
 
@@ -65,7 +65,7 @@
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(255, 250, 248, 0.55);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .svc-modal__close {
@@ -260,10 +260,11 @@
 }
 
 .svc-totals {
-  background: linear-gradient(145deg, #2d1a12, #1a100c);
+  background: linear-gradient(145deg, #ff9800 0%, #e65100 55%, #d84315 100%);
   border-radius: 1.25rem;
   padding: 1.1rem 1.25rem;
-  color: #fffaf8;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(230, 81, 0, 0.28);
 }
 
 .svc-totals__row {
@@ -280,12 +281,12 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(255, 250, 248, 0.55);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .svc-totals__divider {
   border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
   margin: 0.5rem 0 0.65rem;
 }
 
@@ -305,7 +306,8 @@
 .svc-totals__grand span:last-child {
   font-size: 1.5rem;
   font-weight: 900;
-  color: #e65100;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
   line-height: 1;
 }
 
