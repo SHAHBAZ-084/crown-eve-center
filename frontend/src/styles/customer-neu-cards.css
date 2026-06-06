@@ -9,6 +9,7 @@
 #customer-dashboard-shell .stat,
 #customer-dashboard-shell .quick-action-card,
 #customer-dashboard-shell .ce-shop .bike-card-new,
+#customer-dashboard-shell .ce-dashboard-bikes .bike-card-new,
 #customer-dashboard-shell .ce-order-card,
 #customer-dashboard-shell .cart-item-card-ultra,
 #customer-dashboard-shell .summary-card-ultra {
@@ -24,6 +25,7 @@
 #customer-dashboard-shell .stat:hover,
 #customer-dashboard-shell .quick-action-card:hover,
 #customer-dashboard-shell .ce-shop .bike-card-new:hover,
+#customer-dashboard-shell .ce-dashboard-bikes .bike-card-new:hover,
 #customer-dashboard-shell .ce-order-card:hover,
 #customer-dashboard-shell .cart-item-card-ultra:hover,
 #customer-dashboard-shell .summary-card-ultra:hover {
@@ -66,12 +68,14 @@
   color: var(--orange);
 }
 
-#customer-dashboard-shell .ce-shop .bike-card-new .product-card-img {
+#customer-dashboard-shell .ce-shop .bike-card-new .product-card-img,
+#customer-dashboard-shell .ce-dashboard-bikes .bike-card-new .product-card-img {
   background: var(--ce-neu-bg-soft);
   border-bottom: 1px solid #eceef2;
 }
 
-#customer-dashboard-shell .ce-shop .bike-card-new .product-card-body {
+#customer-dashboard-shell .ce-shop .bike-card-new .product-card-body,
+#customer-dashboard-shell .ce-dashboard-bikes .bike-card-new .product-card-body {
   background: transparent;
 }
 

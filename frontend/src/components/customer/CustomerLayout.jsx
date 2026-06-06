@@ -4,6 +4,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import PageSuspense from '../PageSuspense';
+import CustomerFooter from './CustomerFooter';
 import { LOGO_URL } from '../../constants/mediaAssets';
 import '../../styles/customer.css';
 import '../../styles/customer-ui.css';
@@ -178,6 +179,8 @@ const CustomerLayout = () => {
           </PageSuspense>
         </div>
       </main>
+
+      <CustomerFooter />
     </div>
   );
 };

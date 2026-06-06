@@ -42,12 +42,75 @@
   margin-top: 8px;
 }
 
-#customer-dashboard-shell .ce-dashboard-bikes .products-header {
-  margin-bottom: 28px;
+#customer-dashboard-shell .ce-dashboard-bikes .ce-bikes-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
-#customer-dashboard-shell .ce-dashboard-bikes .product-card.bike-card-new {
-  cursor: pointer;
+#customer-dashboard-shell .ce-dashboard-bikes .ce-bikes-title {
+  font-family: var(--ce-font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ce-text);
+  margin: 4px 0 0;
+}
+
+#customer-dashboard-shell .ce-dashboard-bikes .ce-bikes-view-all {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--orange);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: gap 0.2s ease, opacity 0.2s ease;
+}
+
+#customer-dashboard-shell .ce-dashboard-bikes .ce-bikes-view-all:hover {
+  opacity: 0.85;
+}
+
+#customer-dashboard-shell .ce-dashboard-bikes .products-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+#customer-dashboard-shell .ce-dashboard-bikes .bike-card-new {
+  text-decoration: none;
+  color: inherit;
+}
+
+#customer-dashboard-shell .ce-dashboard-bikes .ce-bikes-empty {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--ce-text-muted);
+}
+
+#customer-dashboard-shell .ce-dashboard-bikes .ce-bikes-cache-note {
+  font-size: 12px;
+  color: var(--ce-text-muted);
+  text-align: center;
+  margin-top: 8px;
+}
+
+@media (max-width: 1024px) {
+  #customer-dashboard-shell .ce-dashboard-bikes .products-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  #customer-dashboard-shell .ce-dashboard-bikes .ce-bikes-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #customer-dashboard-shell .ce-dashboard-bikes .products-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Dashboard welcome hero */
@@ -1280,4 +1343,140 @@
   max-width: 1280px;
   margin: 0 auto;
   padding: 28px clamp(16px, 4vw, 40px) 48px;
+}
+
+/* Customer footer */
+#customer-dashboard-shell .ce-footer {
+  margin-top: auto;
+  background: #fff;
+  border-top: 1px solid var(--border);
+}
+
+#customer-dashboard-shell .ce-footer-top {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(3, 1fr);
+  gap: 40px;
+  padding: 48px clamp(16px, 4vw, 40px) 36px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+#customer-dashboard-shell .ce-footer-logo {
+  display: inline-flex;
+}
+
+#customer-dashboard-shell .ce-footer-logo img {
+  height: 72px;
+  width: auto;
+  object-fit: contain;
+}
+
+#customer-dashboard-shell .ce-footer-brand p {
+  margin: 16px 0 0;
+  max-width: 300px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ce-text-muted);
+}
+
+#customer-dashboard-shell .ce-footer-socials {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+#customer-dashboard-shell .ce-footer-socials a {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--ce-text);
+  background: var(--ce-surface-2);
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+#customer-dashboard-shell .ce-footer-socials a:hover {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+#customer-dashboard-shell .ce-footer-col h4 {
+  font-family: var(--ce-font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 16px;
+}
+
+#customer-dashboard-shell .ce-footer-col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#customer-dashboard-shell .ce-footer-col a {
+  font-size: 14px;
+  color: var(--ce-text-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+#customer-dashboard-shell .ce-footer-col a:hover {
+  color: var(--orange);
+}
+
+#customer-dashboard-shell .ce-footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 20px;
+  padding: 18px clamp(16px, 4vw, 40px) 24px;
+  border-top: 1px solid var(--border);
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+#customer-dashboard-shell .ce-footer-bottom p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--ce-text-muted);
+}
+
+#customer-dashboard-shell .ce-footer-bottom span {
+  color: var(--orange);
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  #customer-dashboard-shell .ce-footer-top {
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+  }
+
+  #customer-dashboard-shell .ce-footer-brand {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 560px) {
+  #customer-dashboard-shell .ce-footer-top {
+    grid-template-columns: 1fr;
+    padding-top: 36px;
+  }
+
+  #customer-dashboard-shell .ce-footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

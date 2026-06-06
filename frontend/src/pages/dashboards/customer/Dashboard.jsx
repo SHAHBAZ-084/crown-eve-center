@@ -16,7 +16,7 @@ import { CustomerMeta } from "../../../components/customer/CustomerUI";
 import NeuCardMarquee from "../../../components/customer/NeuCardMarquee";
 import CatalogProductImage from "../../../components/catalog/CatalogProductImage";
 import ProductGridSkeleton from "../../../components/catalog/ProductGridSkeleton";
-import "../../public/Home.css";
+import "../../public/Shop.css";
 
 const ACTIVE_STATUSES = ["PENDING", "PROCESSING", "pending", "processing"];
 
@@ -264,33 +264,26 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <section className="ce-dashboard-bikes" aria-label="Featured bikes">
-        <div className="products-header">
+      <section className="ce-dashboard-bikes ce-shop" aria-label="Featured bikes">
+        <div className="ce-bikes-header">
           <div>
-            <h2 className="section-title" style={{ color: "var(--orange)" }}>
-              Choose from
-              <br />
-              <span style={{ color: "#111111" }}>Our Best Models.</span>
-            </h2>
+            <p className="customer-page-eyebrow">Featured</p>
+            <h2 className="ce-bikes-title">Our Best Models</h2>
           </div>
-          <Link to="/my/shop" className="view-all">
+          <Link to="/my/shop" className="ce-bikes-view-all">
             View all bikes →
           </Link>
         </div>
         {bikesLoading || (isProductsFetching && products.length === 0) ? (
-          <ProductGridSkeleton
-            count={6}
-            className="products-grid three-cols products-grid--reserved products-grid--loading"
-          />
+          <ProductGridSkeleton count={6} className="products-grid products-grid--reserved" />
         ) : (
-          <div className="products-grid three-cols products-grid--reserved">
+          <div className="products-grid products-grid--reserved">
             {isProductsError && products.length === 0 ? (
-              <div className="no-products" style={{ gridColumn: "1 / -1", textAlign: "center" }}>
+              <div className="ce-bikes-empty" style={{ gridColumn: "1 / -1" }}>
                 <p>We could not load bikes right now (API busy or offline).</p>
                 <button
                   type="button"
                   className="btn-primary"
-                  style={{ marginTop: 16 }}
                   disabled={isProductsFetching}
                   onClick={() => refetchProducts()}
                 >
@@ -298,47 +291,48 @@ const Dashboard = () => {
                 </button>
               </div>
             ) : products.length > 0 ? (
-              products.slice(0, 6).map((p) => (
-                <div
-                  key={p.id}
-                  role="button"
-                  tabIndex={0}
-                  className="product-card bike-card-new"
-                  onClick={() => navigate(`/my/product/${p.id}`)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") navigate(`/my/product/${p.id}`);
-                  }}
-                >
-                  <div className="product-card-img">
-                    <div className="bike-card-blob" />
-                    {p.images && p.images.length > 0 ? (
-                      <CatalogProductImage src={getImgUrl(p.images[0].url)} alt={p.name} />
-                    ) : (
-                      <div className="placeholder-img">[ {p.name} ]</div>
-                    )}
-                  </div>
-                  <div className="product-card-body">
-                    <h3 className="bike-name-new">{p.name}</h3>
-                    <div className="bike-price-new">PKR {Number(p.price).toLocaleString()}</div>
-                    <div className="bike-card-footer">
-                      <span className="check-details">Check details</span>
-                      <div className="arrow-circle">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <line x1="5" y1="12" x2="19" y2="12" />
-                          <polyline points="12 5 19 12 12 19" />
-                        </svg>
+              products.slice(0, 6).map((p) => {
+                const mainImg = p.images?.find((img) => img.is_primary)?.url || p.images?.[0]?.url;
+                const categoryLabel = p.category?.name || "Bike";
+                const marqueeName = p.name?.length > 18 ? `${p.name.slice(0, 18)}…` : p.name;
+
+                return (
+                  <Link to={`/my/product/${p.id}`} key={p.id} className="bike-card-new">
+                    <div className="product-card-img">
+                      {mainImg ? (
+                        <CatalogProductImage src={getImgUrl(mainImg)} alt={p.name} />
+                      ) : (
+                        <div className="placeholder-img">{p.name}</div>
+                      )}
+                      {p.stock_qty <= 0 && <div className="out-of-stock-tag">Out of Stock</div>}
+                    </div>
+                    <NeuCardMarquee words={[categoryLabel, marqueeName, categoryLabel]} className="ce-neu-marquee--sm" />
+                    <div className="product-card-body">
+                      <div className="product-cat">{categoryLabel}</div>
+                      <h3 className="bike-name-new">{p.name}</h3>
+                      <div className="bike-price-new">
+                        Rs. {Number(p.sale_price || p.price).toLocaleString()}
+                      </div>
+                      <div className="bike-card-footer">
+                        <span className="check-details">Check Details</span>
+                        <div className="arrow-circle">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                            <polyline points="12 5 19 12 12 19" />
+                          </svg>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              ))
+                  </Link>
+                );
+              })
             ) : (
-              <div className="no-products">
-                No bikes are listed on the shop yet. Add active bike products in the admin panel.
+              <div className="ce-bikes-empty" style={{ gridColumn: "1 / -1" }}>
+                No bikes are listed on the shop yet.
               </div>
             )}
             {productsFromCache && isProductsFetching && products.length > 0 && (
-              <p style={{ gridColumn: "1 / -1", fontSize: 12, color: "#888", textAlign: "center", marginTop: 8 }}>
+              <p className="ce-bikes-cache-note" style={{ gridColumn: "1 / -1" }}>
                 Showing saved bikes while we refresh…
               </p>
             )}

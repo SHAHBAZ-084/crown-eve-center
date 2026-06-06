@@ -6,7 +6,6 @@ import { LOGO_URL } from '../constants/mediaAssets';
 import GoogleAuthSection from '../components/auth/GoogleAuthSection';
 import PasswordInput from '../components/auth/PasswordInput';
 import { getPostLoginPath } from '../utils/authRedirect';
-import AuthModeToggle from '../components/auth/AuthModeToggle';
 import './auth/Auth.css';
 
 const Login = () => {
@@ -100,8 +99,6 @@ const Login = () => {
             ← Home
           </button>
         </div>
-        <AuthModeToggle mode="login" />
-
         <h2 className="text-5xl font-family-bebas mb-2 tracking-tighter uppercase text-orange-600">Welcome Back.</h2>
         <p className="text-sm text-[#BDBDB8] mb-8">Sign in to your Crown Eve portal to manage your hub.</p>
 
@@ -146,6 +143,9 @@ const Login = () => {
           </button>
         </form>
 
+        <div style={{ textAlign: 'center', fontSize: '13px', color: 'var(--white2)', marginTop: '24px' }}>
+          Don't have an account? <Link to="/register" className="form-link">Register</Link>
+        </div>
       </div>
     </div>
   );

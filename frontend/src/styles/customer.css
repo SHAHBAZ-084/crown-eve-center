@@ -318,9 +318,16 @@
 }
 
 /* LAYOUT */
-#customer-dashboard-shell .main-wrap {
-  padding-top: var(--nav);
+#customer-dashboard-shell {
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
+}
+
+#customer-dashboard-shell .main-wrap {
+  flex: 1;
+  padding-top: var(--nav);
+  min-height: 0;
 }
 
 #customer-dashboard-shell .page-wrap {
