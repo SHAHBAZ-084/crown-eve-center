@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../../../context/CartContext";
 import { getImgUrl } from "../../../utils/imgUrl";
 import CatalogProductImage from "../../../components/catalog/CatalogProductImage";
+import CustomerPageHeader from "../../../components/customer/CustomerPageHeader";
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -28,16 +29,31 @@ const Cart = () => {
     .filter(i => selectedItems.includes(i.id))
     .reduce((acc, i) => acc + (i.sale_price || i.price) * i.qty, 0);
 
+  const removeSelected = () => {
+    selectedItems.forEach((id) => removeItem(id));
+    setSelectedItems([]);
+  };
+
   return (
     <div className="cart-page-ultra ce-cart-page ce-page">
       <div className="cart-page-container">
-        <div className="cart-page-header">
-          <h1 className="cart-title">Shopping Bag <span>({items.length} items)</span></h1>
-          <button className="back-btn" onClick={() => navigate("/my/shop")}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            Continue Shopping
-          </button>
-        </div>
+        <CustomerPageHeader
+          eyebrow="Your order"
+          title="Shopping Bag"
+          subtitle={
+            items.length === 0
+              ? "Review items before checkout"
+              : `${items.length} item${items.length === 1 ? "" : "s"} ready for checkout`
+          }
+          actions={
+            <button type="button" className="ce-cart-back-btn" onClick={() => navigate("/my/shop")}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+              Continue Shopping
+            </button>
+          }
+        />
 
         <div className="cart-main-grid">
           <div className="cart-list-section">
@@ -50,15 +66,22 @@ const Cart = () => {
                     <span className="checkbox-ui"></span>
                     <span className="checkbox-text">Select All Items</span>
                   </label>
-                  <button className="bulk-delete-btn" onClick={() => items.forEach(i => removeItem(i.id))}>
-                    Remove Selected
+                  <button
+                    type="button"
+                    className="bulk-delete-btn"
+                    disabled={selectedItems.length === 0}
+                    onClick={removeSelected}
+                  >
+                    Remove selected{selectedItems.length > 0 ? ` (${selectedItems.length})` : ""}
                   </button>
                 </div>
 
                 {/* ITEMS LIST */}
                 <div className="cart-items-wrapper">
-                  {items.map(item => {
-                    const mainImg = item.images?.find(img => img.is_primary)?.url || item.images?.[0]?.url;
+                  {items.map((item) => {
+                    const mainImg = item.images?.find((img) => img.is_primary)?.url || item.images?.[0]?.url;
+                    const unitPrice = Number(item.sale_price || item.price);
+                    const lineTotal = unitPrice * item.qty;
                     return (
                       <div key={item.id} className="cart-item-card-ultra">
                         <div className="item-selection">
@@ -86,7 +109,8 @@ const Cart = () => {
                           <p className="item-spec-text">{item.category?.name || 'GENUINE PART'} · BRANCH STOCK</p>
                           
                           <div className="item-mobile-price">
-                             Rs. {Number(item.sale_price || item.price).toLocaleString()}
+                            <span className="item-price-label">Line total</span>
+                            <span>Rs. {lineTotal.toLocaleString()}</span>
                           </div>
 
                           <div className="item-footer-tools">
@@ -111,7 +135,11 @@ const Cart = () => {
 
                         <div className="item-total-section">
                           <div className="item-price-col">
-                            <span className="price-tag-now">Rs. {Number(item.sale_price || item.price).toLocaleString()}</span>
+                            <span className="item-price-label">Line total</span>
+                            <span className="price-tag-now">Rs. {lineTotal.toLocaleString()}</span>
+                            <span className="item-unit-price">
+                              Rs. {unitPrice.toLocaleString()} each
+                            </span>
                             {item.sale_price && item.price !== item.sale_price && (
                               <span className="price-tag-old">Rs. {Number(item.price).toLocaleString()}</span>
                             )}
