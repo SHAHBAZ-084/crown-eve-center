@@ -67,10 +67,12 @@ function createPrismaClient() {
       console.log('[db] PrismaNeonHTTP (HTTPS fetch — Hostinger-safe, no WebSocket)');
       const { PrismaNeonHTTP } = require('@prisma/adapter-neon');
       const adapter = new PrismaNeonHTTP(pooledUrl);
-      return new PrismaClient({
+      const httpClient = new PrismaClient({
         adapter,
         log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
       });
+      httpClient.__adapterMode = 'http';
+      return httpClient;
     }
 
     activeAdapterMode = 'pool';
@@ -83,21 +85,35 @@ function createPrismaClient() {
 
     const { PrismaNeon } = require('@prisma/adapter-neon');
     const adapter = new PrismaNeon({ connectionString: pooledUrl });
-    return new PrismaClient({
+    const poolClient = new PrismaClient({
       adapter,
       log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
     });
+    poolClient.__adapterMode = 'pool';
+    return poolClient;
   }
 
   activeAdapterMode = 'native';
   console.log('[db] Using native Prisma engine');
-  return new PrismaClient({
+  const nativeClient = new PrismaClient({
     datasources: {
       db: { url: directUrl },
     },
     log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
   });
+  nativeClient.__adapterMode = 'native';
+  return nativeClient;
 }
+
+const resolveAdapterMode = (prismaClient) => {
+  if (prismaClient?.__adapterMode === 'http') return 'http';
+  if (globalForPrisma.prismaAdapterMode === 'http') return 'http';
+  // Env wins over stale 'native'/'pool' tags on cached HTTP clients (Hostinger hot reload)
+  if (shouldUseNeonAdapter() && shouldUseNeonHttpAdapter()) return 'http';
+  if (prismaClient?.__adapterMode) return prismaClient.__adapterMode;
+  if (globalForPrisma.prismaAdapterMode) return globalForPrisma.prismaAdapterMode;
+  return activeAdapterMode;
+};
 
 /** Neon HTTP rejects prisma.$transaction — run callbacks on the shared client instead. */
 const patchHttpTransactionShim = (prismaClient) => {
@@ -119,18 +135,20 @@ const patchHttpTransactionShim = (prismaClient) => {
 if (!globalForPrisma.prisma) {
   globalForPrisma.prisma = createPrismaClient();
   globalForPrisma.prismaAdapterMode = activeAdapterMode;
-} else if (globalForPrisma.prismaAdapterMode) {
-  activeAdapterMode = globalForPrisma.prismaAdapterMode;
 }
 
 const client = globalForPrisma.prisma;
-// Always re-apply shim in case module was reloaded or mode changed
+activeAdapterMode = resolveAdapterMode(client);
+globalForPrisma.prismaAdapterMode = activeAdapterMode;
+client.__adapterMode = activeAdapterMode;
+
+// Always re-apply shim for HTTP clients (survives hot reload + stale mode flags)
 if (activeAdapterMode === 'http') {
   patchHttpTransactionShim(client);
 }
 
-const supportsInteractiveTransactions = () => activeAdapterMode !== 'http';
-const getAdapterMode = () => activeAdapterMode;
+const supportsInteractiveTransactions = () => resolveAdapterMode(client) !== 'http';
+const getAdapterMode = () => resolveAdapterMode(client);
 
 module.exports = client;
 module.exports.supportsInteractiveTransactions = supportsInteractiveTransactions;
