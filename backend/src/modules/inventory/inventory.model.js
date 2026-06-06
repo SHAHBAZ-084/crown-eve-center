@@ -1,5 +1,6 @@
 // backend/src/modules/inventory/inventory.model.js
 const prisma = require('../../config/db');
+const { runInTransaction } = require('../../config/transaction');
 const { syncInventoryToPartsAndProducts } = require('./inventory.utils');
 
 const getBranchInventory = async ({ branchId, page = 1, limit = 20, type = "" }) => {
@@ -99,7 +100,7 @@ const updateStockById = async (id, data) => {
     }).then(p => ({ id: `bike_${p.id}`, stock: p.stock_qty }));
   }
 
-  return prisma.$transaction(async (tx) => {
+  return runInTransaction(async (tx) => {
     // 1. Get current stock for adjustment calculation
     const currentInv = await tx.inventory.findUnique({
       where: { id: Number(id) },

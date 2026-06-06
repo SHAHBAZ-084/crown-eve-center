@@ -1,5 +1,6 @@
 // backend/src/modules/vouchers/voucher.controller.js
 const prisma = require('../../config/db');
+const { runInTransaction } = require('../../config/transaction');
 
 // Get all vouchers (optionally filtered by branch and type)
 exports.getAll = async (req, res) => {
@@ -91,7 +92,7 @@ exports.create = async (req, res) => {
     const amt = parseFloat(amount);
 
     // 1. Run database transaction to post voucher atomically
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await runInTransaction(async (tx) => {
       // Fetch both accounts to update balances and get their categories
       const fromAcc = await tx.account.findUnique({
         where: { id: fromAccountId },
@@ -231,7 +232,7 @@ exports.deleteVoucher = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await runInTransaction(async (tx) => {
       // 1. Find Voucher
       const voucher = await tx.voucher.findUnique({
         where: { id },

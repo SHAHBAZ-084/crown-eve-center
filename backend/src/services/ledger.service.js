@@ -3,6 +3,7 @@
  * Every posting: one debit + one credit, equal amounts.
  */
 const prisma = require('../config/db');
+const { runInTransaction } = require('../config/transaction');
 
 const isDebitNatureCategory = (catName) => {
   const n = (catName || '').toLowerCase();
@@ -251,7 +252,7 @@ const syncPartyLedgers = async (branchId) => {
   const suppliers = await prisma.supplier.findMany();
   const onlineCustomers = await prisma.user.findMany({ where: { role: 'CUSTOMER' } });
 
-  await prisma.$transaction(async (tx) => {
+  await runInTransaction(async (tx) => {
     for (const c of walkIns) {
       await ensureWalkInCustomerAccount(tx, c.id, bId);
     }

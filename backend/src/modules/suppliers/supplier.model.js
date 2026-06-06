@@ -1,5 +1,6 @@
 // backend/src/modules/suppliers/supplier.model.js
 const prisma = require('../../config/db');
+const { runInTransaction } = require('../../config/transaction');
 const { ensureSupplierAccount } = require('../../services/ledger.service');
 
 const getAllSuppliers = ({ page = 1, limit = 100 } = {}) => {
@@ -30,7 +31,7 @@ const createSupplier = async (data) => {
   const bId = branchId ? Number(branchId) : (await prisma.branch.findFirst({ select: { id: true } }))?.id;
   if (!bId) throw new Error('Branch ID is required to create supplier ledger.');
 
-  return prisma.$transaction(async (tx) => {
+  return runInTransaction(async (tx) => {
     const supplier = await tx.supplier.create({ data: supplierData });
     await ensureSupplierAccount(tx, supplier.id, bId);
     return tx.supplier.findUnique({

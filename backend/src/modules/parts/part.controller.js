@@ -1,6 +1,7 @@
 // backend/src/modules/parts/part.controller.js
 const Part = require('./part.model');
 const prisma = require('../../config/db');
+const { runInTransaction } = require('../../config/transaction');
 
 exports.getCount = async (req, res) => {
   try {
@@ -50,7 +51,7 @@ exports.update = async (req, res) => {
 exports.remove = async (req, res) => {
   const id = Number(req.params.id);
   try {
-    await prisma.$transaction(async (tx) => {
+    await runInTransaction(async (tx) => {
       // 1. Delete inventory records referencing this part
       await tx.inventory.deleteMany({ where: { partId: id } });
 

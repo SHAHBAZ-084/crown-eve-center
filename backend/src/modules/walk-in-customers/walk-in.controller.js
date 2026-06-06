@@ -1,4 +1,5 @@
 const prisma = require('../../config/db');
+const { runInTransaction } = require('../../config/transaction');
 
 exports.getAll = async (req, res) => {
   try {
@@ -59,7 +60,7 @@ exports.create = async (req, res) => {
         return res.status(400).json({ message: 'Branch ID is required' });
     }
 
-    const customer = await prisma.$transaction(async (tx) => {
+    const customer = await runInTransaction(async (tx) => {
       const cust = await tx.walkInCustomer.create({
         data: {
           first_name,

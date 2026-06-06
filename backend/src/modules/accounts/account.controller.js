@@ -1,5 +1,6 @@
 // backend/src/modules/accounts/account.controller.js
 const prisma = require('../../config/db');
+const { runInTransaction } = require('../../config/transaction');
 const { syncPartyLedgers } = require('../../services/ledger.service');
 
 // Get all accounts (with optional category and branch filtering)
@@ -55,7 +56,7 @@ exports.create = async (req, res) => {
     }
 
     // Run database transaction to ensure atomicity of Account, Ledger & Entry creation
-    const account = await prisma.$transaction(async (tx) => {
+    const account = await runInTransaction(async (tx) => {
       // 1. Create the Account
       const newAccount = await tx.account.create({
         data: {

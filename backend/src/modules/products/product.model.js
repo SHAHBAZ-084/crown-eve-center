@@ -1,5 +1,6 @@
 // backend/src/modules/products/product.model.js
 const prisma = require('../../config/db');
+const { runInTransaction } = require('../../config/transaction');
 
 const MAX_PAGE_LIMIT = 50;
 
@@ -146,7 +147,7 @@ const getProductById = async (id) => {
 };
 
 const createProduct = async (data) => {
-  return prisma.$transaction(async (tx) => {
+  return runInTransaction(async (tx) => {
     // 1. Create the base product
     const product = await tx.product.create({
       data,
@@ -178,7 +179,7 @@ const createProduct = async (data) => {
 };
 
 const updateProduct = async (id, data) => {
-  return prisma.$transaction(async (tx) => {
+  return runInTransaction(async (tx) => {
     // 1. Get the current product to see if it's linked to a Part
     const oldProduct = await tx.product.findUnique({
       where: { id },

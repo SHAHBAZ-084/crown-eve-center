@@ -115,12 +115,16 @@ const patchHttpTransactionShim = (prismaClient) => {
 
 if (!globalForPrisma.prisma) {
   globalForPrisma.prisma = createPrismaClient();
-  if (activeAdapterMode === 'http') {
-    patchHttpTransactionShim(globalForPrisma.prisma);
-  }
+  globalForPrisma.prismaAdapterMode = activeAdapterMode;
+} else if (globalForPrisma.prismaAdapterMode) {
+  activeAdapterMode = globalForPrisma.prismaAdapterMode;
 }
 
 const client = globalForPrisma.prisma;
+// Always re-apply shim in case module was reloaded or mode changed
+if (activeAdapterMode === 'http') {
+  patchHttpTransactionShim(client);
+}
 
 const supportsInteractiveTransactions = () => activeAdapterMode !== 'http';
 const getAdapterMode = () => activeAdapterMode;

@@ -1,5 +1,6 @@
 // backend/src/modules/branches/branch.controller.js
 const prisma = require('../../config/db');
+const { runInTransaction } = require('../../config/transaction');
 
 exports.getCount = async (req, res) => {
   try {
@@ -164,7 +165,7 @@ exports.update = async (req, res) => {
 exports.remove = async (req, res) => {
   const id = Number(req.params.id);
   try {
-    await prisma.$transaction(async (tx) => {
+    await runInTransaction(async (tx) => {
       // 1. Delete purchase items for this branch's purchases
       const purchases = await tx.purchase.findMany({ where: { branchId: id }, select: { id: true } });
       const purchaseIds = purchases.map(p => p.id);
