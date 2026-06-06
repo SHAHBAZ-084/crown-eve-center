@@ -14,23 +14,19 @@ export const toWebpUrl = (url) => {
   return url.replace(/\.(png|jpe?g|gif|bmp|tiff?)(\?.*)?$/i, '.webp$2');
 };
 
-/** Brand static images — R2 when set; local dev falls back to PNG if WebP missing */
+/** Brand/marketing images — always served from the frontend (Vercel public/), not R2 */
 export const getPublicAssetUrl = (basename) => {
   if (/\.(webp|png|jpe?g|gif)$/i.test(basename)) {
-    const file = basename.replace(/^\//, '');
-    if (R2_PUBLIC) return `${R2_PUBLIC}/${file}`;
-    return `/${file}`;
+    return `/${basename.replace(/^\//, '')}`;
   }
   const name = basename.replace(/\.(webp|png|jpg|jpeg|gif)$/i, '');
-  if (R2_PUBLIC) return `${R2_PUBLIC}/${name}.webp`;
   return `/${name}.png`;
 };
 
-/** Marketing / hero videos — MP4 is the deployed format on Vercel; WebM optional on R2 */
+/** Marketing / hero videos — deployed under /videos/ on the frontend host */
 export const getPublicVideoUrl = (basename, format = 'mp4') => {
   const name = basename.replace(/\.(webm|mp4|mov)$/i, '');
   const ext = format === 'webm' ? 'webm' : 'mp4';
-  if (R2_PUBLIC) return `${R2_PUBLIC}/videos/${name}.${ext}`;
   return `/videos/${name}.${ext}`;
 };
 
