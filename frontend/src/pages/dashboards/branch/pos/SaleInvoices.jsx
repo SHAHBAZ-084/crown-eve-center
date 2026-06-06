@@ -67,7 +67,22 @@ const SaleInvoices = ({ user, queryClient, onInvoiceGenerated }) => {
         }))
       };
       const res = await api.post('/orders', payload);
-      onInvoiceGenerated(res.data);
+      const selected = siCustomers?.data?.find((c) => c.id === siForm.customerId);
+      const customerMeta =
+        siForm.customerKind === 'online'
+          ? {
+              kind: 'online',
+              name: selected?.name,
+              email: selected?.email,
+              label: 'Online Customer',
+            }
+          : {
+              kind: 'walkin',
+              name: selected ? `${selected.first_name} ${selected.last_name}`.trim() : siCustomerSearch.split(' (')[0],
+              phone: selected?.phone || selected?.cnic,
+              label: 'Store Sale',
+            };
+      onInvoiceGenerated({ ...res.data, customerMeta });
       setSiForm({ ...siForm, items: [], amount: '', bankId: '', customerId: '' });
       setSiItemSearch('');
       setSiCustomerSearch('');

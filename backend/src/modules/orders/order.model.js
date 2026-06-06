@@ -209,10 +209,10 @@ const getOrders = async ({ page = 1, limit = 20, branchId, status, type, custome
         customer_name: true,
         customer_phone: true,
         customer: {
-          select: { id: true, name: true }
+          select: { id: true, name: true, email: true }
         },
         walkInCustomer: {
-          select: { id: true, first_name: true, last_name: true }
+          select: { id: true, first_name: true, last_name: true, phone: true, cnic: true }
         },
         items: {
           select: {

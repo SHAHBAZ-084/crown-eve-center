@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useFetch, apiFetch, toast, Icon, TblSk, ORDER_BADGE } from "../../../components/branch/BranchShared";
+import SaleInvoiceReceipt from "../../../components/branch/SaleInvoiceReceipt";
 import { getApiUrl } from "../../../utils/apiUrl";
 
 const Orders = () => {
@@ -14,6 +15,7 @@ const Orders = () => {
   const { data, loading, refetch } = useFetch(`/orders?${params}`, [page, status, branchId]);
   const [viewing, setViewing] = useState(null);
   const [summaryOrder, setSummaryOrder] = useState(null);
+  const [invoiceOrder, setInvoiceOrder] = useState(null);
   const [trackId, setTrackId] = useState("");
   const [updating, setUpdating] = useState(null);
 
@@ -87,6 +89,9 @@ const Orders = () => {
                       )}
                       {o.type === "ONLINE" && o.payment_status !== "PENDING" && (
                         <button className="btn btn-ghost btn-sm" onClick={() => setSummaryOrder(o)}>Summary</button>
+                      )}
+                      {(o.type === "POS" || o.payment_status === "PAID") && (
+                        <button className="btn btn-ghost btn-sm" onClick={() => setInvoiceOrder(o)}>Invoice</button>
                       )}
                       <select
                         value={o.status}
@@ -202,6 +207,12 @@ const Orders = () => {
             </div>
           </div>
         </div>
+      )}
+      {invoiceOrder && (
+        <SaleInvoiceReceipt
+          order={invoiceOrder}
+          onClose={() => setInvoiceOrder(null)}
+        />
       )}
     </div>
   );

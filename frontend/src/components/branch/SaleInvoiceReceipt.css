@@ -1,0 +1,353 @@
+.sale-invoice-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(45, 26, 18, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+.sale-invoice-dialog {
+  position: relative;
+  width: 100%;
+  max-width: 42rem;
+  max-height: 95vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 3rem;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(45, 26, 18, 0.2);
+}
+
+.sale-invoice-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 28px 40px;
+  background: #fffaf8;
+  border-bottom: 1px solid #f3e5dc;
+  flex-shrink: 0;
+}
+
+.sale-invoice-title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #2d1a12;
+  line-height: 1.2;
+}
+
+.sale-invoice-subtitle {
+  margin-top: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #8d7a71;
+}
+
+.sale-invoice-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sale-invoice-print-btn {
+  background: #fff;
+  border: 1px solid #f3e5dc;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #2d1a12;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.sale-invoice-print-btn:hover {
+  background: #fffaf8;
+}
+
+.sale-invoice-close-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #f3e5dc;
+  border-radius: 999px;
+  background: #fff;
+  color: #8d7a71;
+  cursor: pointer;
+}
+
+.sale-invoice-body {
+  padding: 40px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.sale-invoice-body-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.sale-invoice-brand-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.sale-invoice-brand {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #e65100;
+}
+
+.sale-invoice-brand-sub {
+  font-size: 10px;
+  font-weight: 700;
+  color: #8d7a71;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin-top: 4px;
+}
+
+.sale-invoice-meta {
+  text-align: right;
+}
+
+.sale-invoice-meta-id {
+  font-size: 0.875rem;
+  font-weight: 900;
+  color: #2d1a12;
+}
+
+.sale-invoice-meta-date {
+  font-size: 10px;
+  font-weight: 700;
+  color: #8d7a71;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.sale-invoice-parties {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  padding: 32px 0;
+  border-top: 1px solid #f3e5dc;
+  border-bottom: 1px solid #f3e5dc;
+}
+
+.sale-invoice-party-label {
+  font-size: 10px;
+  font-weight: 900;
+  color: #8d7a71;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  margin-bottom: 16px;
+}
+
+.sale-invoice-party-name {
+  font-weight: 900;
+  color: #2d1a12;
+  text-transform: uppercase;
+}
+
+.sale-invoice-party-sub {
+  font-size: 0.75rem;
+  color: #8d7a71;
+  margin-top: 4px;
+}
+
+.sale-invoice-party-tag {
+  font-size: 10px;
+  color: #8d7a71;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.sale-invoice-party-right {
+  text-align: right;
+}
+
+.sale-invoice-payment {
+  font-weight: 900;
+  color: #e65100;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.sale-invoice-status {
+  font-size: 10px;
+  color: #8d7a71;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.sale-invoice-table {
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+}
+
+.sale-invoice-table th {
+  padding: 16px 0;
+  font-size: 10px;
+  font-weight: 900;
+  color: #8d7a71;
+  text-transform: uppercase;
+  border-bottom: 1px solid #f3e5dc;
+}
+
+.sale-invoice-table th:nth-child(2) { text-align: center; }
+.sale-invoice-table th:nth-child(3),
+.sale-invoice-table th:nth-child(4) { text-align: right; }
+
+.sale-invoice-table td {
+  padding: 16px 0;
+  font-size: 0.75rem;
+  border-bottom: 1px solid #f3e5dc;
+}
+
+.sale-invoice-table td:nth-child(1) {
+  font-weight: 900;
+  color: #2d1a12;
+  text-transform: uppercase;
+}
+
+.sale-invoice-table td:nth-child(2) {
+  text-align: center;
+  font-weight: 700;
+  color: #8d7a71;
+}
+
+.sale-invoice-table td:nth-child(3) {
+  text-align: right;
+  font-weight: 700;
+  color: #8d7a71;
+}
+
+.sale-invoice-table td:nth-child(4) {
+  text-align: right;
+  font-weight: 900;
+  color: #2d1a12;
+}
+
+.sale-invoice-totals {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  padding-top: 32px;
+}
+
+.sale-invoice-subtotal {
+  display: flex;
+  justify-content: space-between;
+  width: 12rem;
+  font-size: 10px;
+  font-weight: 900;
+  color: #8d7a71;
+  text-transform: uppercase;
+}
+
+.sale-invoice-grand {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 12rem;
+  padding-top: 16px;
+  border-top: 1px solid #f3e5dc;
+  color: #e65100;
+}
+
+.sale-invoice-grand-label {
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.sale-invoice-grand-value {
+  font-size: 1.25rem;
+  font-weight: 900;
+}
+
+.sale-invoice-footer {
+  padding-top: 48px;
+  text-align: center;
+}
+
+.sale-invoice-thanks {
+  font-size: 10px;
+  font-weight: 900;
+  color: #8d7a71;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+}
+
+.sale-invoice-disclaimer {
+  font-size: 8px;
+  color: #8d7a71;
+  margin-top: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+@media (max-width: 640px) {
+  .sale-invoice-dialog {
+    border-radius: 1.5rem;
+    max-height: 92vh;
+  }
+
+  .sale-invoice-header {
+    padding: 20px;
+  }
+
+  .sale-invoice-body {
+    padding: 20px;
+  }
+
+  .sale-invoice-parties {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .sale-invoice-party-right {
+    text-align: left;
+  }
+}
+
+@media print {
+  .sale-invoice-overlay {
+    position: static;
+    padding: 0;
+    background: transparent;
+    backdrop-filter: none;
+  }
+
+  .sale-invoice-dialog {
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .sale-invoice-header {
+    display: none !important;
+  }
+
+  .sale-invoice-body {
+    padding: 32px;
+    overflow: visible;
+  }
+}
