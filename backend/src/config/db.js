@@ -101,6 +101,9 @@ function createPrismaClient() {
 
 /** Neon HTTP rejects prisma.$transaction — run callbacks on the shared client instead. */
 const patchHttpTransactionShim = (prismaClient) => {
+  if (prismaClient.__httpShimApplied) return;
+  prismaClient.__httpShimApplied = true;
+
   prismaClient.$transaction = async (arg) => {
     if (typeof arg === 'function') {
       return arg(prismaClient);

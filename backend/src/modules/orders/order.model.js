@@ -168,13 +168,13 @@ const createOrder = async (data) => {
       });
     }
 
-    // 5. Double-entry: DR Customer Account, CR Sales Account
+    // 5. Double-entry: DR Customer Account, CR Sales Account (pass tx — no nested $transaction)
     if (order.walkInCustomerId || customerId) {
       await postSaleInvoiceLedger(tx, {
         branchId,
         orderId: order.id,
         total: Number(total),
-        walkInCustomerId: order.walkInCustomerId,
+        walkInCustomerId: walkInCustomerId || null,
         customerId: customerId || null,
       });
     }
