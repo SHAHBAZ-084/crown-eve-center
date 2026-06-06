@@ -9,6 +9,7 @@ import GoogleAuthSection from '../../components/auth/GoogleAuthSection';
 import { getPostLoginPath } from '../../utils/authRedirect';
 import PasswordStrength, { validatePassword, validatePhone } from '../../components/PasswordStrength';
 import PasswordInput from '../../components/auth/PasswordInput';
+import AuthModeToggle from '../../components/auth/AuthModeToggle';
 import './Auth.css';
 
 const Register = () => {
@@ -89,6 +90,8 @@ const Register = () => {
         <Link to="/" className="auth-logo">
           <img src={LOGO_URL} alt="Crown Hadi EV Center" />
         </Link>
+        <AuthModeToggle mode="register" />
+
         <h2 className="text-5xl font-family-bebas mb-2 tracking-tighter uppercase">Create Account.</h2>
         <p className="auth-subtext text-sm mb-8">Join Crown Eve — browse bikes, book services, track your orders.</p>
         
@@ -229,9 +232,6 @@ const Register = () => {
           </button>
         </form>
 
-        <div className="auth-footer-text" style={{ marginTop: '24px' }}>
-          Already have an account? <Link to="/login" className="form-link">Sign in</Link>
-        </div>
       </div>
     </div>
   );
