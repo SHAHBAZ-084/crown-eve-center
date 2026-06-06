@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useFetch, apiFetch, toast, Icon, TblSk, ORDER_BADGE } from "../../../components/branch/BranchShared";
 import SaleInvoiceReceipt from "../../../components/branch/SaleInvoiceReceipt";
+import SearchInput from "../../../components/SearchInput";
+import { useDebounce } from "../../../hooks/useDebounce";
 import { getApiUrl } from "../../../utils/apiUrl";
 import FilterRadioGroup from "../../../components/FilterRadioGroup";
 
@@ -10,10 +12,18 @@ const Orders = () => {
   const { user } = useOutletContext();
   const branchId = user?.branchId;
 
-  const [page, setPage]     = useState(1);
+  const [page, setPage] = useState(1);
   const [status, setStatus] = useState("");
-  const params = new URLSearchParams({ branchId, page, limit: 12, ...(status && { status }) }).toString();
-  const { data, loading, refetch } = useFetch(`/orders?${params}`, [page, status, branchId]);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 350);
+  const params = new URLSearchParams({
+    branchId,
+    page,
+    limit: 12,
+    ...(status && { status }),
+    ...(debouncedSearch && { search: debouncedSearch }),
+  }).toString();
+  const { data, loading, refetch } = useFetch(`/orders?${params}`, [page, status, branchId, debouncedSearch]);
   const [viewing, setViewing] = useState(null);
   const [summaryOrder, setSummaryOrder] = useState(null);
   const [invoiceOrder, setInvoiceOrder] = useState(null);
@@ -42,6 +52,21 @@ const Orders = () => {
           <div className="psub">Live transaction stream · {data?.meta?.total || 0} total</div>
         </div>
         <div className="ph-r">
+          <SearchInput
+            className="order-search-input"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            label="Search customer or ref #..."
+            clearable
+            onClear={() => {
+              setSearch("");
+              setPage(1);
+            }}
+            pill
+          />
           <button className="btn btn-s btn-sm" onClick={() => refetch()}><Icon n="refresh" /> Refresh</button>
         </div>
       </div>
@@ -78,7 +103,14 @@ const Orders = () => {
                 <tr key={o.id}>
                   <td><span style={{ fontFamily: "var(--font-m)", fontSize: 11, fontWeight: 700 }}>#{o.id}</span></td>
                   <td><span className={`badge ${o.type === "ONLINE" ? "bg-b" : "bg-p"}`}>{o.type}</span></td>
-                  <td style={{ fontSize: 12 }}>{o.customer?.name || o.customer_name || "—"}</td>
+                  <td style={{ fontSize: 12 }}>
+                    {o.customer?.name
+                      || o.customer_name
+                      || (o.walkInCustomer
+                        ? `${o.walkInCustomer.first_name || ""} ${o.walkInCustomer.last_name || ""}`.trim()
+                        : "")
+                      || "—"}
+                  </td>
                   <td style={{ fontSize: 11, color: "var(--muted)" }}>{o.items?.length || 0} items</td>
                   <td style={{ fontWeight: 700, color: "var(--acc)" }}>Rs. {o.total?.toLocaleString()}</td>
                   <td><span className={`badge ${ORDER_BADGE[o.status] || "bg-b"}`}>{o.status}</span></td>

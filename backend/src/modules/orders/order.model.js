@@ -179,7 +179,27 @@ const createOrder = async (data) => {
   }
 };
 
-const getOrders = async ({ page = 1, limit = 20, branchId, status, type, customerId }) => {
+const buildOrderSearchFilter = (search) => {
+  const q = String(search || '').trim();
+  if (!q) return {};
+
+  const ref = q.replace(/^#/, '').trim();
+  if (/^\d+$/.test(ref)) {
+    return { id: Number(ref) };
+  }
+
+  return {
+    OR: [
+      { customer_name: { contains: q, mode: 'insensitive' } },
+      { transaction_id: { contains: q, mode: 'insensitive' } },
+      { customer: { name: { contains: q, mode: 'insensitive' } } },
+      { walkInCustomer: { first_name: { contains: q, mode: 'insensitive' } } },
+      { walkInCustomer: { last_name: { contains: q, mode: 'insensitive' } } },
+    ],
+  };
+};
+
+const getOrders = async ({ page = 1, limit = 20, branchId, status, type, customerId, search }) => {
   const skip = (page - 1) * limit;
 
   const where = {
@@ -187,6 +207,7 @@ const getOrders = async ({ page = 1, limit = 20, branchId, status, type, custome
     ...(status && { status }),
     ...(type && { type }),
     ...(customerId && { customerId: String(customerId) }),
+    ...buildOrderSearchFilter(search),
   };
 
   const [data, total] = await Promise.all([
