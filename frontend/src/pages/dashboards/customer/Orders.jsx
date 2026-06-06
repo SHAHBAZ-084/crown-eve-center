@@ -5,6 +5,7 @@ import { Package } from "lucide-react";
 import CustomerPageHeader from "../../../components/customer/CustomerPageHeader";
 import { CustomerLoading, CustomerEmpty, CustomerCount } from "../../../components/customer/CustomerUI";
 import { Badge } from "../../../components/customer/CustomerShared";
+import NeuCardMarquee from "../../../components/customer/NeuCardMarquee";
 import api from "../../../services/api";
 
 const Orders = () => {
@@ -96,6 +97,11 @@ const Orders = () => {
             <div className="ce-order-cards">
               {filtered.map(o => (
                 <div key={o.id} className="ce-order-card">
+                  <NeuCardMarquee
+                    words={[`#${o.id}`, String(o.status || "Order"), `#${o.id}`]}
+                    className="ce-neu-marquee--sm ce-neu-marquee--xs"
+                  />
+                  <div className="ce-order-card-body">
                   <div className="ce-order-card-top">
                     <span className="ce-order-card-id">#{o.id}</span>
                     <Badge status={o.status} />
@@ -105,6 +111,7 @@ const Orders = () => {
                     {o.items?.length || 0} items · PKR {Number(o.total).toLocaleString()}
                   </div>
                   <button type="button" className="ca" onClick={() => navigate(`/my/track/${o.id}`)}>Track order →</button>
+                  </div>
                 </div>
               ))}
             </div>

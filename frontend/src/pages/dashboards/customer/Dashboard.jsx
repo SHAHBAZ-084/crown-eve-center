@@ -12,6 +12,7 @@ import {
 import { useAuth } from "../../../context/AuthContext";
 import api from "../../../services/api";
 import { CustomerMeta } from "../../../components/customer/CustomerUI";
+import NeuCardMarquee from "../../../components/customer/NeuCardMarquee";
 
 const ACTIVE_STATUSES = ["PENDING", "PROCESSING", "pending", "processing"];
 
@@ -24,10 +25,17 @@ const STATUS_STEP = {
 };
 
 const QUICK_ACTIONS = [
-  { Icon: ShoppingBag, label: "Browse Shop", path: "/my/shop" },
-  { Icon: ClipboardList, label: "My Orders", path: "/my/orders" },
-  { Icon: CalendarDays, label: "My Bookings", path: "/my/bookings" },
-  { Icon: Wrench, label: "Book Service", path: "/my/book-service" },
+  { Icon: ShoppingBag, label: "Browse Shop", path: "/my/shop", marquee: ["Shop", "Explore", "Shop"] },
+  { Icon: ClipboardList, label: "My Orders", path: "/my/orders", marquee: ["Orders", "Track", "Orders"] },
+  { Icon: CalendarDays, label: "My Bookings", path: "/my/bookings", marquee: ["Bookings", "Schedule", "Bookings"] },
+  { Icon: Wrench, label: "Book Service", path: "/my/book-service", marquee: ["Service", "Repair", "Service"] },
+];
+
+const STAT_MARQUEES = [
+  ["Orders", "Active", "Orders"],
+  ["Bookings", "Plans", "Bookings"],
+  ["Spent", "Value", "Spent"],
+  ["Service", "Done", "Service"],
 ];
 
 const Dashboard = () => {
@@ -135,33 +143,47 @@ const Dashboard = () => {
 
       <div className="stats-row">
         <div className="stat">
-          <div className="si"><ShoppingBag size={28} strokeWidth={1.5} /></div>
-          <div className="sl">Active Orders</div>
-          <div className="sv">{loadingOrders ? "—" : activeOrders.length}</div>
-          <span className="sc neu">{activeOrder ? `#${String(activeOrder.id).padStart(6, '0')} · ${activeOrder.status}` : "No active orders"}</span>
+          <NeuCardMarquee words={STAT_MARQUEES[0]} className="ce-neu-marquee--sm" />
+          <div className="stat-content">
+            <div className="si"><ShoppingBag size={28} strokeWidth={1.5} /></div>
+            <div className="sl">Active Orders</div>
+            <div className="sv">{loadingOrders ? "—" : activeOrders.length}</div>
+            <span className="sc neu">{activeOrder ? `#${String(activeOrder.id).padStart(6, '0')} · ${activeOrder.status}` : "No active orders"}</span>
+          </div>
         </div>
         <div className="stat">
-          <div className="si"><CalendarDays size={28} strokeWidth={1.5} /></div>
-          <div className="sl">Total Bookings</div>
-          <div className="sv">{loadingBookings ? "—" : (Array.isArray(bookings) ? bookings : []).length}</div>
-          <span className="sc neu">{(Array.isArray(bookings) ? bookings : []).length > 0 ? "Lifetime requests" : "No bookings yet"}</span>
+          <NeuCardMarquee words={STAT_MARQUEES[1]} className="ce-neu-marquee--sm" />
+          <div className="stat-content">
+            <div className="si"><CalendarDays size={28} strokeWidth={1.5} /></div>
+            <div className="sl">Total Bookings</div>
+            <div className="sv">{loadingBookings ? "—" : (Array.isArray(bookings) ? bookings : []).length}</div>
+            <span className="sc neu">{(Array.isArray(bookings) ? bookings : []).length > 0 ? "Lifetime requests" : "No bookings yet"}</span>
+          </div>
         </div>
         <div className="stat">
-          <div className="si"><Banknote size={28} strokeWidth={1.5} /></div>
-          <div className="sl">Total Spent</div>
-          <div className="sv ce-sv-accent">{loadingOrders ? "—" : fmtSpent(totalSpent)}</div>
-          <span className="sc neu">{totalOrders} order{totalOrders !== 1 ? "s" : ""} lifetime</span>
+          <NeuCardMarquee words={STAT_MARQUEES[2]} className="ce-neu-marquee--sm" />
+          <div className="stat-content">
+            <div className="si"><Banknote size={28} strokeWidth={1.5} /></div>
+            <div className="sl">Total Spent</div>
+            <div className="sv ce-sv-accent">{loadingOrders ? "—" : fmtSpent(totalSpent)}</div>
+            <span className="sc neu">{totalOrders} order{totalOrders !== 1 ? "s" : ""} lifetime</span>
+          </div>
         </div>
         <div className="stat">
-          <div className="si"><Wrench size={28} strokeWidth={1.5} /></div>
-          <div className="sl">Services Done</div>
-          <div className="sv">{loadingBookings ? "—" : (Array.isArray(bookings) ? bookings : []).filter(b => b && (b.status || "").toLowerCase() === "completed").length}</div>
-          <span className="sc up">Completed services</span>
+          <NeuCardMarquee words={STAT_MARQUEES[3]} className="ce-neu-marquee--sm" />
+          <div className="stat-content">
+            <div className="si"><Wrench size={28} strokeWidth={1.5} /></div>
+            <div className="sl">Services Done</div>
+            <div className="sv">{loadingBookings ? "—" : (Array.isArray(bookings) ? bookings : []).filter(b => b && (b.status || "").toLowerCase() === "completed").length}</div>
+            <span className="sc up">Completed services</span>
+          </div>
         </div>
       </div>
 
       <div className="g2" style={{ marginBottom: 20 }}>
         <div className="card">
+          <NeuCardMarquee words={["Order", "Track", "Order"]} className="ce-neu-marquee--sm" />
+          <div className="card-neu-body">
           <div className="ch"><div className="ct">Active Order</div><button type="button" className="ca" onClick={() => navigate("/my/orders")}>View all →</button></div>
           {activeOrder ? (
             <>
@@ -200,9 +222,12 @@ const Dashboard = () => {
               <button type="button" className="ca" onClick={() => navigate("/my/shop")}>Browse shop →</button>
             </div>
           )}
+          </div>
         </div>
 
         <div className="card">
+          <NeuCardMarquee words={["Booking", "Service", "Booking"]} className="ce-neu-marquee--sm" />
+          <div className="card-neu-body">
           <div className="ch"><div className="ct">Booking Status</div><button type="button" className="ca" onClick={() => navigate("/my/bookings")}>View all →</button></div>
           {bookings && bookings.length > 0 ? (
             (() => {
@@ -230,12 +255,13 @@ const Dashboard = () => {
               <button type="button" className="ca" onClick={() => navigate("/my/book-service")}>Book service →</button>
             </div>
           )}
+          </div>
         </div>
       </div>
 
       <div className="ch" style={{ marginTop: 32 }}><div className="ct">Quick Actions</div></div>
       <div className="g4">
-        {QUICK_ACTIONS.map(({ Icon, label, path }) => (
+        {QUICK_ACTIONS.map(({ Icon, label, path, marquee }) => (
           <div
             key={label}
             role="button"
@@ -244,6 +270,7 @@ const Dashboard = () => {
             onClick={() => navigate(path)}
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") navigate(path); }}
           >
+            <NeuCardMarquee words={marquee} className="ce-neu-marquee--sm" />
             <Icon size={28} color="var(--orange)" strokeWidth={1.5} />
             <div className="quick-action-label">{label}</div>
             <ChevronRight className="quick-action-chevron" size={12} aria-hidden />

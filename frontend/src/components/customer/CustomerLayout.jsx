@@ -7,6 +7,7 @@ import PageSuspense from '../PageSuspense';
 import { LOGO_URL } from '../../constants/mediaAssets';
 import '../../styles/customer.css';
 import '../../styles/customer-ui.css';
+import '../../styles/customer-neu-cards.css';
 
 const NAV_LINKS = [
   { label: 'Dashboard', to: '/my/dashboard', match: (p) => p === '/my/dashboard' },

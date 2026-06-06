@@ -11,6 +11,7 @@ import { CustomerEmpty } from "../../../components/customer/CustomerUI";
 import CatalogProductImage from "../../../components/catalog/CatalogProductImage";
 import ProductGridSkeleton from "../../../components/catalog/ProductGridSkeleton";
 import SearchInput from "../../../components/SearchInput";
+import NeuCardMarquee from "../../../components/customer/NeuCardMarquee";
 import "../../public/Shop.css";
 
 const Shop = () => {
@@ -188,6 +189,8 @@ const Shop = () => {
           <div className="products-grid products-grid--reserved">
             {products.map((p) => {
               const mainImg = p.images?.find((img) => img.is_primary)?.url || p.images?.[0]?.url;
+              const categoryLabel = p.category?.name || (p.product_type === "bike" ? "Bike" : "Part");
+              const marqueeName = p.name?.length > 18 ? `${p.name.slice(0, 18)}…` : p.name;
 
               return (
                 <Link to={productPath(p.id)} key={p.id} className="bike-card-new">
@@ -199,6 +202,7 @@ const Shop = () => {
                     )}
                     {p.stock_qty <= 0 && <div className="out-of-stock-tag">Out of Stock</div>}
                   </div>
+                  <NeuCardMarquee words={[categoryLabel, marqueeName, categoryLabel]} className="ce-neu-marquee--sm" />
                   <div className="product-card-body">
                     <div className="product-cat">{p.category?.name || (p.product_type === "bike" ? "Bike" : "Part")}</div>
                     <h3 className="bike-name-new">{p.name}</h3>
