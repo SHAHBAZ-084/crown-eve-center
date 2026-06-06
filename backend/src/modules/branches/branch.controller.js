@@ -167,58 +167,85 @@ exports.remove = async (req, res) => {
   const id = Number(req.params.id);
   try {
     await runInTransaction(async (tx) => {
-      // 1. Delete purchase items for this branch's purchases
-      const purchases = await tx.purchase.findMany({ where: { branchId: id }, select: { id: true } });
-      const purchaseIds = purchases.map(p => p.id);
+      const [purchases, orders, products, services, walkInCustomers, accounts] = await Promise.all([
+        tx.purchase.findMany({ where: { branchId: id }, select: { id: true } }),
+        tx.order.findMany({ where: { branchId: id }, select: { id: true } }),
+        tx.product.findMany({ where: { branchId: id }, select: { id: true } }),
+        tx.service.findMany({ where: { branchId: id }, select: { id: true } }),
+        tx.walkInCustomer.findMany({ where: { branchId: id }, select: { id: true } }),
+        tx.account.findMany({ where: { branchId: id }, select: { id: true } }),
+      ]);
+
+      const purchaseIds = purchases.map((p) => p.id);
+      const orderIds = orders.map((o) => o.id);
+      const productIds = products.map((p) => p.id);
+      const serviceIds = services.map((s) => s.id);
+      const walkInCustomerIds = walkInCustomers.map((c) => c.id);
+      const accountIds = accounts.map((a) => a.id);
+
       if (purchaseIds.length > 0) {
         await tx.purchaseItem.deleteMany({ where: { purchaseId: { in: purchaseIds } } });
       }
-
-      // 2. Delete order items for this branch's orders
-      const orders = await tx.order.findMany({ where: { branchId: id }, select: { id: true } });
-      const orderIds = orders.map(o => o.id);
       if (orderIds.length > 0) {
         await tx.orderItem.deleteMany({ where: { orderId: { in: orderIds } } });
       }
-
-      // 2b. Delete order items referencing this branch's products (even if order is from another branch)
-      const products = await tx.product.findMany({ where: { branchId: id }, select: { id: true } });
-      const productIds = products.map(p => p.id);
       if (productIds.length > 0) {
         await tx.orderItem.deleteMany({ where: { productId: { in: productIds } } });
+        await tx.purchaseItem.deleteMany({ where: { productId: { in: productIds } } });
       }
-
-      // 2c. Delete appointments referencing this branch's services (even if appointment is in another branch)
-      const services = await tx.service.findMany({ where: { branchId: id }, select: { id: true } });
-      const serviceIds = services.map(s => s.id);
       if (serviceIds.length > 0) {
-        await tx.appointment.deleteMany({ where: { serviceId: { in: serviceIds } } });
+        await tx.serviceBooking.deleteMany({ where: { serviceId: { in: serviceIds } } });
       }
 
-      // 3. Delete direct children
-      await tx.appointment.deleteMany({ where: { branchId: id } });
+      await tx.serviceBooking.deleteMany({ where: { branchId: id } });
+
+      if (orderIds.length > 0) {
+        await tx.walkInCustomerLedger.deleteMany({ where: { orderId: { in: orderIds } } });
+      }
+      if (walkInCustomerIds.length > 0) {
+        await tx.walkInCustomerLedger.deleteMany({ where: { customerId: { in: walkInCustomerIds } } });
+      }
+
+      await tx.voucher.deleteMany({ where: { branchId: id } });
+
+      if (accountIds.length > 0) {
+        const ledgers = await tx.ledger.findMany({
+          where: { accountId: { in: accountIds } },
+          select: { id: true },
+        });
+        const ledgerIds = ledgers.map((l) => l.id);
+        if (ledgerIds.length > 0) {
+          await tx.ledgerEntry.deleteMany({ where: { ledgerId: { in: ledgerIds } } });
+        }
+        await tx.ledger.deleteMany({ where: { accountId: { in: accountIds } } });
+        await updateManySequential(tx, tx.supplier, { accountId: { in: accountIds } }, { accountId: null });
+        await updateManySequential(tx, tx.walkInCustomer, { accountId: { in: accountIds } }, { accountId: null });
+      }
+
       await tx.order.deleteMany({ where: { branchId: id } });
+      await tx.walkInCustomer.deleteMany({ where: { branchId: id } });
       await tx.purchase.deleteMany({ where: { branchId: id } });
+      await tx.stockAdjustment.deleteMany({ where: { branchId: id } });
       await tx.inventory.deleteMany({ where: { branchId: id } });
+      await tx.bank.deleteMany({ where: { branchId: id } });
+      await tx.account.deleteMany({ where: { branchId: id } });
+      await tx.accountCategory.deleteMany({ where: { branchId: id } });
       await tx.product.deleteMany({ where: { branchId: id } });
       await tx.service.deleteMany({ where: { branchId: id } });
 
-      // 4. Unassign users (updateMany fails on PrismaNeonHTTP)
       await updateManySequential(tx, tx.user, { branchId: id }, { branchId: null });
 
-      // 5. Finally delete the branch
       await tx.branch.delete({ where: { id } });
     }, {
-      timeout: 30000 // 30 seconds
+      timeout: 120000,
     });
 
     res.json({ message: 'Branch deleted successfully' });
   } catch (e) {
     const logger = require('../../config/logger');
     logger.error('Branch Deletion Failed', { branchId: id, error: e.message, stack: e.stack });
-    res.status(500).json({ 
-      message: 'Failed to delete branch. This usually happens if there are complex data relations that couldn\'t be cleaned up automatically.',
-      error: e.message 
+    res.status(500).json({
+      message: `Failed to delete branch: ${e.message}`,
     });
   }
 };
