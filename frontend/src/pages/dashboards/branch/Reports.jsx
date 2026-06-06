@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useFetch, Icon, Sk } from "../../../components/branch/BranchShared";
+import FilterRadioGroup from "../../../components/FilterRadioGroup";
 
 const Reports = () => {
   const { user } = useOutletContext();
@@ -24,9 +25,16 @@ const Reports = () => {
           <div className="psub">Performance metrics and sales breakdown for this branch</div>
         </div>
         <div className="ph-r">
-          <div className="tabs" style={{ marginBottom: 0 }}>
-            {["7d", "30d"].map(p => <div key={p} className={`tab ${period === p ? "active" : ""}`} onClick={() => setPeriod(p)}>{p === "7d" ? "7 Days" : "30 Days"}</div>)}
-          </div>
+          <FilterRadioGroup
+            name="branch-reports-period"
+            value={period}
+            onChange={setPeriod}
+            compact
+            options={[
+              { value: "7d", label: "7 Days" },
+              { value: "30d", label: "30 Days" },
+            ]}
+          />
           <button className="btn btn-s btn-sm"><Icon n="download" /> Export</button>
         </div>
       </div>

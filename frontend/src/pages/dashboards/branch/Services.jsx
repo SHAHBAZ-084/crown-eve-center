@@ -3,6 +3,7 @@ import { useOutletContext } from "react-router-dom";
 import { useFetch, apiFetch, toast, Icon, Modal, Confirm, useDebounce, APPT_BADGE } from "../../../components/branch/BranchShared";
 import ServiceThermalReceipt from "../../../components/branch/ServiceThermalReceipt";
 import SearchInput from "../../../components/SearchInput";
+import FilterRadioGroup from "../../../components/FilterRadioGroup";
 
 const get6DigitId = (idString) => {
   if (!idString) return "000000";
@@ -243,25 +244,20 @@ const Services = () => {
             {/* Status Tabs Row */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted)', letterSpacing: '0.05em' }}>Filter by Status</label>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {["ALL", ...APPT_STATUSES].map(s => (
-                  <button 
-                    key={s} 
-                    type="button"
-                    onClick={() => setFilterStatus(s)}
-                    className={`btn btn-sm ${filterStatus === s ? "btn-p" : "btn-s"}`}
-                    style={{ 
-                      borderRadius: 12, 
-                      fontWeight: 700, 
-                      fontSize: 11,
-                      padding: '6px 14px',
-                      ...(filterStatus === s ? { background: 'var(--acc)', color: '#FFF', border: '1px solid var(--acc)' } : {})
-                    }}
-                  >
-                    {s === "ALL" ? "All Requests" : s.replace('_', ' ')}
-                  </button>
-                ))}
-              </div>
+              <FilterRadioGroup
+                name="services-status"
+                value={filterStatus}
+                onChange={setFilterStatus}
+                compact
+                wrap
+                options={[
+                  { value: "ALL", label: "All Requests" },
+                  ...APPT_STATUSES.map((s) => ({
+                    value: s,
+                    label: s.replace("_", " "),
+                  })),
+                ]}
+              />
             </div>
 
             {/* Date & Time Filters Row */}

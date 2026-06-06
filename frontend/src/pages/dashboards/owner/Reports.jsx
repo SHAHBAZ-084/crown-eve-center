@@ -1,6 +1,7 @@
 // frontend/src/pages/dashboards/owner/Reports.jsx
 import React, { useState } from "react";
 import { useFetch, Icon, Sk, TableSk } from "../../../components/owner/OwnerShared";
+import FilterRadioGroup from "../../../components/FilterRadioGroup";
 
 const ReportsPage = () => {
   const [period, setPeriod] = useState("7d");
@@ -26,9 +27,16 @@ const ReportsPage = () => {
       </div>
 
       <div className="filter-bar" style={{ marginBottom: 24 }}>
-        <div className="tabs">
-          {["7d", "30d"].map(p => <div key={p} className={`tab ${period === p ? "active" : ""}`} onClick={() => setPeriod(p)}>{p === "7d" ? "7 Days" : "30 Days"}</div>)}
-        </div>
+        <FilterRadioGroup
+          name="owner-reports-period"
+          value={period}
+          onChange={setPeriod}
+          compact
+          options={[
+            { value: "7d", label: "7 Days" },
+            { value: "30d", label: "30 Days" },
+          ]}
+        />
         <select style={{ width: 200 }} value={branchId} onChange={e => setBranchId(e.target.value)}>
           <option value="">All Branches</option>
           {branchData?.data?.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}

@@ -4,6 +4,7 @@ import { useOutletContext } from "react-router-dom";
 import { useFetch, apiFetch, toast, Icon, TblSk, ORDER_BADGE } from "../../../components/branch/BranchShared";
 import SaleInvoiceReceipt from "../../../components/branch/SaleInvoiceReceipt";
 import { getApiUrl } from "../../../utils/apiUrl";
+import FilterRadioGroup from "../../../components/FilterRadioGroup";
 
 const Orders = () => {
   const { user } = useOutletContext();
@@ -54,13 +55,19 @@ const Orders = () => {
       </div>
 
       {/* Status tabs (Desktop) */}
-      <div className="tabs desktop-tabs">
-        {["", ...STATUSES].map(s => (
-          <div key={s} className={`tab ${status === s ? "active" : ""}`} onClick={() => { setStatus(s); setPage(1); }}>
-            {s || "All"}
-          </div>
-        ))}
-      </div>
+      <FilterRadioGroup
+        name="branch-orders-status"
+        value={status}
+        onChange={(v) => { setStatus(v); setPage(1); }}
+        compact
+        wrap
+        className="desktop-tabs"
+        style={{ marginBottom: 16 }}
+        options={[
+          { value: "", label: "All" },
+          ...STATUSES.map((s) => ({ value: s, label: s })),
+        ]}
+      />
 
       <div className="tw">
         {loading ? <TblSk rows={8} /> : (

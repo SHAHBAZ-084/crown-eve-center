@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useFetch, apiFetch, toast, Icon, Modal, TblSk, APPT_BADGE } from "../../../components/branch/BranchShared";
+import FilterRadioGroup from "../../../components/FilterRadioGroup";
 
 const Appointments = () => {
   const { user } = useOutletContext();
@@ -45,19 +46,32 @@ const Appointments = () => {
           <div className="psub">Managing technical appointments · {data?.meta?.total || 0} total</div>
         </div>
         <div className="ph-r">
-          <div className="tabs" style={{ marginBottom: 0 }}>
-            {["list", "calendar"].map(v => <div key={v} className={`tab ${view === v ? "active" : ""}`} onClick={() => setView(v)}>{v === "list" ? "List" : "Calendar"}</div>)}
-          </div>
+          <FilterRadioGroup
+            name="appointments-view"
+            value={view}
+            onChange={setView}
+            compact
+            options={[
+              { value: "list", label: "List" },
+              { value: "calendar", label: "Calendar" },
+            ]}
+          />
         </div>
       </div>
 
       {/* Status filter */}
       <div className="fbar">
-        {["", ...APPT_STATUSES].map(s => (
-          <button key={s} className={`btn btn-sm ${statusF === s ? "btn-p" : "btn-s"}`} onClick={() => { setStatusF(s); setPage(1); }}>
-            {s || "All"}
-          </button>
-        ))}
+        <FilterRadioGroup
+          name="appointments-status"
+          value={statusF}
+          onChange={(v) => { setStatusF(v); setPage(1); }}
+          compact
+          wrap
+          options={[
+            { value: "", label: "All" },
+            ...APPT_STATUSES.map((s) => ({ value: s, label: s })),
+          ]}
+        />
       </div>
 
       {view === "list" ? (

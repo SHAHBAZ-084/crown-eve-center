@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useFetch, apiFetch, toast, Icon, Modal, useDebounce } from "../../../components/branch/BranchShared";
 import SearchInput from "../../../components/SearchInput";
+import FilterRadioGroup from "../../../components/FilterRadioGroup";
 
 const Inventory = () => {
   const { user } = useOutletContext();
@@ -104,26 +105,17 @@ const Inventory = () => {
           label="Search inventory..."
         />
         
-        <div style={{ display: "flex", background: "var(--surf)", padding: 4, borderRadius: 12, border: "1px solid var(--border)", gap: 4 }}>
-          <button 
-            onClick={() => { setInventoryType(""); setPage(1); }}
-            className={`px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${inventoryType === "" ? 'bg-[#E65100] text-white shadow-md' : 'text-[#8D7A71] hover:bg-[#F3E5DC]/30'}`}
-          >
-            All
-          </button>
-          <button 
-            onClick={() => { setInventoryType("BIKE"); setPage(1); }}
-            className={`px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${inventoryType === "BIKE" ? 'bg-[#E65100] text-white shadow-md' : 'text-[#8D7A71] hover:bg-[#F3E5DC]/30'}`}
-          >
-            Bikes
-          </button>
-          <button 
-            onClick={() => { setInventoryType("PART"); setPage(1); }}
-            className={`px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${inventoryType === "PART" ? 'bg-[#E65100] text-white shadow-md' : 'text-[#8D7A71] hover:bg-[#F3E5DC]/30'}`}
-          >
-            Parts
-          </button>
-        </div>
+        <FilterRadioGroup
+          name="inventory-type"
+          value={inventoryType}
+          onChange={(v) => { setInventoryType(v); setPage(1); }}
+          compact
+          options={[
+            { value: "", label: "All" },
+            { value: "BIKE", label: "Bikes" },
+            { value: "PART", label: "Parts" },
+          ]}
+        />
 
         <button
           className={`btn ${showLowOnly ? "btn-p" : "btn-s"}`}

@@ -6,6 +6,7 @@ import CustomerPageHeader from "../../../components/customer/CustomerPageHeader"
 import { CustomerLoading, CustomerEmpty, CustomerCount } from "../../../components/customer/CustomerUI";
 import { Badge } from "../../../components/customer/CustomerShared";
 import NeuCardMarquee from "../../../components/customer/NeuCardMarquee";
+import FilterRadioGroup from "../../../components/FilterRadioGroup";
 import api from "../../../services/api";
 
 const Orders = () => {
@@ -38,11 +39,15 @@ const Orders = () => {
         subtitle="Track, manage and view your purchase history."
       />
 
-      <div className="tabs">
-        {["All", "Active", "Completed", "Cancelled"].map(t => (
-          <button key={t} type="button" className={`tab ${tab === t ? "on" : ""}`} onClick={() => setTab(t)}>{t}</button>
-        ))}
-      </div>
+      <FilterRadioGroup
+        name="customer-orders-tab"
+        value={tab}
+        onChange={setTab}
+        compact
+        wrap
+        options={["All", "Active", "Completed", "Cancelled"]}
+        style={{ marginBottom: 20 }}
+      />
 
       <div className="card">
         <div className="ch">

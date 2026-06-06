@@ -12,6 +12,7 @@ import CatalogProductImage from "../../../components/catalog/CatalogProductImage
 import ProductGridSkeleton from "../../../components/catalog/ProductGridSkeleton";
 import SearchInput from "../../../components/SearchInput";
 import NeuCardMarquee from "../../../components/customer/NeuCardMarquee";
+import FilterRadioGroup from "../../../components/FilterRadioGroup";
 import "../../public/Shop.css";
 
 const Shop = () => {
@@ -152,11 +153,17 @@ const Shop = () => {
       <div className="filter-bar-premium">
         <div className="filter-group">
           <label>Browse By Type</label>
-          <div className="fbar-scrollable">
-            <button className={`fpill ${type === "All" ? "on" : ""}`} onClick={() => { setType("All"); setPage(1); }}>All Products</button>
-            <button className={`fpill ${type === "bike" ? "on" : ""}`} onClick={() => { setType("bike"); setPage(1); }}>Electric Bikes</button>
-            <button className={`fpill ${type === "part" ? "on" : ""}`} onClick={() => { setType("part"); setPage(1); }}>Spare Parts</button>
-          </div>
+          <FilterRadioGroup
+            name="shop-product-type"
+            value={type}
+            onChange={(v) => { setType(v); setPage(1); }}
+            compact
+            options={[
+              { value: "All", label: "All Products" },
+              { value: "bike", label: "Electric Bikes" },
+              { value: "part", label: "Spare Parts" },
+            ]}
+          />
         </div>
 
         <div className="filter-controls-row">

@@ -5,6 +5,7 @@ import { useFetch, apiFetch, toast, Icon, Modal, Confirm, UPLOAD_BASE } from "..
 import { getImgUrl } from "../../../utils/imgUrl";
 import { uploadImage } from "../../../utils/uploadMedia";
 import SearchInput from "../../../components/SearchInput";
+import FilterRadioGroup from "../../../components/FilterRadioGroup";
 
 const Products = () => {
   const { user } = useOutletContext();
@@ -160,19 +161,20 @@ const Products = () => {
         </select>
       </div>
 
-      <div className="tabs desktop-tabs" style={{ marginBottom: 30 }}>
-        <div className={`tab ${activeTab === "bikes" ? "active" : ""}`} onClick={() => setActiveTab("bikes")}>
-          <Icon n="bike" size={14} /> Bikes List
-        </div>
-        <div className={`tab ${activeTab === "parts" ? "active" : ""}`} onClick={() => setActiveTab("parts")}>
-          <Icon n="settings" size={14} /> Spare Parts List
-        </div>
-        <div className={`tab ${activeTab === "categories" ? "active" : ""}`} onClick={() => setActiveTab("categories")}>
-          <Icon n="settings" size={14} /> Categories List
-        </div>
-        <div className={`tab ${activeTab === "suppliers" ? "active" : ""}`} onClick={() => setActiveTab("suppliers")}>
-          <Icon n="tag" size={14} /> Suppliers List
-        </div>
+      <div className="desktop-tabs" style={{ marginBottom: 30 }}>
+      <FilterRadioGroup
+        name="products-tab"
+        value={activeTab}
+        onChange={setActiveTab}
+        compact
+        wrap
+        options={[
+          { value: "bikes", label: "Bikes" },
+          { value: "parts", label: "Parts" },
+          { value: "categories", label: "Categories" },
+          { value: "suppliers", label: "Suppliers" },
+        ]}
+      />
       </div>
 
       <div className="tab-content">

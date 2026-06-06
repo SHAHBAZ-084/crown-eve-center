@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { CalendarDays, Wrench } from "lucide-react";
 import CustomerPageHeader from "../../../components/customer/CustomerPageHeader";
+import FilterRadioGroup from "../../../components/FilterRadioGroup";
 import { CustomerLoading, CustomerEmpty, CustomerMeta } from "../../../components/customer/CustomerUI";
 import { Badge } from "../../../components/customer/CustomerShared";
 import api from "../../../services/api";
@@ -51,11 +52,15 @@ const Bookings = () => {
         }
       />
 
-      <div className="tabs">
-        {["All", "Upcoming", "In Progress", "Completed", "Cancelled"].map(t => (
-          <button key={t} type="button" className={`tab ${tab === t ? "on" : ""}`} onClick={() => setTab(t)}>{t}</button>
-        ))}
-      </div>
+      <FilterRadioGroup
+        name="customer-bookings-tab"
+        value={tab}
+        onChange={setTab}
+        compact
+        wrap
+        options={["All", "Upcoming", "In Progress", "Completed", "Cancelled"]}
+        style={{ marginBottom: 20 }}
+      />
 
       {loading && <div className="card"><CustomerLoading message="Loading bookings…" /></div>}
       {error && <div className="card"><div className="ce-alert ce-alert--error">{error}</div></div>}
