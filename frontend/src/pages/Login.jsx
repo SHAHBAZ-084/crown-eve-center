@@ -4,6 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LOGO_URL } from '../constants/mediaAssets';
 import GoogleAuthSection from '../components/auth/GoogleAuthSection';
+import PasswordInput from '../components/auth/PasswordInput';
 import { getPostLoginPath } from '../utils/authRedirect';
 import './auth/Auth.css';
 
@@ -130,8 +131,7 @@ const Login = () => {
               <label>Password</label>
               <Link to="/forgot" className="form-link" style={{ fontSize: '12px' }}>Forgot password?</Link>
             </div>
-            <input 
-              type="password" 
+            <PasswordInput
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

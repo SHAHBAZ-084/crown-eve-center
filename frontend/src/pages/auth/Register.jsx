@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 import GoogleAuthSection from '../../components/auth/GoogleAuthSection';
 import { getPostLoginPath } from '../../utils/authRedirect';
 import PasswordStrength, { validatePassword, validatePhone } from '../../components/PasswordStrength';
+import PasswordInput from '../../components/auth/PasswordInput';
 import './Auth.css';
 
 const Register = () => {
@@ -173,37 +174,25 @@ const Register = () => {
           </div>
           <div className="form-group">
             <label className="auth-label">Password</label>
-            <div className="auth-field">
-              <svg className="auth-field-icon" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M18 8h-1V6a5 5 0 00-10 0v2H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V10a2 2 0 00-2-2zm-6 9a2 2 0 110-4 2 2 0 010 4zm3-9H9V6a3 3 0 016 0v2z" />
-              </svg>
-              <input
-                className="auth-input"
-                type="password"
-                placeholder="Min 8 chars, upper, lower, number"
-                value={formData.password}
-                onChange={(e) => setFormData({...formData, password: e.target.value})}
-                minLength={8}
-                required
-              />
-            </div>
+            <PasswordInput
+              variant="field"
+              placeholder="Min 8 chars, upper, lower, number"
+              value={formData.password}
+              onChange={(e) => setFormData({...formData, password: e.target.value})}
+              minLength={8}
+              required
+            />
             <PasswordStrength password={formData.password} />
           </div>
           <div className="form-group">
             <label className="auth-label">Confirm Password</label>
-            <div className="auth-field">
-              <svg className="auth-field-icon" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M18 8h-1V6a5 5 0 00-10 0v2H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V10a2 2 0 00-2-2zm-6 9a2 2 0 110-4 2 2 0 010 4zm3-9H9V6a3 3 0 016 0v2z" />
-              </svg>
-              <input
-                className="auth-input"
-                type="password"
-                placeholder="••••••••"
-                value={formData.confirmPassword}
-                onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-                required
-              />
-            </div>
+            <PasswordInput
+              variant="field"
+              placeholder="••••••••"
+              value={formData.confirmPassword}
+              onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+              required
+            />
           </div>
           <div className="form-group">
             <label className="auth-label" htmlFor="register-city">City</label>

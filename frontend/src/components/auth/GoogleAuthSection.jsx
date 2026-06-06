@@ -1,5 +1,4 @@
-import React from 'react';
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useGoogleClientId } from '../../hooks/useGoogleClientId';
 
 const GoogleIcon = () => (
@@ -11,55 +10,124 @@ const GoogleIcon = () => (
   </svg>
 );
 
+const GSI_SCRIPT = 'https://accounts.google.com/gsi/client';
+
+const loadGsiScript = () =>
+  new Promise((resolve, reject) => {
+    if (window.google?.accounts?.id) {
+      resolve();
+      return;
+    }
+
+    const existing = document.querySelector(`script[src="${GSI_SCRIPT}"]`);
+    if (existing) {
+      existing.addEventListener('load', () => resolve(), { once: true });
+      existing.addEventListener('error', () => reject(new Error('GSI script failed')), { once: true });
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = GSI_SCRIPT;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('GSI script failed'));
+    document.head.appendChild(script);
+  });
+
 const GoogleAuthSection = ({ onSuccess, onError, disabled = false, mode = 'signin' }) => {
   const { clientId, loading, enabled } = useGoogleClientId();
+  const hiddenRef = useRef(null);
+  const gsiReadyRef = useRef(false);
   const label = mode === 'signup' ? 'Sign up with Google' : 'Continue with Google';
 
-  const handleMissingConfig = () => {
-    onError?.(
-      'Google sign-in is not configured yet. Set GOOGLE_CLIENT_ID on the API server (Hostinger env).'
-    );
+  const initGsi = useCallback(() => {
+    if (!clientId || !hiddenRef.current || gsiReadyRef.current) return;
+
+    const { google } = window;
+    if (!google?.accounts?.id) return;
+
+    hiddenRef.current.innerHTML = '';
+
+    google.accounts.id.initialize({
+      client_id: clientId,
+      callback: (response) => {
+        if (response?.credential) {
+          onSuccess(response.credential);
+        } else {
+          onError?.('Google did not return a sign-in token.');
+        }
+      },
+      auto_select: false,
+      cancel_on_tap_outside: true,
+    });
+
+    google.accounts.id.renderButton(hiddenRef.current, {
+      type: 'standard',
+      theme: 'outline',
+      size: 'large',
+      text: mode === 'signup' ? 'signup_with' : 'continue_with',
+      width: 400,
+    });
+
+    gsiReadyRef.current = true;
+  }, [clientId, mode, onSuccess, onError]);
+
+  useEffect(() => {
+    gsiReadyRef.current = false;
+    if (!enabled) return undefined;
+
+    let cancelled = false;
+
+    loadGsiScript()
+      .then(() => {
+        if (!cancelled) initGsi();
+      })
+      .catch(() => {
+        if (!cancelled) {
+          onError?.('Could not load Google sign-in. Check your connection and try again.');
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [enabled, initGsi, onError]);
+
+  const handleClick = () => {
+    if (!enabled) {
+      onError?.(
+        'Google sign-in is not configured yet. Set GOOGLE_CLIENT_ID on the API server (Hostinger env).'
+      );
+      return;
+    }
+
+    const googleButton = hiddenRef.current?.querySelector('[role="button"]');
+    if (googleButton) {
+      googleButton.click();
+      return;
+    }
+
+    if (window.google?.accounts?.id) {
+      window.google.accounts.id.prompt();
+      return;
+    }
+
+    onError?.('Google sign-in is still loading. Please wait a moment and try again.');
   };
 
   return (
     <>
-      {loading ? (
-        <button type="button" className="auth-google-custom" disabled>
-          <GoogleIcon />
-          <span>Loading Google…</span>
-        </button>
-      ) : enabled ? (
-        <GoogleOAuthProvider clientId={clientId}>
-          <div className={`auth-google-wrap${disabled ? ' auth-google-wrap--disabled' : ''}`}>
-            <GoogleLogin
-              onSuccess={(response) => {
-                if (response?.credential) {
-                  onSuccess(response.credential);
-                } else {
-                  onError?.('Google did not return a sign-in token.');
-                }
-              }}
-              onError={() => onError?.('Google sign-in was cancelled or failed.')}
-              text={mode === 'signup' ? 'signup_with' : 'continue_with'}
-              theme="outline"
-              shape="rectangular"
-              size="large"
-              width="400"
-              locale="en"
-            />
-          </div>
-        </GoogleOAuthProvider>
-      ) : (
-        <button
-          type="button"
-          className="auth-google-custom"
-          disabled={disabled}
-          onClick={handleMissingConfig}
-        >
-          <GoogleIcon />
-          <span>{label}</span>
-        </button>
-      )}
+      <button
+        type="button"
+        className="auth-google-custom"
+        disabled={disabled || loading}
+        onClick={handleClick}
+      >
+        <GoogleIcon />
+        <span>{loading ? 'Loading Google…' : label}</span>
+      </button>
+      {enabled && <div ref={hiddenRef} className="auth-google-hidden" aria-hidden="true" />}
       <div className="form-divider">or</div>
     </>
   );

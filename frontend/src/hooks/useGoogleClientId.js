@@ -1,16 +1,14 @@
 import { useEffect, useState } from 'react';
 import api from '../services/api';
-
-const VITE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+import { GOOGLE_OAUTH_CLIENT_ID } from '../constants/googleAuth';
 
 export const useGoogleClientId = () => {
-  const [clientId, setClientId] = useState(VITE_CLIENT_ID);
-  const [loading, setLoading] = useState(!VITE_CLIENT_ID);
+  const [clientId, setClientId] = useState(GOOGLE_OAUTH_CLIENT_ID);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (VITE_CLIENT_ID) return;
-
     let cancelled = false;
+
     api
       .get('/auth/google-config')
       .then((res) => {
@@ -19,7 +17,7 @@ export const useGoogleClientId = () => {
         }
       })
       .catch(() => {
-        // Backend unreachable or route missing — button stays in setup state
+        // Keep bundled/default client ID when API config is unavailable.
       })
       .finally(() => {
         if (!cancelled) setLoading(false);

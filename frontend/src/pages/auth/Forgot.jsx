@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import PasswordStrength, { validatePassword } from '../../components/PasswordStrength';
+import PasswordInput from '../../components/auth/PasswordInput';
 import './Auth.css';
 
 const isValidOtp = (value) => /^\d{6}$/.test(String(value || '').trim());
@@ -159,42 +160,30 @@ const Forgot = () => {
             </div>
             <div className="form-group">
               <label className="auth-label" htmlFor="forgot-new-password">New Password</label>
-              <div className="auth-field">
-                <svg className="auth-field-icon" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M18 8h-1V6a5 5 0 00-10 0v2H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V10a2 2 0 00-2-2zm-6 9a2 2 0 110-4 2 2 0 010 4zm3-9H9V6a3 3 0 016 0v2z" />
-                </svg>
-                <input
-                  className="auth-input"
-                  id="forgot-new-password"
-                  name="newPassword"
-                  type="password"
-                  placeholder="••••••••"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  minLength={6}
-                  required
-                />
-              </div>
+              <PasswordInput
+                variant="field"
+                id="forgot-new-password"
+                name="newPassword"
+                placeholder="••••••••"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                minLength={6}
+                required
+              />
               <PasswordStrength password={newPassword} />
             </div>
             <div className="form-group">
               <label className="auth-label" htmlFor="forgot-confirm-password">Confirm Password</label>
-              <div className="auth-field">
-                <svg className="auth-field-icon" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M18 8h-1V6a5 5 0 00-10 0v2H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V10a2 2 0 00-2-2zm-6 9a2 2 0 110-4 2 2 0 010 4zm3-9H9V6a3 3 0 016 0v2z" />
-                </svg>
-                <input
-                  className="auth-input"
-                  id="forgot-confirm-password"
-                  name="confirmPassword"
-                  type="password"
-                  placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  minLength={6}
-                  required
-                />
-              </div>
+              <PasswordInput
+                variant="field"
+                id="forgot-confirm-password"
+                name="confirmPassword"
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                minLength={6}
+                required
+              />
             </div>
             <button
               type="submit"
