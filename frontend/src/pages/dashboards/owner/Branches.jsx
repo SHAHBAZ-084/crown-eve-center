@@ -1,6 +1,6 @@
 // frontend/src/pages/dashboards/owner/Branches.jsx
 import React, { useState } from "react";
-import { useFetch, api, toast, Icon, Sk, Modal, Confirm } from "../../../components/owner/OwnerShared";
+import { useFetch, api, toast, Icon, Sk, Modal } from "../../../components/owner/OwnerShared";
 
 /**
  * Branches Management Page
@@ -11,9 +11,22 @@ const BranchesPage = () => {
   const { data: branchData, loading, refetch } = useFetch("/branches?limit=100");
   const [showModal, setShowModal] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
-  const [confirmId, setConfirmId] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteAck, setDeleteAck] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [form, setForm] = useState({ name: "", location: "" });
   const [saving, setSaving] = useState(false);
+
+  const openDelete = (branch) => {
+    setDeleteTarget(branch);
+    setDeleteAck(false);
+  };
+
+  const closeDelete = () => {
+    if (deleting) return;
+    setDeleteTarget(null);
+    setDeleteAck(false);
+  };
 
   const openAdd = () => { 
     setForm({ name: "", location: "" }); 
@@ -48,14 +61,18 @@ const BranchesPage = () => {
   };
 
   const remove = async (id) => {
+    setDeleting(true);
     try {
       await api(`/branches/${id}`, { method: "DELETE" });
       toast("Branch decommissioned from network");
       refetch();
-    } catch (e) { 
-      toast(e.message, "error"); 
+      setDeleteTarget(null);
+      setDeleteAck(false);
+    } catch (e) {
+      toast(e.message, "error");
+    } finally {
+      setDeleting(false);
     }
-    setConfirmId(null);
   };
 
   const branches = branchData?.data || [];
@@ -118,7 +135,7 @@ const BranchesPage = () => {
                       <button className="btn-icon" onClick={() => openEdit(b)} title="Edit Configuration">
                         <Icon name="edit" size={14} />
                       </button>
-                      <button className="btn-icon danger" onClick={() => setConfirmId(b.id)} title="Decommission Branch">
+                      <button className="btn-icon danger" onClick={() => openDelete(b)} title="Decommission Branch">
                         <Icon name="trash" size={14} />
                       </button>
                     </div>
@@ -181,12 +198,82 @@ const BranchesPage = () => {
         </Modal>
       )}
 
-      {confirmId && (
-        <Confirm 
-          msg="Are you certain you want to decommission this branch node? This will impact all associated personnel and inventory records." 
-          onConfirm={() => remove(confirmId)} 
-          onCancel={() => setConfirmId(null)} 
-        />
+      {deleteTarget && (
+        <Modal
+          title="DELETE BRANCH?"
+          onClose={closeDelete}
+          footer={
+            <>
+              <button className="btn btn-secondary" onClick={closeDelete} disabled={deleting}>
+                Cancel
+              </button>
+              <button
+                className="btn btn-danger"
+                onClick={() => remove(deleteTarget.id)}
+                disabled={!deleteAck || deleting}
+              >
+                {deleting ? "Deleting…" : "Delete Branch"}
+              </button>
+            </>
+          }
+        >
+          <div
+            style={{
+              background: "rgba(239,68,68,0.08)",
+              border: "1px solid rgba(239,68,68,0.25)",
+              borderRadius: "var(--r-md)",
+              padding: "16px",
+              marginBottom: "18px",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
+              <Icon name="trash" size={18} />
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 6, color: "var(--red)" }}>
+                  Permanent deletion warning
+                </div>
+                <p style={{ margin: 0, fontSize: 13, lineHeight: 1.55, color: "var(--text)" }}>
+                  If you delete <strong>{deleteTarget.name}</strong>, all{" "}
+                  <strong>{deleteTarget._count?.products || 0} products</strong> in this branch will also be
+                  permanently deleted, along with orders, inventory, appointments, accounts, and other linked data.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <p style={{ margin: "0 0 14px", fontSize: 13, lineHeight: 1.55, color: "var(--muted)" }}>
+            <strong style={{ color: "var(--text)" }}>Before deleting:</strong> transfer your products to another
+            branch first (via Branch Dashboard → Products / Inventory), then come back and delete this branch.
+          </p>
+
+          <p style={{ margin: "0 0 16px", fontSize: 13, lineHeight: 1.55, color: "var(--muted)" }}>
+            This action cannot be undone. Personnel on this branch will be unassigned, not deleted.
+          </p>
+
+          <label
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: "10px",
+              fontSize: 13,
+              lineHeight: 1.45,
+              cursor: deleting ? "not-allowed" : "pointer",
+              userSelect: "none",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={deleteAck}
+              disabled={deleting}
+              onChange={(e) => setDeleteAck(e.target.checked)}
+              style={{ marginTop: 3, accentColor: "var(--accent)" }}
+            />
+            <span>
+              I understand that all products and related branch data will be permanently deleted, or I have already
+              transferred them to another branch.
+            </span>
+          </label>
+        </Modal>
       )}
     </div>
   );
