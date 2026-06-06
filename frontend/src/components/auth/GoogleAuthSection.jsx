@@ -18,7 +18,7 @@ const GoogleIcon = () => (
 
 const GoogleAuthSection = ({ onSuccess, onError, disabled = false, mode = 'signin' }) => {
   const { clientId, loading, enabled } = useGoogleClientId();
-  const buttonRef = useRef(null);
+  const hiddenButtonRef = useRef(null);
   const onSuccessRef = useRef(onSuccess);
   const onErrorRef = useRef(onError);
   const [gsiReady, setGsiReady] = useState(false);
@@ -52,17 +52,15 @@ const GoogleAuthSection = ({ onSuccess, onError, disabled = false, mode = 'signi
     const boot = async () => {
       try {
         await initGoogleIdentityOnce(clientId);
-        const mount = buttonRef.current;
+        const mount = hiddenButtonRef.current;
         if (cancelled || !mount) return;
-
-        const width = Math.min(Math.max(mount.parentElement?.clientWidth || 400, 280), 400);
 
         renderGoogleButton(mount, {
           type: 'standard',
           theme: 'outline',
           size: 'large',
           text: mode === 'signup' ? 'signup_with' : 'continue_with',
-          width,
+          width: 400,
         });
 
         await waitForGoogleButton(mount);
@@ -76,7 +74,7 @@ const GoogleAuthSection = ({ onSuccess, onError, disabled = false, mode = 'signi
 
     return () => {
       cancelled = true;
-      if (buttonRef.current) buttonRef.current.innerHTML = '';
+      if (hiddenButtonRef.current) hiddenButtonRef.current.innerHTML = '';
     };
   }, [clientId, enabled, mode, retryKey]);
 
@@ -86,10 +84,25 @@ const GoogleAuthSection = ({ onSuccess, onError, disabled = false, mode = 'signi
     );
   };
 
+  const handleGoogleClick = () => {
+    if (!gsiReady) {
+      onErrorRef.current?.('Google sign-in is still loading. Please wait a moment and try again.');
+      return;
+    }
+
+    const googleButton = hiddenButtonRef.current?.querySelector('[role="button"]');
+    if (googleButton) {
+      googleButton.click();
+      return;
+    }
+
+    onErrorRef.current?.('Google sign-in is unavailable. Please try again.');
+  };
+
   const handleRetry = () => {
     setGsiError(false);
     setGsiReady(false);
-    if (buttonRef.current) buttonRef.current.innerHTML = '';
+    if (hiddenButtonRef.current) hiddenButtonRef.current.innerHTML = '';
     setRetryKey((key) => key + 1);
   };
 
@@ -107,10 +120,19 @@ const GoogleAuthSection = ({ onSuccess, onError, disabled = false, mode = 'signi
         </button>
       )}
 
-      {enabled && !gsiReady && (
-        <button type="button" className="auth-google-custom" disabled>
+      {enabled && (
+        <button
+          type="button"
+          className="auth-google-custom"
+          disabled={disabled || loading || !gsiReady}
+          onClick={handleGoogleClick}
+        >
           <GoogleIcon />
-          <span>{gsiError ? 'Google sign-in unavailable' : 'Loading Google…'}</span>
+          <span>
+            {loading || !gsiReady
+              ? (gsiError ? 'Google sign-in unavailable' : 'Loading Google…')
+              : label}
+          </span>
         </button>
       )}
 
@@ -122,9 +144,9 @@ const GoogleAuthSection = ({ onSuccess, onError, disabled = false, mode = 'signi
 
       {enabled && (
         <div
-          ref={buttonRef}
-          className={`auth-google-wrap${gsiReady ? '' : ' auth-google-wrap--offscreen'}${disabled ? ' auth-google-wrap--disabled' : ''}`}
-          aria-hidden={!gsiReady}
+          ref={hiddenButtonRef}
+          className="auth-google-hidden"
+          aria-hidden="true"
         />
       )}
 
