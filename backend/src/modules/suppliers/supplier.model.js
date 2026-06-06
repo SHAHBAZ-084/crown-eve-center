@@ -41,4 +41,38 @@ const createSupplier = async (data) => {
   });
 };
 
-module.exports = { getAllSuppliers, createSupplier };
+const updateSupplier = async (id, data) => {
+  const existing = await prisma.supplier.findUnique({ where: { id: Number(id) } });
+  if (!existing) throw new Error('Supplier not found.');
+
+  return prisma.supplier.update({
+    where: { id: Number(id) },
+    data: {
+      ...(data.name !== undefined && { name: data.name }),
+      ...(data.contact !== undefined && { contact: data.contact }),
+    },
+    select: {
+      id: true,
+      name: true,
+      contact: true,
+      accountId: true,
+      account: { select: { id: true, account_name: true, current_balance: true } },
+    },
+  });
+};
+
+const deleteSupplier = async (id) => {
+  const supplierId = Number(id);
+  const existing = await prisma.supplier.findUnique({ where: { id: supplierId } });
+  if (!existing) throw new Error('Supplier not found.');
+
+  const purchaseCount = await prisma.purchase.count({ where: { supplierId } });
+  if (purchaseCount > 0) {
+    throw new Error('Cannot delete supplier with existing purchase orders.');
+  }
+
+  await prisma.supplier.delete({ where: { id: supplierId } });
+  return { id: supplierId };
+};
+
+module.exports = { getAllSuppliers, createSupplier, updateSupplier, deleteSupplier };

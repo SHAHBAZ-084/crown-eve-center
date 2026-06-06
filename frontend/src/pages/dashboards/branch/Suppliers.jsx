@@ -14,6 +14,7 @@ const Suppliers = () => {
   const suppliers = suppliersRes?.data ?? suppliersRes ?? [];
 
   const [showSupModal, setShowSupModal] = useState(false);
+  const [editingSupplier, setEditingSupplier] = useState(null);
   const [showPOModal, setShowPOModal] = useState(null);
   const [partsData, setPartsData] = useState(null);
   const [partsLoading, setPartsLoading] = useState(false);
@@ -43,18 +44,55 @@ const Suppliers = () => {
     };
   }, [showPOModal]);
 
+  const openRegisterModal = () => {
+    setEditingSupplier(null);
+    setSupForm({ name: "", contact: "" });
+    setShowSupModal(true);
+  };
+
+  const openEditModal = (supplier) => {
+    setEditingSupplier(supplier);
+    setSupForm({ name: supplier.name, contact: supplier.contact });
+    setShowSupModal(true);
+  };
+
+  const closeSupModal = () => {
+    setShowSupModal(false);
+    setEditingSupplier(null);
+    setSupForm({ name: "", contact: "" });
+  };
+
   const submitSupplier = async () => {
     if (!supForm.name || !supForm.contact) return toast("Name and contact required", "e");
     setSaving(true);
     try {
-      await apiFetch("/suppliers", { method: "POST", body: { ...supForm, branchId: Number(branchId) } });
-      toast("Supplier registered");
-      setShowSupModal(false);
+      if (editingSupplier) {
+        await apiFetch(`/suppliers/${editingSupplier.id}`, {
+          method: "PUT",
+          body: { name: supForm.name, contact: supForm.contact },
+        });
+        toast("Supplier updated");
+      } else {
+        await apiFetch("/suppliers", { method: "POST", body: { ...supForm, branchId: Number(branchId) } });
+        toast("Supplier registered");
+      }
+      closeSupModal();
       refetch();
     } catch (e) {
       toast(e.message, "e");
     }
     setSaving(false);
+  };
+
+  const deleteSupplier = async (supplier) => {
+    if (!window.confirm(`Delete supplier "${supplier.name}"? This cannot be undone.`)) return;
+    try {
+      await apiFetch(`/suppliers/${supplier.id}`, { method: "DELETE" });
+      toast("Supplier deleted");
+      refetch();
+    } catch (e) {
+      toast(e.message, "e");
+    }
   };
 
   const addPOItem = () => setPoForm((f) => ({ ...f, items: [...f.items, { partId: "", quantity: 1, cost: "" }] }));
@@ -98,7 +136,7 @@ const Suppliers = () => {
           <div className="psub">Authorized part providers · {(Array.isArray(suppliers) ? suppliers : []).length} registered</div>
         </div>
         <div className="ph-r">
-          <button className="btn btn-p" onClick={() => setShowSupModal(true)}>
+          <button className="btn btn-p" onClick={openRegisterModal}>
             <Icon n="plus" /> Register Supplier
           </button>
         </div>
@@ -114,20 +152,39 @@ const Suppliers = () => {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 14 }}>
           {(Array.isArray(suppliers) ? suppliers : []).map((s) => (
             <div key={s.id} className="card ci" style={{ transition: "border-color .2s" }}>
-              <div
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 10,
-                  background: "rgba(234,179,8,.1)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "var(--yellow)",
-                  marginBottom: 14,
-                }}
-              >
-                <Icon n="truck" size={18} />
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
+                <div
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 10,
+                    background: "rgba(234,179,8,.1)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "var(--yellow)",
+                  }}
+                >
+                  <Icon n="truck" size={18} />
+                </div>
+                <div style={{ display: "flex", gap: 6 }}>
+                  <button
+                    type="button"
+                    className="btn-ico"
+                    title="Edit supplier"
+                    onClick={() => openEditModal(s)}
+                  >
+                    <Icon n="edit" size={13} />
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-ico dng"
+                    title="Delete supplier"
+                    onClick={() => deleteSupplier(s)}
+                  >
+                    <Icon n="trash" size={13} />
+                  </button>
+                </div>
               </div>
               <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>{s.name}</div>
               <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 16 }}>{s.contact}</div>
@@ -154,15 +211,15 @@ const Suppliers = () => {
 
       {showSupModal && (
         <Modal
-          title="REGISTER SUPPLIER"
-          onClose={() => setShowSupModal(false)}
+          title={editingSupplier ? "EDIT SUPPLIER" : "REGISTER SUPPLIER"}
+          onClose={closeSupModal}
           footer={
             <>
-              <button className="btn btn-s btn-sm" onClick={() => setShowSupModal(false)}>
+              <button className="btn btn-s btn-sm" onClick={closeSupModal}>
                 Cancel
               </button>
               <button className="btn btn-p btn-sm" onClick={submitSupplier} disabled={saving}>
-                {saving ? "Saving…" : "Register"}
+                {saving ? "Saving…" : editingSupplier ? "Save Changes" : "Register"}
               </button>
             </>
           }
