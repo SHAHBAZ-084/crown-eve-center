@@ -1,3 +1,5 @@
+/* Sale invoice — thermal paper slip + modal (matches service receipt shell) */
+
 .sale-invoice-overlay {
   position: fixed;
   inset: 0;
@@ -5,22 +7,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
-  background: rgba(45, 26, 18, 0.6);
+  padding: 20px;
+  background: rgba(45, 26, 18, 0.55);
   backdrop-filter: blur(8px);
 }
 
 .sale-invoice-dialog {
-  position: relative;
   width: 100%;
-  max-width: 42rem;
-  max-height: 95vh;
+  max-width: 460px;
+  max-height: 92vh;
   display: flex;
   flex-direction: column;
   background: #fff;
-  border-radius: 3rem;
+  border: 1px solid #f3e5dc;
+  border-radius: 2rem;
+  box-shadow: 0 24px 60px rgba(45, 26, 18, 0.18);
   overflow: hidden;
-  box-shadow: 0 24px 60px rgba(45, 26, 18, 0.2);
 }
 
 .sale-invoice-header {
@@ -28,55 +30,33 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  padding: 28px 40px;
+  padding: 22px 24px 18px;
   background: #fffaf8;
   border-bottom: 1px solid #f3e5dc;
   flex-shrink: 0;
 }
 
 .sale-invoice-title {
-  font-size: 1.5rem;
+  font-size: 1rem;
   font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: #2d1a12;
-  line-height: 1.2;
 }
 
 .sale-invoice-subtitle {
   margin-top: 4px;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: #8d7a71;
 }
 
-.sale-invoice-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.sale-invoice-print-btn {
-  background: #fff;
-  border: 1px solid #f3e5dc;
-  padding: 10px 20px;
-  border-radius: 12px;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #2d1a12;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.sale-invoice-print-btn:hover {
-  background: #fffaf8;
-}
-
 .sale-invoice-close-btn {
   width: 40px;
   height: 40px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -87,247 +67,307 @@
   cursor: pointer;
 }
 
+.sale-invoice-close-btn:hover {
+  background: #fff6f0;
+  border-color: #e65100;
+  color: #e65100;
+}
+
 .sale-invoice-body {
-  padding: 40px;
-  overflow-y: auto;
   flex: 1;
-}
-
-.sale-invoice-body-inner {
+  overflow-y: auto;
   display: flex;
-  flex-direction: column;
-  gap: 40px;
-}
-
-.sale-invoice-brand-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-}
-
-.sale-invoice-brand {
-  font-size: 1.5rem;
-  font-weight: 900;
-  color: #e65100;
-}
-
-.sale-invoice-brand-sub {
-  font-size: 10px;
-  font-weight: 700;
-  color: #8d7a71;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  margin-top: 4px;
-}
-
-.sale-invoice-meta {
-  text-align: right;
-}
-
-.sale-invoice-meta-id {
-  font-size: 0.875rem;
-  font-weight: 900;
-  color: #2d1a12;
-}
-
-.sale-invoice-meta-date {
-  font-size: 10px;
-  font-weight: 700;
-  color: #8d7a71;
-  text-transform: uppercase;
-  margin-top: 4px;
-}
-
-.sale-invoice-parties {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 48px;
-  padding: 32px 0;
-  border-top: 1px solid #f3e5dc;
-  border-bottom: 1px solid #f3e5dc;
-}
-
-.sale-invoice-party-label {
-  font-size: 10px;
-  font-weight: 900;
-  color: #8d7a71;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  margin-bottom: 16px;
-}
-
-.sale-invoice-party-name {
-  font-weight: 900;
-  color: #2d1a12;
-  text-transform: uppercase;
-}
-
-.sale-invoice-party-sub {
-  font-size: 0.75rem;
-  color: #8d7a71;
-  margin-top: 4px;
-}
-
-.sale-invoice-party-tag {
-  font-size: 10px;
-  color: #8d7a71;
-  text-transform: uppercase;
-  margin-top: 4px;
-}
-
-.sale-invoice-party-right {
-  text-align: right;
-}
-
-.sale-invoice-payment {
-  font-weight: 900;
-  color: #e65100;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-}
-
-.sale-invoice-status {
-  font-size: 10px;
-  color: #8d7a71;
-  text-transform: uppercase;
-  margin-top: 4px;
-}
-
-.sale-invoice-table {
-  width: 100%;
-  text-align: left;
-  border-collapse: collapse;
-}
-
-.sale-invoice-table th {
-  padding: 16px 0;
-  font-size: 10px;
-  font-weight: 900;
-  color: #8d7a71;
-  text-transform: uppercase;
-  border-bottom: 1px solid #f3e5dc;
-}
-
-.sale-invoice-table th:nth-child(2) { text-align: center; }
-.sale-invoice-table th:nth-child(3),
-.sale-invoice-table th:nth-child(4) { text-align: right; }
-
-.sale-invoice-table td {
-  padding: 16px 0;
-  font-size: 0.75rem;
-  border-bottom: 1px solid #f3e5dc;
-}
-
-.sale-invoice-table td:nth-child(1) {
-  font-weight: 900;
-  color: #2d1a12;
-  text-transform: uppercase;
-}
-
-.sale-invoice-table td:nth-child(2) {
-  text-align: center;
-  font-weight: 700;
-  color: #8d7a71;
-}
-
-.sale-invoice-table td:nth-child(3) {
-  text-align: right;
-  font-weight: 700;
-  color: #8d7a71;
-}
-
-.sale-invoice-table td:nth-child(4) {
-  text-align: right;
-  font-weight: 900;
-  color: #2d1a12;
-}
-
-.sale-invoice-totals {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-  padding-top: 32px;
-}
-
-.sale-invoice-subtotal {
-  display: flex;
-  justify-content: space-between;
-  width: 12rem;
-  font-size: 10px;
-  font-weight: 900;
-  color: #8d7a71;
-  text-transform: uppercase;
-}
-
-.sale-invoice-grand {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  width: 12rem;
-  padding-top: 16px;
-  border-top: 1px solid #f3e5dc;
-  color: #e65100;
-}
-
-.sale-invoice-grand-label {
-  font-size: 10px;
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-.sale-invoice-grand-value {
-  font-size: 1.25rem;
-  font-weight: 900;
+  justify-content: center;
+  padding: 20px 16px 12px;
+  background: #f5f5f5;
 }
 
 .sale-invoice-footer {
-  padding-top: 48px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 18px 20px 22px;
+  background: #fffaf8;
+  border-top: 1px solid #f3e5dc;
+  flex-shrink: 0;
 }
 
-.sale-invoice-thanks {
+.sale-invoice-btn {
+  min-width: 130px;
+  height: 44px;
+  padding: 0 22px;
+  border-radius: 999px;
   font-size: 10px;
   font-weight: 900;
-  color: #8d7a71;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  letter-spacing: 0.3em;
+  cursor: pointer;
 }
 
-.sale-invoice-disclaimer {
+.sale-invoice-btn--ghost {
+  border: 1.5px solid #e8ddd6;
+  background: #fff;
+  color: #2d1a12;
+}
+
+.sale-invoice-btn--ghost:hover {
+  background: #fffaf8;
+}
+
+.sale-invoice-btn--print {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  background: linear-gradient(135deg, #e65100 0%, #c73a08 100%);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(230, 81, 0, 0.28);
+}
+
+.sale-invoice-btn--print:hover {
+  filter: brightness(1.03);
+}
+
+/* ── Thermal slip (80mm paper look) ── */
+.sale-thermal-slip {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  padding: 28px 22px 24px;
+  background: #fff;
+  color: #111;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11px;
+  line-height: 1.45;
+  text-align: left;
+  border: 1px solid #ddd;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.sale-thermal-serration {
+  position: absolute;
+  top: -6px;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background:
+    linear-gradient(-135deg, #f5f5f5 4px, transparent 0),
+    linear-gradient(135deg, #f5f5f5 4px, transparent 0);
+  background-size: 8px 8px;
+  transform: rotate(180deg);
+}
+
+.sale-thermal-center {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.sale-thermal-brand {
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #000;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.sale-thermal-brand-sub {
+  font-size: 9px;
+  color: #444;
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.sale-thermal-divider {
+  border-bottom: 1px dashed #999;
+  margin: 12px 0;
+}
+
+.sale-thermal-title {
+  text-align: center;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 10px 0;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.sale-thermal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 14px;
+  margin: 10px 0;
+}
+
+.sale-thermal-label {
+  display: block;
   font-size: 8px;
-  color: #8d7a71;
-  margin-top: 8px;
+  font-weight: 800;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 2px;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.sale-thermal-value {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #000;
+  text-transform: uppercase;
+}
+
+.sale-thermal-sub {
+  display: block;
+  font-size: 9px;
+  color: #555;
+  margin-top: 1px;
+  text-transform: none;
+}
+
+.sale-thermal-mono {
+  font-family: 'Courier New', Courier, monospace;
+  text-transform: none;
+}
+
+.sale-thermal-bold {
+  font-weight: 900;
+}
+
+.sale-thermal-section-label {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #666;
+  margin-bottom: 8px;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.sale-thermal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10px;
+}
+
+.sale-thermal-table th {
+  text-align: left;
+  padding-bottom: 6px;
+  font-size: 8px;
+  font-weight: 800;
+  color: #666;
+  text-transform: uppercase;
+  border-bottom: 1px solid #ccc;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.sale-thermal-table th:last-child {
+  text-align: right;
+}
+
+.sale-thermal-table td {
+  padding: 8px 0;
+  vertical-align: top;
+  border-bottom: 1px dotted #ddd;
+}
+
+.sale-thermal-qty {
+  width: 28px;
+  color: #333;
+  font-weight: 700;
+}
+
+.sale-thermal-item-name {
   font-weight: 700;
   text-transform: uppercase;
+  font-size: 10px;
+  line-height: 1.3;
+  font-family: system-ui, -apple-system, sans-serif;
 }
 
-@media (max-width: 640px) {
-  .sale-invoice-dialog {
-    border-radius: 1.5rem;
-    max-height: 92vh;
-  }
+.sale-thermal-item-rate {
+  font-size: 8px;
+  color: #666;
+  margin-top: 2px;
+}
 
-  .sale-invoice-header {
-    padding: 20px;
-  }
+.sale-thermal-line-total {
+  text-align: right;
+  font-weight: 700;
+  white-space: nowrap;
+  font-size: 10px;
+}
 
-  .sale-invoice-body {
-    padding: 20px;
-  }
+.sale-thermal-total-box {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px dashed #999;
+  background: #fafafa;
+}
 
-  .sale-invoice-parties {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
+.sale-thermal-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #333;
+  font-family: system-ui, -apple-system, sans-serif;
+}
 
-  .sale-invoice-party-right {
-    text-align: left;
-  }
+.sale-thermal-total-row--grand {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #ccc;
+  font-weight: 900;
+  font-size: 10px;
+  color: #000;
+}
+
+.sale-thermal-grand {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.sale-thermal-footer {
+  text-align: center;
+  margin-top: 4px;
+}
+
+.sale-thermal-thanks {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.sale-thermal-disclaimer {
+  font-size: 8px;
+  color: #666;
+  margin-top: 6px;
+  font-family: system-ui, -apple-system, sans-serif;
 }
 
 @media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  .sale-thermal-slip,
+  .sale-thermal-slip * {
+    visibility: visible !important;
+  }
+
   .sale-invoice-overlay {
     position: static;
     padding: 0;
@@ -337,17 +377,37 @@
 
   .sale-invoice-dialog {
     max-width: none;
-    max-height: none;
-    border-radius: 0;
+    border: none;
     box-shadow: none;
+    border-radius: 0;
   }
 
-  .sale-invoice-header {
+  .sale-invoice-header,
+  .sale-invoice-footer {
     display: none !important;
   }
 
   .sale-invoice-body {
-    padding: 32px;
+    padding: 0;
+    background: #fff;
     overflow: visible;
+  }
+
+  .sale-thermal-slip {
+    position: fixed !important;
+    left: 50% !important;
+    top: 0 !important;
+    transform: translateX(-50%) !important;
+    max-width: 72mm !important;
+    width: 72mm !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 4mm 3mm !important;
+    margin: 0 !important;
+    z-index: 99999 !important;
+  }
+
+  .sale-thermal-serration {
+    display: none;
   }
 }

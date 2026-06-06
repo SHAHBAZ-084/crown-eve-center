@@ -1,6 +1,6 @@
-// Shared spare-parts / sale invoice receipt (POS walk-in, online customer, branch orders)
+// Shared spare-parts / sale invoice — thermal paper slip style
 import React from 'react';
-import { X } from 'lucide-react';
+import { X, Printer } from 'lucide-react';
 import './SaleInvoiceReceipt.css';
 
 export const normalizeSaleOrder = (order, customerMeta = null) => {
@@ -51,76 +51,129 @@ export const normalizeSaleOrder = (order, customerMeta = null) => {
   };
 };
 
+const ThermalDivider = () => <div className="sale-thermal-divider" />;
+
+const ThermalLabel = ({ children }) => (
+  <span className="sale-thermal-label">{children}</span>
+);
+
 export const SaleInvoiceReceiptBody = ({ order }) => {
   const inv = normalizeSaleOrder(order);
   if (!inv) return null;
 
+  const formattedDate =
+    new Date(inv.createdAt).toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    }) +
+    ' ' +
+    new Date(inv.createdAt).toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
   return (
-    <div id="printable-invoice" className="sale-invoice-body-inner">
-      <div className="sale-invoice-brand-row">
+    <div id="printable-invoice" className="sale-thermal-slip">
+      <div className="sale-thermal-serration" aria-hidden="true" />
+
+      <div className="sale-thermal-center">
+        <div className="sale-thermal-brand">CROWN EVE</div>
+        <div className="sale-thermal-brand-sub">Branch Terminal · Spare Parts &amp; Sales</div>
+      </div>
+
+      <ThermalDivider />
+
+      <div className="sale-thermal-title">— SALE INVOICE —</div>
+
+      <div className="sale-thermal-grid">
         <div>
-          <div className="sale-invoice-brand">CROWN EVE</div>
-          <div className="sale-invoice-brand-sub">Branch Terminal Invoice</div>
+          <ThermalLabel>Invoice No</ThermalLabel>
+          <span className="sale-thermal-value sale-thermal-mono">
+            #{String(inv.id).padStart(6, '0')}
+          </span>
         </div>
-        <div className="sale-invoice-meta">
-          <div className="sale-invoice-meta-id">INV #{String(inv.id).padStart(6, '0')}</div>
-          <div className="sale-invoice-meta-date">
-            {new Date(inv.createdAt).toLocaleString()}
-          </div>
+        <div>
+          <ThermalLabel>Date / Time</ThermalLabel>
+          <span className="sale-thermal-value sale-thermal-mono">{formattedDate}</span>
+        </div>
+        <div>
+          <ThermalLabel>Customer</ThermalLabel>
+          <span className="sale-thermal-value">{inv.billTo.name}</span>
+          <span className="sale-thermal-sub">{inv.billTo.sub}</span>
+        </div>
+        <div>
+          <ThermalLabel>Sale Type</ThermalLabel>
+          <span className="sale-thermal-value">{inv.billTo.tag}</span>
+        </div>
+        <div>
+          <ThermalLabel>Payment</ThermalLabel>
+          <span className="sale-thermal-value sale-thermal-bold">
+            {(inv.payment_method || 'CASH').toUpperCase()}
+          </span>
+        </div>
+        <div>
+          <ThermalLabel>Status</ThermalLabel>
+          <span className="sale-thermal-value sale-thermal-mono">{inv.paymentStatus}</span>
         </div>
       </div>
 
-      <div className="sale-invoice-parties">
-        <div>
-          <div className="sale-invoice-party-label">Bill To:</div>
-          <div className="sale-invoice-party-name">{inv.billTo.name}</div>
-          <div className="sale-invoice-party-sub">{inv.billTo.sub}</div>
-          <div className="sale-invoice-party-tag">{inv.billTo.tag}</div>
-        </div>
-        <div className="sale-invoice-party-right">
-          <div className="sale-invoice-party-label">Payment Info:</div>
-          <div className="sale-invoice-payment">{inv.payment_method || 'CASH'}</div>
-          <div className="sale-invoice-status">Status: {inv.paymentStatus}</div>
-        </div>
-      </div>
+      <ThermalDivider />
 
-      <table className="sale-invoice-table">
+      <div className="sale-thermal-section-label">Itemized Detail</div>
+
+      <table className="sale-thermal-table">
         <thead>
           <tr>
-            <th>Item Description</th>
             <th>Qty</th>
-            <th>Price</th>
+            <th>Item / Description</th>
             <th>Total</th>
           </tr>
         </thead>
         <tbody>
-          {(inv.items || []).map((item, idx) => (
-            <tr key={idx}>
-              <td>{item.product?.name || item.name || 'Product'}</td>
-              <td>{item.quantity}</td>
-              <td>{Number(item.price).toLocaleString()}</td>
-              <td>{(Number(item.price) * Number(item.quantity)).toLocaleString()}</td>
-            </tr>
-          ))}
+          {(inv.items || []).map((item, idx) => {
+            const lineTotal = Number(item.price) * Number(item.quantity);
+            return (
+              <tr key={idx}>
+                <td className="sale-thermal-qty">{item.quantity}</td>
+                <td className="sale-thermal-item">
+                  <div className="sale-thermal-item-name">
+                    {item.product?.name || item.name || 'Product'}
+                  </div>
+                  <div className="sale-thermal-item-rate">
+                    PKR {Number(item.price).toLocaleString()} / unit
+                  </div>
+                </td>
+                <td className="sale-thermal-line-total">
+                  PKR {lineTotal.toLocaleString()}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
 
-      <div className="sale-invoice-totals">
-        <div className="sale-invoice-subtotal">
+      <div className="sale-thermal-total-box">
+        <div className="sale-thermal-total-row">
           <span>Subtotal</span>
-          <span>PKR {Number(inv.total).toLocaleString()}</span>
+          <span className="sale-thermal-mono">PKR {Number(inv.total).toLocaleString()}</span>
         </div>
-        <div className="sale-invoice-grand">
-          <span className="sale-invoice-grand-label">Grand Total</span>
-          <span className="sale-invoice-grand-value">PKR {Number(inv.total).toLocaleString()}</span>
+        <div className="sale-thermal-total-row sale-thermal-total-row--grand">
+          <span>GRAND TOTAL</span>
+          <span className="sale-thermal-mono sale-thermal-grand">
+            PKR {Number(inv.total).toLocaleString()}
+          </span>
         </div>
       </div>
 
-      <div className="sale-invoice-footer">
-        <div className="sale-invoice-thanks">Thank you for shopping with us!</div>
-        <div className="sale-invoice-disclaimer">
-          This is a computer generated invoice and does not require a signature.
+      <ThermalDivider />
+
+      <div className="sale-thermal-footer">
+        <div className="sale-thermal-thanks">THANK YOU FOR SHOPPING WITH US!</div>
+        <div className="sale-thermal-disclaimer">
+          Computer generated receipt · No signature required
         </div>
+        <div className="sale-thermal-disclaimer">CROWN EVE WISHES YOU A SAFE DRIVE.</div>
       </div>
     </div>
   );
@@ -140,31 +193,36 @@ const SaleInvoiceReceipt = ({ order, onClose }) => {
       <div className="sale-invoice-dialog" onClick={(e) => e.stopPropagation()}>
         <header className="sale-invoice-header">
           <div>
-            <div className="sale-invoice-title">INVOICE GENERATED</div>
-            <div className="sale-invoice-subtitle">Transaction Success</div>
+            <div className="sale-invoice-title">Invoice Generated</div>
+            <div className="sale-invoice-subtitle">Ready for thermal print</div>
           </div>
-          <div className="sale-invoice-header-actions">
-            <button
-              type="button"
-              className="sale-invoice-print-btn"
-              onClick={() => window.print()}
-            >
-              Print Invoice
-            </button>
-            <button
-              type="button"
-              className="sale-invoice-close-btn"
-              onClick={onClose}
-              aria-label="Close"
-            >
-              <X size={18} />
-            </button>
-          </div>
+          <button
+            type="button"
+            className="sale-invoice-close-btn"
+            onClick={onClose}
+            aria-label="Close"
+          >
+            <X size={18} strokeWidth={2.5} />
+          </button>
         </header>
 
         <div className="sale-invoice-body">
           <SaleInvoiceReceiptBody order={order} />
         </div>
+
+        <footer className="sale-invoice-footer">
+          <button type="button" className="sale-invoice-btn sale-invoice-btn--ghost" onClick={onClose}>
+            Close
+          </button>
+          <button
+            type="button"
+            className="sale-invoice-btn sale-invoice-btn--print"
+            onClick={() => window.print()}
+          >
+            <Printer size={14} strokeWidth={2.5} />
+            Print Receipt
+          </button>
+        </footer>
       </div>
     </div>
   );
