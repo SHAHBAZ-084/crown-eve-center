@@ -84,21 +84,6 @@ const GoogleAuthSection = ({ onSuccess, onError, disabled = false, mode = 'signi
     );
   };
 
-  const handleGoogleClick = () => {
-    if (!gsiReady) {
-      onErrorRef.current?.('Google sign-in is still loading. Please wait a moment and try again.');
-      return;
-    }
-
-    const googleButton = hiddenButtonRef.current?.querySelector('[role="button"]');
-    if (googleButton) {
-      googleButton.click();
-      return;
-    }
-
-    onErrorRef.current?.('Google sign-in is unavailable. Please try again.');
-  };
-
   const handleRetry = () => {
     setGsiError(false);
     setGsiReady(false);
@@ -121,33 +106,30 @@ const GoogleAuthSection = ({ onSuccess, onError, disabled = false, mode = 'signi
       )}
 
       {enabled && (
-        <button
-          type="button"
-          className="auth-google-custom"
-          disabled={disabled || loading || !gsiReady}
-          onClick={handleGoogleClick}
-        >
-          <GoogleIcon />
-          <span>
-            {loading || !gsiReady
-              ? (gsiError ? 'Google sign-in unavailable' : 'Loading Google…')
-              : label}
-          </span>
-        </button>
-      )}
+        <div className="auth-google-stack">
+          <div className="auth-google-custom auth-google-custom--visual" aria-hidden="true">
+            <GoogleIcon />
+            <span>
+              {loading || !gsiReady
+                ? (gsiError ? 'Google sign-in unavailable' : 'Loading Google…')
+                : label}
+            </span>
+          </div>
 
-      {enabled && gsiError && (
-        <button type="button" className="auth-google-retry" onClick={handleRetry}>
-          Retry Google sign-in
-        </button>
-      )}
+          <div
+            ref={hiddenButtonRef}
+            className={`auth-google-gsi-mount${
+              disabled || loading || !gsiReady || gsiError ? ' auth-google-gsi-mount--disabled' : ''
+            }`}
+            aria-label={label}
+          />
 
-      {enabled && (
-        <div
-          ref={hiddenButtonRef}
-          className="auth-google-hidden"
-          aria-hidden="true"
-        />
+          {gsiError && (
+            <button type="button" className="auth-google-retry" onClick={handleRetry}>
+              Retry Google sign-in
+            </button>
+          )}
+        </div>
       )}
 
       <div className="form-divider">or</div>

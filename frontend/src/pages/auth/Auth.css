@@ -399,15 +399,39 @@
   pointer-events: none;
 }
 
-.auth-google-hidden {
+.auth-google-stack {
+  position: relative;
+  width: 100%;
+  min-height: 44px;
+}
+
+.auth-google-custom--visual {
+  pointer-events: none;
+  user-select: none;
+}
+
+.auth-google-gsi-mount {
   position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  opacity: 0;
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+  cursor: pointer;
+}
+
+.auth-google-gsi-mount > div,
+.auth-google-gsi-mount iframe {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 44px;
+}
+
+.auth-google-gsi-mount--disabled {
+  pointer-events: none;
+  cursor: default;
 }
 
 .auth-google-custom {

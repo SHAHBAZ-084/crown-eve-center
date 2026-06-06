@@ -73,9 +73,11 @@ export const waitForGoogleButton = (container, maxMs = 12000) =>
     const started = Date.now();
 
     const check = () => {
+      const iframe = container?.querySelector('iframe');
+      const roleButton = container?.querySelector('[role="button"]');
       const hasButton =
-        container?.querySelector('[role="button"]') ||
-        container?.querySelector('iframe');
+        (iframe && iframe.offsetWidth > 0 && iframe.offsetHeight > 0) ||
+        (roleButton && roleButton.offsetWidth > 0);
 
       if (hasButton) {
         resolve();
