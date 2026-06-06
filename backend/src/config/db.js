@@ -99,8 +99,25 @@ function createPrismaClient() {
   });
 }
 
+/** Neon HTTP rejects prisma.$transaction — run callbacks on the shared client instead. */
+const patchHttpTransactionShim = (prismaClient) => {
+  prismaClient.$transaction = async (arg) => {
+    if (typeof arg === 'function') {
+      return arg(prismaClient);
+    }
+    if (Array.isArray(arg)) {
+      return Promise.all(arg);
+    }
+    throw new Error('Unsupported prisma.$transaction usage in HTTP mode.');
+  };
+  console.log('[db] HTTP transaction shim active (sequential writes, no rollback)');
+};
+
 if (!globalForPrisma.prisma) {
   globalForPrisma.prisma = createPrismaClient();
+  if (activeAdapterMode === 'http') {
+    patchHttpTransactionShim(globalForPrisma.prisma);
+  }
 }
 
 const client = globalForPrisma.prisma;

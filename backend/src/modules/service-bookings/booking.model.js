@@ -86,7 +86,7 @@ const updateBooking = async (id, data) => {
   const wasCompleted = isCompletedStatus(existing.status);
   const willComplete = isCompletedStatus(nextStatus);
 
-  return prisma.$transaction(async (tx) => {
+  return runInTransaction(async (tx) => {
     if (willComplete && !existing.stockDeducted && incomingParts.length > 0) {
       await deductItemsStock(tx, existing.branchId, incomingParts);
       updateData.stockDeducted = true;
