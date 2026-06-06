@@ -41,6 +41,18 @@ const CustomerLayout = () => {
   return (
     <div id="customer-dashboard-shell">
       <header className="cnav scrolled">
+        <button
+          type="button"
+          className={`cnav-hamburger${menuOpen ? ' open' : ''}`}
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((v) => !v)}
+        >
+          <div className={`bar ${menuOpen ? 'open' : ''}`} />
+          <div className={`bar ${menuOpen ? 'open' : ''}`} />
+          <div className={`bar ${menuOpen ? 'open' : ''}`} />
+        </button>
+
         <NavLink to="/my/dashboard" className="cnav-logo logo" onClick={closeMenu}>
           <img
             src={LOGO_URL}
@@ -81,18 +93,6 @@ const CustomerLayout = () => {
 
           <button type="button" className="btn-nav-login" onClick={logout}>
             Logout
-          </button>
-
-          <button
-            type="button"
-            className={`cnav-hamburger${menuOpen ? ' open' : ''}`}
-            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((v) => !v)}
-          >
-            <div className={`bar ${menuOpen ? 'open' : ''}`} />
-            <div className={`bar ${menuOpen ? 'open' : ''}`} />
-            <div className={`bar ${menuOpen ? 'open' : ''}`} />
           </button>
         </div>
       </header>

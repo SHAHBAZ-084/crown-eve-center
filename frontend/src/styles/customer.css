@@ -3336,8 +3336,10 @@
   }
 
   #customer-dashboard-shell .cnav-logo {
+    order: 3;
     min-width: 0;
     max-width: 42%;
+    margin-left: 0;
   }
 
   #customer-dashboard-shell .cnav-logo-img {
@@ -3355,6 +3357,7 @@
   }
 
   #customer-dashboard-shell .cnav-actions {
+    order: 2;
     gap: 10px;
     margin-left: auto;
   }
@@ -3364,6 +3367,7 @@
   }
 
   #customer-dashboard-shell .cnav-hamburger {
+    order: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
