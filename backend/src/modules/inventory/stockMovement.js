@@ -1,5 +1,5 @@
 // backend/src/modules/inventory/stockMovement.js
-const { syncInventoryToPartsAndProducts } = require('./inventory.utils');
+const { syncInventoryToPartsAndProducts, incrementInventoryStock } = require('./inventory.utils');
 
 const normalizeStockItems = (items = []) =>
   (Array.isArray(items) ? items : [])
@@ -100,22 +100,10 @@ const restoreItemsStock = async (tx, branchId, items) => {
 
     for (const productPart of product.productParts) {
       const qtyToRestore = productPart.quantity * item.quantity;
-      await tx.inventory.upsert({
-        where: {
-          branchId_partId: {
-            branchId: Number(branchId),
-            partId: Number(productPart.partId),
-          },
-        },
-        update: {
-          stock: { increment: qtyToRestore },
-        },
-        create: {
-          branchId: Number(branchId),
-          partId: Number(productPart.partId),
-          stock: qtyToRestore,
-          alertAt: 10,
-        },
+      await incrementInventoryStock(tx, {
+        branchId,
+        partId: productPart.partId,
+        quantity: qtyToRestore,
       });
 
       await syncInventoryToPartsAndProducts(tx, branchId, productPart.partId);

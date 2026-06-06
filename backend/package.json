@@ -20,7 +20,11 @@
     "repair:catalog-images": "node scripts/repair-catalog-images.js",
     "link:images:db": "node scripts/repair-catalog-images.js --link-only",
     "build:migrate": "npx prisma generate && npx prisma migrate deploy",
-    "vercel-build": "npx prisma generate && npx prisma migrate deploy"
+    "vercel-build": "npx prisma generate && npx prisma migrate deploy",
+    "test": "node tests/run.js",
+    "test:unit": "node --test --test-reporter=spec tests/unit/dbConfig.test.js tests/unit/httpUnsafePatterns.test.js tests/unit/prismaHttp.test.js",
+    "test:integration": "node tests/run.js",
+    "test:api": "node --test --test-reporter=spec tests/api/health.test.js tests/api/authenticated.test.js"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
@@ -50,6 +54,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "supertest": "^7.2.2"
   }
 }

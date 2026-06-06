@@ -1,6 +1,7 @@
 // backend/src/modules/branches/branch.controller.js
 const prisma = require('../../config/db');
 const { runInTransaction } = require('../../config/transaction');
+const { updateManySequential } = require('../../config/prismaHttp');
 
 exports.getCount = async (req, res) => {
   try {
@@ -202,11 +203,8 @@ exports.remove = async (req, res) => {
       await tx.product.deleteMany({ where: { branchId: id } });
       await tx.service.deleteMany({ where: { branchId: id } });
 
-      // 4. Unassign users (don't delete users — just detach from branch)
-      await tx.user.updateMany({ 
-        where: { branchId: id }, 
-        data: { branchId: null } 
-      });
+      // 4. Unassign users (updateMany fails on PrismaNeonHTTP)
+      await updateManySequential(tx, tx.user, { branchId: id }, { branchId: null });
 
       // 5. Finally delete the branch
       await tx.branch.delete({ where: { id } });

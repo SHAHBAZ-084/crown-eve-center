@@ -1,14 +1,17 @@
 // backend/src/modules/purchases/purchase.model.js
 const prisma = require('../../config/db');
 const { runInTransaction } = require('../../config/transaction');
-const { syncInventoryToPartsAndProducts } = require('../inventory/inventory.utils');
+const {
+  syncInventoryToPartsAndProducts,
+  incrementInventoryStock,
+} = require('../inventory/inventory.utils');
 const { postPurchaseInvoiceLedger } = require('../../services/ledger.service');
 
 const getPurchases = async ({ page = 1, limit = 20, branchId, supplierId }) => {
   const skip = (page - 1) * limit;
   const where = {
     ...(branchId && { branchId: Number(branchId) }),
-    ...(supplierId && { supplierId: Number(supplierId) })
+    ...(supplierId && { supplierId: Number(supplierId) }),
   };
 
   const [data, total] = await Promise.all([
@@ -18,11 +21,11 @@ const getPurchases = async ({ page = 1, limit = 20, branchId, supplierId }) => {
       take: Number(limit),
       include: {
         supplier: true,
-        items: { include: { part: true } }
+        items: { include: { part: true, product: true } },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     }),
-    prisma.purchase.count({ where })
+    prisma.purchase.count({ where }),
   ]);
 
   return {
@@ -31,88 +34,102 @@ const getPurchases = async ({ page = 1, limit = 20, branchId, supplierId }) => {
       total,
       page: Number(page),
       limit: Number(limit),
-      totalPages: Math.ceil(total / limit)
-    }
+      totalPages: Math.ceil(total / limit),
+    },
   };
+};
+
+const applyPurchaseItemStock = async (tx, branchId, item) => {
+  const qty = Number(item.quantity);
+  const bId = Number(branchId);
+
+  if (item.partId) {
+    await incrementInventoryStock(tx, {
+      branchId: bId,
+      partId: item.partId,
+      quantity: qty,
+    });
+    await syncInventoryToPartsAndProducts(tx, bId, item.partId);
+    return;
+  }
+
+  if (!item.productId) return;
+
+  const product = await tx.product.findUnique({
+    where: { id: item.productId },
+    include: { productParts: true },
+  });
+
+  if (product?.productParts?.length > 0) {
+    for (const pp of product.productParts) {
+      const addQty = qty * pp.quantity;
+      await incrementInventoryStock(tx, {
+        branchId: bId,
+        partId: pp.partId,
+        quantity: addQty,
+      });
+      await syncInventoryToPartsAndProducts(tx, bId, pp.partId);
+    }
+    return;
+  }
+
+  if (product) {
+    await tx.product.update({
+      where: { id: item.productId },
+      data: { stock_qty: { increment: qty } },
+    });
+  }
 };
 
 const createPurchase = async (data) => {
   const { supplierId, branchId, total, items, remarks, documentNo, purchaseNo, partyInvoiceNo } = data;
 
   return runInTransaction(async (tx) => {
-    // 1. Create the purchase record
     const purchase = await tx.purchase.create({
       data: {
-        supplierId,
-        branchId,
-        total,
+        supplierId: Number(supplierId),
+        branchId: Number(branchId),
+        total: Number(total),
         remarks,
         documentNo,
         purchaseNo,
         partyInvoiceNo,
-        items: {
-          create: items.map(item => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            cost: item.cost,
-            engineNo: item.engineNo,
-            chassisNo: item.chassisNo,
-            stockType: item.stockType
-          }))
-        }
-      }
+      },
     });
 
-    // 2. Update inventory for each product/part
     for (const item of items) {
-      // Find parts associated with this product
-      const product = await tx.product.findUnique({
-        where: { id: item.productId },
-        include: { productParts: true }
+      await tx.purchaseItem.create({
+        data: {
+          purchaseId: purchase.id,
+          partId: item.partId ? Number(item.partId) : undefined,
+          productId: item.productId || undefined,
+          quantity: Number(item.quantity),
+          cost: Number(item.cost),
+          engineNo: item.engineNo || undefined,
+          chassisNo: item.chassisNo || undefined,
+          stockType: item.stockType || 'New',
+        },
       });
 
-      if (product && product.productParts.length > 0) {
-        for (const pp of product.productParts) {
-          await tx.inventory.upsert({
-            where: {
-              branchId_partId: {
-                branchId,
-                partId: pp.partId
-              }
-            },
-            update: {
-              stock: { increment: item.quantity * pp.quantity }
-            },
-            create: {
-              branchId,
-              partId: pp.partId,
-              stock: item.quantity * pp.quantity,
-              alertAt: 10
-            }
-          });
-          // Sync stocks
-          await syncInventoryToPartsAndProducts(tx, branchId, pp.partId);
-        }
-      } else {
-        // If product has no parts, just increment its stock_qty directly
-        await tx.product.update({
-          where: { id: item.productId },
-          data: { stock_qty: { increment: item.quantity } }
-        });
-      }
+      await applyPurchaseItemStock(tx, branchId, item);
     }
 
-    // 3. Double-entry: DR Purchase Account, CR Supplier Account
     await postPurchaseInvoiceLedger(tx, {
       branchId,
       purchaseId: purchase.id,
       total: Number(total),
-      supplierId,
+      supplierId: Number(supplierId),
     });
 
-    return purchase;
+    return tx.purchase.findUnique({
+      where: { id: purchase.id },
+      include: {
+        supplier: true,
+        items: { include: { part: true, product: true } },
+      },
+    });
   }, {
-    timeout: 10000 // Increase timeout for complex transactions
+    timeout: 30000,
   });
 };
 

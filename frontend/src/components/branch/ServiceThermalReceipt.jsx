@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Printer } from 'lucide-react';
 import { apiFetch } from './BranchShared';
-import './ServiceThermalReceipt.css';
 import {
   getWalkInCustomerName,
   getWalkInCustomerPhone,

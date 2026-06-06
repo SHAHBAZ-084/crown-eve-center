@@ -1,7 +1,6 @@
 // Shared spare-parts / sale invoice — thermal paper slip style
 import React from 'react';
 import { X, Printer } from 'lucide-react';
-import './SaleInvoiceReceipt.css';
 
 export const normalizeSaleOrder = (order, customerMeta = null) => {
   if (!order) return null;

@@ -4,6 +4,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 import './index.css'
 import './styles/catalog-layout.css'
+import './components/branch/SaleInvoiceReceipt.css'
+import './components/branch/ServiceThermalReceipt.css'
 import App from './App.jsx'
 import ErrorBoundary from './components/ErrorBoundary'
 import { shouldRetryQuery, queryRetryDelay } from './utils/queryRetry'
@@ -14,19 +16,34 @@ clearStaleApiPreference()
 const CHUNK_RELOAD_COOLDOWN_MS = 60_000;
 const CHUNK_RELOAD_JITTER_MS = 3000;
 
-window.addEventListener('vite:preloadError', () => {
+const reloadAfterStaleAsset = (reason) => {
   const lastReload = sessionStorage.getItem('last-chunk-reload');
   const now = Date.now();
   if (lastReload && now - parseInt(lastReload, 10) <= CHUNK_RELOAD_COOLDOWN_MS) {
     return;
   }
   const delay = Math.floor(Math.random() * CHUNK_RELOAD_JITTER_MS);
-  console.warn(`Vite preload error — reloading in ${delay}ms to spread deploy load...`);
+  console.warn(`${reason} — reloading in ${delay}ms...`);
   setTimeout(() => {
     sessionStorage.setItem('last-chunk-reload', Date.now().toString());
     window.location.reload();
   }, delay);
+};
+
+window.addEventListener('vite:preloadError', () => {
+  reloadAfterStaleAsset('Vite preload error');
 });
+
+window.addEventListener(
+  'error',
+  (event) => {
+    const target = event.target;
+    if (target?.tagName === 'LINK' && target.rel === 'stylesheet') {
+      reloadAfterStaleAsset('Stale stylesheet after deploy');
+    }
+  },
+  true
+);
 
 const queryClient = new QueryClient({
   defaultOptions: {

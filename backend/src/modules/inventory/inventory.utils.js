@@ -60,4 +60,30 @@ const syncInventoryToPartsAndProducts = async (tx, branchId, partId) => {
   });
 };
 
-module.exports = { syncInventoryToPartsAndProducts };
+/** HTTP-safe inventory upsert — prisma upsert triggers internal tx on PrismaNeonHTTP */
+const incrementInventoryStock = async (
+  tx,
+  { branchId, partId, quantity, alertAt = 10 }
+) => {
+  const bId = Number(branchId);
+  const pId = Number(partId);
+  const qty = Number(quantity);
+  if (!qty) return null;
+
+  const existing = await tx.inventory.findUnique({
+    where: { branchId_partId: { branchId: bId, partId: pId } },
+  });
+
+  if (existing) {
+    return tx.inventory.update({
+      where: { id: existing.id },
+      data: { stock: { increment: qty } },
+    });
+  }
+
+  return tx.inventory.create({
+    data: { branchId: bId, partId: pId, stock: qty, alertAt },
+  });
+};
+
+module.exports = { syncInventoryToPartsAndProducts, incrementInventoryStock };

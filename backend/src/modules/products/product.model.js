@@ -1,6 +1,57 @@
 // backend/src/modules/products/product.model.js
 const prisma = require('../../config/db');
 const { runInTransaction } = require('../../config/transaction');
+const {
+  upsertOneToOne,
+  replaceChildRecords,
+} = require('../../config/prismaHttp');
+
+const PRODUCT_RELATION_INCLUDE = {
+  bikeDetail: true,
+  partDetail: true,
+  images: true,
+  category: true,
+};
+
+const splitProductWriteData = (data) => {
+  const { images, bikeDetail, partDetail, ...base } = data;
+  return { base, images, bikeDetail, partDetail };
+};
+
+const applyProductRelationsOnCreate = async (tx, productId, { images, bikeDetail, partDetail }) => {
+  if (images?.create?.length) {
+    for (const img of images.create) {
+      await tx.productImage.create({ data: { ...img, productId } });
+    }
+  }
+  if (bikeDetail?.create) {
+    await tx.bike.create({ data: { ...bikeDetail.create, productId } });
+  }
+  if (partDetail?.create) {
+    await tx.partDetail.create({ data: { ...partDetail.create, productId } });
+  }
+};
+
+const applyProductRelationsOnUpdate = async (tx, productId, { images, bikeDetail, partDetail }) => {
+  if (images) {
+    await replaceChildRecords(
+      tx,
+      tx.productImage,
+      'productId',
+      productId,
+      images.create || [],
+      (img, pid) => ({ ...img, productId: pid })
+    );
+  }
+  if (bikeDetail?.upsert) {
+    const payload = bikeDetail.upsert.update || bikeDetail.upsert.create;
+    await upsertOneToOne(tx, tx.bike, productId, payload);
+  }
+  if (partDetail?.upsert) {
+    const payload = partDetail.upsert.update || partDetail.upsert.create;
+    await upsertOneToOne(tx, tx.partDetail, productId, payload);
+  }
+};
 
 const MAX_PAGE_LIMIT = 50;
 
@@ -148,29 +199,37 @@ const getProductById = async (id) => {
 
 const createProduct = async (data) => {
   return runInTransaction(async (tx) => {
-    // 1. Create the base product
-    const product = await tx.product.create({
-      data,
-      include: { bikeDetail: true, partDetail: true, images: true, category: true }
+    const { base, images, bikeDetail, partDetail } = splitProductWriteData(data);
+
+    const created = await tx.product.create({ data: base });
+    await applyProductRelationsOnCreate(tx, created.id, { images, bikeDetail, partDetail });
+
+    const product = await tx.product.findUnique({
+      where: { id: created.id },
+      include: PRODUCT_RELATION_INCLUDE,
     });
 
-    // 2. If it's a part, automatically create the global Part and local Inventory
     if (product.product_type === 'part') {
       const part = await tx.part.create({
         data: {
           name: product.name,
           category: product.category ? product.category.name : 'Uncategorized',
           price: product.price,
-          stock: product.stock_qty || 0
-        }
+          stock: product.stock_qty || 0,
+        },
       });
 
       await tx.productPart.create({
-        data: { productId: product.id, partId: part.id, quantity: 1 }
+        data: { productId: product.id, partId: part.id, quantity: 1 },
       });
 
       await tx.inventory.create({
-        data: { branchId: product.branchId, partId: part.id, stock: product.stock_qty || 0, alertAt: 5 }
+        data: {
+          branchId: product.branchId,
+          partId: part.id,
+          stock: product.stock_qty || 0,
+          alertAt: 5,
+        },
       });
     }
 
@@ -180,44 +239,46 @@ const createProduct = async (data) => {
 
 const updateProduct = async (id, data) => {
   return runInTransaction(async (tx) => {
-    // 1. Get the current product to see if it's linked to a Part
+    const { base, images, bikeDetail, partDetail } = splitProductWriteData(data);
+
     const oldProduct = await tx.product.findUnique({
       where: { id },
-      include: { productParts: true, category: true }
+      include: { productParts: true, category: true },
     });
 
-    // 2. Update the base product
-    const product = await tx.product.update({
+    if (Object.keys(base).length > 0) {
+      await tx.product.update({ where: { id }, data: base });
+    }
+    await applyProductRelationsOnUpdate(tx, id, { images, bikeDetail, partDetail });
+
+    const product = await tx.product.findUnique({
       where: { id },
-      data,
-      include: { bikeDetail: true, partDetail: true, images: true, category: true }
+      include: PRODUCT_RELATION_INCLUDE,
     });
 
-    // 3. Sync changes to Part and Inventory if applicable
     if (product.product_type === 'part' && oldProduct?.productParts?.length > 0) {
       const partId = oldProduct.productParts[0].partId;
-      
-      // Update global Part
+
       await tx.part.update({
         where: { id: partId },
         data: {
           name: product.name,
-          category: product.category ? product.category.name : (oldProduct.category ? oldProduct.category.name : 'Uncategorized'),
+          category: product.category
+            ? product.category.name
+            : (oldProduct.category ? oldProduct.category.name : 'Uncategorized'),
           price: product.price,
-          // Only sync stock if it was actually provided in the update
-          ...(data.stock_qty !== undefined && { stock: product.stock_qty })
-        }
+          ...(base.stock_qty !== undefined && { stock: product.stock_qty }),
+        },
       });
 
-      // Update Branch Inventory
-      if (data.stock_qty !== undefined) {
+      if (base.stock_qty !== undefined) {
         const inv = await tx.inventory.findFirst({
-          where: { branchId: product.branchId, partId: partId }
+          where: { branchId: product.branchId, partId },
         });
         if (inv) {
           await tx.inventory.update({
             where: { id: inv.id },
-            data: { stock: product.stock_qty }
+            data: { stock: product.stock_qty },
           });
         }
       }

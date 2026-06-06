@@ -49,7 +49,8 @@ const getOrCreateAccountWithLedger = async (tx, branchId, categoryName, accountN
     include: { category: true, ledger: true },
   });
   if (!account) {
-    account = await tx.account.create({
+    // No include on create — PrismaNeonHTTP treats create+include as a transaction
+    const created = await tx.account.create({
       data: {
         categoryId: cat.id,
         account_name: accountName,
@@ -58,12 +59,11 @@ const getOrCreateAccountWithLedger = async (tx, branchId, categoryName, accountN
         current_balance: 0,
         status: 'ACTIVE',
       },
-      include: { category: true },
     });
     const ledger = await tx.ledger.create({
-      data: { accountId: account.id, ledger_name: `${accountName} Ledger` },
+      data: { accountId: created.id, ledger_name: `${accountName} Ledger` },
     });
-    account = { ...account, ledger };
+    account = { ...created, category: cat, ledger };
   } else if (!account.ledger) {
     const ledger = await tx.ledger.create({
       data: { accountId: account.id, ledger_name: `${accountName} Ledger` },

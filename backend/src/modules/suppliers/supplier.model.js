@@ -45,12 +45,17 @@ const updateSupplier = async (id, data) => {
   const existing = await prisma.supplier.findUnique({ where: { id: Number(id) } });
   if (!existing) throw new Error('Supplier not found.');
 
-  return prisma.supplier.update({
-    where: { id: Number(id) },
+  const supplierId = Number(id);
+  await prisma.supplier.update({
+    where: { id: supplierId },
     data: {
       ...(data.name !== undefined && { name: data.name }),
       ...(data.contact !== undefined && { contact: data.contact }),
     },
+  });
+  // No nested select on update — PrismaNeonHTTP rejects it as a transaction
+  return prisma.supplier.findUnique({
+    where: { id: supplierId },
     select: {
       id: true,
       name: true,

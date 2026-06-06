@@ -57,7 +57,10 @@ exports.create = async (req, res) => {
 
     // Run database transaction to ensure atomicity of Account, Ledger & Entry creation
     const account = await runInTransaction(async (tx) => {
-      // 1. Create the Account
+      const category = await tx.accountCategory.findUnique({ where: { id: categoryId } });
+      if (!category) throw new Error('Category not found.');
+
+      // 1. Create the Account (no include — PrismaNeonHTTP rejects create+include)
       const newAccount = await tx.account.create({
         data: {
           categoryId,
@@ -67,10 +70,8 @@ exports.create = async (req, res) => {
           branchId: parseInt(branchId),
           status: 'ACTIVE'
         },
-        include: {
-          category: true
-        }
       });
+      newAccount.category = category;
 
       // 2. Create the Ledger for that Account
       const ledger = await tx.ledger.create({
@@ -126,16 +127,17 @@ exports.update = async (req, res) => {
     const { id } = req.params;
     const { account_name, status, categoryId } = req.body;
 
-    const account = await prisma.account.update({
+    await prisma.account.update({
       where: { id },
       data: {
         account_name,
         status,
-        categoryId
+        categoryId,
       },
-      include: {
-        category: true
-      }
+    });
+    const account = await prisma.account.findUnique({
+      where: { id },
+      include: { category: true },
     });
 
     res.json(account);

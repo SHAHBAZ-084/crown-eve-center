@@ -9,6 +9,8 @@ const {
 
 const COMPLETED_STATUSES = new Set(['COMPLETED', 'completed', 'done']);
 
+const BOOKING_INCLUDE = { customer: true, service: true, branch: true };
+
 const isCompletedStatus = (status) => COMPLETED_STATUSES.has(String(status || '').trim());
 
 const getAllBookings = (filters = {}) => {
@@ -55,7 +57,7 @@ const createBooking = async (data) => {
       await deductItemsStock(tx, branchId, items);
     }
 
-    return tx.serviceBooking.create({
+    const booking = await tx.serviceBooking.create({
       data: {
         ...rest,
         branchId: Number(branchId),
@@ -64,7 +66,10 @@ const createBooking = async (data) => {
         partsUsed: items.length ? items : undefined,
         stockDeducted: shouldDeduct,
       },
-      include: { customer: true, service: true, branch: true }
+    });
+    return tx.serviceBooking.findUnique({
+      where: { id: booking.id },
+      include: BOOKING_INCLUDE,
     });
   }, {
     maxWait: 15000,
@@ -99,11 +104,8 @@ const updateBooking = async (id, data) => {
       updateData.stockDeducted = false;
     }
 
-    return tx.serviceBooking.update({
-      where: { id },
-      data: updateData,
-      include: { customer: true, service: true, branch: true }
-    });
+    await tx.serviceBooking.update({ where: { id }, data: updateData });
+    return tx.serviceBooking.findUnique({ where: { id }, include: BOOKING_INCLUDE });
   }, {
     maxWait: 15000,
     timeout: 30000,
