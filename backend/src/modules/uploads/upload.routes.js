@@ -6,10 +6,12 @@ const { uploadBuffer, deleteByUrl, assertR2Config } = require('../../utils/r2-up
 const { prepareUpload, isVideoMime } = require('../../utils/mediaConvert');
 const { protect } = require('../../middleware/auth');
 const { allow } = require('../../middleware/rbac');
+const { ROLES, normalizeRole } = require('../../constants/roles');
 
 const router = express.Router();
 
-const uploadRoles = ['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER', 'EMPLOYEE'];
+const staffUploadRoles = ['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER', 'EMPLOYEE'];
+const uploadRoles = [...staffUploadRoles, ROLES.CUSTOMER];
 
 const IMAGE_EXT = /\.(jpe?g|png|webp|gif)$/i;
 const VIDEO_EXT = /\.(mp4|webm|mov|m4v|ogg)$/i;
@@ -59,17 +61,28 @@ router.post(
     }
 
     const video = isVideoFile(file);
-    const maxBytes = (video ? MAX_VIDEO_MB : MAX_IMAGE_MB) * 1024 * 1024;
+    const isCustomer = normalizeRole(req.user.role) === ROLES.CUSTOMER;
+
+    if (isCustomer && video) {
+      return res.status(403).json({ message: 'Only image screenshots are allowed for payment proof.' });
+    }
+
+    const maxMb = video ? MAX_VIDEO_MB : isCustomer ? 8 : MAX_IMAGE_MB;
+    const maxBytes = maxMb * 1024 * 1024;
     if (file.size > maxBytes) {
       return res.status(400).json({
-        message: `File too large. Max ${video ? MAX_VIDEO_MB : MAX_IMAGE_MB} MB for ${video ? 'video' : 'image'}.`,
+        message: `File too large. Max ${maxMb} MB for ${video ? 'video' : 'image'}.`,
       });
     }
 
     try {
       assertR2Config();
       const prepared = await prepareUpload(file, video);
-      const folder = video ? 'uploads/videos' : 'uploads/images';
+      const folder = video
+        ? 'uploads/videos'
+        : isCustomer
+          ? 'uploads/payment-proofs'
+          : 'uploads/images';
       const key = `${folder}/${Date.now()}-${Math.round(Math.random() * 1e9)}${prepared.ext}`;
       const url = await uploadBuffer(key, prepared.buffer, prepared.contentType);
 
@@ -87,7 +100,7 @@ router.post(
   }
 );
 
-router.delete('/', protect, allow(...uploadRoles), async (req, res) => {
+router.delete('/', protect, allow(...staffUploadRoles), async (req, res) => {
   const { url } = req.body;
   if (!url) return res.status(400).json({ message: 'url required' });
 

@@ -23,6 +23,7 @@ const CheckoutPage = () => {
   // Payment States
   const [branchBanks, setBranchBanks] = useState({}); // branchId -> banks[]
   const [paymentData, setPaymentData] = useState({}); // branchId -> { transaction_id, payment_screenshot }
+  const [uploadingProof, setUploadingProof] = useState({}); // branchId -> boolean
 
   const grandTotal = total;
 
@@ -83,16 +84,25 @@ const CheckoutPage = () => {
     }
   }, [step, branchId, isSplit, orderSplit]);
 
-  const handleFileUpload = async (bId, file) => {
+  const handleFileUpload = async (bId, file, inputEl) => {
     if (!file) return;
+    setError("");
+    setUploadingProof((prev) => ({ ...prev, [bId]: true }));
     try {
       const { url } = await uploadImage(file);
-      setPaymentData(prev => ({
+      setPaymentData((prev) => ({
         ...prev,
         [bId]: { ...prev[bId], payment_screenshot: url },
       }));
     } catch (e) {
-      setError(e.message || 'Image upload failed.');
+      setError(e.message || "Image upload failed. Please try again.");
+      setPaymentData((prev) => ({
+        ...prev,
+        [bId]: { ...prev[bId], payment_screenshot: "" },
+      }));
+    } finally {
+      setUploadingProof((prev) => ({ ...prev, [bId]: false }));
+      if (inputEl) inputEl.value = "";
     }
   };
 
@@ -132,6 +142,7 @@ const CheckoutPage = () => {
 
   const renderPaymentStep = () => {
     const bIds = isSplit ? Object.keys(orderSplit) : [branchId];
+    const anyUploading = bIds.some((id) => uploadingProof[id]);
     return (
       <div className="card">
         <div className="ch"><div className="ct">Payment Details</div></div>
@@ -181,19 +192,35 @@ const CheckoutPage = () => {
                     Payment Proof (Screenshot)
                     <span style={{ color: "var(--red)", fontSize: 10, fontWeight: 800 }}>REQUIRED</span>
                   </label>
-                  <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                    <input type="file" style={{ display: "none" }} id={`file-${id}`} onChange={e => handleFileUpload(id, e.target.files[0])} />
-                    <label htmlFor={`file-${id}`} className="btn btn-ghost" style={{ 
-                      fontSize: 12, 
-                      height: 40, 
-                      display: "flex", 
-                      alignItems: "center",
-                      border: !p.payment_screenshot ? "1px solid rgba(239,68,68,0.3)" : "1px solid var(--border)"
-                    }}>
-                      {p.payment_screenshot ? "Change Screenshot" : "Upload Screenshot"}
-                    </label>
-                    {p.payment_screenshot && <span style={{ color: "#22c55e", fontSize: 12, fontWeight: 700 }}>✓ Uploaded</span>}
-                  </div>
+                  {uploadingProof[id] ? (
+                    <div className="ce-upload-status" role="status" aria-live="polite">
+                      <span className="ce-upload-spinner" aria-hidden="true" />
+                      <span>Uploading screenshot, please wait…</span>
+                    </div>
+                  ) : (
+                    <div className="ce-upload-proof-row">
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        style={{ display: "none" }}
+                        id={`file-${id}`}
+                        disabled={uploadingProof[id]}
+                        onChange={(e) => handleFileUpload(id, e.target.files[0], e.target)}
+                      />
+                      <label
+                        htmlFor={`file-${id}`}
+                        className="btn btn-ghost ce-upload-proof-btn"
+                        style={{
+                          border: !p.payment_screenshot ? "1px solid rgba(239,68,68,0.3)" : "1px solid var(--border)",
+                        }}
+                      >
+                        {p.payment_screenshot ? "Change Screenshot" : "Upload Screenshot"}
+                      </label>
+                      {p.payment_screenshot && (
+                        <span className="ce-upload-done">✓ Uploaded successfully</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -202,12 +229,15 @@ const CheckoutPage = () => {
         
         <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
           <button className="btn btn-ghost" onClick={() => setStep(2)}>← Back</button>
-          <button 
-            className="btn btn-primary" 
-            disabled={bIds.some(id => !paymentData[id]?.transaction_id || !paymentData[id]?.payment_screenshot)} 
+          <button
+            className="btn btn-primary"
+            disabled={
+              anyUploading ||
+              bIds.some((id) => !paymentData[id]?.transaction_id || !paymentData[id]?.payment_screenshot)
+            }
             onClick={() => setStep(4)}
           >
-            Review Order & Pay →
+            {anyUploading ? "Please wait for upload…" : "Review Order & Pay →"}
           </button>
         </div>
       </div>

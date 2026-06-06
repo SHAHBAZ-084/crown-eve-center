@@ -1650,6 +1650,56 @@
   font-family: var(--ce-font);
 }
 
+#customer-dashboard-shell .ce-upload-proof-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+#customer-dashboard-shell .ce-upload-proof-btn {
+  font-size: 12px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+}
+
+#customer-dashboard-shell .ce-upload-done {
+  color: #16a34a;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+#customer-dashboard-shell .ce-upload-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 10px 14px;
+  border: 1px solid rgba(232, 71, 10, 0.22);
+  border-radius: 10px;
+  background: rgba(232, 71, 10, 0.06);
+  color: var(--ce-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+#customer-dashboard-shell .ce-upload-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(232, 71, 10, 0.2);
+  border-top-color: var(--orange);
+  border-radius: 50%;
+  animation: ce-upload-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes ce-upload-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Mobile order cards */
 #customer-dashboard-shell .ce-order-cards {
   display: none;
