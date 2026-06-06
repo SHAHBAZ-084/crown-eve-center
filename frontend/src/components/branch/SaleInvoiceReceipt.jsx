@@ -79,7 +79,7 @@ export const SaleInvoiceReceiptBody = ({ order }) => {
 
       <div className="sale-thermal-center">
         <div className="sale-thermal-brand">CROWN EVE</div>
-        <div className="sale-thermal-brand-sub">Branch Terminal · Spare Parts &amp; Sales</div>
+        <div className="sale-thermal-brand-sub">Branch Terminal Invoice</div>
       </div>
 
       <ThermalDivider />
