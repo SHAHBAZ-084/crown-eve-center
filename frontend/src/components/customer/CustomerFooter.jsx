@@ -83,7 +83,10 @@ const CustomerFooter = () => (
             <circle cx="12" cy="12" r="10" />
             <polyline points="12 6 12 12 16 14" />
           </svg>
-          Main Branch — Chishtian, Pakistan · Open Daily 10AM – 8PM
+          <span className="ce-footer-hours-text">
+            <span>Main Branch — Chishtian, Pakistan</span>
+            <span>Open Daily 10AM – 8PM</span>
+          </span>
         </p>
       </div>
     </div>

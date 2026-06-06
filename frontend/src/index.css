@@ -1513,20 +1513,20 @@ section {
 /* ── FOOTER ── */
 footer {
   background: linear-gradient(165deg, #1c1f26 0%, #12141a 55%, #0f1116 100%);
-  border-top: 3px solid transparent;
-  border-image: linear-gradient(90deg, transparent, var(--orange) 20%, #ffb088 50%, var(--orange) 80%, transparent) 1;
   position: relative;
-  overflow: hidden;
+  overflow-x: clip;
+  width: 100%;
 }
 
 footer::before {
   content: '';
   position: absolute;
-  left: -120px;
-  top: -80px;
-  width: 320px;
-  height: 320px;
-  background: radial-gradient(circle, rgba(232, 71, 10, 0.1) 0%, transparent 70%);
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--orange) 20%, #ffb088 50%, var(--orange) 80%, transparent);
+  z-index: 3;
   pointer-events: none;
 }
 
@@ -1535,7 +1535,7 @@ footer::after {
   position: absolute;
   bottom: -80px;
   right: -60px;
-  width: 420px;
+  width: min(420px, 90vw);
   height: 420px;
   background: radial-gradient(circle, rgba(232, 71, 10, 0.2) 0%, transparent 68%);
   pointer-events: none;
@@ -3552,8 +3552,8 @@ footer::after {
   /* FOOTER RESPONSIVENESS */
   .footer-top {
     grid-template-columns: 1fr;
-    gap: 50px;
-    padding: 60px 8%;
+    gap: 0;
+    padding: 40px 20px 28px;
     text-align: center;
   }
 
@@ -3561,22 +3561,52 @@ footer::after {
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding-bottom: 24px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .footer-brand p {
     margin-left: auto;
     margin-right: auto;
+    max-width: 100%;
   }
 
   .footer-socials {
     justify-content: center;
   }
 
+  .footer-col {
+    padding: 18px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .footer-col:last-child {
+    border-bottom: none;
+    padding-bottom: 8px;
+  }
+
+  .footer-col h4 {
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+
+  .footer-col ul {
+    align-items: center;
+  }
+
   .footer-bottom {
     flex-direction: column;
-    gap: 15px;
+    gap: 14px;
     text-align: center;
-    padding: 30px 5vw;
+    align-items: center;
+    padding: 20px 20px calc(28px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .footer-bottom p {
+    line-height: 1.5;
+    max-width: 100%;
+    word-break: break-word;
   }
 }
 
