@@ -1,5 +1,5 @@
 // frontend/src/pages/Login.jsx
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LOGO_URL } from '../constants/mediaAssets';
@@ -56,7 +56,7 @@ const Login = () => {
     }
   };
 
-  const handleGoogleSuccess = async (credential) => {
+  const handleGoogleSuccess = useCallback(async (credential) => {
     if (googleSubmitting || submitting) return;
     setGoogleSubmitting(true);
     setError('');
@@ -73,7 +73,7 @@ const Login = () => {
     } finally {
       setGoogleSubmitting(false);
     }
-  };
+  }, [googleSubmitting, submitting, loginWithGoogle, navigate, location]);
 
   const authBusy = submitting || googleSubmitting;
 

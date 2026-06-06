@@ -1,5 +1,5 @@
 // frontend/src/pages/auth/Register.jsx
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LOGO_URL } from '../../constants/mediaAssets';
 import { PAKISTAN_CITIES } from '../../constants/pakistanCities';
@@ -62,7 +62,7 @@ const Register = () => {
     }
   };
 
-  const handleGoogleSuccess = async (credential) => {
+  const handleGoogleSuccess = useCallback(async (credential) => {
     if (googleSubmitting || submitting) return;
     setGoogleSubmitting(true);
     setError('');
@@ -79,7 +79,7 @@ const Register = () => {
     } finally {
       setGoogleSubmitting(false);
     }
-  };
+  }, [googleSubmitting, submitting, loginWithGoogle, navigate]);
 
   const authBusy = submitting || googleSubmitting;
 
