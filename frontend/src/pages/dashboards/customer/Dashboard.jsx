@@ -1,18 +1,22 @@
 // frontend/src/pages/dashboards/customer/Dashboard.jsx v1.0.1-safe
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   ShoppingBag,
   CalendarDays,
   Banknote,
   Wrench,
   ClipboardList,
-  ChevronRight,
 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import api from "../../../services/api";
+import { getImgUrl } from "../../../utils/imgUrl";
+import { useHomeData } from "../../../hooks/useHomeData";
 import { CustomerMeta } from "../../../components/customer/CustomerUI";
 import NeuCardMarquee from "../../../components/customer/NeuCardMarquee";
+import CatalogProductImage from "../../../components/catalog/CatalogProductImage";
+import ProductGridSkeleton from "../../../components/catalog/ProductGridSkeleton";
+import "../../public/Home.css";
 
 const ACTIVE_STATUSES = ["PENDING", "PROCESSING", "pending", "processing"];
 
@@ -24,13 +28,6 @@ const STATUS_STEP = {
   COMPLETED: 5,
 };
 
-const QUICK_ACTIONS = [
-  { Icon: ShoppingBag, label: "Browse Shop", path: "/my/shop", marquee: ["Shop", "Explore", "Shop"] },
-  { Icon: ClipboardList, label: "My Orders", path: "/my/orders", marquee: ["Orders", "Track", "Orders"] },
-  { Icon: CalendarDays, label: "My Bookings", path: "/my/bookings", marquee: ["Bookings", "Schedule", "Bookings"] },
-  { Icon: Wrench, label: "Book Service", path: "/my/book-service", marquee: ["Service", "Repair", "Service"] },
-];
-
 const STAT_MARQUEES = [
   ["Orders", "Active", "Orders"],
   ["Bookings", "Plans", "Bookings"],
@@ -41,6 +38,14 @@ const STAT_MARQUEES = [
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const {
+    products,
+    isLoading: bikesLoading,
+    isProductsError,
+    isProductsFetching,
+    productsFromCache,
+    refetchProducts,
+  } = useHomeData();
   const [orders, setOrders] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
@@ -259,24 +264,87 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="ch" style={{ marginTop: 32 }}><div className="ct">Quick Actions</div></div>
-      <div className="g4">
-        {QUICK_ACTIONS.map(({ Icon, label, path, marquee }) => (
-          <div
-            key={label}
-            role="button"
-            tabIndex={0}
-            className="quick-action-card"
-            onClick={() => navigate(path)}
-            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") navigate(path); }}
-          >
-            <NeuCardMarquee words={marquee} className="ce-neu-marquee--sm" />
-            <Icon size={28} color="var(--orange)" strokeWidth={1.5} />
-            <div className="quick-action-label">{label}</div>
-            <ChevronRight className="quick-action-chevron" size={12} aria-hidden />
+      <section className="ce-dashboard-bikes" aria-label="Featured bikes">
+        <div className="products-header">
+          <div>
+            <h2 className="section-title" style={{ color: "var(--orange)" }}>
+              Choose from
+              <br />
+              <span style={{ color: "#111111" }}>Our Best Models.</span>
+            </h2>
           </div>
-        ))}
-      </div>
+          <Link to="/my/shop" className="view-all">
+            View all bikes →
+          </Link>
+        </div>
+        {bikesLoading || (isProductsFetching && products.length === 0) ? (
+          <ProductGridSkeleton
+            count={6}
+            className="products-grid three-cols products-grid--reserved products-grid--loading"
+          />
+        ) : (
+          <div className="products-grid three-cols products-grid--reserved">
+            {isProductsError && products.length === 0 ? (
+              <div className="no-products" style={{ gridColumn: "1 / -1", textAlign: "center" }}>
+                <p>We could not load bikes right now (API busy or offline).</p>
+                <button
+                  type="button"
+                  className="btn-primary"
+                  style={{ marginTop: 16 }}
+                  disabled={isProductsFetching}
+                  onClick={() => refetchProducts()}
+                >
+                  {isProductsFetching ? "Retrying…" : "Try again"}
+                </button>
+              </div>
+            ) : products.length > 0 ? (
+              products.slice(0, 6).map((p) => (
+                <div
+                  key={p.id}
+                  role="button"
+                  tabIndex={0}
+                  className="product-card bike-card-new"
+                  onClick={() => navigate(`/my/product/${p.id}`)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") navigate(`/my/product/${p.id}`);
+                  }}
+                >
+                  <div className="product-card-img">
+                    <div className="bike-card-blob" />
+                    {p.images && p.images.length > 0 ? (
+                      <CatalogProductImage src={getImgUrl(p.images[0].url)} alt={p.name} />
+                    ) : (
+                      <div className="placeholder-img">[ {p.name} ]</div>
+                    )}
+                  </div>
+                  <div className="product-card-body">
+                    <h3 className="bike-name-new">{p.name}</h3>
+                    <div className="bike-price-new">PKR {Number(p.price).toLocaleString()}</div>
+                    <div className="bike-card-footer">
+                      <span className="check-details">Check details</span>
+                      <div className="arrow-circle">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="5" y1="12" x2="19" y2="12" />
+                          <polyline points="12 5 19 12 12 19" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="no-products">
+                No bikes are listed on the shop yet. Add active bike products in the admin panel.
+              </div>
+            )}
+            {productsFromCache && isProductsFetching && products.length > 0 && (
+              <p style={{ gridColumn: "1 / -1", fontSize: 12, color: "#888", textAlign: "center", marginTop: 8 }}>
+                Showing saved bikes while we refresh…
+              </p>
+            )}
+          </div>
+        )}
+      </section>
     </div>
   );
 };

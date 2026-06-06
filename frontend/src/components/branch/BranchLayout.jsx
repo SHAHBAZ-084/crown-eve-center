@@ -59,10 +59,25 @@ const BranchLayout = () => {
 
   return (
     <div id="branch-dashboard-shell">
-      {showSidebar && <div className="sidebar-overlay" onClick={() => setShowSidebar(false)} />}
+      {showSidebar && (
+        <button
+          type="button"
+          className="branch-sidebar-overlay"
+          aria-label="Close menu"
+          onClick={() => setShowSidebar(false)}
+        />
+      )}
 
       <div id="branch-sidebar" className={showSidebar ? "show" : ""}>
         <div className="sb-brand">
+          <button
+            type="button"
+            className="branch-sidebar-close"
+            aria-label="Close menu"
+            onClick={() => setShowSidebar(false)}
+          >
+            <Icon n="close" />
+          </button>
           <div className="sb-mark">CE</div>
           <div>
             <div className="sb-name">CROWN <span>EVE</span></div>

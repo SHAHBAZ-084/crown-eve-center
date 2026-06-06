@@ -38,6 +38,18 @@
   gap: var(--ce-gap);
 }
 
+#customer-dashboard-shell .ce-dashboard-bikes {
+  margin-top: 8px;
+}
+
+#customer-dashboard-shell .ce-dashboard-bikes .products-header {
+  margin-bottom: 28px;
+}
+
+#customer-dashboard-shell .ce-dashboard-bikes .product-card.bike-card-new {
+  cursor: pointer;
+}
+
 /* Dashboard welcome hero */
 #customer-dashboard-shell .welcome-banner.ce-welcome-hero {
   position: relative;
