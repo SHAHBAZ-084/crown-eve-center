@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useFetch, api, toast, Icon, TableSk, Modal, Confirm } from "../../../components/owner/OwnerShared";
 import PasswordStrength, { validatePassword } from "../../../components/PasswordStrength";
+import SearchInput from "../../../components/SearchInput";
 
 const UsersPage = () => {
   const { data: users, loading, refetch } = useFetch("/users");
@@ -67,10 +68,12 @@ const UsersPage = () => {
       </div>
 
       <div className="filter-bar">
-        <div className="search-wrap">
-          <Icon name="search" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search name or email…" />
-        </div>
+        <SearchInput
+          className="search-wrap"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          label="Search name or email…"
+        />
         <select style={{ width: 180 }} value={roleFilter} onChange={e => setRoleFilter(e.target.value)}>
           <option value="">All Roles</option>
           {roles.map(r => <option key={r} value={r}>{r.replace("_", " ")}</option>)}

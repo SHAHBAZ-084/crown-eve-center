@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../../services/api';
 import { Icon } from "../../../../components/branch/BranchShared";
-import { Search, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
+import SearchInput from '../../../../components/SearchInput';
 import './AddCustomer.css';
 
 const AddCustomer = ({ user }) => {
@@ -39,16 +40,13 @@ const AddCustomer = ({ user }) => {
     <div className="flex flex-col h-full space-y-6 add-customer-container">
       <div className="flex flex-wrap gap-4 items-center justify-between bg-white p-6 rounded-3xl border border-[#F3E5DC] shadow-sm">
         <div className="flex items-center gap-4 flex-1">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8D7A71]" size={18} />
-            <input 
-              type="text"
-              placeholder="Search customers by name or phone..."
-              value={customerSearch}
-              onChange={(e) => setCustomerSearch(e.target.value)}
-              className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl py-3.5 pl-12 pr-4 focus:ring-2 focus:ring-[#E65100]/20 outline-none font-bold text-sm"
-            />
-          </div>
+          <SearchInput
+            className="flex-1 max-w-md"
+            variant="pos"
+            value={customerSearch}
+            onChange={(e) => setCustomerSearch(e.target.value)}
+            label="Search customers by name or phone..."
+          />
         </div>
         <button 
           onClick={() => setShowAddForm(true)}

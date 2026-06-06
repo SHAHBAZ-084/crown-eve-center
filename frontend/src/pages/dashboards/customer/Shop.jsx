@@ -10,7 +10,7 @@ import CustomerPageHeader from "../../../components/customer/CustomerPageHeader"
 import { CustomerEmpty } from "../../../components/customer/CustomerUI";
 import CatalogProductImage from "../../../components/catalog/CatalogProductImage";
 import ProductGridSkeleton from "../../../components/catalog/ProductGridSkeleton";
-import { Search } from "lucide-react";
+import SearchInput from "../../../components/SearchInput";
 import "../../public/Shop.css";
 
 const Shop = () => {
@@ -126,17 +126,15 @@ const Shop = () => {
         subtitle={`Showing ${products.length} of ${totalItems} items${isFetching && !showLoading ? " · updating…" : ""}`}
         actions={
           <>
-            <div className="fsearch">
-              <Search size={16} aria-hidden />
-              <input
-                placeholder="Search models or parts..."
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPage(1);
-                }}
-              />
-            </div>
+            <SearchInput
+              className="fsearch"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              label="Search models or parts..."
+            />
             <button type="button" className="premium-cart-btn" onClick={() => navigate(cartPath)}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
                 <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />

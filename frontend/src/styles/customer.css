@@ -784,33 +784,9 @@
 }
 
 #customer-dashboard-shell .fsearch {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  padding: 0 12px;
-  height: 34px;
+  width: min(280px, 40vw);
+  min-width: 180px;
   margin-left: auto;
-  transition: border-color .2s;
-}
-
-#customer-dashboard-shell .fsearch:focus-within {
-  border-color: var(--border2);
-}
-
-#customer-dashboard-shell .fsearch input {
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--white);
-  font-size: 12px;
-  width: 160px;
-}
-
-#customer-dashboard-shell .fsearch input::placeholder {
-  color: var(--muted);
 }
 
 /* TABS */

@@ -239,9 +239,7 @@ textarea { resize: vertical; min-height: 80px; }
 
 /* Search + Filter bar */
 .filter-bar { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
-.search-wrap { flex:1; min-width:200px; position:relative; }
-.search-wrap svg { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--muted); width:16px;height:16px; }
-.search-wrap input { padding-left: 38px; }
+.search-wrap { flex:1; min-width:200px; }
 
 /* Pagination */
 .pagination { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-top: 1px solid var(--border); }

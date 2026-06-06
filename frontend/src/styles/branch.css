@@ -223,9 +223,7 @@ td { padding: 12px 18px; font-size: 13px; color: var(--text); }
 
 /* ── Search bar ── */
 .fbar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-.sw { flex: 1; min-width: 180px; position: relative; }
-.sw svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); width: 14px; height: 14px; }
-.sw input { padding-left: 32px !important; }
+.sw { flex: 1; min-width: 180px; }
 
 /* ── Pagination ── */
 .pag { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-top: 1px solid var(--border); }

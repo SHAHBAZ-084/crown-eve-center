@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useFetch, apiFetch, toast, Icon, Modal, useDebounce } from "../../../components/branch/BranchShared";
+import SearchInput from "../../../components/SearchInput";
 
 const Inventory = () => {
   const { user } = useOutletContext();
@@ -95,10 +96,13 @@ const Inventory = () => {
         </div>
       </div>
       <div className="fbar" style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-        <div className="sw" style={{ flex: 1, minWidth: 250 }}>
-          <Icon n="search" />
-          <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Search inventory..." />
-        </div>
+        <SearchInput
+          className="sw"
+          style={{ flex: 1, minWidth: 250 }}
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          label="Search inventory..."
+        />
         
         <div style={{ display: "flex", background: "var(--surf)", padding: 4, borderRadius: 12, border: "1px solid var(--border)", gap: 4 }}>
           <button 

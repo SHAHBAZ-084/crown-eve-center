@@ -759,27 +759,7 @@
 #customer-dashboard-shell .ce-shop .fsearch {
   width: min(300px, 36vw);
   min-width: 200px;
-  height: 44px;
-  padding: 0 16px;
-  border-radius: 10px;
-  background: var(--ce-surface-2);
-  border: 1px solid var(--border);
   margin-left: 0;
-}
-
-#customer-dashboard-shell .ce-shop .fsearch svg {
-  color: var(--ce-text-soft);
-  flex-shrink: 0;
-}
-
-#customer-dashboard-shell .ce-shop .fsearch input {
-  width: 100%;
-  font-size: 14px;
-  color: var(--ce-text);
-}
-
-#customer-dashboard-shell .ce-shop .fsearch input::placeholder {
-  color: var(--ce-text-soft);
 }
 
 #customer-dashboard-shell .ce-shop .premium-cart-btn {

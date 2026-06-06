@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../../services/api';
-import { Search, FileText, Printer, CheckCircle2, Trash2 } from 'lucide-react';
+import { Search, Printer, CheckCircle2, Trash2 } from 'lucide-react';
+import SearchInput from '../../../../components/SearchInput';
 
 const ViewVoucher = ({ user }) => {
   const [voucherType, setVoucherType] = useState('PAYMENT');
@@ -68,16 +69,11 @@ const ViewVoucher = ({ user }) => {
           
           <div className="flex-[2]">
             <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1 mb-1 block">Voucher Number</label>
-            <div className="relative">
-              <input 
-                type="text"
-                placeholder="e.g. PV-20260519-1"
-                value={searchVoucherNo}
-                onChange={(e) => setSearchVoucherNo(e.target.value)}
-                className="w-full bg-white border border-gray-200 rounded-lg pl-10 pr-4 py-2 text-sm font-bold text-gray-800 shadow-sm outline-none focus:border-gray-400 uppercase transition-all"
-              />
-              <FileText size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            </div>
+            <SearchInput
+              value={searchVoucherNo}
+              onChange={(e) => setSearchVoucherNo(e.target.value)}
+              label="e.g. PV-20260519-1"
+            />
           </div>
 
           <button 

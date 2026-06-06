@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../../services/api';
-import { FileText, Search, Download, Calendar, Filter } from 'lucide-react';
+import { FileText, Download, Calendar, Filter } from 'lucide-react';
+import SearchInput from '../../../../components/SearchInput';
 
 const DebitTrailBalance = ({ user }) => {
   const [startDate, setStartDate] = useState('');
@@ -54,16 +55,11 @@ const DebitTrailBalance = ({ user }) => {
         <div className="p-6 border-b border-[#E5E7EB] bg-[#F9FAFB] flex flex-wrap gap-4 items-end print:hidden">
           <div className="flex-1 min-w-[200px]">
             <label className="block text-[10px] font-black text-[#8D7A71] uppercase tracking-widest mb-1.5">Search Account</label>
-            <div className="relative">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input 
-                type="text" 
-                placeholder="Search by name or category..." 
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#E5E7EB] rounded-xl text-sm font-bold text-[#2D1A12] shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              />
-            </div>
+            <SearchInput
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              label="Search by name or category..."
+            />
           </div>
           <div className="w-40">
             <label className="block text-[10px] font-black text-[#8D7A71] uppercase tracking-widest mb-1.5">Start Date</label>

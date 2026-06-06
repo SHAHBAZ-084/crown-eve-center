@@ -1,6 +1,7 @@
 // frontend/src/components/layout/TopBar.jsx
 import React from 'react';
-import { Search, Menu, LogOut } from 'lucide-react';
+import { Menu, LogOut } from 'lucide-react';
+import SearchInput from '../SearchInput';
 import { Link } from 'react-router-dom';
 
 const TopBar = ({ user, logout, isMinimal = false }) => {
@@ -18,10 +19,11 @@ const TopBar = ({ user, logout, isMinimal = false }) => {
       
       <div className="flex items-center space-x-6">
         {!isMinimal && (
-          <div className="hidden md:flex items-center bg-slate-900 rounded-xl px-4 py-2 border border-white/5">
-            <Search size={16} className="text-slate-500 mr-2" />
-            <input placeholder="Global search..." className="bg-transparent border-none text-sm focus:outline-none w-48" />
-          </div>
+          <SearchInput
+            className="hidden md:block w-56"
+            variant="dark"
+            label="Global search..."
+          />
         )}
         <div className="flex items-center space-x-3 bg-slate-900 p-1.5 pr-4 rounded-full border border-white/5">
           <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold">

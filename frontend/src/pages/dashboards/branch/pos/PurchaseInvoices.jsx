@@ -3,8 +3,9 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../../services/api';
 import { Icon } from '../../../../components/branch/BranchShared';
-import { Search, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useDebounce } from '../../../../hooks/useDebounce';
+import SearchInput from '../../../../components/SearchInput';
 import './PurchaseInvoices.css';
 
 const PurchaseInvoices = ({ user, queryClient }) => {
@@ -139,9 +140,12 @@ const PurchaseInvoices = ({ user, queryClient }) => {
           <div className="space-y-4">
             <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Search Products to Purchase</label>
             <div className="relative">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[#8D7A71]" size={18} />
-              <input type="text" value={piProductSearch} onChange={e => setPiProductSearch(e.target.value)} placeholder="Search branch bikes or parts by name or model..."
-                className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl py-5 pl-16 pr-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm" />
+              <SearchInput
+                variant="pos"
+                value={piProductSearch}
+                onChange={(e) => setPiProductSearch(e.target.value)}
+                label="Search branch bikes or parts by name or model..."
+              />
               {piProductSearch && (
                 <div className="absolute z-20 left-0 right-0 mt-2 bg-white border border-[#F3E5DC] rounded-3xl shadow-2xl overflow-hidden max-h-80 overflow-y-auto custom-scrollbar">
                   {loadingPiProducts ? (

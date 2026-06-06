@@ -3,8 +3,9 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../../services/api';
 import { Icon } from '../../../../components/branch/BranchShared';
-import { Search, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useDebounce } from '../../../../hooks/useDebounce';
+import SearchInput from '../../../../components/SearchInput';
 import './SaleInvoices.css';
 
 const SaleInvoices = ({ user, queryClient, onInvoiceGenerated }) => {
@@ -178,12 +179,12 @@ const SaleInvoices = ({ user, queryClient, onInvoiceGenerated }) => {
           <div className="space-y-4">
             <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Quick Add {siForm.type === 'bike' ? 'Bike' : 'Part'}</label>
             <div className="relative">
-              <div className="relative">
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[#8D7A71]" size={18} />
-                <input type="text" placeholder={`Search ${siForm.type} by name, model or description...`}
-                  value={siItemSearch} onChange={e => setSiItemSearch(e.target.value)}
-                  className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl sm:rounded-3xl py-4 sm:py-5 pl-14 sm:pl-16 pr-4 sm:pr-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm" />
-              </div>
+              <SearchInput
+                variant="pos"
+                value={siItemSearch}
+                onChange={(e) => setSiItemSearch(e.target.value)}
+                label={`Search ${siForm.type} by name, model or description...`}
+              />
               {siItemSearch && (
                 <div className="absolute z-20 left-0 right-0 mt-2 bg-white border border-[#F3E5DC] rounded-3xl shadow-2xl overflow-hidden max-h-80 overflow-y-auto custom-scrollbar">
                   {loadingSiItems ? (
@@ -270,10 +271,15 @@ const SaleInvoices = ({ user, queryClient, onInvoiceGenerated }) => {
               </div>
               <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em] ml-2">Assign Customer</label>
               <div className="relative">
-                <Icon n="user" className="absolute left-6 top-1/2 -translate-y-1/2 text-[#8D7A71]" size={18} />
-                <input type="text" placeholder={siForm.customerKind === 'online' ? 'Search name or email...' : 'Search name or phone...'} value={siCustomerSearch}
-                  onChange={e => { setSiCustomerSearch(e.target.value); if (siForm.customerId) setSiForm({ ...siForm, customerId: '' }); }}
-                  className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-2xl sm:rounded-3xl py-4 sm:py-5 pl-14 sm:pl-16 pr-4 sm:pr-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm" />
+                <SearchInput
+                  variant="pos"
+                  value={siCustomerSearch}
+                  onChange={(e) => {
+                    setSiCustomerSearch(e.target.value);
+                    if (siForm.customerId) setSiForm({ ...siForm, customerId: '' });
+                  }}
+                  label={siForm.customerKind === 'online' ? 'Search name or email...' : 'Search name or phone...'}
+                />
                 {siCustomerSearch && !siForm.customerId && (
                   <div className="absolute z-10 left-0 right-0 mt-2 bg-white border border-[#F3E5DC] rounded-3xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto custom-scrollbar">
                     {loadingSiCustomers ? (

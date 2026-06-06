@@ -121,15 +121,6 @@
   position: relative;
 }
 
-.svc-input-wrap svg {
-  position: absolute;
-  left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #8d7a71;
-  pointer-events: none;
-}
-
 .svc-input,
 .svc-textarea {
   width: 100%;

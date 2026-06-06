@@ -3,8 +3,9 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../../services/api';
 import { Icon } from '../../../../components/branch/BranchShared';
-import { Search, Plus, X, MessageCircle, Home, FileText, Calendar, Edit2, Trash2 } from 'lucide-react';
+import { Plus, X, MessageCircle, Home, FileText, Calendar, Edit2, Trash2 } from 'lucide-react';
 import { useDebounce } from '../../../../hooks/useDebounce';
+import SearchInput from '../../../../components/SearchInput';
 import {
   getWalkInCustomerName,
   getWalkInCustomerPhone,
@@ -225,16 +226,14 @@ const ServiceInvoices = ({ user, queryClient, onPrintReceipt }) => {
             <p className="text-[10px] font-bold text-[#8D7A71] uppercase tracking-[0.2em] mt-1">Manage and track walk-in customer services</p>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-[#8D7A71]" size={16} />
-              <input 
-                type="text" 
-                value={svHistorySearch}
-                onChange={e => setSvHistorySearch(e.target.value)}
-                placeholder="Search Service ID..."
-                className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-full py-3.5 pl-12 pr-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-xs"
-              />
-            </div>
+            <SearchInput
+              className="w-full sm:w-64"
+              variant="pos"
+              pill
+              value={svHistorySearch}
+              onChange={(e) => setSvHistorySearch(e.target.value)}
+              label="Search Service ID..."
+            />
             <button 
               onClick={() => setShowNewServiceModal(true)}
               className="w-full sm:w-auto whitespace-nowrap bg-[#E65100] text-white px-8 py-3.5 rounded-full font-black text-xs uppercase tracking-widest shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
@@ -370,16 +369,14 @@ const ServiceInvoices = ({ user, queryClient, onPrintReceipt }) => {
                 <div className="svc-section">
                   <label className="svc-section__label">Walk-in Customer *</label>
                   <div className="svc-input-wrap">
-                    <Search size={18} />
-                    <input
-                      type="text"
+                    <SearchInput
+                      variant="pos"
                       value={svCustomerSearch}
                       onChange={(e) => {
                         setSvCustomerSearch(e.target.value);
                         if (svForm.customerId) setSvForm({ ...svForm, customerId: '' });
                       }}
-                      placeholder="Search walk-in customer by name or phone..."
-                      className="svc-input"
+                      label="Search walk-in customer by name or phone..."
                     />
                     {svCustomerSearch && !svForm.customerId && (
                       <div className="svc-dropdown">
@@ -410,13 +407,11 @@ const ServiceInvoices = ({ user, queryClient, onPrintReceipt }) => {
                 <div className="svc-section">
                   <label className="svc-section__label">Add Spare Parts Used (Optional)</label>
                   <div className="svc-input-wrap">
-                    <Search size={18} />
-                    <input
-                      type="text"
+                    <SearchInput
+                      variant="pos"
                       value={svPartSearch}
                       onChange={(e) => setSvPartSearch(e.target.value)}
-                      placeholder="Type to search branch spare parts used in service..."
-                      className="svc-input"
+                      label="Type to search branch spare parts used in service..."
                     />
                     {svPartSearch && (
                       <div className="svc-dropdown">

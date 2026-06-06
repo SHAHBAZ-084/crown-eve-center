@@ -83,40 +83,8 @@
 }
 
 .fsearch {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #fff;
-  border: 1px solid #e8e8e8;
-  padding: 0 16px;
-  height: 44px;
-  border-radius: 12px;
   width: min(320px, 42vw);
   min-width: 200px;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.fsearch:focus-within {
-  border-color: rgba(232, 71, 10, 0.45);
-  box-shadow: 0 0 0 3px rgba(232, 71, 10, 0.1);
-}
-
-.fsearch svg {
-  color: #9ca3af;
-  flex-shrink: 0;
-}
-
-.fsearch input {
-  background: transparent;
-  border: none;
-  outline: none;
-  font-size: 14px;
-  color: #1f2937;
-  width: 100%;
-}
-
-.fsearch input::placeholder {
-  color: #9ca3af;
 }
 
 .premium-cart-btn {

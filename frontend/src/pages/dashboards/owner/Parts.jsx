@@ -1,6 +1,7 @@
 // frontend/src/pages/dashboards/owner/Parts.jsx
 import React, { useState } from "react";
 import { useFetch, useDebounce, api, toast, Icon, TableSk, Modal, Confirm } from "../../../components/owner/OwnerShared";
+import SearchInput from "../../../components/SearchInput";
 
 const PartsPage = () => {
   const [search, setSearch] = useState("");
@@ -52,10 +53,12 @@ const PartsPage = () => {
       </div>
 
       <div className="filter-bar">
-        <div className="search-wrap">
-          <Icon name="search" />
-          <input value={search} onChange={e => { setSearch(e.target.value); setPage(1) }} placeholder="Search by name…" />
-        </div>
+        <SearchInput
+          className="search-wrap"
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          label="Search by name…"
+        />
         <select style={{ width: 180 }} value={category} onChange={e => { setCategory(e.target.value); setPage(1) }}>
           <option value="">All Categories</option>
           {categories.map(c => <option key={c} value={c}>{c}</option>)}

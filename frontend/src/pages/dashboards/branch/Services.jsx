@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useFetch, apiFetch, toast, Icon, Modal, Confirm, useDebounce, APPT_BADGE } from "../../../components/branch/BranchShared";
 import ServiceThermalReceipt from "../../../components/branch/ServiceThermalReceipt";
+import SearchInput from "../../../components/SearchInput";
 
 const get6DigitId = (idString) => {
   if (!idString) return "000000";
@@ -287,25 +288,13 @@ const Services = () => {
               </div>
 
               <div className="fg" style={{ marginBottom: 0 }}>
-                <label style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>Filter by Time (e.g. 05:00 PM)</label>
-                <div style={{ position: 'relative' }}>
-                  <input 
-                    type="text" 
-                    placeholder="Search time (e.g. AM, PM, 17:53...)" 
-                    value={filterTime}
-                    onChange={e => setFilterTime(e.target.value)}
-                    style={{ width: '100%', borderRadius: 12, paddingRight: 40 }}
-                  />
-                  {filterTime && (
-                    <button 
-                      type="button" 
-                      onClick={() => setFilterTime("")}
-                      style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontWeight: 'bold' }}
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
+                <SearchInput
+                  value={filterTime}
+                  onChange={(e) => setFilterTime(e.target.value)}
+                  label="Search time (e.g. AM, PM, 17:53...)"
+                  clearable
+                  onClear={() => setFilterTime('')}
+                />
               </div>
             </div>
           </div>
@@ -501,19 +490,11 @@ const Services = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {/* Product search box */}
               <div className="fg" style={{ position: 'relative' }}>
-                <label style={{ fontWeight: 700, fontSize: 11, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>Search Parts or Products Used</label>
-                <div style={{ position: 'relative' }}>
-                  <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)', pointerEvents: 'none' }}>
-                    <Icon n="search" size={16} />
-                  </span>
-                  <input 
-                    type="text" 
-                    placeholder="Type to search spark plug, engine oil, tires..." 
-                    value={partSearch}
-                    onChange={e => setPartSearch(e.target.value)}
-                    style={{ paddingLeft: 40, width: '100%', borderRadius: 14 }}
-                  />
-                </div>
+                <SearchInput
+                  value={partSearch}
+                  onChange={(e) => setPartSearch(e.target.value)}
+                  label="Type to search spark plug, engine oil, tires..."
+                />
                 {/* Search results dropdown */}
                 {partResults.length > 0 && (
                   <div style={{ 

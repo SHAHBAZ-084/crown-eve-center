@@ -4,6 +4,7 @@ import { useOutletContext } from "react-router-dom";
 import { useFetch, apiFetch, toast, Icon, Modal, Confirm, UPLOAD_BASE } from "../../../components/branch/BranchShared";
 import { getImgUrl } from "../../../utils/imgUrl";
 import { uploadImage } from "../../../utils/uploadMedia";
+import SearchInput from "../../../components/SearchInput";
 
 const Products = () => {
   const { user } = useOutletContext();
@@ -180,19 +181,15 @@ const Products = () => {
             <div style={{ fontWeight: 700, fontSize: 18 }}>
               {activeTab === "bikes" ? "Bikes Catalog" : "Spare Parts Catalog"}
             </div>
-            <div style={{ flex: 1, position: "relative", maxWidth: 400 }}>
-              <Icon n="search" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", opacity: 0.4 }} size={16} />
-
-              <input
-                placeholder="Search products by name..."
-                style={{ paddingLeft: 40, background: "var(--surf)", border: "1px solid var(--border)" }}
-                value={search}
-                onChange={e => {
-                  setSearch(e.target.value);
-                  setPage(1);
-                }}
-              />
-            </div>
+            <SearchInput
+              style={{ flex: 1, maxWidth: 400 }}
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              label="Search products by name..."
+            />
             <button className="btn btn-p" onClick={openAdd}>
               <Icon n="plus" /> {activeTab === "bikes" ? "Add New Bike" : "Add New Part"}
             </button>

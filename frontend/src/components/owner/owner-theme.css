@@ -204,9 +204,7 @@
 
 /* Search + Filter bar */
 .owner-theme .filter-bar { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; align-items: center;}
-.owner-theme .search-wrap { flex:1; min-width:200px; position:relative; }
-.owner-theme .search-wrap svg { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--muted); width:16px;height:16px; }
-.owner-theme .search-wrap input { padding-left: 38px; }
+.owner-theme .search-wrap { flex:1; min-width:200px; }
 
 /* Pagination */
 .owner-theme .pagination { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-top: 1px solid var(--border); }
