@@ -3,13 +3,15 @@ import React from "react";
 import { useFetch, Icon, Sk, TableSk, OrderBadge } from "../../../components/owner/OwnerShared";
 
 const DashboardPage = () => {
-  const { data: branchCount } = useFetch("/branches/count");
-  const { data: partsCount } = useFetch("/parts/count");
-  const { data: orderCount } = useFetch("/orders/count");
-  const { data: revenue } = useFetch("/reports/revenue/summary");
-  const { data: topBranches } = useFetch("/branches/top?limit=5");
-  const { data: compareData } = useFetch("/reports/branches/compare");
-  const { data: orders } = useFetch("/orders?limit=6&page=1");
+  const { data: bundle, loading } = useFetch("/reports/owner-dashboard");
+
+  const branchCount = bundle?.branchCount ?? 0;
+  const partsCount = bundle?.partsCount ?? 0;
+  const orderCount = bundle?.orderCount ?? 0;
+  const revenue = bundle?.revSummary;
+  const topBranches = bundle?.topBranches ?? [];
+  const compareData = bundle?.compareData;
+  const recentOrders = bundle?.recentOrders ?? [];
 
   const compareArray = Array.isArray(compareData) ? compareData : [];
   const maxRev = compareArray.length > 0 ? Math.max(...compareArray.map(b => b.revenue || 0), 1) : 1;
@@ -48,7 +50,7 @@ const DashboardPage = () => {
             <Icon name="branches" size={20} />
           </div>
           <div className="stat-card-label">Total Branches</div>
-          <div className="stat-card-value">{branchCount?.count ?? "—"}</div>
+          <div className="stat-card-value">{loading ? "—" : branchCount}</div>
           <div className="stat-card-trend" style={{ color: "var(--blue)" }}>Active network nodes</div>
         </div>
         <div className="stat-card">
@@ -56,7 +58,7 @@ const DashboardPage = () => {
             <Icon name="orders" size={20} />
           </div>
           <div className="stat-card-label">Total Orders</div>
-          <div className="stat-card-value">{orderCount?.count ?? "—"}</div>
+          <div className="stat-card-value">{loading ? "—" : orderCount}</div>
           <div className="stat-card-trend trend-up">Network-wide</div>
         </div>
         <div className="stat-card">
@@ -64,7 +66,7 @@ const DashboardPage = () => {
             <Icon name="parts" size={20} />
           </div>
           <div className="stat-card-label">Parts SKUs</div>
-          <div className="stat-card-value">{partsCount?.count ?? "—"}</div>
+          <div className="stat-card-value">{loading ? "—" : partsCount}</div>
           <div className="stat-card-trend" style={{ color: "var(--purple)" }}>Global catalog</div>
         </div>
       </div>
@@ -74,7 +76,7 @@ const DashboardPage = () => {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <div style={{ fontWeight: 700, fontSize: 15 }}>Branch Revenue Comparison</div>
           </div>
-          {!compareData ? <Sk h={160} r={8} /> : (
+          {loading || !compareData ? <Sk h={160} r={8} /> : (
             <div>
               {compareArray.map(b => (
                 <div key={b.name} className="compare-row">
@@ -94,7 +96,7 @@ const DashboardPage = () => {
 
         <div className="card card-inner">
           <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 20 }}>Top Branches by Orders</div>
-          {!topBranches ? <Sk h={160} r={8} /> : topBranches.map((b, i) => (
+          {loading || !bundle ? <Sk h={160} r={8} /> : topBranches.map((b, i) => (
             <div key={b.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: i < topBranches.length - 1 ? "1px solid var(--border)" : "none" }}>
               <div style={{ width: 28, height: 28, borderRadius: 6, background: i === 0 ? "var(--accent)" : "var(--surface2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{i + 1}</div>
               <div style={{ flex: 1 }}>
@@ -114,7 +116,7 @@ const DashboardPage = () => {
           <div style={{ fontWeight: 700, fontSize: 15 }}>Recent Orders (Network-wide)</div>
           <span className="badge badge-blue">Live</span>
         </div>
-        {!orders ? <TableSk rows={5} cols={5} /> : (
+        {loading ? <TableSk rows={5} cols={5} /> : (
           <div style={{ overflowX: 'auto', paddingBottom: '10px' }}>
             <table style={{ minWidth: '600px' }}>
               <thead>
@@ -123,17 +125,17 @@ const DashboardPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {orders?.data?.slice(0, 6).map(o => (
+                {recentOrders.slice(0, 6).map(o => (
                   <tr key={o.id}>
                     <td><span style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}>#{o.id}</span></td>
                     <td style={{ fontSize: 13, color: "var(--muted)" }}>{o.branch?.name || "—"}</td>
-                    <td style={{ fontSize: 13 }}>{o.customer?.name || "—"}</td>
+                    <td style={{ fontSize: 13 }}>{o.customer?.name || o.walkInCustomer?.name || "—"}</td>
                     <td style={{ fontWeight: 700, color: "var(--accent)" }}>PKR {(o.total ?? 0).toFixed(2)}</td>
                     <td><OrderBadge status={o.status} /></td>
                     <td style={{ fontSize: 12, color: "var(--muted)" }}>{new Date(o.createdAt).toLocaleDateString()}</td>
                   </tr>
                 ))}
-                {orders?.data?.length === 0 && <tr><td colSpan={6}><div className="empty"><Icon name="orders" /><div className="empty-title">No orders</div></div></td></tr>}
+                {recentOrders.length === 0 && <tr><td colSpan={6}><div className="empty"><Icon name="orders" /><div className="empty-title">No orders</div></div></td></tr>}
               </tbody>
             </table>
           </div>

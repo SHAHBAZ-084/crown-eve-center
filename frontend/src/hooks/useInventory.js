@@ -14,6 +14,6 @@ export const useInventoryAlerts = (branchId, global = false) => {
   return useQuery({
     queryKey: ['inventory-alerts', branchId, global],
     queryFn: () => api.get('/inventory/alerts', { params: { branchId, global } }).then(r => r.data),
-    staleTime: 60000,
+    staleTime: 10 * 60 * 1000,
   });
 };

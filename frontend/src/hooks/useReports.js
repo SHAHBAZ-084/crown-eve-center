@@ -7,7 +7,8 @@ export const useRevenueSummary = (branchId) =>
     queryFn: () => 
       api.get('/reports/revenue/summary', { params: { branchId } })
          .then(r => r.data),
-    staleTime: 60000,
+    staleTime: 10 * 60 * 1000,
+    enabled: !!branchId,
   });
 
 export const useBranchStats = (branchId) =>
@@ -16,5 +17,6 @@ export const useBranchStats = (branchId) =>
     queryFn: () => 
       api.get(`/reports/branch/${branchId}`)
          .then(r => r.data),
+    staleTime: 10 * 60 * 1000,
     enabled: !!branchId,
   });

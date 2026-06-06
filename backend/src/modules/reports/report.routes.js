@@ -6,6 +6,7 @@ const { allow } = require('../../middleware/rbac');
 
 const branchReportRoles = ['BRANCH_OWNER', 'BRANCH_MANAGER', 'COMPANY_OWNER', 'EMPLOYEE', 'TECHNICIAN'];
 
+router.get('/owner-dashboard', protect, allow('COMPANY_OWNER'), ctrl.getOwnerDashboard);
 router.get('/branch-dashboard', protect, allow(...branchReportRoles), ctrl.getBranchDashboard);
 router.get('/revenue/summary', protect, allow(...branchReportRoles), ctrl.getRevenueSummary);
 router.get('/revenue/chart',   protect, allow(...branchReportRoles), ctrl.getRevenueChart);

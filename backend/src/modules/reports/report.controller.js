@@ -155,3 +155,67 @@ exports.getBranchDashboard = async (req, res) => {
     res.status(500).json({ message: e.message });
   }
 };
+
+/** One request for owner dashboard — replaces 7 parallel client calls. */
+exports.getOwnerDashboard = async (req, res) => {
+  try {
+    const compareBranches = async () => {
+      const branches = await prisma.branch.findMany({
+        include: {
+          _count: { select: { orders: true } },
+          orders: {
+            where: { status: 'COMPLETED' },
+            select: { total: true },
+          },
+        },
+      });
+      return branches.map((b) => ({
+        name: b.name,
+        revenue: b.orders.reduce((acc, o) => acc + o.total, 0),
+        orderCount: b._count.orders,
+      }));
+    };
+
+    const [
+      branchCount,
+      partsCount,
+      orderCount,
+      revSummary,
+      topBranches,
+      compareData,
+      recentOrders,
+    ] = await Promise.all([
+      prisma.branch.count(),
+      prisma.part.count(),
+      prisma.order.count(),
+      Report.getRevenueSummary({}),
+      prisma.branch.findMany({
+        take: 5,
+        include: { _count: { select: { orders: true } } },
+        orderBy: { orders: { _count: 'desc' } },
+      }),
+      compareBranches(),
+      prisma.order.findMany({
+        take: 6,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          customer: { select: { name: true } },
+          walkInCustomer: { select: { name: true } },
+          branch: { select: { name: true } },
+        },
+      }),
+    ]);
+
+    res.json({
+      branchCount,
+      partsCount,
+      orderCount,
+      revSummary,
+      topBranches,
+      compareData,
+      recentOrders,
+    });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
