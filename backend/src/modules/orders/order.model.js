@@ -2,6 +2,7 @@
 const prisma = require('../../config/db');
 const { runInTransaction } = require('../../config/transaction');
 const { syncInventoryToPartsAndProducts } = require('../inventory/inventory.utils');
+const { deductProductStockAtomic } = require('../inventory/stockMovement');
 const { postSaleInvoiceLedger } = require('../../services/ledger.service');
 
 const restoreStockRollbacks = async (rollbacks) => {
@@ -36,38 +37,16 @@ const createOrder = async (data) => {
       }
     }
 
-    // 0. Atomically verify stock availability AND deduct in one operation — eliminates race conditions (Bug 1)
-    //    updateMany with stock_qty: { gte: qty } as the guard — count === 0 means another concurrent
-    //    request already consumed the stock between our check and this update.
+    // 0. Atomically verify stock and deduct (raw SQL — updateMany fails on PrismaNeonHTTP)
     for (const item of items) {
       const pId = item.productId || item.id;
       const qtyRequested = Number(item.quantity || item.qty);
-
-      // Read the product name first for informative error messages (read-only)
-      const product = await tx.product.findUnique({
-        where: { id: pId },
-        select: { name: true }
-      });
-
-      if (!product) {
-        throw new Error('Product not found.');
-      }
-
-      // Atomic check-and-decrement: only succeeds if current stock_qty >= qtyRequested
-      const result = await tx.product.updateMany({
-        where: { id: pId, stock_qty: { gte: qtyRequested } },
-        data: { stock_qty: { decrement: qtyRequested } }
-      });
-
-      if (result.count === 0) {
-        throw new Error(`Insufficient stock for product "${product.name}". Requested: ${qtyRequested}.`);
-      }
-
+      await deductProductStockAtomic(tx, pId, qtyRequested);
       stockRollbacks.push({ productId: pId, qty: qtyRequested });
     }
 
-    // 1. Create the order
-    const order = await tx.order.create({
+    // 1. Create order + line items separately (nested create fails on PrismaNeonHTTP)
+    const createdOrder = await tx.order.create({
       data: {
         branchId: Number(branchId),
         customerId: customerId || undefined,
@@ -84,15 +63,23 @@ const createOrder = async (data) => {
         customer_name,
         customer_phone,
         notes,
-        items: {
-          create: items.map(item => ({
-            productId: item.productId || item.id,
-            quantity: Number(item.quantity || item.qty),
-            price: Number(item.price)
-          }))
-        }
       },
-      include: { items: { include: { product: { include: { productParts: true } } } } }
+    });
+
+    for (const item of items) {
+      await tx.orderItem.create({
+        data: {
+          orderId: createdOrder.id,
+          productId: item.productId || item.id,
+          quantity: Number(item.quantity || item.qty),
+          price: Number(item.price),
+        },
+      });
+    }
+
+    const order = await tx.order.findUnique({
+      where: { id: createdOrder.id },
+      include: { items: { include: { product: { include: { productParts: true } } } } },
     });
 
     // 2. Handle parts inventory for composite products (Bug 3 + Bug 5)

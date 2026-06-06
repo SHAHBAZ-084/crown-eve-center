@@ -9,30 +9,31 @@ const normalizeStockItems = (items = []) =>
     }))
     .filter((item) => item.productId && item.quantity > 0);
 
+/** HTTP-safe atomic stock deduct — updateMany triggers internal tx on PrismaNeonHTTP */
+const deductProductStockAtomic = async (tx, productId, qty) => {
+  const rows = await tx.$executeRaw`
+    UPDATE "Product"
+    SET "stock_qty" = "stock_qty" - ${qty}
+    WHERE "id" = ${productId} AND "stock_qty" >= ${qty}
+  `;
+  if (rows === 0) {
+    const product = await tx.product.findUnique({
+      where: { id: productId },
+      select: { name: true },
+    });
+    if (!product) throw new Error('Product not found.');
+    throw new Error(
+      `Insufficient stock for product "${product.name}". Requested: ${qty}.`
+    );
+  }
+};
+
 const deductItemsStock = async (tx, branchId, items) => {
   const normalized = normalizeStockItems(items);
   if (normalized.length === 0) return;
 
   for (const item of normalized) {
-    const product = await tx.product.findUnique({
-      where: { id: item.productId },
-      select: { name: true },
-    });
-
-    if (!product) {
-      throw new Error('Product not found.');
-    }
-
-    const result = await tx.product.updateMany({
-      where: { id: item.productId, stock_qty: { gte: item.quantity } },
-      data: { stock_qty: { decrement: item.quantity } },
-    });
-
-    if (result.count === 0) {
-      throw new Error(
-        `Insufficient stock for "${product.name}". Requested: ${item.quantity}.`
-      );
-    }
+    await deductProductStockAtomic(tx, item.productId, item.quantity);
   }
 
   for (const item of normalized) {
@@ -124,6 +125,7 @@ const restoreItemsStock = async (tx, branchId, items) => {
 
 module.exports = {
   normalizeStockItems,
+  deductProductStockAtomic,
   deductItemsStock,
   restoreItemsStock,
 };

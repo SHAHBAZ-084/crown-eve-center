@@ -57,10 +57,13 @@ const getOrCreateAccountWithLedger = async (tx, branchId, categoryName, accountN
         opening_balance: 0,
         current_balance: 0,
         status: 'ACTIVE',
-        ledger: { create: { ledger_name: `${accountName} Ledger` } },
       },
-      include: { category: true, ledger: true },
+      include: { category: true },
     });
+    const ledger = await tx.ledger.create({
+      data: { accountId: account.id, ledger_name: `${accountName} Ledger` },
+    });
+    account = { ...account, ledger };
   } else if (!account.ledger) {
     const ledger = await tx.ledger.create({
       data: { accountId: account.id, ledger_name: `${accountName} Ledger` },

@@ -90,8 +90,10 @@ exports.create = async (req, res) => {
           account_name: `${first_name} ${last_name} (${phone})`,
           current_balance: 0,
           branchId: parseInt(branchId),
-          ledger: { create: { ledger_name: `${first_name} ${last_name} - Ledger` } }
-        }
+        },
+      });
+      await tx.ledger.create({
+        data: { accountId: acc.id, ledger_name: `${first_name} ${last_name} - Ledger` },
       });
 
       return await tx.walkInCustomer.update({
