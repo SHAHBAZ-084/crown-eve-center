@@ -73,7 +73,12 @@ exports.update = async (req, res) => {
       if (branchId !== undefined) safeData.branchId = branchId ? Number(branchId) : null;
     }
 
-    const user = await User.updateUser(Number(req.params.id), safeData);
+    const userId = String(req.params.id || '').trim();
+    if (!userId) {
+      return res.status(400).json({ message: 'Invalid user id' });
+    }
+
+    const user = await User.updateUser(userId, safeData);
     res.json(user);
   } catch (e) {
     res.status(500).json({ message: e.message });
@@ -82,7 +87,17 @@ exports.update = async (req, res) => {
 
 exports.remove = async (req, res) => {
   try {
-    await User.deleteUser(Number(req.params.id));
+    const userId = String(req.params.id || '').trim();
+    if (!userId) {
+      return res.status(400).json({ message: 'Invalid user id' });
+    }
+
+    const existing = await User.getUserById(userId);
+    if (!existing) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    await User.deleteUser(userId);
     res.json({ message: 'User removed successfully' });
   } catch (e) {
     res.status(500).json({ message: e.message });

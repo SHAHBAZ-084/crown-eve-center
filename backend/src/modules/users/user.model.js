@@ -18,9 +18,16 @@ const updateUser = (id, data) => prisma.user.update({
   data
 });
 
-const deleteUser = (id) => prisma.user.delete({
-  where: { id }
-});
+const deleteUser = async (id) => {
+  await prisma.order.updateMany({
+    where: { customerId: id },
+    data: { customerId: null },
+  });
+  await prisma.serviceBooking.deleteMany({
+    where: { customerId: id },
+  });
+  return prisma.user.delete({ where: { id } });
+};
 
 const searchOnlineCustomers = (search, limit = 50) =>
   prisma.user.findMany({
