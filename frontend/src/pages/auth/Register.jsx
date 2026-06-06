@@ -7,6 +7,7 @@ import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import GoogleAuthSection from '../../components/auth/GoogleAuthSection';
 import { getPostLoginPath } from '../../utils/authRedirect';
+import PasswordStrength, { validatePassword, validatePhone } from '../../components/PasswordStrength';
 import './Auth.css';
 
 const Register = () => {
@@ -20,6 +21,7 @@ const Register = () => {
     city: ''
   });
   const [error, setError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [googleSubmitting, setGoogleSubmitting] = useState(false);
   const navigate = useNavigate();
@@ -32,6 +34,10 @@ const Register = () => {
       setError('Passwords do not match.');
       return;
     }
+    const pwdErr = validatePassword(formData.password);
+    if (pwdErr) { setError(pwdErr); return; }
+    const phoneErr = validatePhone(formData.phone);
+    if (phoneErr) { setError(phoneErr); return; }
     if (submitting) return;
     setSubmitting(true);
     try {
@@ -49,7 +55,7 @@ const Register = () => {
         err.code === 'ECONNABORTED'
           ? 'Server is slow or unreachable. Try again in a moment.'
           : err.response?.data?.message || 'Registration failed';
-      alert(msg);
+      setError(msg);
     } finally {
       setSubmitting(false);
     }
@@ -159,9 +165,11 @@ const Register = () => {
                 placeholder="+92 300 0000000"
                 value={formData.phone}
                 onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                onBlur={e => setPhoneError(validatePhone(e.target.value) || '')}
                 required
               />
             </div>
+            {phoneError && <p style={{color:'#ef4444',fontSize:11,marginTop:4}}>{phoneError}</p>}
           </div>
           <div className="form-group">
             <label className="auth-label">Password</label>
@@ -179,6 +187,7 @@ const Register = () => {
                 required
               />
             </div>
+            <PasswordStrength password={formData.password} />
           </div>
           <div className="form-group">
             <label className="auth-label">Confirm Password</label>

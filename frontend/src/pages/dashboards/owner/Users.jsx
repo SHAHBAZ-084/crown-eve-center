@@ -1,6 +1,7 @@
 // frontend/src/pages/dashboards/owner/Users.jsx
 import React, { useState } from "react";
 import { useFetch, api, toast, Icon, TableSk, Modal, Confirm } from "../../../components/owner/OwnerShared";
+import PasswordStrength, { validatePassword } from "../../../components/PasswordStrength";
 
 const UsersPage = () => {
   const { data: users, loading, refetch } = useFetch("/users");
@@ -26,7 +27,11 @@ const UsersPage = () => {
 
   const submit = async () => {
     if (!form.name || !form.email) return toast("Name and email required", "error");
-    if (!editTarget && !form.password) return toast("Password required for new user", "error");
+    if (!editTarget) {
+      if (!form.password) return toast("Password required for new user", "error");
+      const pwdErr = validatePassword(form.password);
+      if (pwdErr) return toast(pwdErr, "error");
+    }
     setSaving(true);
     try {
       if (editTarget) {
@@ -114,7 +119,13 @@ const UsersPage = () => {
             <div className="form-group"><label>Full Name *</label><input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} /></div>
             <div className="form-group"><label>Email *</label><input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} /></div>
           </div>
-          {!editTarget && <div className="form-group"><label>Password *</label><input type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} /></div>}
+          {!editTarget && (
+            <div className="form-group">
+              <label>Password *</label>
+              <input type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} />
+              {form.password && <PasswordStrength password={form.password} />}
+            </div>
+          )}
           <div className="form-row">
             <div className="form-group"><label>Role *</label>
               <select value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))}>

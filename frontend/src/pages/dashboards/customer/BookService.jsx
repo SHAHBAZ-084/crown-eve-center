@@ -6,6 +6,7 @@ import api from '../../../services/api';
 import publicApi from '../../../services/publicApi';
 import CustomerPageHeader from '../../../components/customer/CustomerPageHeader';
 import { CustomerLoading, CustomerAlert } from '../../../components/customer/CustomerUI';
+import { validatePhone } from '../../../components/PasswordStrength';
 
 const BookService = () => {
   const navigate = useNavigate();
@@ -15,6 +16,8 @@ const BookService = () => {
   const [selectedBranch, setSelectedBranch] = useState('');
   const [cellNumber, setCellNumber] = useState('');
   const [whatsappNumber, setWhatsappNumber] = useState('');
+  const [cellError, setCellError] = useState('');
+  const [waError, setWaError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -46,10 +49,14 @@ const BookService = () => {
 
   const handleBooking = async (e) => {
     e.preventDefault();
-    if (!selectedBranch || !cellNumber.trim() || !whatsappNumber.trim()) {
-      setError('Please complete all fields.');
-      return;
-    }
+    if (!selectedBranch) { setError('Please select a branch.'); return; }
+    const cellErr = validatePhone(cellNumber);
+    if (!cellNumber.trim()) { setCellError('Cell number is required.'); return; }
+    if (cellErr) { setCellError(cellErr); return; }
+    const waErr = validatePhone(whatsappNumber);
+    if (!whatsappNumber.trim()) { setWaError('WhatsApp number is required.'); return; }
+    if (waErr) { setWaError(waErr); return; }
+    setCellError(''); setWaError('');
 
     setSubmitting(true);
     setError('');
@@ -122,8 +129,10 @@ const BookService = () => {
               placeholder="03XX XXXXXXX"
               value={cellNumber}
               onChange={(e) => setCellNumber(e.target.value)}
+              onBlur={e => setCellError(validatePhone(e.target.value) || '')}
               required
             />
+            {cellError && <p style={{color:'#ef4444',fontSize:11,marginTop:4}}>{cellError}</p>}
           </div>
 
           <div className="ce-form-block">
@@ -138,8 +147,10 @@ const BookService = () => {
               placeholder="03XX XXXXXXX"
               value={whatsappNumber}
               onChange={(e) => setWhatsappNumber(e.target.value)}
+              onBlur={e => setWaError(validatePhone(e.target.value) || '')}
               required
             />
+            {waError && <p style={{color:'#ef4444',fontSize:11,marginTop:4}}>{waError}</p>}
           </div>
 
           <button

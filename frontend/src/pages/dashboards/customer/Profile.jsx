@@ -4,12 +4,18 @@ import { useAuth } from "../../../context/AuthContext";
 import CustomerPageHeader from "../../../components/customer/CustomerPageHeader";
 import { CustomerAlert } from "../../../components/customer/CustomerUI";
 import api from "../../../services/api";
+import PasswordStrength, { validatePassword, validatePhone } from "../../../components/PasswordStrength";
 
 const Profile = () => {
   const { user } = useAuth();
   const [pass, setPass] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [currentPass, setCurrentPass] = useState("");
+  const [confirmPass, setConfirmPass] = useState("");
+  const [passError, setPassError] = useState("");
+  const [passSuccess, setPassSuccess] = useState("");
+  const [phoneError, setPhoneError] = useState("");
   const [status, setStatus] = useState({ loading: false, error: "", success: "" });
 
   useEffect(() => {
@@ -19,7 +25,25 @@ const Profile = () => {
     }
   }, [user]);
 
+  const handlePasswordChange = async () => {
+    setPassError("");
+    setPassSuccess("");
+    if (!currentPass) { setPassError("Current password is required."); return; }
+    const pwdErr = validatePassword(pass);
+    if (pwdErr) { setPassError(pwdErr); return; }
+    if (pass !== confirmPass) { setPassError("New passwords do not match."); return; }
+    try {
+      await api.put("/auth/change-password", { currentPassword: currentPass, newPassword: pass });
+      setPassSuccess("Password changed successfully.");
+      setCurrentPass(""); setPass(""); setConfirmPass("");
+    } catch (err) {
+      setPassError(err.response?.data?.message || "Failed to change password.");
+    }
+  };
+
   const handleUpdate = async () => {
+    const phoneErr = validatePhone(phone);
+    if (phoneErr) { setStatus({ error: phoneErr }); return; }
     setStatus({ loading: true, error: "", success: "" });
     try {
       await api.put("/auth/profile", { name, phone });
@@ -56,7 +80,8 @@ const Profile = () => {
             <div className="fgrid">
               <div className="fg">
                 <label>Phone Number</label>
-                <input className="fi" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+92 300 0000000" />
+                <input className="fi" value={phone} onChange={e => setPhone(e.target.value)} onBlur={e => setPhoneError(validatePhone(e.target.value) || "")} placeholder="+92 300 0000000" />
+                {phoneError && <p style={{color:"#ef4444",fontSize:11,marginTop:4}}>{phoneError}</p>}
               </div>
               <div className="fg">
                 <label>City</label>
@@ -78,19 +103,27 @@ const Profile = () => {
             <div className="ch"><div className="ct">Security & Password</div></div>
             <div className="fg">
               <label>Current Password</label>
-              <input className="fi" type="password" placeholder="••••••••" />
+              <input className="fi" type="password" value={currentPass} onChange={e => setCurrentPass(e.target.value)} placeholder="••••••••" />
             </div>
             <div className="fgrid">
               <div className="fg">
                 <label>New Password</label>
                 <input className="fi" type="password" value={pass} onChange={e => setPass(e.target.value)} placeholder="••••••••" />
+                <PasswordStrength password={pass} />
               </div>
               <div className="fg">
                 <label>Confirm New Password</label>
-                <input className="fi" type="password" placeholder="••••••••" />
+                <input className="fi" type="password" value={confirmPass} onChange={e => setConfirmPass(e.target.value)} placeholder="••••••••" />
+                {confirmPass && (
+                  <p style={{fontSize:11,marginTop:4,color: pass===confirmPass ? "#22c55e" : "#ef4444"}}>
+                    {pass===confirmPass ? "✓ Passwords match" : "✗ Passwords do not match"}
+                  </p>
+                )}
               </div>
             </div>
-            <button type="button" className="btn btn-ghost" style={{ marginTop: 16 }}>Change Password</button>
+            {passError && <p style={{color:"#ef4444",fontSize:12,marginTop:8}}>{passError}</p>}
+            {passSuccess && <p style={{color:"#22c55e",fontSize:12,marginTop:8}}>{passSuccess}</p>}
+            <button type="button" className="btn btn-ghost" style={{ marginTop: 16 }} onClick={handlePasswordChange}>Change Password</button>
           </div>
         </div>
 

@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import PasswordStrength, { validatePassword } from '../../components/PasswordStrength';
 import './Auth.css';
 
 const isValidOtp = (value) => /^\d{6}$/.test(String(value || '').trim());
@@ -53,10 +54,8 @@ const Forgot = () => {
       setError('Passwords do not match.');
       return;
     }
-    if (newPassword.length < 6) {
-      setError('Password must be at least 6 characters.');
-      return;
-    }
+    const pwdErr = validatePassword(newPassword);
+    if (pwdErr) { setError(pwdErr); return; }
     setLoading(true);
     try {
       await api.post('/auth/reset-password', {
@@ -176,6 +175,7 @@ const Forgot = () => {
                   required
                 />
               </div>
+              <PasswordStrength password={newPassword} />
             </div>
             <div className="form-group">
               <label className="auth-label" htmlFor="forgot-confirm-password">Confirm Password</label>
