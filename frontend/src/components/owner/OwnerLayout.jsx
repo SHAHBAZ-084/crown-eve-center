@@ -1,6 +1,6 @@
 // frontend/src/components/owner/OwnerLayout.jsx
+import React, { useState, useEffect } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { Icon, ToastContainer } from "./OwnerShared";
 import "../../styles/owner.css";
@@ -16,96 +16,110 @@ const NAV = [
   { id: "settings", label: "Settings", path: "/owner/settings", icon: "settings", section: "Admin" },
 ];
 
+const SECTIONS = ["Overview", "Network", "Operations", "Admin"];
+
 const OwnerLayout = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const [showSidebar, setShowSidebar] = useState(false);
 
-  const sections = [...new Set(NAV.map(n => n.section))];
-  const currentPage = NAV.find(n => n.path === location.pathname);
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  // Close mobile menu on route change
   useEffect(() => {
-    setMobileOpen(false);
+    setShowSidebar(false);
   }, [location.pathname]);
+
+  const currentPage = NAV.find((n) => n.path === location.pathname);
 
   const handleLogout = () => {
     logout();
-    window.location.href = '/';
+    window.location.href = "/";
   };
 
   return (
-    <div className={`owner-dashboard-root ${mobileOpen ? 'mobile-open' : ''}`}>
-      {/* Mobile backdrop */}
-      {mobileOpen && (
-        <div 
-          className="modal-backdrop" 
-          style={{ zIndex: 999 }} 
-          onClick={() => setMobileOpen(false)}
+    <div id="owner-dashboard-shell">
+      {showSidebar && (
+        <button
+          type="button"
+          className="owner-sidebar-overlay"
+          aria-label="Close menu"
+          onClick={() => setShowSidebar(false)}
         />
       )}
-      <div className="shell">
-        {/* Sidebar */}
-        <div id="owner-sidebar-fixed">
-          <div className="sidebar-logo" style={{ marginBottom: '40px', display: 'flex', alignItems: 'center' }}>
-            <div className="logo-mark">CE</div>
-            <div style={{ marginLeft: '12px' }}>
-              <div className="logo-text">CROWN <span>EVE</span></div>
-              <div className="logo-sub">Owner Panel</div>
+
+      <div id="owner-sidebar" className={showSidebar ? "show" : ""}>
+        <div className="sb-brand">
+          <button
+            type="button"
+            className="owner-sidebar-close"
+            aria-label="Close menu"
+            onClick={() => setShowSidebar(false)}
+          >
+            <Icon name="close" size={16} />
+          </button>
+          <div className="sb-mark">CE</div>
+          <div>
+            <div className="sb-name">
+              CROWN <span>EVE</span>
+            </div>
+            <div className="sb-sub">OWNER PANEL</div>
+          </div>
+        </div>
+
+        <div className="sidebar-scrollable">
+          {SECTIONS.map((sec) => (
+            <React.Fragment key={sec}>
+              <div className="sb-sec">{sec}</div>
+              {NAV.filter((n) => n.section === sec).map((item) => (
+                <Link
+                  key={item.id}
+                  to={item.path}
+                  className={`sb-item ${location.pathname === item.path ? "active" : ""}`}
+                >
+                  <Icon name={item.icon} size={16} />
+                  {item.label}
+                </Link>
+              ))}
+            </React.Fragment>
+          ))}
+        </div>
+
+        <div id="owner-sidebar-footer">
+          <div className="sb-user">
+            <div className="sb-avatar">{user?.name?.[0]?.toUpperCase() || "O"}</div>
+            <div style={{ flex: 1 }}>
+              <div className="sb-uname">{user?.name || "Owner"}</div>
+              <div className="sb-urole">Company Owner</div>
             </div>
           </div>
-          
-          <div id="owner-nav-list" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-            {sections.map(sec => (
-              <div key={sec} className="nav-section" style={{ marginBottom: '24px', display: 'flex', flexDirection: 'column' }}>
-                <div className="nav-section-label">{sec}</div>
-                <div className="nav-links-group" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  {NAV.filter(n => n.section === sec).map(n => (
-                    <Link key={n.id} to={n.path} className={`nav-item ${location.pathname === n.path ? "active" : ""}`}>
-                      <Icon name={n.icon} size={18} />
-                      <span>{n.label}</span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ))}
+          <button
+            type="button"
+            className="sb-item"
+            onClick={handleLogout}
+            style={{ width: "100%", marginTop: 8, background: "transparent", border: "none" }}
+          >
+            <Icon name="logout" size={16} />
+            Logout
+          </button>
+        </div>
+      </div>
+
+      <div className="main">
+        <div className="branch-topbar">
+          <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+            <button type="button" className="sidebar-toggle" onClick={() => setShowSidebar(true)}>
+              <Icon name="menu" size={20} />
+            </button>
+            <div className="topbar-title">{currentPage?.label?.toUpperCase() || "DASHBOARD"}</div>
           </div>
-          
-          <div id="owner-sidebar-footer" style={{ marginTop: 'auto', borderTop: "1px solid var(--border)", paddingTop: '20px' }}>
-            <div className="nav-user" style={{ display: 'flex', alignItems: 'center' }}>
-              <div className="nav-avatar">{user?.name?.[0]?.toUpperCase() || "O"}</div>
-              <div style={{ marginLeft: '10px' }}>
-                <div className="nav-user-name">{user?.name || "Owner"}</div>
-                <div className="nav-user-role">Company Owner</div>
-              </div>
-            </div>
-            <div className="nav-item" onClick={handleLogout} style={{ color: "var(--red)", marginTop: '12px', cursor: 'pointer' }}>
-              <Icon name="logout" size={18} />
-              <span>Logout</span>
+          <div className="topbar-right">
+            <div className="live-pill">
+              <span className="live-dot" /> LIVE STATUS
             </div>
           </div>
         </div>
 
-        {/* Main */}
-        <main className="main">
-          <div className="topbar">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <button 
-                className="btn-icon d-lg-none" 
-                style={{ border: 'none', background: 'transparent' }}
-                onClick={() => setMobileOpen(true)}
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-              </button>
-              <div className="topbar-title">{currentPage?.label?.toUpperCase() || "DASHBOARD"}</div>
-            </div>
-            <div className="topbar-right">
-              <div className="live-badge"><span className="live-dot" />Live Control Panel</div>
-            </div>
-          </div>
-          <Outlet />
-        </main>
+        <Outlet />
       </div>
+
       <ToastContainer />
     </div>
   );

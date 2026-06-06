@@ -200,7 +200,7 @@ exports.getOwnerDashboard = async (req, res) => {
         orderBy: { createdAt: 'desc' },
         include: {
           customer: { select: { name: true } },
-          walkInCustomer: { select: { name: true } },
+          walkInCustomer: { select: { first_name: true, last_name: true } },
           branch: { select: { name: true } },
         },
       }),

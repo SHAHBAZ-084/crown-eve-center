@@ -129,7 +129,14 @@ const DashboardPage = () => {
                   <tr key={o.id}>
                     <td><span style={{ fontFamily: "var(--font-mono)", fontSize: 12 }}>#{o.id}</span></td>
                     <td style={{ fontSize: 13, color: "var(--muted)" }}>{o.branch?.name || "—"}</td>
-                    <td style={{ fontSize: 13 }}>{o.customer?.name || o.walkInCustomer?.name || "—"}</td>
+                    <td style={{ fontSize: 13 }}>{
+                      o.customer?.name
+                      || (o.walkInCustomer
+                        ? `${o.walkInCustomer.first_name || ""} ${o.walkInCustomer.last_name || ""}`.trim()
+                        : null)
+                      || o.customer_name
+                      || "—"
+                    }</td>
                     <td style={{ fontWeight: 700, color: "var(--accent)" }}>PKR {(o.total ?? 0).toFixed(2)}</td>
                     <td><OrderBadge status={o.status} /></td>
                     <td style={{ fontSize: 12, color: "var(--muted)" }}>{new Date(o.createdAt).toLocaleDateString()}</td>
