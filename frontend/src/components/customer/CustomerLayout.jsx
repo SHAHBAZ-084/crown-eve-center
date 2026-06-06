@@ -16,7 +16,21 @@ const NAV_LINKS = [
   { label: 'Book Service', to: '/my/book-service', match: (p) => p.startsWith('/my/book-service') || p.startsWith('/appointments') },
 ];
 
-const linkClass = (match, isActive) => `cnl${match || isActive ? ' active' : ''}`;
+const linkClass = (match, isActive) => `cnl-pill${match || isActive ? ' active' : ''}`;
+
+const PillArrow = () => (
+  <svg
+    className="cnl-pill-arrow"
+    viewBox="0 0 16 19"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d="M7 18C7 18.5523 7.44772 19 8 19C8.55228 19 9 18.5523 9 18H7ZM8.70711 0.292893C8.31658 -0.0976311 7.68342 -0.0976311 7.29289 0.292893L0.928932 6.65685C0.538408 7.04738 0.538408 7.68054 0.928932 8.07107C1.31946 8.46159 1.95262 8.46159 2.34315 8.07107L8 2.41421L13.6569 8.07107C14.0474 8.46159 14.6805 8.46159 15.0711 8.07107C15.4616 7.68054 15.4616 7.04738 15.0711 6.65685L8.70711 0.292893ZM9 18L9 1H7L7 18H9Z"
+      className="cnl-pill-arrow-path"
+    />
+  </svg>
+);
 
 const CustomerLayout = () => {
   const { user, logout } = useAuth();
@@ -43,14 +57,13 @@ const CustomerLayout = () => {
       <header className="cnav scrolled">
         <button
           type="button"
-          className={`cnav-hamburger${menuOpen ? ' open' : ''}`}
+          className={`cnl-pill cnav-menu-btn${menuOpen ? ' open' : ''}`}
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((v) => !v)}
         >
-          <div className={`bar ${menuOpen ? 'open' : ''}`} />
-          <div className={`bar ${menuOpen ? 'open' : ''}`} />
-          <div className={`bar ${menuOpen ? 'open' : ''}`} />
+          <span>{menuOpen ? 'Close' : 'Menu'}</span>
+          <PillArrow />
         </button>
 
         <NavLink to="/my/dashboard" className="cnav-logo logo" onClick={closeMenu}>
@@ -67,9 +80,10 @@ const CustomerLayout = () => {
               <li key={link.to}>
                 <NavLink
                   to={link.to}
-                  className={({ isActive }) => linkClass(link.match(location.pathname), isActive)}
+                  className={({ isActive }) => `${linkClass(link.match(location.pathname), isActive)} cnl-pill--compact`}
                 >
-                  {link.label}
+                  <span>{link.label}</span>
+                  <PillArrow />
                 </NavLink>
               </li>
             ))}
@@ -91,8 +105,9 @@ const CustomerLayout = () => {
             <span className="cnav-user-role">Customer</span>
           </button>
 
-          <button type="button" className="btn-nav-login" onClick={logout}>
-            Logout
+          <button type="button" className="cnl-pill cnl-pill--compact btn-nav-login" onClick={logout}>
+            <span>Logout</span>
+            <PillArrow />
           </button>
         </div>
       </header>
@@ -115,30 +130,38 @@ const CustomerLayout = () => {
             <NavLink
               key={`drawer-${link.to}`}
               to={link.to}
-              className={({ isActive }) => linkClass(link.match(location.pathname), isActive)}
+              className={({ isActive }) => `${linkClass(link.match(location.pathname), isActive)} cnl-pill--block`}
               onClick={closeMenu}
             >
-              {link.label}
+              <span>{link.label}</span>
+              <PillArrow />
             </NavLink>
           ))}
 
           <p className="cnav-drawer-label">Account</p>
           <NavLink
             to="/my/cart"
-            className={({ isActive }) => linkClass(location.pathname.startsWith('/my/cart'), isActive)}
+            className={({ isActive }) => `${linkClass(location.pathname.startsWith('/my/cart'), isActive)} cnl-pill--block`}
             onClick={closeMenu}
           >
-            Cart {count > 0 ? `(${count})` : ''}
+            <span>Cart {count > 0 ? `(${count})` : ''}</span>
+            <PillArrow />
           </NavLink>
           <NavLink
             to="/my/profile"
-            className={({ isActive }) => linkClass(location.pathname.startsWith('/my/profile'), isActive)}
+            className={({ isActive }) => `${linkClass(location.pathname.startsWith('/my/profile'), isActive)} cnl-pill--block`}
             onClick={closeMenu}
           >
-            Profile
+            <span>Profile</span>
+            <PillArrow />
           </NavLink>
-          <button type="button" className="cnl cnl-logout-mobile" onClick={() => { closeMenu(); logout(); }}>
-            Logout
+          <button
+            type="button"
+            className="cnl-pill cnl-pill--block cnl-logout-mobile"
+            onClick={() => { closeMenu(); logout(); }}
+          >
+            <span>Logout</span>
+            <PillArrow />
           </button>
         </div>
       </aside>

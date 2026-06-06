@@ -108,7 +108,9 @@
 #customer-dashboard-shell .cnav-nav-list {
   display: flex;
   align-items: center;
-  gap: clamp(20px, 3vw, 36px);
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(8px, 1.2vw, 14px);
   list-style: none;
   margin: 0;
   padding: 0;
@@ -118,47 +120,118 @@
   list-style: none;
 }
 
-#customer-dashboard-shell .cnl {
-  color: #111111;
-  text-decoration: none;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
+/* Uiverse-style pill nav buttons — orange theme */
+#customer-dashboard-shell .cnl-pill {
   position: relative;
-  transition: color 0.3s;
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  padding: 0;
+  z-index: 1;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 9999px;
+  background: rgba(249, 250, 251, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #18181b;
+  text-decoration: none;
   white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.45s ease;
 }
 
-#customer-dashboard-shell .cnl::after {
+#customer-dashboard-shell .cnl-pill::before {
   content: '';
   position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 0;
-  height: 1px;
-  background: var(--orange);
-  transition: width 0.3s;
-}
-
-#customer-dashboard-shell .cnl:hover {
-  color: var(--orange);
-  background: transparent;
-}
-
-#customer-dashboard-shell .cnl:hover::after,
-#customer-dashboard-shell .cnl.active::after {
+  z-index: -1;
+  top: 50%;
+  left: -100%;
   width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--orange);
+  transform: translateY(-50%);
+  transition: left 0.7s ease, transform 0.7s ease;
 }
 
-#customer-dashboard-shell .cnl.active {
-  color: var(--orange);
-  font-weight: 600;
-  background: transparent;
+#customer-dashboard-shell .cnl-pill:hover,
+#customer-dashboard-shell .cnl-pill:focus-visible {
+  color: #fafafa;
+  outline: none;
+}
+
+#customer-dashboard-shell .cnl-pill:hover::before,
+#customer-dashboard-shell .cnl-pill:focus-visible::before {
+  left: 0;
+  transform: translateY(-50%) scale(1.5);
+}
+
+#customer-dashboard-shell .cnl-pill.active {
+  color: #fafafa;
+  border-color: rgba(232, 71, 10, 0.35);
+}
+
+#customer-dashboard-shell .cnl-pill.active::before {
+  left: 0;
+  transform: translateY(-50%) scale(1.5);
+}
+
+#customer-dashboard-shell .cnl-pill-arrow {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  padding: 6px;
+  border-radius: 50%;
+  border: 1px solid #3f3f46;
+  transform: rotate(45deg);
+  transition: transform 0.3s linear, background 0.3s ease, border-color 0.3s ease;
+}
+
+#customer-dashboard-shell .cnl-pill-arrow-path {
+  fill: #27272a;
+  transition: fill 0.3s ease;
+}
+
+#customer-dashboard-shell .cnl-pill:hover .cnl-pill-arrow,
+#customer-dashboard-shell .cnl-pill:focus-visible .cnl-pill-arrow,
+#customer-dashboard-shell .cnl-pill.active .cnl-pill-arrow {
+  transform: rotate(90deg);
+  background: #fafafa;
+  border-color: transparent;
+}
+
+#customer-dashboard-shell .cnl-pill:hover .cnl-pill-arrow-path,
+#customer-dashboard-shell .cnl-pill:focus-visible .cnl-pill-arrow-path,
+#customer-dashboard-shell .cnl-pill.active .cnl-pill-arrow-path {
+  fill: #27272a;
+}
+
+#customer-dashboard-shell .cnl-pill--compact {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 7px 12px;
+  gap: 6px;
+}
+
+#customer-dashboard-shell .cnl-pill--compact .cnl-pill-arrow {
+  width: 22px;
+  height: 22px;
+  padding: 4px;
+}
+
+#customer-dashboard-shell .cnl-pill--block {
+  width: 100%;
+  justify-content: space-between;
 }
 
 #customer-dashboard-shell .cnav-actions {
@@ -232,15 +305,11 @@
 #customer-dashboard-shell .cnav-actions .btn-nav-login {
   margin: 0;
   flex-shrink: 0;
-  white-space: nowrap;
-  /* Global index.css clip-path cuts off the first letter on shorter labels like Logout */
   clip-path: none;
-  border-radius: 4px;
-  padding: 10px 22px;
   min-width: max-content;
 }
 
-#customer-dashboard-shell .cnav-hamburger {
+#customer-dashboard-shell .cnav-menu-btn {
   display: none;
 }
 
@@ -3366,41 +3435,21 @@
     padding: 6px;
   }
 
-  #customer-dashboard-shell .cnav-hamburger {
+  #customer-dashboard-shell .cnav-menu-btn {
     order: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-    width: 40px;
-    height: 40px;
-    background: var(--orange);
-    border: none;
-    padding: 0;
-    border-radius: 8px;
-    cursor: pointer;
+    display: inline-flex;
     flex-shrink: 0;
+    font-size: 13px;
+    padding: 7px 14px;
   }
 
-  #customer-dashboard-shell .cnav-hamburger .bar {
-    width: 18px;
-    height: 2px;
-    background: #fff;
-    border-radius: 1px;
-    transition: transform 0.25s ease, opacity 0.25s ease;
+  #customer-dashboard-shell .cnav-menu-btn.open .cnl-pill-arrow {
+    transform: rotate(135deg);
   }
 
-  #customer-dashboard-shell .cnav-hamburger .bar.open:nth-child(1) {
-    transform: translateY(7px) rotate(45deg);
-  }
-
-  #customer-dashboard-shell .cnav-hamburger .bar.open:nth-child(2) {
-    opacity: 0;
-  }
-
-  #customer-dashboard-shell .cnav-hamburger .bar.open:nth-child(3) {
-    transform: translateY(-7px) rotate(-45deg);
+  #customer-dashboard-shell .cnav-menu-btn.open:hover .cnl-pill-arrow,
+  #customer-dashboard-shell .cnav-menu-btn.open:focus-visible .cnl-pill-arrow {
+    transform: rotate(180deg);
   }
 
   #customer-dashboard-shell .cnav-drawer {
@@ -3469,7 +3518,7 @@
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: 4px;
+    gap: 10px;
     padding: 16px 20px 28px;
     overflow-y: auto;
     flex: 1 1 auto;
@@ -3490,54 +3539,15 @@
     margin-top: 0;
   }
 
-  #customer-dashboard-shell .cnav-drawer-nav .cnl {
-    display: block;
-    width: 100%;
-    text-align: left;
-    padding: 12px 14px;
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    color: #111111;
-    border: none;
-    border-radius: 8px;
-    transition: background 0.15s, color 0.15s;
-  }
-
-  #customer-dashboard-shell .cnav-drawer-nav .cnl::after {
-    display: none;
-  }
-
-  #customer-dashboard-shell .cnav-drawer-nav .cnl:hover {
-    color: var(--orange);
-    background: rgba(232, 71, 10, 0.06);
-  }
-
-  #customer-dashboard-shell .cnav-drawer-nav .cnl.active {
-    color: var(--orange);
-    background: rgba(232, 71, 10, 0.1);
+  #customer-dashboard-shell .cnav-drawer-nav .cnl-pill {
+    font-size: 14px;
+    text-transform: none;
+    letter-spacing: 0.02em;
   }
 
   #customer-dashboard-shell .cnl-logout-mobile {
-    width: 100%;
-    margin-top: 12px;
-    padding: 12px 16px;
-    text-align: center;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--orange);
-    background: transparent;
-    border: 1.5px solid var(--orange);
-    border-radius: 8px;
+    margin-top: 4px;
     clip-path: none;
-  }
-
-  #customer-dashboard-shell .cnl-logout-mobile:hover {
-    background: var(--orange);
-    color: #fff;
   }
 
   #customer-dashboard-shell .cnav-overlay {
@@ -3568,7 +3578,7 @@
 }
 
 @media (min-width: 1101px) {
-  #customer-dashboard-shell .cnav-hamburger {
+  #customer-dashboard-shell .cnav-menu-btn {
     display: none !important;
   }
 
