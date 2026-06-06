@@ -8,7 +8,6 @@ import "../../styles/owner.css";
 const NAV = [
   { id: "dashboard", label: "Dashboard", path: "/owner/dashboard", icon: "dashboard", section: "Overview" },
   { id: "branches", label: "Branches", path: "/owner/branches", icon: "branches", section: "Network" },
-  { id: "parts", label: "Parts Catalog", path: "/owner/parts", icon: "parts", section: "Network" },
   { id: "orders", label: "All Orders", path: "/owner/orders", icon: "orders", section: "Operations" },
   { id: "purchases", label: "Purchases", path: "/owner/purchases", icon: "purchases", section: "Operations" },
   { id: "users", label: "Personnel", path: "/owner/users", icon: "users", section: "Admin" },
