@@ -70,6 +70,15 @@ api.interceptors.response.use(
       }
     }
 
+    if (error.response?.status === 429 && error.response?.data) {
+      const data = error.response.data;
+      if (typeof data === 'object' && data.message) {
+        error.message = data.message;
+      } else if (typeof data === 'string') {
+        error.message = 'Server is busy. Please wait a minute and try again.';
+      }
+    }
+
     if (
       error.response?.status === 401 &&
       !error.config?.url?.startsWith('/auth/')

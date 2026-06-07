@@ -67,7 +67,7 @@ export const shouldRetryViaProxy = (error, config) => {
   const onDirect = base.includes('api.crownevcenter.com');
   const onProxy = base.startsWith(`${window.location.origin}/api`);
 
-  if (onDirect && (isNetworkTransportError(error) || error?.response?.status === 429)) {
+  if (onDirect && isNetworkTransportError(error)) {
     return true;
   }
   if (onProxy) {

@@ -54,7 +54,7 @@ const InfoTile = ({ label, value }) => (
 );
 
 const SettingsPage = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState(user);
@@ -132,13 +132,12 @@ const SettingsPage = () => {
     if (!window.confirm("Sign out on all devices? You will need to log in again.")) return;
     setSigningOut(true);
     try {
-      await api.delete("/auth/sessions");
+      await logout();
+    } catch {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       sessionStorage.clear();
       navigate("/login");
-    } catch (err) {
-      toast(err.response?.data?.message || "Failed to sign out all devices", "e");
     } finally {
       setSigningOut(false);
     }
@@ -147,16 +146,8 @@ const SettingsPage = () => {
   const exportOrdersCsv = async () => {
     setExporting(true);
     try {
-      const res = await api.get("/orders?limit=500");
-      const orders = res.data?.data ?? res.data ?? [];
-      const csv = [
-        "Order ID,Date,Total,Status,Branch",
-        ...orders.map(
-          (o) =>
-            `${o.id},${new Date(o.createdAt).toLocaleDateString()},${o.total},${o.status},${o.branch?.name || ""}`
-        ),
-      ].join("\n");
-      const blob = new Blob([csv], { type: "text/csv" });
+      const res = await api.get("/orders/export-csv", { responseType: "blob" });
+      const blob = new Blob([res.data], { type: "text/csv;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -165,7 +156,12 @@ const SettingsPage = () => {
       URL.revokeObjectURL(url);
       toast("Orders exported successfully");
     } catch (err) {
-      toast(err.response?.data?.message || "Failed to export orders", "e");
+      const status = err.response?.status;
+      const msg =
+        status === 429
+          ? "Server is busy. Please wait a minute and try again."
+          : err.response?.data?.message || "Failed to export orders";
+      toast(msg, "e");
     } finally {
       setExporting(false);
     }

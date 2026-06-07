@@ -105,6 +105,49 @@ exports.getPageInit = async (req, res) => {
   }
 };
 
+/** Lightweight CSV export for owner settings (one DB query, no heavy includes). */
+exports.exportCsv = async (req, res) => {
+  try {
+    if (req.user.role !== 'COMPANY_OWNER') {
+      return res.status(403).json({ message: 'Only company owners can export all orders.' });
+    }
+
+    const orders = await prisma.order.findMany({
+      take: 2000,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        createdAt: true,
+        total: true,
+        status: true,
+        branch: { select: { name: true } },
+      },
+    });
+
+    const escape = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const lines = [
+      'Order ID,Date,Total,Status,Branch',
+      ...orders.map((o) =>
+        [
+          o.id,
+          new Date(o.createdAt).toISOString().slice(0, 10),
+          o.total,
+          o.status,
+          o.branch?.name || '',
+        ]
+          .map(escape)
+          .join(',')
+      ),
+    ];
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="crown-eve-orders.csv"');
+    res.send(lines.join('\n'));
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
 exports.getCount = async (req, res) => {
   try {
     const { branchId, status, type } = req.query;

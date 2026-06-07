@@ -21,7 +21,13 @@ export const api = async (path, options = {}) => {
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      throw new Error(err.message || `HTTP ${res.status}`);
+      const message =
+        res.status === 429
+          ? "Server is busy. Please wait a minute and try again."
+          : err.message || `HTTP ${res.status}`;
+      const error = new Error(message);
+      error.status = res.status;
+      throw error;
     }
     return res.json();
   });
