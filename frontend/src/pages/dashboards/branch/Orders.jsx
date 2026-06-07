@@ -250,6 +250,8 @@ const Orders = () => {
       {invoiceOrder && (
         <SaleInvoiceReceipt
           order={invoiceOrder}
+          branchName={user?.branchName}
+          issuedBy={user?.name}
           onClose={() => setInvoiceOrder(null)}
         />
       )}

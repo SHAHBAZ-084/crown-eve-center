@@ -220,6 +220,8 @@ const POS = () => {
       {generatedInvoice && (
         <SaleInvoiceReceipt
           order={generatedInvoice}
+          branchName={user?.branchName}
+          issuedBy={user?.name}
           onClose={() => setGeneratedInvoice(null)}
         />
       )}

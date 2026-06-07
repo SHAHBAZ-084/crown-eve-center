@@ -83,7 +83,13 @@ const SaleInvoices = ({ user, queryClient, onInvoiceGenerated }) => {
               phone: selected?.phone || selected?.cnic,
               label: 'Store Sale',
             };
-      onInvoiceGenerated({ ...res.data, customerMeta });
+      onInvoiceGenerated({
+        ...res.data,
+        customerMeta,
+        saleCategory: siForm.type,
+        branchName: user?.branchName,
+        issuedBy: user?.name,
+      });
       setSiForm({ ...siForm, items: [], amount: '', bankId: '', customerId: '' });
       setSiItemSearch('');
       setSiCustomerSearch('');

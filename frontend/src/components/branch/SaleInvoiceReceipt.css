@@ -425,7 +425,9 @@
   }
 
   .sale-thermal-slip,
-  .sale-thermal-slip * {
+  .sale-thermal-slip *,
+  .bike-a4-invoice,
+  .bike-a4-invoice * {
     visibility: visible !important;
   }
 

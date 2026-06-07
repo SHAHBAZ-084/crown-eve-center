@@ -1,6 +1,7 @@
-// Shared spare-parts / sale invoice — thermal paper slip style
+// Sale invoice — thermal for spare parts, A4 for electric bikes
 import React from 'react';
 import { X, Printer } from 'lucide-react';
+import { BikeSaleInvoiceBody } from './BikeSaleInvoice';
 
 export const normalizeSaleOrder = (order, customerMeta = null) => {
   if (!order) return null;
@@ -50,6 +51,20 @@ export const normalizeSaleOrder = (order, customerMeta = null) => {
   };
 };
 
+/** True when sale includes electric bike(s) — uses A4 invoice instead of thermal. */
+export const isBikeSaleOrder = (order) => {
+  if (!order) return false;
+  if (order.saleCategory === 'bike') return true;
+  if (order.saleCategory === 'part') return false;
+
+  const items = order.items || [];
+  return items.some(
+    (item) =>
+      item.product?.product_type === 'bike' ||
+      item.product_type === 'bike'
+  );
+};
+
 const ThermalDivider = () => <div className="sale-thermal-divider" />;
 
 const ThermalLabel = ({ children }) => (
@@ -78,12 +93,12 @@ export const SaleInvoiceReceiptBody = ({ order }) => {
 
       <div className="sale-thermal-center">
         <div className="sale-thermal-brand">CROWN EVE</div>
-        <div className="sale-thermal-brand-sub">Branch Terminal Invoice</div>
+        <div className="sale-thermal-brand-sub">Spare Parts · Thermal Receipt</div>
       </div>
 
       <ThermalDivider />
 
-      <div className="sale-thermal-title">— SALE INVOICE —</div>
+      <div className="sale-thermal-title">— PARTS INVOICE —</div>
 
       <div className="sale-thermal-grid">
         <div>
@@ -178,8 +193,10 @@ export const SaleInvoiceReceiptBody = ({ order }) => {
   );
 };
 
-const SaleInvoiceReceipt = ({ order, onClose }) => {
+const SaleInvoiceReceipt = ({ order, onClose, branchName, issuedBy }) => {
   if (!order) return null;
+
+  const isBike = isBikeSaleOrder(order);
 
   return (
     <div
@@ -187,13 +204,18 @@ const SaleInvoiceReceipt = ({ order, onClose }) => {
       onClick={(e) => e.target === e.currentTarget && onClose?.()}
       role="dialog"
       aria-modal="true"
-      aria-label="Sale invoice receipt"
+      aria-label={isBike ? 'Bike sale invoice' : 'Parts thermal receipt'}
     >
-      <div className="sale-invoice-dialog" onClick={(e) => e.stopPropagation()}>
+      <div
+        className={`sale-invoice-dialog${isBike ? ' sale-invoice-dialog--a4' : ''}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <header className="sale-invoice-header">
           <div>
             <div className="sale-invoice-title">Invoice Generated</div>
-            <div className="sale-invoice-subtitle">Ready for thermal print</div>
+            <div className="sale-invoice-subtitle">
+              {isBike ? 'A4 professional bike invoice · Ready to print' : 'Thermal receipt · Spare parts only'}
+            </div>
           </div>
           <button
             type="button"
@@ -205,8 +227,16 @@ const SaleInvoiceReceipt = ({ order, onClose }) => {
           </button>
         </header>
 
-        <div className="sale-invoice-body">
-          <SaleInvoiceReceiptBody order={order} />
+        <div className={`sale-invoice-body${isBike ? ' sale-invoice-body--a4' : ''}`}>
+          {isBike ? (
+            <BikeSaleInvoiceBody
+              order={order}
+              branchName={branchName || order.branchName}
+              issuedBy={issuedBy || order.issuedBy}
+            />
+          ) : (
+            <SaleInvoiceReceiptBody order={order} />
+          )}
         </div>
 
         <footer className="sale-invoice-footer">
@@ -219,7 +249,7 @@ const SaleInvoiceReceipt = ({ order, onClose }) => {
             onClick={() => window.print()}
           >
             <Printer size={14} strokeWidth={2.5} />
-            Print Receipt
+            {isBike ? 'Print A4 Invoice' : 'Print Thermal Receipt'}
           </button>
         </footer>
       </div>

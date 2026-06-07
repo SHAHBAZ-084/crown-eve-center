@@ -79,7 +79,20 @@ const createOrder = async (data) => {
 
     const order = await tx.order.findUnique({
       where: { id: createdOrder.id },
-      include: { items: { include: { product: { include: { productParts: true } } } } },
+      include: {
+        items: {
+          include: {
+            product: {
+              include: {
+                productParts: true,
+                bikeDetail: true,
+                partDetail: true,
+              },
+            },
+          },
+        },
+        branch: { select: { id: true, name: true, location: true, phone: true, whatsapp: true } },
+      },
     });
 
     // 2. Handle parts inventory for composite products (Bug 3 + Bug 5)
@@ -240,7 +253,7 @@ const getOrders = async ({ page = 1, limit = 20, branchId, status, type, custome
           select: {
             quantity: true,
             price: true,
-            product: { select: { name: true } }
+            product: { select: { name: true, product_type: true } }
           }
         }
       },
