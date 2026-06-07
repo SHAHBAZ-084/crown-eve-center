@@ -10,3 +10,4 @@ scripts/*
 !scripts/upload-catalog-images-r2.js
 !scripts/repair-catalog-images.js
 !scripts/r2-upload.js
+!scripts/process-load-sim.js
