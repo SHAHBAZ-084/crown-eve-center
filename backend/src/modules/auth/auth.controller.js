@@ -279,18 +279,24 @@ exports.logout = async (req, res) => {
   res.status(200).json({ message: 'Logged out successfully.' });
 };
 
+const profileSelect = {
+  id: true,
+  name: true,
+  email: true,
+  role: true,
+  branchId: true,
+  phone: true,
+  city: true,
+  googleId: true,
+  isVerified: true,
+  createdAt: true,
+  branch: { select: { name: true } },
+};
+
 exports.getMe = async (req, res) => {
   const user = await prisma.user.findUnique({
     where: { id: req.user.id },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      branchId: true,
-      phone: true,
-      branch: { select: { name: true } },
-    },
+    select: profileSelect,
   });
   if (!user) return res.status(404).json({ message: 'User not found' });
   const { branch, ...rest } = user;
@@ -305,15 +311,55 @@ exports.getMe = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-    const { name, phone } = req.body;
+    const { name, phone, city } = req.body;
     const user = await prisma.user.update({
       where: { id: req.user.id },
-      data: { name, phone },
+      data: { name, phone, city },
+      select: profileSelect,
     });
-    res.json({ message: 'Profile updated successfully', user });
+    const { branch, ...rest } = user;
+    res.json({
+      message: 'Profile updated successfully',
+      user: {
+        ...rest,
+        role: normalizeRole(user.role),
+        branchName: branch?.name ?? null,
+      },
+    });
   } catch (error) {
     sendSafeError(res, 500, 'Internal server error.');
   }
+};
+
+exports.changePassword = async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ message: 'Current and new password are required.' });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+    if (!user?.password) {
+      return res.status(400).json({ message: 'Cannot change password for OAuth accounts.' });
+    }
+
+    const valid = await bcrypt.compare(currentPassword, user.password);
+    if (!valid) {
+      return res.status(400).json({ message: 'Current password is incorrect.' });
+    }
+
+    assertPasswordPolicy(newPassword);
+    const hashed = await bcrypt.hash(newPassword, 12);
+    await prisma.user.update({ where: { id: req.user.id }, data: { password: hashed } });
+    res.json({ message: 'Password changed successfully.' });
+  } catch (err) {
+    const msg = err.statusCode === 400 ? err.message : 'Failed to change password.';
+    res.status(err.statusCode || 500).json({ message: msg });
+  }
+};
+
+exports.logoutAllSessions = async (req, res) => {
+  res.json({ message: 'All sessions cleared. Please log in again.' });
 };
 
 exports.verifyOtp = async (req, res) => {

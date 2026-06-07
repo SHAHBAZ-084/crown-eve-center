@@ -235,6 +235,7 @@ const getOrders = async ({ page = 1, limit = 20, branchId, status, type, custome
         walkInCustomer: {
           select: { id: true, first_name: true, last_name: true, phone: true, cnic: true }
         },
+        branch: { select: { id: true, name: true } },
         items: {
           select: {
             quantity: true,

@@ -47,5 +47,7 @@ router.post('/reset-password', rl(otpLimiter), validate(resetPasswordSchema), wr
 router.post('/logout', protect, authController.logout);
 router.get('/me', protect, authController.getMe);
 router.put('/profile', protect, authController.updateProfile);
+router.post('/change-password', protect, wrapAsync(authController.changePassword));
+router.delete('/sessions', protect, wrapAsync(authController.logoutAllSessions));
 
 module.exports = router;
