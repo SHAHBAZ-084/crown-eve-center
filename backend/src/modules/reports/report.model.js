@@ -78,4 +78,65 @@ const getSalesReport = (branchId) => prisma.order.findMany({
   orderBy: { createdAt: 'desc' }
 });
 
-module.exports = { getRevenueSummary, getRevenueChart, getBranchStats, getBranchRevenue, getSalesReport };
+const getBranchPerformanceChart = async ({ days = 7 } = {}) => {
+  const dayCount = Number(days) || 7;
+  const branches = await prisma.branch.findMany({
+    select: { id: true, name: true },
+    orderBy: { name: 'asc' },
+  });
+
+  const dateKeys = [];
+  for (let i = dayCount - 1; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    d.setHours(0, 0, 0, 0);
+    dateKeys.push(d.toISOString().split('T')[0]);
+  }
+
+  const rangeStart = new Date(dateKeys[0]);
+  rangeStart.setHours(0, 0, 0, 0);
+  const rangeEnd = new Date(dateKeys[dateKeys.length - 1]);
+  rangeEnd.setHours(23, 59, 59, 999);
+
+  const orders = await prisma.order.findMany({
+    where: {
+      status: 'COMPLETED',
+      createdAt: { gte: rangeStart, lte: rangeEnd },
+    },
+    select: { branchId: true, total: true, createdAt: true },
+  });
+
+  const bucket = {};
+  for (const dk of dateKeys) {
+    bucket[dk] = { date: dk };
+    for (const b of branches) {
+      bucket[dk][`rev_${b.id}`] = 0;
+      bucket[dk][`ord_${b.id}`] = 0;
+    }
+  }
+
+  for (const order of orders) {
+    const dk = new Date(order.createdAt).toISOString().split('T')[0];
+    if (!bucket[dk]) continue;
+    const revKey = `rev_${order.branchId}`;
+    const ordKey = `ord_${order.branchId}`;
+    if (revKey in bucket[dk]) {
+      bucket[dk][revKey] += order.total || 0;
+      bucket[dk][ordKey] += 1;
+    }
+  }
+
+  return {
+    branches,
+    series: dateKeys.map((dk) => bucket[dk]),
+  };
+};
+
+module.exports = {
+  getRevenueSummary,
+  getRevenueChart,
+  getBranchStats,
+  getBranchRevenue,
+  getSalesReport,
+  getBranchPerformanceChart,
+};

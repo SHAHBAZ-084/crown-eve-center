@@ -13,7 +13,7 @@ const Appointments = () => {
   const [statusF, setStatusF] = useState("");
   const params = new URLSearchParams({ branchId, page, limit: 12, ...(statusF && { status: statusF }) }).toString();
   const { data, loading, refetch } = useFetch(`/appointments?${params}`, [page, statusF, branchId]);
-  const { data: employees } = useFetch(`/users?branchId=${branchId}`, [branchId]);
+  const { data: employees } = useFetch(data ? `/users?branchId=${branchId}` : null, [branchId, !!data]);
   const [editAppt, setEditAppt] = useState(null);
   const [saving, setSaving]     = useState(false);
 

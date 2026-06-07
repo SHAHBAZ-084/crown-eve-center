@@ -6,7 +6,7 @@ import SearchInput from "../../../components/SearchInput";
 
 const UsersPage = () => {
   const { data: users, loading, refetch } = useFetch("/users");
-  const { data: branchData } = useFetch("/branches?limit=100");
+  const { data: branchData } = useFetch(users ? "/branches?limit=100" : null, [!!users]);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [branchFilter, setBranchFilter] = useState("");

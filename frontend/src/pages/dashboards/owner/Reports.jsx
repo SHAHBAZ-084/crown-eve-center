@@ -2,14 +2,31 @@
 import React, { useState } from "react";
 import { useFetch, Icon, Sk, TableSk } from "../../../components/owner/OwnerShared";
 import FilterRadioGroup from "../../../components/FilterRadioGroup";
+import BranchPerformanceLineChart from "../../../components/charts/BranchPerformanceLineChart";
 
 const ReportsPage = () => {
   const [period, setPeriod] = useState("7d");
   const [branchId, setBranchId] = useState("");
-  const { data: summary, loading: sl } = useFetch(`/reports/revenue/summary${branchId ? `?branchId=${branchId}` : ""}`, [branchId]);
-  const { data: chart } = useFetch(`/reports/revenue/chart?period=${period}${branchId ? `&branchId=${branchId}` : ""}`, [period, branchId]);
-  const { data: compare } = useFetch("/reports/branches/compare");
-  const { data: branchData } = useFetch("/branches?limit=100");
+  const { data: summary, loading: sl } = useFetch(
+    `/reports/revenue/summary${branchId ? `?branchId=${branchId}` : ""}`,
+    [branchId]
+  );
+  const { data: chart } = useFetch(
+    summary ? `/reports/revenue/chart?period=${period}${branchId ? `&branchId=${branchId}` : ""}` : null,
+    [period, branchId, !!summary]
+  );
+  const { data: compare } = useFetch(
+    summary ? "/reports/branches/compare" : null,
+    [!!summary]
+  );
+  const { data: branchPerfChart } = useFetch(
+    compare ? `/reports/branches/performance-chart?period=${period}` : null,
+    [period, !!compare]
+  );
+  const { data: branchData } = useFetch(
+    chart ? "/branches?limit=100" : null,
+    [!!chart]
+  );
 
   const maxChart = chart ? Math.max(...chart.map(d => d.revenue || d._sum?.total || 0), 1) : 1;
   const chartBarHeight = 110;
@@ -89,24 +106,14 @@ const ReportsPage = () => {
         </div>
 
         <div className="card card-inner">
-          <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 20 }}>Branch Performance</div>
-          {!compare ? <Sk h={160} r={8} /> : (
-            <div>
-              {compare.sort((a, b) => b.revenue - a.revenue).map((b, i) => {
-                const maxR = Math.max(...compare.map(x => x.revenue), 1);
-                return (
-                  <div key={b.name} style={{ marginBottom: 14 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, fontWeight: 600, marginBottom: 6 }}>
-                      <span>{b.name}</span>
-                      <span style={{ color: "var(--accent)" }}>PKR {(b.revenue / 1000).toFixed(1)}K · {b.orderCount} orders</span>
-                    </div>
-                    <div className="compare-bar-track" style={{ height: 6 }}>
-                      <div className="compare-bar-fill" style={{ width: `${(b.revenue / maxR) * 100}%`, background: i === 0 ? "var(--accent)" : "rgba(255,77,0,0.4)" }} />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+          <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 8 }}>Branch Performance ({period})</div>
+          <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 16 }}>
+            Solid lines = PKR revenue · Dashed lines = orders (each branch has its own color)
+          </div>
+          {!branchPerfChart ? (
+            <Sk h={220} r={8} />
+          ) : (
+            <BranchPerformanceLineChart data={branchPerfChart} height={220} />
           )}
         </div>
       </div>

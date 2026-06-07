@@ -43,6 +43,16 @@ exports.getRevenueChart = async (req, res) => {
   }
 };
 
+exports.getBranchPerformanceChart = async (req, res) => {
+  try {
+    const days = req.query.period === '30d' ? 30 : 7;
+    const result = await Report.getBranchPerformanceChart({ days });
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
 exports.compareBranches = async (req, res) => {
   try {
     const branches = await prisma.branch.findMany({

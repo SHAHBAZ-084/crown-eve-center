@@ -6,9 +6,9 @@ const OrdersPage = () => {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState("");
   const [branchId, setBranchId] = useState("");
-  const { data: branchData } = useFetch("/branches?limit=100");
   const params = new URLSearchParams({ page, limit: 15, ...(status && { status }), ...(branchId && { branchId }) }).toString();
   const { data, loading } = useFetch(`/orders?${params}`, [page, status, branchId]);
+  const { data: branchData } = useFetch(data ? "/branches?limit=100" : null, [!!data]);
 
   const statuses = ["PENDING", "PROCESSING", "COMPLETED", "CANCELLED"];
 

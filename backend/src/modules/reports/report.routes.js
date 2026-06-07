@@ -11,6 +11,7 @@ router.get('/branch-dashboard', protect, allow(...branchReportRoles), ctrl.getBr
 router.get('/revenue/summary', protect, allow(...branchReportRoles), ctrl.getRevenueSummary);
 router.get('/revenue/chart',   protect, allow(...branchReportRoles), ctrl.getRevenueChart);
 router.get('/branches/compare', protect, allow('COMPANY_OWNER'), ctrl.compareBranches);
+router.get('/branches/performance-chart', protect, allow('COMPANY_OWNER'), ctrl.getBranchPerformanceChart);
 router.get('/branch/:id',      protect, allow(...branchReportRoles), ctrl.getBranch);
 router.get('/sales/:id',       protect, allow(...branchReportRoles), ctrl.getSales);
 

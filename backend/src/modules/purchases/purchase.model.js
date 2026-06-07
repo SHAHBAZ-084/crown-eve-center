@@ -21,6 +21,7 @@ const getPurchases = async ({ page = 1, limit = 20, branchId, supplierId }) => {
       take: Number(limit),
       include: {
         supplier: true,
+        branch: { select: { id: true, name: true } },
         items: { include: { part: true, product: true } },
       },
       orderBy: { createdAt: 'desc' },
@@ -125,6 +126,7 @@ const createPurchase = async (data) => {
       where: { id: purchase.id },
       include: {
         supplier: true,
+        branch: { select: { id: true, name: true } },
         items: { include: { part: true, product: true } },
       },
     });
