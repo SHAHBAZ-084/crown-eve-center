@@ -5,7 +5,7 @@ import { runQueued } from "../../utils/apiQueue";
 
 // ─── API HELPER & HOOKS ─────────────────────────────────────────────────────
 const API_BASE = getApiUrl();
-const TOKEN_KEY = "token";
+const TOKEN_KEY = "crowneve_token";
 
 export const api = async (path, options = {}) => {
   return runQueued(async () => {

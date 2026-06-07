@@ -63,7 +63,7 @@ export async function uploadMedia(file, options = {}) {
   const formData = new FormData();
   formData.append(field, file);
 
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('crowneve_token');
   const res = await fetch(`${getApiUrl()}/upload`, {
     method: 'POST',
     headers: token ? { Authorization: `Bearer ${token}` } : {},

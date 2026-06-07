@@ -46,6 +46,7 @@ router.post('/forgot-password', rl(otpLimiter), validate(forgotPasswordSchema), 
 router.post('/reset-password', rl(otpLimiter), validate(resetPasswordSchema), wrapAsync(authController.resetPassword));
 router.post('/logout', protect, authController.logout);
 router.get('/me', protect, authController.getMe);
+router.post('/refresh', protect, wrapAsync(authController.refreshSession));
 router.put('/profile', protect, authController.updateProfile);
 router.post('/change-password', protect, wrapAsync(authController.changePassword));
 router.delete('/sessions', protect, wrapAsync(authController.logoutAllSessions));

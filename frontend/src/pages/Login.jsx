@@ -6,17 +6,43 @@ import { LOGO_URL } from '../constants/mediaAssets';
 import GoogleAuthSection from '../components/auth/GoogleAuthSection';
 import PasswordInput from '../components/auth/PasswordInput';
 import { getPostLoginPath } from '../utils/authRedirect';
+import { useRedirectIfAuthenticated } from '../hooks/useRedirectIfAuthenticated';
 import './auth/Auth.css';
 
 const Login = () => {
+  useRedirectIfAuthenticated();
+  const params = new URLSearchParams(window.location.search);
+  const inactivityMsg = params.get('reason') === 'inactivity'
+    ? 'You were logged out due to 30 minutes of inactivity.'
+    : null;
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [googleSubmitting, setGoogleSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const { login, loginWithGoogle } = useAuth();
+  const { login, loginWithGoogle, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  if (authLoading || user) {
+    return (
+      <div id="page-login" className="page">
+        <div className="login-card" style={{ display: 'flex', justifyContent: 'center', padding: '64px 32px' }}>
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              border: '3px solid rgba(232,71,10,0.25)',
+              borderTopColor: '#E8470A',
+              borderRadius: '50%',
+              animation: 'spin 0.8s linear infinite',
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -101,6 +127,20 @@ const Login = () => {
         </div>
         <h2 className="text-5xl font-family-bebas mb-2 tracking-tighter uppercase text-orange-600">Welcome Back.</h2>
         <p className="text-sm text-[#BDBDB8] mb-8">Sign in to your Crown Eve portal to manage your hub.</p>
+
+        {inactivityMsg && (
+          <div className="form-info" style={{
+            background: 'rgba(232,71,10,0.08)',
+            border: '1px solid rgba(232,71,10,0.3)',
+            color: '#E8470A',
+            borderRadius: '8px',
+            padding: '10px 14px',
+            fontSize: '13px',
+            marginBottom: '16px'
+          }}>
+            {inactivityMsg}
+          </div>
+        )}
 
         {error && (
           <div className="auth-error-banner" role="alert">

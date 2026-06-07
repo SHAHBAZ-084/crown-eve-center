@@ -7,11 +7,14 @@ import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import GoogleAuthSection from '../../components/auth/GoogleAuthSection';
 import { getPostLoginPath } from '../../utils/authRedirect';
+import { useRedirectIfAuthenticated } from '../../hooks/useRedirectIfAuthenticated';
 import PasswordStrength, { validatePassword, validatePhone } from '../../components/PasswordStrength';
 import PasswordInput from '../../components/auth/PasswordInput';
 import './Auth.css';
 
 const Register = () => {
+  useRedirectIfAuthenticated();
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -26,7 +29,26 @@ const Register = () => {
   const [submitting, setSubmitting] = useState(false);
   const [googleSubmitting, setGoogleSubmitting] = useState(false);
   const navigate = useNavigate();
-  const { loginWithGoogle } = useAuth();
+  const { loginWithGoogle, user, loading: authLoading } = useAuth();
+
+  if (authLoading || user) {
+    return (
+      <div id="page-register" className="page">
+        <div className="register-card" style={{ display: 'flex', justifyContent: 'center', padding: '64px 32px' }}>
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              border: '3px solid rgba(232,71,10,0.25)',
+              borderTopColor: '#E8470A',
+              borderRadius: '50%',
+              animation: 'spin 0.8s linear infinite',
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();

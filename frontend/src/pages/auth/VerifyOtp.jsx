@@ -57,8 +57,9 @@ const VerifyOtp = () => {
       
       // Manually store token since we bypassed standard login function
       const { token, user } = response.data;
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('crowneve_token', token);
+      localStorage.setItem('crowneve_user', JSON.stringify(user));
+      localStorage.setItem('crowneve_last_active', Date.now().toString());
 
       // Force page reload to ensure AuthContext picks up the new token
       window.location.href = '/my/dashboard';

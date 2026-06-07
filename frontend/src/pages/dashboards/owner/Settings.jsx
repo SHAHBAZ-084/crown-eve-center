@@ -88,9 +88,9 @@ const SettingsPage = () => {
       });
       const updated = res.data?.user;
       if (updated) {
-        const cached = JSON.parse(localStorage.getItem("user") || "{}");
+        const cached = JSON.parse(localStorage.getItem("crowneve_user") || "{}");
         const next = { ...cached, name: updated.name, phone: updated.phone, city: updated.city };
-        localStorage.setItem("user", JSON.stringify(next));
+        localStorage.setItem("crowneve_user", JSON.stringify(next));
         setProfile((p) => ({ ...p, ...next }));
         setForm({ name: updated.name || "", phone: updated.phone || "", city: updated.city || "" });
       }
@@ -134,8 +134,9 @@ const SettingsPage = () => {
     try {
       await logout();
     } catch {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      localStorage.removeItem("crowneve_token");
+      localStorage.removeItem("crowneve_user");
+      localStorage.removeItem("crowneve_last_active");
       sessionStorage.clear();
       navigate("/login");
     } finally {

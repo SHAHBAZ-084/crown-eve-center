@@ -7,7 +7,7 @@ import { getApiUrl } from "../../utils/apiUrl";
  * Handles authenticated requests to the backend.
  */
 export const api = async (endpoint, options = {}) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("crowneve_token");
   const baseUrl = getApiUrl();
   
   const headers = {

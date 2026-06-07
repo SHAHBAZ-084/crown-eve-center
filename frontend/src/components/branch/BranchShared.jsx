@@ -12,7 +12,7 @@ export const getUploadBase = () => getApiUrl().replace('/api', '');
 /** @deprecated use getUploadBase() — kept for existing imports */
 export const UPLOAD_BASE =
   typeof window !== 'undefined' ? getUploadBase() : 'https://api.crownevcenter.com';
-const TOKEN_KEY = "token";
+const TOKEN_KEY = "crowneve_token";
 
 const isPathDisabled = (path) =>
   !path ||

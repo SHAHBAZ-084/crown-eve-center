@@ -49,7 +49,7 @@ const issueToken = (user) =>
   jwt.sign(
     { id: user.id, role: normalizeRole(user.role), branchId: user.branchId },
     getJwtSecret(),
-    { expiresIn: '1d' }
+    { expiresIn: '30m' }
   );
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -307,6 +307,16 @@ exports.getMe = async (req, res) => {
       branchName: branch?.name ?? null,
     },
   });
+};
+
+/** Sliding session — issue a fresh JWT while the user is still active. */
+exports.refreshSession = async (req, res) => {
+  const user = await prisma.user.findUnique({
+    where: { id: req.user.id },
+    select: userAuthSelect,
+  });
+  if (!user) return res.status(401).json({ message: 'User not found' });
+  return sendAuthResponse(res, user);
 };
 
 exports.updateProfile = async (req, res) => {

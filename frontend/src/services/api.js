@@ -23,7 +23,7 @@ api.interceptors.request.use((config) => {
   if (!config.baseURL) {
     config.baseURL = getApiUrl();
   }
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('crowneve_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -83,8 +83,9 @@ api.interceptors.response.use(
       error.response?.status === 401 &&
       !error.config?.url?.startsWith('/auth/')
     ) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      localStorage.removeItem('crowneve_token');
+      localStorage.removeItem('crowneve_user');
+      localStorage.removeItem('crowneve_last_active');
       sessionStorage.clear();
       const path = window.location.pathname + window.location.search;
       if (!path.startsWith('/login')) {

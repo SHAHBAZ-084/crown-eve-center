@@ -5,10 +5,14 @@ import { useAuth } from '../../context/AuthContext';
 import { LOGO_URL } from '../../constants/mediaAssets';
 
 const Navbar = ({ user: propsUser, logout: propsLogout }) => {
-  const { user: authUser, logout: authLogout } = useAuth();
+  const { user: authUser, logout: authLogout, loading: authLoading } = useAuth();
 
   // Use props if available, otherwise fallback to context
   const user = propsUser !== undefined ? propsUser : authUser;
+  const sessionActive =
+    user ||
+    (authLoading &&
+      (localStorage.getItem('crowneve_token') || localStorage.getItem('crowneve_user')));
   const logout = propsLogout || authLogout;
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -50,7 +54,7 @@ const Navbar = ({ user: propsUser, logout: propsLogout }) => {
         <li><Link to="/contact">Contact</Link></li>
         {/* On mobile, show auth links inside menu if not in header */}
         <li className="mobile-auth-links">
-          {!user && (
+          {!sessionActive && (
             <div className="flex flex-col gap-4 mt-8">
               <Link to="/login" className="btn-nav-login w-full text-center">Login</Link>
               <Link to="/register" className="btn-nav-register w-full text-center">Register</Link>
@@ -60,22 +64,22 @@ const Navbar = ({ user: propsUser, logout: propsLogout }) => {
       </ul>
 
       <div className="nav-actions">
-        {user ? (
+        {sessionActive ? (
           <div className="flex items-center gap-4">
             <div className="text-right mr-4">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-orange-500">{user.name || 'User'}</div>
-              <div className="text-[8px] text-gray-400 uppercase tracking-widest">{user.role?.replace('_', ' ') || 'No Role'}</div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-orange-500">{user?.name || 'User'}</div>
+              <div className="text-[8px] text-gray-400 uppercase tracking-widest">{user?.role?.replace('_', ' ') || 'Signed in'}</div>
             </div>
-            {user.role === 'COMPANY_OWNER' && (
+            {user?.role === 'COMPANY_OWNER' && (
               <Link to="/owner/dashboard" className="btn-nav-register px-4 py-2">Dashboard</Link>
             )}
-            {user.role === 'BRANCH_OWNER' && (
+            {user?.role === 'BRANCH_OWNER' && (
               <Link to="/branch/dashboard" className="btn-nav-register px-4 py-2">Dashboard</Link>
             )}
-            {user.role === 'CUSTOMER' && (
+            {user?.role === 'CUSTOMER' && (
               <Link to="/my/dashboard" className="btn-nav-register px-4 py-2">My Dashboard</Link>
             )}
-            {['EMPLOYEE', 'TECHNICIAN'].includes(user.role) && (
+            {['EMPLOYEE', 'TECHNICIAN'].includes(user?.role) && (
               <Link to="/emp/dashboard" className="btn-nav-register px-4 py-2">Terminal</Link>
             )}
             <button
