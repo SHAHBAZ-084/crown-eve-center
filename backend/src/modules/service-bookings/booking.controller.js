@@ -1,6 +1,7 @@
 // backend/src/modules/service-bookings/booking.controller.js
 const Booking = require('./booking.model');
 const prisma = require('../../config/db');
+const { sequentialOnHttp } = require('../../utils/sequentialOnHttp');
 
 exports.getAll = async (req, res) => {
   try {
@@ -14,6 +15,35 @@ exports.getAll = async (req, res) => {
     }
     const bookings = await Booking.getAllBookings(filters);
     res.json(bookings);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
+/** Appointments page — bookings + technicians in one request. */
+exports.getPageInit = async (req, res) => {
+  try {
+    const filters = { ...req.query };
+    const branchId = req.user.branchId;
+    if (req.user.role === 'BRANCH_MANAGER' || req.user.role === 'BRANCH_OWNER') {
+      if (branchId) filters.branchId = branchId;
+    } else if (req.user.role === 'CUSTOMER') {
+      filters.customerId = req.user.id;
+    }
+
+    const [appointments, technicians] = await sequentialOnHttp([
+      () => Booking.getAllBookings(filters),
+      () =>
+        branchId
+          ? prisma.user.findMany({
+              where: { branchId: Number(branchId), role: 'TECHNICIAN' },
+              select: { id: true, name: true, role: true, branchId: true },
+              orderBy: { name: 'asc' },
+            })
+          : Promise.resolve([]),
+    ]);
+
+    res.json({ appointments, technicians });
   } catch (e) {
     res.status(500).json({ message: e.message });
   }

@@ -8,7 +8,12 @@ const Settings = () => {
   const branchId = user?.branchId;
 
   // 1. Branch Details Logic
-  const { data: branch, loading: bLoading, refetch: bRefetch } = useFetch(`/branches/${branchId}`, [branchId]);
+  const { data: settingsBundle, loading: bLoading, refetch: bRefetch } = useFetch(
+    `/branches/${branchId}/settings-bundle`,
+    [branchId]
+  );
+  const branch = settingsBundle?.branch;
+  const banks = settingsBundle?.banks;
   const [bForm, setBForm] = useState({ phone: "", whatsapp: "", address: "", mapLink: "" });
   const [bSaving, setBSaving] = useState(false);
 
@@ -40,10 +45,8 @@ const Settings = () => {
   };
 
   // 2. Bank Accounts Logic
-  const { data: banks, loading: bkLoading, refetch: bkRefetch } = useFetch(
-    branch ? `/banks?branchId=${branchId}` : null,
-    [branchId, !!branch]
-  );
+  const bkLoading = bLoading;
+  const bkRefetch = bRefetch;
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [bkForm, setBkForm] = useState({ name: "", account_title: "", account_number: "", branchId });

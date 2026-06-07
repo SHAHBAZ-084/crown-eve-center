@@ -1,7 +1,8 @@
 // frontend/src/pages/dashboards/branch/pos/AddAccount.jsx
 import React, { useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import api from '../../../../services/api';
+import { useAccountsPageInit } from '../../../../hooks/useAccountsPageInit';
 import { Icon } from '../../../../components/branch/BranchShared';
 import { FolderPlus, UserPlus, Trash2, Edit3, CheckCircle, XCircle, Plus, RefreshCw, Layers, DollarSign } from 'lucide-react';
 import './AddAccount.css';
@@ -48,21 +49,14 @@ const AddAccount = ({ user }) => {
   const [editingAccount, setEditingAccount] = useState(null);
   const [accForm, setAccForm] = useState({ account_name: '', categoryId: '', opening_balance: 0 });
 
-  // Fetch Categories
-  const { data: categoriesData, isSuccess: categoriesReady, isLoading: loadingCategories, refetch: refetchCategories } = useQuery({
-    queryKey: ['account-categories', user?.branchId],
-    queryFn: () => api.get('/accounts/categories', { params: { branchId: user?.branchId } }).then(r => r.data),
-    enabled: !!user?.branchId
-  });
+  const { data: pageInit, isLoading: loadingPageInit, refetch: refetchPageInit } = useAccountsPageInit(user?.branchId);
+  const loadingCategories = loadingPageInit;
+  const loadingAccounts = loadingPageInit;
+  const refetchCategories = refetchPageInit;
+  const refetchAccounts = refetchPageInit;
 
-  const { data: accountsData, isLoading: loadingAccounts, refetch: refetchAccounts } = useQuery({
-    queryKey: ['accounts-list', user?.branchId],
-    queryFn: () => api.get('/accounts', { params: { branchId: user?.branchId } }).then(r => r.data),
-    enabled: !!user?.branchId && categoriesReady
-  });
-
-  const categories = categoriesData?.data || [];
-  const accounts = accountsData?.data || [];
+  const categories = pageInit?.categories?.data || [];
+  const accounts = pageInit?.accounts?.data || [];
 
   // Category Actions
   const handleOpenCatModal = (cat = null) => {

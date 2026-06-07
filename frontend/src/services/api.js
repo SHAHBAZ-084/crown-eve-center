@@ -6,6 +6,7 @@ import {
   setApiBasePreference,
   shouldRetryViaProxy,
 } from '../utils/apiUrl';
+import { runQueued } from '../utils/apiQueue';
 
 const AUTH_TIMEOUT_MS = 35000;
 
@@ -84,5 +85,8 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+const rawRequest = api.request.bind(api);
+api.request = (config) => runQueued(() => rawRequest(config));
 
 export default api;

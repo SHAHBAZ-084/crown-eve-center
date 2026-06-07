@@ -1,29 +1,32 @@
 // backend/src/modules/suppliers/supplier.model.js
 const prisma = require('../../config/db');
+const { sequentialOnHttp } = require('../../utils/sequentialOnHttp');
 const { runInTransaction } = require('../../config/transaction');
 const { ensureSupplierAccount } = require('../../services/ledger.service');
 
-const getAllSuppliers = ({ page = 1, limit = 100 } = {}) => {
+const getAllSuppliers = async ({ page = 1, limit = 100 } = {}) => {
   const take = Math.min(Number(limit) || 100, 200);
   const skip = (Math.max(Number(page) || 1, 1) - 1) * take;
-  return Promise.all([
-    prisma.supplier.findMany({
-      skip,
-      take,
-      orderBy: { name: 'asc' },
-      select: {
-        id: true,
-        name: true,
-        contact: true,
-        accountId: true,
-        account: { select: { id: true, account_name: true, current_balance: true } },
-      },
-    }),
-    prisma.supplier.count(),
-  ]).then(([data, total]) => ({
+  const [data, total] = await sequentialOnHttp([
+    () =>
+      prisma.supplier.findMany({
+        skip,
+        take,
+        orderBy: { name: 'asc' },
+        select: {
+          id: true,
+          name: true,
+          contact: true,
+          accountId: true,
+          account: { select: { id: true, account_name: true, current_balance: true } },
+        },
+      }),
+    () => prisma.supplier.count(),
+  ]);
+  return {
     data,
     meta: { total, page: Number(page) || 1, limit: take, totalPages: Math.ceil(total / take) },
-  }));
+  };
 };
 
 const createSupplier = async (data) => {

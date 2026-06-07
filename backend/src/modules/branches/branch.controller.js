@@ -1,5 +1,6 @@
 // backend/src/modules/branches/branch.controller.js
 const prisma = require('../../config/db');
+const { sequentialOnHttp } = require('../../utils/sequentialOnHttp');
 const Branch = require('./branch.model');
 const { runInTransaction } = require('../../config/transaction');
 const { updateManySequential } = require('../../config/prismaHttp');
@@ -93,14 +94,15 @@ exports.getAll = async (req, res) => {
     const limit = Number(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const [data, total] = await Promise.all([
-      prisma.branch.findMany({
-        skip,
-        take: limit,
-        include: { _count: { select: { users: true, products: true } } },
-        orderBy: { createdAt: 'desc' }
-      }),
-      prisma.branch.count()
+    const [data, total] = await sequentialOnHttp([
+      () =>
+        prisma.branch.findMany({
+          skip,
+          take: limit,
+          include: { _count: { select: { users: true, products: true } } },
+          orderBy: { createdAt: 'desc' },
+        }),
+      () => prisma.branch.count(),
     ]);
 
     res.json({
@@ -124,6 +126,28 @@ exports.getById = async (req, res) => {
       include: { users: { select: { id: true, name: true, role: true } } }
     });
     res.json(branch);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
+/** Branch settings page — branch detail + bank accounts in one request. */
+exports.getSettingsBundle = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (req.user.role === 'BRANCH_OWNER' && req.user.branchId !== id) {
+      return res.status(403).json({ message: 'You can only view your own branch settings' });
+    }
+    const [branch, banks] = await sequentialOnHttp([
+      () =>
+        prisma.branch.findUnique({
+          where: { id },
+          include: { users: { select: { id: true, name: true, role: true } } },
+        }),
+      () => prisma.bank.findMany({ where: { branchId: id } }),
+    ]);
+    if (!branch) return res.status(404).json({ message: 'Branch not found' });
+    res.json({ branch, banks });
   } catch (e) {
     res.status(500).json({ message: e.message });
   }
@@ -187,14 +211,15 @@ exports.remove = async (req, res) => {
   const id = Number(req.params.id);
   try {
     await runInTransaction(async (tx) => {
-      const [purchases, orders, products, services, walkInCustomers, accounts] = await Promise.all([
-        tx.purchase.findMany({ where: { branchId: id }, select: { id: true } }),
-        tx.order.findMany({ where: { branchId: id }, select: { id: true } }),
-        tx.product.findMany({ where: { branchId: id }, select: { id: true } }),
-        tx.service.findMany({ where: { branchId: id }, select: { id: true } }),
-        tx.walkInCustomer.findMany({ where: { branchId: id }, select: { id: true } }),
-        tx.account.findMany({ where: { branchId: id }, select: { id: true } }),
-      ]);
+      const [purchases, orders, products, services, walkInCustomers, accounts] =
+        await sequentialOnHttp([
+          () => tx.purchase.findMany({ where: { branchId: id }, select: { id: true } }),
+          () => tx.order.findMany({ where: { branchId: id }, select: { id: true } }),
+          () => tx.product.findMany({ where: { branchId: id }, select: { id: true } }),
+          () => tx.service.findMany({ where: { branchId: id }, select: { id: true } }),
+          () => tx.walkInCustomer.findMany({ where: { branchId: id }, select: { id: true } }),
+          () => tx.account.findMany({ where: { branchId: id }, select: { id: true } }),
+        ]);
 
       const purchaseIds = purchases.map((p) => p.id);
       const orderIds = orders.map((o) => o.id);

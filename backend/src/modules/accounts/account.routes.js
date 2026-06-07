@@ -14,6 +14,7 @@ router.put('/categories/:id', protect, allowedRoles, categoryCtrl.update);
 router.delete('/categories/:id', protect, allowedRoles, categoryCtrl.delete);
 
 // Account Routes
+router.get('/page-init', protect, allowedRoles, accountCtrl.getPageInit);
 router.get('/', protect, allowedRoles, accountCtrl.getAll);
 router.get('/trial-balance', protect, allowedRoles, accountCtrl.getTrialBalance);
 router.post('/sync-party-ledgers', protect, allowedRoles, accountCtrl.syncPartyLedgers);

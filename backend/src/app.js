@@ -84,9 +84,9 @@ app.use('/api', (req, res, next) => {
   res.setHeader('Pragma', 'no-cache');
   next();
 });
+app.use('/api', cacheGet(600));
 app.use('/api', dbConcurrency);
 app.use('/api', invalidateCacheOnWrite);
-app.use('/api', cacheGet(300));
 
 const authRoutes = require('./modules/auth/auth.routes');
 const branchRoutes = require('./modules/branches/branch.routes');

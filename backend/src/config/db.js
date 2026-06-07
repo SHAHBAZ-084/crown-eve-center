@@ -125,6 +125,13 @@ const patchHttpTransactionShim = (prismaClient) => {
       return arg(prismaClient);
     }
     if (Array.isArray(arg)) {
+      if (activeAdapterMode === 'http') {
+        const results = [];
+        for (const task of arg) {
+          results.push(await (typeof task === 'function' ? task() : task));
+        }
+        return results;
+      }
       return Promise.all(arg);
     }
     throw new Error('Unsupported prisma.$transaction usage in HTTP mode.');

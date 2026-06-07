@@ -1,6 +1,19 @@
 // backend/src/modules/vouchers/voucher.controller.js
 const prisma = require('../../config/db');
 const { runInTransaction } = require('../../config/transaction');
+const { sequentialOnHttp } = require('../../utils/sequentialOnHttp');
+
+const computeNextVoucherNo = async (branchId, voucher_type) => {
+  const rows = await prisma.$queryRaw`
+    SELECT COALESCE(MAX(
+      NULLIF(regexp_replace(voucher_no, '^[A-Z]+-', ''), '')::int
+    ), 0)::int AS max_num
+    FROM "Voucher"
+    WHERE "branchId" = ${parseInt(branchId, 10)}
+      AND voucher_type = ${voucher_type}
+  `;
+  return String((rows[0]?.max_num || 0) + 1);
+};
 
 // Get all vouchers (optionally filtered by branch and type)
 exports.getAll = async (req, res) => {
@@ -42,24 +55,7 @@ exports.getNextNo = async (req, res) => {
       return res.status(400).json({ message: 'Voucher type is required.' });
     }
 
-    const prefix = voucher_type === 'PAYMENT' ? 'PV' : voucher_type === 'RECEIPT' ? 'RV' : 'JV';
-
-    const existingVouchers = await prisma.voucher.findMany({
-      where: { branchId: parseInt(branchId), voucher_type },
-      select: { voucher_no: true }
-    });
-
-    let maxNum = 0;
-    for (const v of existingVouchers) {
-      const parts = v.voucher_no.split('-');
-      const lastPart = parts[parts.length - 1];
-      const num = parseInt(lastPart, 10);
-      if (!isNaN(num) && num.toString() === lastPart && num > maxNum) {
-         maxNum = num;
-      }
-    }
-
-    res.json({ nextNo: (maxNum + 1).toString() });
+    res.json({ nextNo: await computeNextVoucherNo(branchId, voucher_type) });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -108,24 +104,8 @@ exports.create = async (req, res) => {
       }
 
       const prefix = voucher_type === 'PAYMENT' ? 'PV' : voucher_type === 'RECEIPT' ? 'RV' : 'JV';
-
-      // Generate strict sequential voucher number per type globally (1, 2, 3, 4...)
-      const existingVouchers = await tx.voucher.findMany({
-        where: { branchId: parseInt(branchId), voucher_type },
-        select: { voucher_no: true }
-      });
-      
-      let maxNum = 0;
-      for (const v of existingVouchers) {
-        const parts = v.voucher_no.split('-');
-        const lastPart = parts[parts.length - 1];
-        const num = parseInt(lastPart, 10);
-        if (!isNaN(num) && num.toString() === lastPart && num > maxNum) {
-           maxNum = num;
-        }
-      }
-      
-      const voucher_no = `${prefix}-${maxNum + 1}`;
+      const nextNum = await computeNextVoucherNo(branchId, voucher_type);
+      const voucher_no = `${prefix}-${nextNum}`;
 
       // 2. Create the Voucher record
       const voucher = await tx.voucher.create({
@@ -305,6 +285,59 @@ exports.deleteVoucher = async (req, res) => {
     });
 
     res.json(result);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+/** POS voucher tabs — categories, accounts, recent history, next number in one request. */
+exports.getPageInit = async (req, res) => {
+  try {
+    const { branchId, voucher_type } = req.query;
+    if (!branchId) return res.status(400).json({ message: 'Branch ID is required.' });
+    if (!voucher_type) return res.status(400).json({ message: 'Voucher type is required.' });
+
+    const bId = parseInt(branchId, 10);
+    const [categories, accounts, history, nextNo] = await sequentialOnHttp([
+      () =>
+        prisma.accountCategory.findMany({
+          where: { OR: [{ branchId: null }, { branchId: bId }] },
+          orderBy: { name: 'asc' },
+        }),
+      () =>
+        prisma.account.findMany({
+          where: { branchId: bId },
+          select: {
+            id: true,
+            categoryId: true,
+            account_name: true,
+            opening_balance: true,
+            current_balance: true,
+            status: true,
+            branchId: true,
+            category: { select: { id: true, name: true } },
+          },
+          orderBy: { createdAt: 'desc' },
+        }),
+      () =>
+        prisma.voucher.findMany({
+          where: { branchId: bId, voucher_type },
+          include: {
+            fromAccount: { include: { category: true } },
+            toAccount: { include: { category: true } },
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 40,
+        }),
+      () => computeNextVoucherNo(branchId, voucher_type),
+    ]);
+
+    res.json({
+      categories: { data: categories },
+      accounts: { data: accounts },
+      history: { data: history },
+      nextNo: { nextNo },
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

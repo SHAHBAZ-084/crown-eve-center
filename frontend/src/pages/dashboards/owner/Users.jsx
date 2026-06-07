@@ -5,8 +5,9 @@ import PasswordStrength, { validatePassword } from "../../../components/Password
 import SearchInput from "../../../components/SearchInput";
 
 const UsersPage = () => {
-  const { data: users, loading, refetch } = useFetch("/users");
-  const { data: branchData } = useFetch(users ? "/branches?limit=100" : null, [!!users]);
+  const { data: pageInit, loading, refetch } = useFetch("/users/page-init");
+  const users = pageInit?.users;
+  const branchData = pageInit?.branches;
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [branchFilter, setBranchFilter] = useState("");

@@ -1,6 +1,8 @@
 // backend/src/modules/users/user.controller.js
+const prisma = require('../../config/db');
 const User = require('./user.model');
 const bcrypt = require('bcryptjs');
+const { sequentialOnHttp } = require('../../utils/sequentialOnHttp');
 const { normalizeRole } = require('../../constants/roles');
 const { assertPasswordPolicy } = require('../../utils/passwordPolicy');
 
@@ -14,6 +16,35 @@ exports.getAll = async (req, res) => {
     }
     const users = await User.getAllUsers(branchId ? Number(branchId) : undefined);
     res.json(users);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
+/** Users page — user list + branches for filters in one request. */
+exports.getPageInit = async (req, res) => {
+  try {
+    let { branchId } = req.query;
+    if (BRANCH_SCOPED.includes(normalizeRole(req.user.role))) {
+      branchId = req.user.branchId;
+    }
+
+    const [users, branches] = await sequentialOnHttp([
+      () => User.getAllUsers(branchId ? Number(branchId) : undefined),
+      () =>
+        req.user.role === 'COMPANY_OWNER'
+          ? prisma.branch.findMany({
+              take: 100,
+              select: { id: true, name: true },
+              orderBy: { name: 'asc' },
+            })
+          : Promise.resolve([]),
+    ]);
+
+    res.json({
+      users,
+      branches: req.user.role === 'COMPANY_OWNER' ? { data: branches } : undefined,
+    });
   } catch (e) {
     res.status(500).json({ message: e.message });
   }

@@ -1,7 +1,7 @@
 // backend/src/modules/orders/order.controller.js
 const Order = require('./order.model');
-
 const prisma = require('../../config/db');
+const { sequentialOnHttp } = require('../../utils/sequentialOnHttp');
 
 /**
  * Fix 2: Auto-picks the first branch that has sufficient stock for ALL items in an online order.
@@ -70,6 +70,36 @@ exports.getAll = async (req, res) => {
     }
     const result = await Order.getOrders(query);
     res.json(result);
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
+/** Owner orders page — orders list + branch filter dropdown in one request. */
+exports.getPageInit = async (req, res) => {
+  try {
+    const query = { ...req.query };
+    if (['BRANCH_OWNER', 'BRANCH_MANAGER', 'EMPLOYEE'].includes(req.user.role)) {
+      query.branchId = req.user.branchId;
+    }
+
+    const isOwner = req.user.role === 'COMPANY_OWNER';
+    const [orders, branches] = await sequentialOnHttp([
+      () => Order.getOrders(query),
+      () =>
+        isOwner
+          ? prisma.branch.findMany({
+              take: 100,
+              select: { id: true, name: true },
+              orderBy: { name: 'asc' },
+            })
+          : Promise.resolve([]),
+    ]);
+
+    res.json({
+      orders,
+      branches: isOwner ? { data: branches } : undefined,
+    });
   } catch (e) {
     res.status(500).json({ message: e.message });
   }

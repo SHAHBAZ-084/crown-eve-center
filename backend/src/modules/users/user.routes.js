@@ -4,6 +4,7 @@ const ctrl = require('./user.controller');
 const { protect } = require('../../middleware/auth');
 const { allow } = require('../../middleware/rbac');
 
+router.get('/page-init',  protect, allow('COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER', 'EMPLOYEE'), ctrl.getPageInit);
 router.get('/',           protect, allow('COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER', 'EMPLOYEE'), ctrl.getAll);
 router.get('/online-customers', protect, allow('COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER', 'EMPLOYEE'), ctrl.getOnlineCustomers);
 router.post('/',          protect, allow('COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER'), ctrl.create);

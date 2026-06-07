@@ -1,5 +1,6 @@
 // backend/src/modules/purchases/purchase.model.js
 const prisma = require('../../config/db');
+const { sequentialOnHttp } = require('../../utils/sequentialOnHttp');
 const { runInTransaction } = require('../../config/transaction');
 const {
   syncInventoryToPartsAndProducts,
@@ -14,19 +15,20 @@ const getPurchases = async ({ page = 1, limit = 20, branchId, supplierId }) => {
     ...(supplierId && { supplierId: Number(supplierId) }),
   };
 
-  const [data, total] = await Promise.all([
-    prisma.purchase.findMany({
-      where,
-      skip,
-      take: Number(limit),
-      include: {
-        supplier: true,
-        branch: { select: { id: true, name: true } },
-        items: { include: { part: true, product: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-    }),
-    prisma.purchase.count({ where }),
+  const [data, total] = await sequentialOnHttp([
+    () =>
+      prisma.purchase.findMany({
+        where,
+        skip,
+        take: Number(limit),
+        include: {
+          supplier: true,
+          branch: { select: { id: true, name: true } },
+          items: { include: { part: true, product: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+    () => prisma.purchase.count({ where }),
   ]);
 
   return {

@@ -186,9 +186,15 @@ exports.getOwnerDashboard = async (req, res) => {
     let branchCount, partsCount, orderCount, revSummary, topBranches, compareData, recentOrders;
 
     if (isHttp) {
-      branchCount = await prisma.branch.count();
-      partsCount = await prisma.part.count();
-      orderCount = await prisma.order.count();
+      const countRow = await prisma.$queryRaw`
+        SELECT
+          (SELECT COUNT(*)::int FROM "Branch") AS branches,
+          (SELECT COUNT(*)::int FROM "Part") AS parts,
+          (SELECT COUNT(*)::int FROM "Order") AS orders
+      `;
+      branchCount = countRow[0]?.branches ?? 0;
+      partsCount = countRow[0]?.parts ?? 0;
+      orderCount = countRow[0]?.orders ?? 0;
       revSummary = await Report.getRevenueSummary({});
       topBranches = await prisma.branch.findMany({
         take: 5,

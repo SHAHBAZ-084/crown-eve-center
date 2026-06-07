@@ -5,6 +5,7 @@ const controller = require('./booking.controller');
 const { protect } = require('../../middleware/auth');
 
 router.get('/today', protect, controller.getToday);
+router.get('/page-init', protect, controller.getPageInit);
 router.get('/', protect, controller.getAll);
 router.get('/:id', protect, controller.getOne);
 router.post('/', protect, controller.create);

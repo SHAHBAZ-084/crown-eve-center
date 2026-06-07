@@ -1,4 +1,5 @@
 const prisma = require('../../config/db');
+const { sequentialOnHttp } = require('../../utils/sequentialOnHttp');
 const { runInTransaction } = require('../../config/transaction');
 
 exports.getAll = async (req, res) => {
@@ -21,26 +22,27 @@ exports.getAll = async (req, res) => {
         : {}),
     };
 
-    const [customers, total] = await Promise.all([
-      prisma.walkInCustomer.findMany({
-        where,
-        skip,
-        take,
-        orderBy: { createdAt: 'desc' },
-        select: {
-          id: true,
-          first_name: true,
-          last_name: true,
-          phone: true,
-          cnic: true,
-          email: true,
-          balance: true,
-          branchId: true,
-          accountId: true,
-          createdAt: true,
-        },
-      }),
-      prisma.walkInCustomer.count({ where }),
+    const [customers, total] = await sequentialOnHttp([
+      () =>
+        prisma.walkInCustomer.findMany({
+          where,
+          skip,
+          take,
+          orderBy: { createdAt: 'desc' },
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+            phone: true,
+            cnic: true,
+            email: true,
+            balance: true,
+            branchId: true,
+            accountId: true,
+            createdAt: true,
+          },
+        }),
+      () => prisma.walkInCustomer.count({ where }),
     ]);
 
     res.json({

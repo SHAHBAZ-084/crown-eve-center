@@ -104,16 +104,14 @@ const postDoubleEntry = async (
   const amt = Number(amount);
   if (!amt || amt <= 0) throw new Error('Ledger amount must be greater than zero.');
 
-  const [debitAcc, creditAcc] = await Promise.all([
-    tx.account.findUnique({
-      where: { id: debitAccountId },
-      include: { category: true, ledger: true },
-    }),
-    tx.account.findUnique({
-      where: { id: creditAccountId },
-      include: { category: true, ledger: true },
-    }),
-  ]);
+  const debitAcc = await tx.account.findUnique({
+    where: { id: debitAccountId },
+    include: { category: true, ledger: true },
+  });
+  const creditAcc = await tx.account.findUnique({
+    where: { id: creditAccountId },
+    include: { category: true, ledger: true },
+  });
 
   if (!debitAcc?.ledger || !creditAcc?.ledger) {
     throw new Error('Debit or credit account ledger not found.');
@@ -248,12 +246,25 @@ const postPurchaseInvoiceLedger = async (tx, { branchId, purchaseId, total, supp
   });
 };
 
-/** Heal missing ledgers for walk-ins, suppliers, and online customers */
+const SYNC_BATCH_LIMIT = 40;
+
+/** Heal missing ledgers for walk-ins, suppliers, and online customers (capped per run). */
 const syncPartyLedgers = async (branchId) => {
   const bId = Number(branchId);
-  const walkIns = await prisma.walkInCustomer.findMany({ where: { branchId: bId } });
-  const suppliers = await prisma.supplier.findMany();
-  const onlineCustomers = await prisma.user.findMany({ where: { role: 'CUSTOMER' } });
+  const walkIns = await prisma.walkInCustomer.findMany({
+    where: { branchId: bId },
+    take: SYNC_BATCH_LIMIT,
+    orderBy: { createdAt: 'desc' },
+  });
+  const suppliers = await prisma.supplier.findMany({
+    take: SYNC_BATCH_LIMIT,
+    orderBy: { id: 'asc' },
+  });
+  const onlineCustomers = await prisma.user.findMany({
+    where: { role: 'CUSTOMER' },
+    take: SYNC_BATCH_LIMIT,
+    orderBy: { createdAt: 'desc' },
+  });
 
   await runInTransaction(async (tx) => {
     for (const c of walkIns) {
@@ -268,6 +279,15 @@ const syncPartyLedgers = async (branchId) => {
     await getSalesAccount(tx, bId);
     await getPurchaseAccount(tx, bId);
   });
+
+  return {
+    synced: {
+      walkIns: walkIns.length,
+      suppliers: suppliers.length,
+      customers: onlineCustomers.length,
+    },
+    capped: SYNC_BATCH_LIMIT,
+  };
 };
 
 module.exports = {

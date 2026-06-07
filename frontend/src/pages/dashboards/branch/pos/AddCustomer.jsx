@@ -18,6 +18,7 @@ const AddCustomer = ({ user }) => {
     queryFn: () => api.get('/walk-in-customers', {
       params: { branchId: user?.branchId, search: customerSearch }
     }).then(r => r.data),
+    enabled: !!user?.branchId && (customerSearch.trim().length >= 2 || showAddForm),
   });
 
   const handleAddCustomer = async (e) => {

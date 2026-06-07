@@ -10,6 +10,7 @@ const { createProductSchema, updateProductSchema } = require('./product.schema')
 
 const productWriteRoles = ['COMPANY_OWNER', 'BRANCH_OWNER', 'BRANCH_MANAGER', 'EMPLOYEE'];
 
+router.get('/page-init', protect, scopeBranch, allow(...productWriteRoles), ctrl.getPageInit);
 router.get('/', optionalProtect, ctrl.getAll);
 router.get('/:id', optionalProtect, ctrl.getById);
 router.post('/', protect, scopeBranch, allow(...productWriteRoles), validate(createProductSchema), ctrl.create);

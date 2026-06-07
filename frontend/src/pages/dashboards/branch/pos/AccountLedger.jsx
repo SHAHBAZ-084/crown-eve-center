@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../../../../services/api';
+import { useAccountsPageInit } from '../../../../hooks/useAccountsPageInit';
 import { Search, Printer, Calendar, Download, RefreshCw } from 'lucide-react';
 import './Reports.css';
 
@@ -12,21 +13,9 @@ const AccountLedger = ({ user }) => {
   const [endDate, setEndDate] = useState('');
   const [submittedSearch, setSubmittedSearch] = useState(null);
 
-  // Fetch Categories list
-  const { data: categoriesData, isSuccess: categoriesReady } = useQuery({
-    queryKey: ['categories-list', user?.branchId],
-    queryFn: () => api.get('/accounts/categories', { params: { branchId: user?.branchId } }).then(r => r.data),
-    enabled: !!user?.branchId
-  });
-
-  const { data: accountsData } = useQuery({
-    queryKey: ['accounts-list', user?.branchId],
-    queryFn: () => api.get('/accounts', { params: { branchId: user?.branchId } }).then(r => r.data),
-    enabled: !!user?.branchId && categoriesReady
-  });
-
-  const categories = categoriesData?.data || [];
-  const accounts = accountsData?.data || [];
+  const { data: pageInit } = useAccountsPageInit(user?.branchId);
+  const categories = pageInit?.categories?.data || [];
+  const accounts = pageInit?.accounts?.data || [];
   const activeAccounts = accounts.filter(acc => 
     acc.status === 'ACTIVE' && 
     (selectedCategoryId ? acc.categoryId === selectedCategoryId : true)

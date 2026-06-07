@@ -1,7 +1,9 @@
+const prisma = require('../../config/db');
 const Product = require('./product.model');
 const { STAFF_ROLES } = require('../../constants/roles');
 const { sanitizeProductList, sanitizeProduct } = require('../../utils/sanitizeProduct');
 const { assertBranchAccess } = require('../../middleware/scopeBranch');
+const { sequentialOnHttp } = require('../../utils/sequentialOnHttp');
 
 const slugify = (text) => text.toString().toLowerCase()
   .replace(/\s+/g, '-')           // Replace spaces with -
@@ -9,6 +11,36 @@ const slugify = (text) => text.toString().toLowerCase()
   .replace(/\-\-+/g, '-')         // Replace multiple - with single -
   .replace(/^-+/, '')             // Trim - from start of text
   .replace(/-+$/, '');            // Trim - from end of text
+
+/** Products page — products list + categories + brands in one request. */
+exports.getPageInit = async (req, res) => {
+  try {
+    const isStaff = req.user && STAFF_ROLES.includes(req.user.role);
+    const query = { ...req.query };
+    if (!isStaff) {
+      query.lite = query.lite || '1';
+      query.publicOnly = true;
+    }
+
+    const [products, categories, brands] = await sequentialOnHttp([
+      () => Product.getProducts(query),
+      () =>
+        prisma.category.findMany({
+          include: { parent: { select: { name: true } } },
+          orderBy: { name: 'asc' },
+        }),
+      () => prisma.brand.findMany({ orderBy: { name: 'asc' } }),
+    ]);
+
+    res.json({
+      products: isStaff ? products : sanitizeProductList(products),
+      categories,
+      brands,
+    });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
 
 exports.getAll = async (req, res) => {
   try {

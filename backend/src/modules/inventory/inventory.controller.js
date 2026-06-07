@@ -10,6 +10,24 @@ exports.getAll = async (req, res) => {
   }
 };
 
+/** Inventory page — list + summary in one request. */
+exports.getPageBundle = async (req, res) => {
+  try {
+    let { branchId } = req.query;
+    if (!branchId || branchId === 'undefined' || branchId === 'null') {
+      branchId = req.user.branchId;
+    }
+    if (!branchId) return res.status(400).json({ message: 'Branch ID is required' });
+
+    const bId = Number(branchId);
+    const list = await Inventory.getBranchInventory(req.query);
+    const summary = await Inventory.getInventorySummary(bId);
+    res.json({ ...list, summary });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
 exports.update = async (req, res) => {
   try {
     const { id } = req.params;

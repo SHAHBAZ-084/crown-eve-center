@@ -6,6 +6,7 @@ import {
   isNetworkTransportError,
   setApiBasePreference,
 } from "../../utils/apiUrl";
+import { runQueued } from "../../utils/apiQueue";
 
 export const getUploadBase = () => getApiUrl().replace('/api', '');
 /** @deprecated use getUploadBase() — kept for existing imports */
@@ -24,18 +25,6 @@ export const isBranchApiBlocked = () => Date.now() < globalBlockedUntil;
 
 const blockBranchApi = (ms = 120_000) => {
   globalBlockedUntil = Math.max(globalBlockedUntil, Date.now() + ms);
-};
-
-let fetchQueue = Promise.resolve();
-const FETCH_GAP_MS = 120;
-
-const runQueued = (fn) => {
-  const run = fetchQueue.then(fn, fn);
-  fetchQueue = run.then(
-    () => new Promise((r) => setTimeout(r, FETCH_GAP_MS)),
-    () => new Promise((r) => setTimeout(r, FETCH_GAP_MS))
-  );
-  return run;
 };
 
 // ─── API HELPER ──────────────────────────────────────────────────────────────

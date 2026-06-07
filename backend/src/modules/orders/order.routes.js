@@ -13,6 +13,7 @@ const branchStaff = ['EMPLOYEE', 'BRANCH_OWNER', 'BRANCH_MANAGER'];
 
 router.post('/', protect, allow('EMPLOYEE', 'BRANCH_OWNER', 'BRANCH_MANAGER', 'CUSTOMER'), validate(createOrderSchema), ctrl.create);
 router.get('/count', protect, scopeBranch, allow(...staffRoles), ctrl.getCount);
+router.get('/page-init', protect, scopeBranch, allow(...staffRoles), ctrl.getPageInit);
 router.get('/my', protect, allow('CUSTOMER'), ctrl.getMine);
 router.get('/', protect, scopeBranch, allow(...staffRoles), ctrl.getAll);
 router.get('/customer/:id', protect, allow('CUSTOMER', 'BRANCH_OWNER', 'BRANCH_MANAGER'), ctrl.getByCustomer);

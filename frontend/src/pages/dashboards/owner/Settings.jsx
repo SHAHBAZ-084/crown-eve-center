@@ -71,20 +71,11 @@ const SettingsPage = () => {
   const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {
-    api
-      .get("/auth/me")
-      .then((res) => {
-        const u = res.data.user;
-        setProfile(u);
-        setForm({ name: u.name || "", phone: u.phone || "", city: u.city || "" });
-      })
-      .catch(() => {
-        if (user) {
-          setProfile(user);
-          setForm({ name: user.name || "", phone: user.phone || "", city: user.city || "" });
-        }
-      });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    if (user) {
+      setProfile(user);
+      setForm({ name: user.name || "", phone: user.phone || "", city: user.city || "" });
+    }
+  }, [user]);
 
   const saveProfile = async () => {
     if (!form.name.trim()) return toast("Name is required", "e");

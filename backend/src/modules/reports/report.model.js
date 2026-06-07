@@ -144,11 +144,13 @@ const getBranchRevenue = (id) => prisma.order.aggregate({
   _sum: { total: true },
 });
 
-const getSalesReport = (branchId) => prisma.order.findMany({
-  where: { branchId, status: 'COMPLETED' },
-  include: { items: { include: { product: true } } },
-  orderBy: { createdAt: 'desc' },
-});
+const getSalesReport = (branchId, { limit = 80 } = {}) =>
+  prisma.order.findMany({
+    where: { branchId, status: 'COMPLETED' },
+    include: { items: { include: { product: { select: { id: true, name: true } } } } },
+    orderBy: { createdAt: 'desc' },
+    take: Math.min(Number(limit) || 80, 100),
+  });
 
 const getBranchPerformanceChart = async ({ days = 7 } = {}) => {
   const dayCount = Number(days) || 7;

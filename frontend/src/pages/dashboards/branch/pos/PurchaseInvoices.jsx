@@ -14,12 +14,14 @@ const PurchaseInvoices = ({ user, queryClient }) => {
   });
   const [piProductSearch, setPiProductSearch] = useState('');
   const [showAddSupplierModal, setShowAddSupplierModal] = useState(false);
+  const [loadSuppliers, setLoadSuppliers] = useState(false);
   const [newSupplierForm, setNewSupplierForm] = useState({ name: '', contact: '' });
   const debouncedPiProductSearch = useDebounce(piProductSearch, 300);
 
   const { data: piSuppliers } = useQuery({
-    queryKey: ['pi-suppliers'],
+    queryKey: ['pi-suppliers', user?.branchId],
     queryFn: () => api.get('/suppliers', { params: { limit: 200 } }).then((r) => r.data?.data ?? r.data ?? []),
+    enabled: !!user?.branchId && loadSuppliers,
   });
 
   const { data: piProducts, isLoading: loadingPiProducts } = useQuery({
@@ -116,7 +118,11 @@ const PurchaseInvoices = ({ user, queryClient }) => {
                 <label className="text-[10px] font-black text-[#8D7A71] uppercase tracking-[0.2em]">Select Supplier *</label>
                 <button type="button" onClick={() => setShowAddSupplierModal(true)} className="text-[10px] font-black text-[#E65100] hover:underline uppercase tracking-widest">+ Register New</button>
               </div>
-              <select required value={piForm.supplierId} onChange={e => setPiForm({ ...piForm, supplierId: e.target.value })}
+              <select
+                required
+                value={piForm.supplierId}
+                onFocus={() => setLoadSuppliers(true)}
+                onChange={e => setPiForm({ ...piForm, supplierId: e.target.value })}
                 className="w-full bg-[#FFFAF8] border border-[#F3E5DC] rounded-3xl py-4 px-6 outline-none focus:ring-2 focus:ring-[#E65100]/20 font-bold text-sm">
                 <option value="">Choose Supplier...</option>
                 {(piSuppliers || []).map(s => <option key={s.id} value={s.id}>{s.name} ({s.contact})</option>)}

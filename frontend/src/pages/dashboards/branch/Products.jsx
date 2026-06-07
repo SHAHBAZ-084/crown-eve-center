@@ -16,9 +16,12 @@ const Products = () => {
 
   const activeProductType = activeTab === "bikes" ? "bike" : activeTab === "parts" ? "part" : "";
   const params = `branchId=${branchId}&limit=100&page=${page}${search ? `&search=${search}` : ""}${activeProductType ? `&product_type=${activeProductType}` : ""}`;
-  const { data, loading, refetch } = useFetch(`/products?${params}`, [branchId, page, search, activeProductType]);
-  const { data: catsData, refetch: refetchCats } = useFetch(data ? "/categories" : null, [!!data]);
-  const { data: brandsData, refetch: refetchBrands } = useFetch(catsData ? "/brands" : null, [!!catsData]);
+  const { data: pageInit, loading, refetch } = useFetch(`/products/page-init?${params}`, [branchId, page, search, activeProductType]);
+  const data = pageInit?.products;
+  const catsData = pageInit?.categories;
+  const brandsData = pageInit?.brands;
+  const refetchCats = refetch;
+  const refetchBrands = refetch;
 
 
   const [showModal, setShowModal] = useState(false);

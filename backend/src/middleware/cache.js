@@ -4,11 +4,13 @@ const inFlight = new Map();
 
 const SKIP_PREFIXES = [
   '/api/auth',
-  '/api/orders',
   '/api/vouchers',
   '/api/accounts',
-  '/api/purchases',
 ];
+
+/** Short-lived cache for frequently-hit list endpoints (orders/purchases change often). */
+const SHORT_TTL_PREFIXES = ['/api/orders', '/api/purchases'];
+const SHORT_TTL_SECONDS = 45;
 
 // Routes that are safe to cache even with auth (read-only aggregate data)
 const AUTH_CACHEABLE = [
@@ -26,7 +28,12 @@ const AUTH_CACHEABLE = [
   '/api/banks',
   '/api/suppliers',
   '/api/walk-in-customers',
+  '/api/orders',
+  '/api/purchases',
 ];
+
+const ttlForUrl = (url, defaultTtl) =>
+  SHORT_TTL_PREFIXES.some((p) => url.startsWith(p)) ? SHORT_TTL_SECONDS : defaultTtl;
 
 const shouldSkipCache = (url) => SKIP_PREFIXES.some((p) => url.startsWith(p));
 
@@ -66,7 +73,7 @@ const cacheGet = (ttlSeconds = 300) => (req, res, next) => {
   const originalJson = res.json.bind(res);
   res.json = (body) => {
     if (res.statusCode >= 200 && res.statusCode < 300) {
-      cacheStore.set(key, body, ttlSeconds);
+      cacheStore.set(key, body, ttlForUrl(req.originalUrl, ttlSeconds));
       const waiters = inFlight.get(key) || [];
       inFlight.delete(key);
       for (const w of waiters) w.json(body);

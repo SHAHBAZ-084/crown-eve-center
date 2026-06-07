@@ -16,12 +16,10 @@ const Inventory = () => {
   const ds = useDebounce(search);
 
   const params = new URLSearchParams({ branchId, page, limit: 50, type: inventoryType }).toString();
-  const { data, loading, refetch } = useFetch(`/inventory?${params}`, [page, branchId], 0);
-  const { data: summary, refetch: refetchSummary } = useFetch(
-    data ? `/inventory/summary?branchId=${branchId}` : null,
-    [branchId, !!data],
-    0
-  );
+  const { data: bundle, loading, refetch } = useFetch(`/inventory/page-bundle?${params}`, [page, branchId, inventoryType], 0);
+  const data = bundle ? { data: bundle.data, meta: bundle.meta } : null;
+  const summary = bundle?.summary;
+  const refetchSummary = refetch;
 
   const [editing, setEditing] = useState(null); // { id, stock, alertAt }
   const [saving, setSaving] = useState(false);

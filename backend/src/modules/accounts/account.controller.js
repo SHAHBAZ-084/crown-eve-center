@@ -2,6 +2,45 @@
 const prisma = require('../../config/db');
 const { runInTransaction } = require('../../config/transaction');
 const { syncPartyLedgers } = require('../../services/ledger.service');
+const { sequentialOnHttp } = require('../../utils/sequentialOnHttp');
+
+/** POS account screens — categories + accounts in one request. */
+exports.getPageInit = async (req, res) => {
+  try {
+    const { branchId } = req.query;
+    if (!branchId) return res.status(400).json({ message: 'Branch ID is required.' });
+    const bId = parseInt(branchId, 10);
+
+    const [categories, accounts] = await sequentialOnHttp([
+      () =>
+        prisma.accountCategory.findMany({
+          where: { OR: [{ branchId: null }, { branchId: bId }] },
+          orderBy: { name: 'asc' },
+        }),
+      () =>
+        prisma.account.findMany({
+          where: { branchId: bId },
+          select: {
+            id: true,
+            categoryId: true,
+            account_name: true,
+            opening_balance: true,
+            current_balance: true,
+            status: true,
+            branchId: true,
+            createdAt: true,
+            category: { select: { id: true, name: true } },
+            ledger: { select: { id: true, ledger_name: true } },
+          },
+          orderBy: { createdAt: 'desc' },
+        }),
+    ]);
+
+    res.json({ categories: { data: categories }, accounts: { data: accounts } });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 // Get all accounts (with optional category and branch filtering)
 exports.getAll = async (req, res) => {
@@ -497,8 +536,11 @@ exports.syncPartyLedgers = async (req, res) => {
     if (!branchId) {
       return res.status(400).json({ message: 'branchId is required.' });
     }
-    await syncPartyLedgers(branchId);
-    res.json({ message: 'Customer and supplier ledgers synced successfully.' });
+    const result = await syncPartyLedgers(branchId);
+    res.json({
+      message: 'Customer and supplier ledgers synced successfully.',
+      ...result,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

@@ -1,22 +1,11 @@
 // frontend/src/components/owner/OwnerShared.jsx
 import React, { useState, useEffect, useCallback } from "react";
 import { getApiUrl } from "../../utils/apiUrl";
+import { runQueued } from "../../utils/apiQueue";
 
 // ─── API HELPER & HOOKS ─────────────────────────────────────────────────────
 const API_BASE = getApiUrl();
 const TOKEN_KEY = "token";
-
-let fetchQueue = Promise.resolve();
-const FETCH_GAP_MS = 120;
-
-const runQueued = (fn) => {
-  const run = fetchQueue.then(fn, fn);
-  fetchQueue = run.then(
-    () => new Promise((r) => setTimeout(r, FETCH_GAP_MS)),
-    () => new Promise((r) => setTimeout(r, FETCH_GAP_MS))
-  );
-  return run;
-};
 
 export const api = async (path, options = {}) => {
   return runQueued(async () => {

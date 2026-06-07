@@ -1,7 +1,7 @@
 // frontend/src/pages/dashboards/branch/pos/ReceiptVoucher.jsx
 import React, { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import api from '../../../../services/api';
+import { useVoucherPageInit } from '../../../../hooks/useVoucherPageInit';
 import { FileText, Send, List, ShieldCheck, Search } from 'lucide-react';
 import './Vouchers.css';
 
@@ -20,35 +20,12 @@ const ReceiptVoucher = ({ user }) => {
   const [submitting, setSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Fetch Categories list
-  const { data: categoriesData, isSuccess: categoriesReady } = useQuery({
-    queryKey: ['categories-list', user?.branchId],
-    queryFn: () => api.get('/accounts/categories', { params: { branchId: user?.branchId } }).then(r => r.data),
-    enabled: !!user?.branchId
-  });
+  const { data: init, isLoading: loadingHistory, refetch: refetchInit } = useVoucherPageInit('RECEIPT', user?.branchId);
 
-  const { data: accountsData, isSuccess: accountsReady, refetch: refetchAccounts } = useQuery({
-    queryKey: ['accounts-list', user?.branchId],
-    queryFn: () => api.get('/accounts', { params: { branchId: user?.branchId } }).then(r => r.data),
-    enabled: !!user?.branchId && categoriesReady
-  });
-
-  const { data: historyData, isSuccess: historyReady, isLoading: loadingHistory, refetch: refetchHistory } = useQuery({
-    queryKey: ['vouchers-history-receipt', user?.branchId],
-    queryFn: () => api.get('/vouchers', { params: { branchId: user?.branchId, voucher_type: 'RECEIPT' } }).then(r => r.data),
-    enabled: !!user?.branchId && accountsReady
-  });
-
-  const { data: nextNoData, refetch: refetchNextNo } = useQuery({
-    queryKey: ['vouchers-next-no', user?.branchId, 'RECEIPT'],
-    queryFn: () => api.get('/vouchers/next-no', { params: { branchId: user?.branchId, voucher_type: 'RECEIPT' } }).then(r => r.data),
-    enabled: !!user?.branchId && historyReady
-  });
-
-  const categories = categoriesData?.data || [];
-  const accounts = accountsData?.data || [];
-  const vouchersHistory = historyData?.data || [];
-  const nextVoucherNo = nextNoData?.nextNo || 'Fetching...';
+  const categories = init?.categories?.data || [];
+  const accounts = init?.accounts?.data || [];
+  const vouchersHistory = init?.history?.data || [];
+  const nextVoucherNo = init?.nextNo?.nextNo || 'Fetching...';
 
   // Filter accounts based on selected category
   const fromAccountsFiltered = accounts.filter(acc => 
@@ -164,9 +141,7 @@ const ReceiptVoucher = ({ user }) => {
         ref_no: '',
         description: '',
       }));
-      refetchAccounts();
-      refetchHistory();
-      refetchNextNo();
+      refetchInit();
     } catch (err) {
       alert("Error: " + (err.response?.data?.message || err.message));
     } finally {
