@@ -12,6 +12,7 @@ const ReportsPage = () => {
   const { data: branchData } = useFetch("/branches?limit=100");
 
   const maxChart = chart ? Math.max(...chart.map(d => d.revenue || d._sum?.total || 0), 1) : 1;
+  const chartBarHeight = 110;
 
   return (
     <div className="page">
@@ -71,11 +72,14 @@ const ReportsPage = () => {
             <div className="chart-bar-wrap">
               {chart.map((d, i) => {
                 const val = d.revenue || d._sum?.total || 0;
-                const pct = (val / maxChart) * 100;
                 return (
                   <div key={i} className="chart-bar-col">
                     <div className="chart-bar-val">PKR {(val / 1000).toFixed(1)}K</div>
-                    <div className="chart-bar" style={{ height: `${Math.max(pct, 2)}%` }} title={`PKR ${val.toFixed(2)}`} />
+                    <div
+                      className="chart-bar"
+                      style={{ height: `${Math.max((val / maxChart) * chartBarHeight, val > 0 ? 6 : 2)}px` }}
+                      title={`PKR ${val.toFixed(2)}`}
+                    />
                     <div className="chart-bar-label">{d.date ? new Date(d.date).toLocaleDateString("en", { month: "short", day: "numeric" }) : `D${i + 1}`}</div>
                   </div>
                 );

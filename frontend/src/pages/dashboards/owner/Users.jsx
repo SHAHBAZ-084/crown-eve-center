@@ -9,25 +9,70 @@ const UsersPage = () => {
   const { data: branchData } = useFetch("/branches?limit=100");
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
+  const [branchFilter, setBranchFilter] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [confirmId, setConfirmId] = useState(null);
-  const [form, setForm] = useState({ name: "", email: "", password: "", role: "EMPLOYEE", branchId: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", role: "BRANCH_OWNER", branchId: "" });
   const [saving, setSaving] = useState(false);
 
-  const roles = ["COMPANY_OWNER", "BRANCH_OWNER", "BRANCH_MANAGER", "EMPLOYEE", "TECHNICIAN", "CUSTOMER"];
-  const roleBadge = { COMPANY_OWNER: "badge-orange", BRANCH_OWNER: "badge-blue", BRANCH_MANAGER: "badge-red", EMPLOYEE: "badge-green", TECHNICIAN: "badge-purple", CUSTOMER: "badge-yellow" };
+  const roles = ["COMPANY_OWNER", "BRANCH_OWNER", "CUSTOMER"];
+  const roleBadge = {
+    COMPANY_OWNER: "badge-orange",
+    BRANCH_OWNER: "badge-blue",
+    BRANCH_MANAGER: "badge-red",
+    EMPLOYEE: "badge-green",
+    TECHNICIAN: "badge-purple",
+    CUSTOMER: "badge-yellow",
+  };
 
-  const filtered = (users || []).filter(u =>
-    (!search || u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase())) &&
-    (!roleFilter || u.role === roleFilter)
-  );
+  const modalRoleOptions =
+    editTarget && form.role && !roles.includes(form.role) ? [form.role, ...roles] : roles;
 
-  const openAdd = () => { setForm({ name: "", email: "", password: "", role: "EMPLOYEE", branchId: "" }); setEditTarget(null); setShowModal(true); };
+  const branches = branchData?.data || [];
+
+  const branchLabel = (user) => {
+    if (user.role === "CUSTOMER") return "—";
+    if (user.branch?.name) return user.branch.name;
+    if (user.role === "COMPANY_OWNER") return "Global";
+    return "—";
+  };
+
+  const filtered = (users || []).filter((u) => {
+    const q = search.toLowerCase();
+    const matchesSearch =
+      !search ||
+      u.name.toLowerCase().includes(q) ||
+      u.email.toLowerCase().includes(q);
+    const matchesRole = !roleFilter || u.role === roleFilter;
+    const matchesBranch =
+      !branchFilter ||
+      (branchFilter === "none"
+        ? !u.branchId
+        : Number(u.branchId) === Number(branchFilter));
+    return matchesSearch && matchesRole && matchesBranch;
+  });
+
+  const openAdd = () => {
+    setForm({ name: "", email: "", password: "", role: "BRANCH_OWNER", branchId: "" });
+    setEditTarget(null);
+    setShowModal(true);
+  };
+
+  const onRoleChange = (role) => {
+    setForm((f) => ({
+      ...f,
+      role,
+      branchId: role === "CUSTOMER" || role === "COMPANY_OWNER" ? "" : f.branchId,
+    }));
+  };
   const openEdit = u => { setForm({ name: u.name, email: u.email, password: "", role: u.role, branchId: u.branchId || "" }); setEditTarget(u); setShowModal(true); };
 
   const submit = async () => {
     if (!form.name || !form.email) return toast("Name and email required", "error");
+    if (form.role === "BRANCH_OWNER" && !form.branchId) {
+      return toast("Branch is required for Branch Owner", "error");
+    }
     if (!editTarget) {
       if (!form.password) return toast("Password required for new user", "error");
       const pwdErr = validatePassword(form.password);
@@ -60,7 +105,10 @@ const UsersPage = () => {
         <div>
           <div className="page-eyebrow">Access Control</div>
           <div className="page-title">PERSONNEL HUB</div>
-          <div className="page-sub">Manage all users, roles and branch assignments — {(users || []).length} total</div>
+          <div className="page-sub">
+            Manage all users, roles and branch assignments — {filtered.length} shown
+            {(search || roleFilter || branchFilter) ? ` of ${(users || []).length}` : ` · ${(users || []).length} total`}
+          </div>
         </div>
         <div className="page-actions">
           <button className="btn btn-primary" onClick={openAdd}><Icon name="plus" /> Add User</button>
@@ -76,7 +124,14 @@ const UsersPage = () => {
         />
         <select style={{ width: 180 }} value={roleFilter} onChange={e => setRoleFilter(e.target.value)}>
           <option value="">All Roles</option>
-          {roles.map(r => <option key={r} value={r}>{r.replace("_", " ")}</option>)}
+          {roles.map(r => <option key={r} value={r}>{r.replace(/_/g, " ")}</option>)}
+        </select>
+        <select style={{ width: 220 }} value={branchFilter} onChange={e => setBranchFilter(e.target.value)}>
+          <option value="">All Branches</option>
+          <option value="none">No Branch (Customers / Global)</option>
+          {branches.map(b => (
+            <option key={b.id} value={b.id}>{b.name}</option>
+          ))}
         </select>
       </div>
 
@@ -96,8 +151,8 @@ const UsersPage = () => {
                       </div>
                     </div>
                   </td>
-                  <td><span className={`badge ${roleBadge[u.role] || "badge-blue"}`}>{u.role.replace("_", " ")}</span></td>
-                  <td style={{ fontSize: 13, color: "var(--muted)" }}>{u.branch?.name || "—"}</td>
+                  <td><span className={`badge ${roleBadge[u.role] || "badge-blue"}`}>{u.role.replace(/_/g, " ")}</span></td>
+                  <td style={{ fontSize: 13, color: "var(--muted)" }}>{branchLabel(u)}</td>
                   <td style={{ fontSize: 12, color: "var(--muted)", fontFamily: "var(--font-mono)" }}>{new Date(u.createdAt).toLocaleDateString()}</td>
                   <td><div className="td-actions">
                     <button className="btn-icon" onClick={() => openEdit(u)}><Icon name="edit" size={14} /></button>
@@ -131,13 +186,17 @@ const UsersPage = () => {
           )}
           <div className="form-row">
             <div className="form-group"><label>Role *</label>
-              <select value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))}>
-                {roles.map(r => <option key={r} value={r}>{r.replace("_", " ")}</option>)}
+              <select value={form.role} onChange={e => onRoleChange(e.target.value)}>
+                {modalRoleOptions.map(r => <option key={r} value={r}>{r.replace(/_/g, " ")}</option>)}
               </select>
             </div>
             <div className="form-group"><label>Branch</label>
-              <select value={form.branchId} onChange={e => setForm(f => ({ ...f, branchId: e.target.value }))}>
-                <option value="">None / Global</option>
+              <select
+                value={form.branchId}
+                onChange={e => setForm(f => ({ ...f, branchId: e.target.value }))}
+                disabled={form.role === "CUSTOMER" || form.role === "COMPANY_OWNER"}
+              >
+                <option value="">{form.role === "BRANCH_OWNER" ? "Select branch *" : "None / Global"}</option>
                 {branchData?.data?.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
             </div>

@@ -4,7 +4,16 @@ const { updateManySequential, deleteManySequential } = require('../../config/pri
 
 const getAllUsers = (branchId) => prisma.user.findMany({
   where: branchId ? { branchId } : {},
-  select: { id: true, name: true, email: true, role: true, branchId: true, createdAt: true }
+  select: {
+    id: true,
+    name: true,
+    email: true,
+    role: true,
+    branchId: true,
+    createdAt: true,
+    branch: { select: { id: true, name: true } },
+  },
+  orderBy: [{ branchId: 'asc' }, { name: 'asc' }],
 });
 
 const getUserById = (id) => prisma.user.findUnique({
