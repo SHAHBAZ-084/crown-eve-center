@@ -26,17 +26,10 @@ export const BikeSaleInvoiceBody = ({ order, branchName, issuedBy }) => {
     <div id="printable-invoice-bike" className="bike-a4-invoice">
       <div className="bike-a4-frame">
         <header className="bike-a4-header">
-          <div className="bike-a4-header-left">
-            <img src={LOGO_URL} alt="Crown Eve Center" className="bike-a4-logo" />
-            <div>
-              <h1 className="bike-a4-company">CROWN EVE CENTER</h1>
-              <p className="bike-a4-tagline">Premium Electric Mobility · Authorized Sales &amp; Service</p>
-            </div>
-          </div>
-          <div className="bike-a4-header-right">
-            <div className="bike-a4-doc-type">Official Sale Invoice</div>
-            <div className="bike-a4-doc-sub">Electric Bike · A4 Document</div>
-          </div>
+          <img src={LOGO_URL} alt="Crown Eve Center" className="bike-a4-logo" />
+          <h1 className="bike-a4-company">CROWN EVE CENTER</h1>
+          <p className="bike-a4-tagline">Premium Electric Mobility · Authorized Sales &amp; Service</p>
+          <div className="bike-a4-doc-type">Official Sale Invoice</div>
         </header>
 
         <div className="bike-a4-title-bar">

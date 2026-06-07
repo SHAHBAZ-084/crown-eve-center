@@ -20,25 +20,20 @@
 
 .bike-a4-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 20px;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
   padding-bottom: 18px;
   border-bottom: 3px double #e65100;
   margin-bottom: 16px;
 }
 
-.bike-a4-header-left {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
 .bike-a4-logo {
-  width: 72px;
-  height: 72px;
+  width: 80px;
+  height: 80px;
   object-fit: contain;
-  flex-shrink: 0;
+  margin-bottom: 4px;
 }
 
 .bike-a4-company {
@@ -51,31 +46,19 @@
 }
 
 .bike-a4-tagline {
-  margin: 4px 0 0;
+  margin: 0;
   font-size: 10px;
   color: #666;
   letter-spacing: 0.04em;
 }
 
-.bike-a4-header-right {
-  text-align: right;
-  flex-shrink: 0;
-}
-
 .bike-a4-doc-type {
-  font-size: 11px;
+  margin-top: 8px;
+  font-size: 12px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: #e65100;
-}
-
-.bike-a4-doc-sub {
-  font-size: 9px;
-  color: #888;
-  margin-top: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
 }
 
 .bike-a4-title-bar {
@@ -312,14 +295,6 @@
 @media (max-width: 720px) {
   .bike-a4-meta-grid {
     grid-template-columns: 1fr;
-  }
-
-  .bike-a4-header {
-    flex-direction: column;
-  }
-
-  .bike-a4-header-right {
-    text-align: left;
   }
 
   .bike-a4-signatures {
