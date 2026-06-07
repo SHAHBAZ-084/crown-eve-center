@@ -18,7 +18,7 @@ const Products = () => {
   const params = `branchId=${branchId}&limit=100&page=${page}${search ? `&search=${search}` : ""}${activeProductType ? `&product_type=${activeProductType}` : ""}`;
   const { data, loading, refetch } = useFetch(`/products?${params}`, [branchId, page, search, activeProductType]);
   const { data: catsData, refetch: refetchCats } = useFetch(data ? "/categories" : null, [!!data]);
-  const { data: brandsData, refetch: refetchBrands } = useFetch(data ? "/brands" : null, [!!data]);
+  const { data: brandsData, refetch: refetchBrands } = useFetch(catsData ? "/brands" : null, [!!catsData]);
 
 
   const [showModal, setShowModal] = useState(false);

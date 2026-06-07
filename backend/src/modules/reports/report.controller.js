@@ -4,6 +4,7 @@ const Order = require('../orders/order.model');
 const Booking = require('../service-bookings/booking.model');
 const Inventory = require('../inventory/inventory.model');
 const prisma = require('../../config/db');
+const { getAdapterMode } = require('../../config/db');
 const resolveBranchId = (req) => {
   const role = req.user.role;
   if (role === 'BRANCH_OWNER' || role === 'BRANCH_MANAGER' || role === 'EMPLOYEE' || role === 'TECHNICIAN') {
@@ -55,22 +56,7 @@ exports.getBranchPerformanceChart = async (req, res) => {
 
 exports.compareBranches = async (req, res) => {
   try {
-    const branches = await prisma.branch.findMany({
-      include: {
-        _count: { select: { orders: true } },
-        orders: {
-          where: { status: 'COMPLETED' },
-          select: { total: true }
-        }
-      }
-    });
-
-    const data = branches.map(b => ({
-      name: b.name,
-      revenue: b.orders.reduce((acc, o) => acc + o.total, 0),
-      orderCount: b._count.orders
-    }));
-
+    const data = await Report.getBranchCompareData();
     res.json(data);
   } catch (e) {
     res.status(500).json({ message: e.message });
@@ -98,15 +84,28 @@ exports.getBranch = async (req, res) => {
       return res.status(404).json({ message: 'Branch not found' });
     }
 
-    const [orderGroups, revenue, totalAppointments] = await Promise.all([
-      prisma.order.groupBy({
+    const isHttp = getAdapterMode() === 'http';
+    let orderGroups, revenue, totalAppointments;
+
+    if (isHttp) {
+      orderGroups = await prisma.order.groupBy({
         by: ['status'],
         where: { branchId },
         _count: { id: true },
-      }),
-      Report.getBranchRevenue(branchId),
-      prisma.serviceBooking.count({ where: { branchId } }),
-    ]);
+      });
+      revenue = await Report.getBranchRevenue(branchId);
+      totalAppointments = await prisma.serviceBooking.count({ where: { branchId } });
+    } else {
+      [orderGroups, revenue, totalAppointments] = await Promise.all([
+        prisma.order.groupBy({
+          by: ['status'],
+          where: { branchId },
+          _count: { id: true },
+        }),
+        Report.getBranchRevenue(branchId),
+        prisma.serviceBooking.count({ where: { branchId } }),
+      ]);
+    }
 
     const countByStatus = (status) =>
       orderGroups.find((g) => g.status === status)?._count.id || 0;
@@ -143,15 +142,28 @@ exports.getBranchDashboard = async (req, res) => {
       return res.status(400).json({ message: 'branchId is required for this dashboard.' });
     }
 
-    const [revSummary, chartData, pendingCount, todayAppts, stockAlerts, recentOrders] =
-      await Promise.all([
-        Report.getRevenueSummary({ branchId }),
-        Report.getRevenueChart({ branchId, days: 7 }),
-        Order.countOrders({ branchId, status: 'PENDING' }),
-        Booking.getTodayBookings(branchId),
-        Inventory.getAlerts(branchId, false),
-        Order.getOrders({ branchId, page: 1, limit: 5 }),
-      ]);
+    const isHttp = getAdapterMode() === 'http';
+
+    let revSummary, chartData, pendingCount, todayAppts, stockAlerts, recentOrders;
+
+    if (isHttp) {
+      revSummary = await Report.getRevenueSummary({ branchId });
+      chartData = await Report.getRevenueChart({ branchId, days: 7 });
+      pendingCount = await Order.countOrders({ branchId, status: 'PENDING' });
+      todayAppts = await Booking.getTodayBookings(branchId);
+      stockAlerts = await Inventory.getAlerts(branchId, false);
+      recentOrders = await Order.getOrders({ branchId, page: 1, limit: 5 });
+    } else {
+      [revSummary, chartData, pendingCount, todayAppts, stockAlerts, recentOrders] =
+        await Promise.all([
+          Report.getRevenueSummary({ branchId }),
+          Report.getRevenueChart({ branchId, days: 7 }),
+          Order.countOrders({ branchId, status: 'PENDING' }),
+          Booking.getTodayBookings(branchId),
+          Inventory.getAlerts(branchId, false),
+          Order.getOrders({ branchId, page: 1, limit: 5 }),
+        ]);
+    }
 
     res.json({
       revSummary,
@@ -169,43 +181,22 @@ exports.getBranchDashboard = async (req, res) => {
 /** One request for owner dashboard — replaces 7 parallel client calls. */
 exports.getOwnerDashboard = async (req, res) => {
   try {
-    const compareBranches = async () => {
-      const branches = await prisma.branch.findMany({
-        include: {
-          _count: { select: { orders: true } },
-          orders: {
-            where: { status: 'COMPLETED' },
-            select: { total: true },
-          },
-        },
-      });
-      return branches.map((b) => ({
-        name: b.name,
-        revenue: b.orders.reduce((acc, o) => acc + o.total, 0),
-        orderCount: b._count.orders,
-      }));
-    };
+    const isHttp = getAdapterMode() === 'http';
 
-    const [
-      branchCount,
-      partsCount,
-      orderCount,
-      revSummary,
-      topBranches,
-      compareData,
-      recentOrders,
-    ] = await Promise.all([
-      prisma.branch.count(),
-      prisma.part.count(),
-      prisma.order.count(),
-      Report.getRevenueSummary({}),
-      prisma.branch.findMany({
+    let branchCount, partsCount, orderCount, revSummary, topBranches, compareData, recentOrders;
+
+    if (isHttp) {
+      branchCount = await prisma.branch.count();
+      partsCount = await prisma.part.count();
+      orderCount = await prisma.order.count();
+      revSummary = await Report.getRevenueSummary({});
+      topBranches = await prisma.branch.findMany({
         take: 5,
         include: { _count: { select: { orders: true } } },
         orderBy: { orders: { _count: 'desc' } },
-      }),
-      compareBranches(),
-      prisma.order.findMany({
+      });
+      compareData = await Report.getBranchCompareData();
+      recentOrders = await prisma.order.findMany({
         take: 6,
         orderBy: { createdAt: 'desc' },
         include: {
@@ -213,8 +204,38 @@ exports.getOwnerDashboard = async (req, res) => {
           walkInCustomer: { select: { first_name: true, last_name: true } },
           branch: { select: { name: true } },
         },
-      }),
-    ]);
+      });
+    } else {
+      [
+        branchCount,
+        partsCount,
+        orderCount,
+        revSummary,
+        topBranches,
+        compareData,
+        recentOrders,
+      ] = await Promise.all([
+        prisma.branch.count(),
+        prisma.part.count(),
+        prisma.order.count(),
+        Report.getRevenueSummary({}),
+        prisma.branch.findMany({
+          take: 5,
+          include: { _count: { select: { orders: true } } },
+          orderBy: { orders: { _count: 'desc' } },
+        }),
+        Report.getBranchCompareData(),
+        prisma.order.findMany({
+          take: 6,
+          orderBy: { createdAt: 'desc' },
+          include: {
+            customer: { select: { name: true } },
+            walkInCustomer: { select: { first_name: true, last_name: true } },
+            branch: { select: { name: true } },
+          },
+        }),
+      ]);
+    }
 
     res.json({
       branchCount,

@@ -1,5 +1,8 @@
 // backend/src/modules/reports/report.model.js
 const prisma = require('../../config/db');
+const { getAdapterMode } = require('../../config/db');
+
+const isHttp = () => getAdapterMode() === 'http';
 
 const getRevenueSummary = async ({ branchId }) => {
   const where = {
@@ -8,54 +11,123 @@ const getRevenueSummary = async ({ branchId }) => {
   };
 
   const now = new Date();
-  const startOfToday = new Date(new Date().setHours(0, 0, 0, 0));
-  
-  const startOfWeek = new Date();
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
+
+  const startOfWeek = new Date(now);
   startOfWeek.setDate(now.getDate() - now.getDay());
-  startOfWeek.setHours(0,0,0,0);
+  startOfWeek.setHours(0, 0, 0, 0);
 
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  const [today, week, month, total] = await Promise.all([
-    prisma.order.aggregate({ where: { ...where, createdAt: { gte: startOfToday } }, _sum: { total: true } }),
-    prisma.order.aggregate({ where: { ...where, createdAt: { gte: startOfWeek } }, _sum: { total: true } }),
-    prisma.order.aggregate({ where: { ...where, createdAt: { gte: startOfMonth } }, _sum: { total: true } }),
-    prisma.order.aggregate({ where: { ...where }, _sum: { total: true } })
-  ]);
+  let monthOrders;
+  let totalAgg;
+
+  if (isHttp()) {
+    monthOrders = await prisma.order.findMany({
+      where: { ...where, createdAt: { gte: startOfMonth } },
+      select: { total: true, createdAt: true },
+    });
+    totalAgg = await prisma.order.aggregate({ where, _sum: { total: true } });
+  } else {
+    [monthOrders, totalAgg] = await Promise.all([
+      prisma.order.findMany({
+        where: { ...where, createdAt: { gte: startOfMonth } },
+        select: { total: true, createdAt: true },
+      }),
+      prisma.order.aggregate({ where, _sum: { total: true } }),
+    ]);
+  }
+
+  let today = 0;
+  let week = 0;
+  let month = 0;
+  for (const order of monthOrders) {
+    const amount = order.total || 0;
+    const created = new Date(order.createdAt);
+    month += amount;
+    if (created >= startOfWeek) week += amount;
+    if (created >= startOfToday) today += amount;
+  }
 
   return {
-    today: today._sum.total || 0,
-    thisWeek: week._sum.total || 0,
-    thisMonth: month._sum.total || 0,
-    totalRevenue: total._sum.total || 0
+    today,
+    thisWeek: week,
+    thisMonth: month,
+    totalRevenue: totalAgg._sum.total || 0,
   };
 };
 
 const getRevenueChart = async ({ branchId, days = 30 }) => {
-  const results = [];
-  for (let i = days - 1; i >= 0; i--) {
-    const start = new Date();
-    start.setDate(start.getDate() - i);
-    start.setHours(0, 0, 0, 0);
-    
-    const end = new Date(start);
-    end.setHours(23, 59, 59, 999);
-
-    const agg = await prisma.order.aggregate({
-      where: {
-        branchId: branchId ? Number(branchId) : undefined,
-        status: 'COMPLETED',
-        createdAt: { gte: start, lte: end }
-      },
-      _sum: { total: true }
-    });
-    
-    results.push({
-      date: start.toISOString().split('T')[0],
-      revenue: agg._sum.total || 0
-    });
+  const dayCount = Number(days) || 30;
+  const dateKeys = [];
+  for (let i = dayCount - 1; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    d.setHours(0, 0, 0, 0);
+    dateKeys.push(d.toISOString().split('T')[0]);
   }
-  return results;
+
+  const rangeStart = new Date(dateKeys[0]);
+  rangeStart.setHours(0, 0, 0, 0);
+  const rangeEnd = new Date(dateKeys[dateKeys.length - 1]);
+  rangeEnd.setHours(23, 59, 59, 999);
+
+  const orders = await prisma.order.findMany({
+    where: {
+      ...(branchId ? { branchId: Number(branchId) } : {}),
+      status: 'COMPLETED',
+      createdAt: { gte: rangeStart, lte: rangeEnd },
+    },
+    select: { total: true, createdAt: true },
+  });
+
+  const bucket = Object.fromEntries(dateKeys.map((dk) => [dk, 0]));
+  for (const order of orders) {
+    const dk = new Date(order.createdAt).toISOString().split('T')[0];
+    if (dk in bucket) bucket[dk] += order.total || 0;
+  }
+
+  return dateKeys.map((dk) => ({ date: dk, revenue: bucket[dk] }));
+};
+
+const getBranchCompareData = async () => {
+  let branches;
+  let revenueGroups;
+
+  if (isHttp()) {
+    branches = await prisma.branch.findMany({
+      select: { id: true, name: true, _count: { select: { orders: true } } },
+      orderBy: { name: 'asc' },
+    });
+    revenueGroups = await prisma.order.groupBy({
+      by: ['branchId'],
+      where: { status: 'COMPLETED' },
+      _sum: { total: true },
+    });
+  } else {
+    [branches, revenueGroups] = await Promise.all([
+      prisma.branch.findMany({
+        select: { id: true, name: true, _count: { select: { orders: true } } },
+        orderBy: { name: 'asc' },
+      }),
+      prisma.order.groupBy({
+        by: ['branchId'],
+        where: { status: 'COMPLETED' },
+        _sum: { total: true },
+      }),
+    ]);
+  }
+
+  const revMap = Object.fromEntries(
+    revenueGroups.map((g) => [g.branchId, g._sum.total || 0])
+  );
+
+  return branches.map((b) => ({
+    name: b.name,
+    revenue: revMap[b.id] || 0,
+    orderCount: b._count.orders,
+  }));
 };
 
 const getBranchStats = (id) => prisma.branch.findUnique({
@@ -69,13 +141,13 @@ const getBranchStats = (id) => prisma.branch.findUnique({
 
 const getBranchRevenue = (id) => prisma.order.aggregate({
   where: { branchId: id, status: 'COMPLETED' },
-  _sum: { total: true }
+  _sum: { total: true },
 });
 
 const getSalesReport = (branchId) => prisma.order.findMany({
   where: { branchId, status: 'COMPLETED' },
   include: { items: { include: { product: true } } },
-  orderBy: { createdAt: 'desc' }
+  orderBy: { createdAt: 'desc' },
 });
 
 const getBranchPerformanceChart = async ({ days = 7 } = {}) => {
@@ -135,6 +207,7 @@ const getBranchPerformanceChart = async ({ days = 7 } = {}) => {
 module.exports = {
   getRevenueSummary,
   getRevenueChart,
+  getBranchCompareData,
   getBranchStats,
   getBranchRevenue,
   getSalesReport,

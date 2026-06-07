@@ -16,8 +16,8 @@ const ReportsPage = () => {
     [period, branchId, !!summary]
   );
   const { data: compare } = useFetch(
-    summary ? "/reports/branches/compare" : null,
-    [!!summary]
+    chart ? "/reports/branches/compare" : null,
+    [!!chart]
   );
   const { data: branchPerfChart } = useFetch(
     compare ? `/reports/branches/performance-chart?period=${period}` : null,

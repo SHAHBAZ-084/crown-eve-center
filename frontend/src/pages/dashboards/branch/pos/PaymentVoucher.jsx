@@ -21,31 +21,28 @@ const PaymentVoucher = ({ user }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Fetch Categories list
-  const { data: categoriesData } = useQuery({
+  const { data: categoriesData, isSuccess: categoriesReady } = useQuery({
     queryKey: ['categories-list', user?.branchId],
     queryFn: () => api.get('/accounts/categories', { params: { branchId: user?.branchId } }).then(r => r.data),
     enabled: !!user?.branchId
   });
 
-  // Fetch Accounts list
-  const { data: accountsData, refetch: refetchAccounts } = useQuery({
+  const { data: accountsData, isSuccess: accountsReady, refetch: refetchAccounts } = useQuery({
     queryKey: ['accounts-list', user?.branchId],
     queryFn: () => api.get('/accounts', { params: { branchId: user?.branchId } }).then(r => r.data),
-    enabled: !!user?.branchId
+    enabled: !!user?.branchId && categoriesReady
   });
 
-  // Fetch Payment Vouchers History
-  const { data: historyData, isLoading: loadingHistory, refetch: refetchHistory } = useQuery({
+  const { data: historyData, isSuccess: historyReady, isLoading: loadingHistory, refetch: refetchHistory } = useQuery({
     queryKey: ['vouchers-history-payment', user?.branchId],
     queryFn: () => api.get('/vouchers', { params: { branchId: user?.branchId, voucher_type: 'PAYMENT' } }).then(r => r.data),
-    enabled: !!user?.branchId
+    enabled: !!user?.branchId && accountsReady
   });
 
-  // Fetch Next Voucher Number
   const { data: nextNoData, refetch: refetchNextNo } = useQuery({
     queryKey: ['vouchers-next-no', user?.branchId, 'PAYMENT'],
     queryFn: () => api.get('/vouchers/next-no', { params: { branchId: user?.branchId, voucher_type: 'PAYMENT' } }).then(r => r.data),
-    enabled: !!user?.branchId
+    enabled: !!user?.branchId && historyReady
   });
 
   const categories = categoriesData?.data || [];

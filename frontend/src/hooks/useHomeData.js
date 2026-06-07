@@ -49,6 +49,7 @@ export function useHomeData() {
       writeCachedBikes(list);
       return list;
     },
+    enabled: servicesQuery.isSuccess,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     placeholderData: () => readCachedBikes(),
@@ -59,6 +60,7 @@ export function useHomeData() {
   const branchesQuery = useQuery({
     queryKey: ['home', 'branches'],
     queryFn: () => publicApi.get('/branches', { params: { limit: 20 } }).then((r) => { const d = r.data?.data ?? r.data; return Array.isArray(d) ? d : []; }),
+    enabled: productsQuery.isSuccess,
     staleTime: 10 * 60 * 1000,
     retry: shouldRetryQuery,
     retryDelay: queryRetryDelay,
@@ -67,6 +69,7 @@ export function useHomeData() {
   const testimonialsQuery = useQuery({
     queryKey: ['home', 'testimonials'],
     queryFn: () => publicApi.get('/testimonials').then((r) => { const d = r.data?.data ?? r.data; return Array.isArray(d) ? d : []; }),
+    enabled: branchesQuery.isSuccess,
     staleTime: 10 * 60 * 1000,
     retry: shouldRetryQuery,
     retryDelay: queryRetryDelay,

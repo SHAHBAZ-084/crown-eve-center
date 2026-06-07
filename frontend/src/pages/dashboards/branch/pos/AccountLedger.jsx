@@ -13,17 +13,16 @@ const AccountLedger = ({ user }) => {
   const [submittedSearch, setSubmittedSearch] = useState(null);
 
   // Fetch Categories list
-  const { data: categoriesData } = useQuery({
+  const { data: categoriesData, isSuccess: categoriesReady } = useQuery({
     queryKey: ['categories-list', user?.branchId],
     queryFn: () => api.get('/accounts/categories', { params: { branchId: user?.branchId } }).then(r => r.data),
     enabled: !!user?.branchId
   });
 
-  // Fetch Accounts list
   const { data: accountsData } = useQuery({
     queryKey: ['accounts-list', user?.branchId],
     queryFn: () => api.get('/accounts', { params: { branchId: user?.branchId } }).then(r => r.data),
-    enabled: !!user?.branchId
+    enabled: !!user?.branchId && categoriesReady
   });
 
   const categories = categoriesData?.data || [];

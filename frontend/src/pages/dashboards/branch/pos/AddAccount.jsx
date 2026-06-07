@@ -49,17 +49,16 @@ const AddAccount = ({ user }) => {
   const [accForm, setAccForm] = useState({ account_name: '', categoryId: '', opening_balance: 0 });
 
   // Fetch Categories
-  const { data: categoriesData, isLoading: loadingCategories, refetch: refetchCategories } = useQuery({
+  const { data: categoriesData, isSuccess: categoriesReady, isLoading: loadingCategories, refetch: refetchCategories } = useQuery({
     queryKey: ['account-categories', user?.branchId],
     queryFn: () => api.get('/accounts/categories', { params: { branchId: user?.branchId } }).then(r => r.data),
     enabled: !!user?.branchId
   });
 
-  // Fetch Accounts
   const { data: accountsData, isLoading: loadingAccounts, refetch: refetchAccounts } = useQuery({
     queryKey: ['accounts-list', user?.branchId],
     queryFn: () => api.get('/accounts', { params: { branchId: user?.branchId } }).then(r => r.data),
-    enabled: !!user?.branchId
+    enabled: !!user?.branchId && categoriesReady
   });
 
   const categories = categoriesData?.data || [];

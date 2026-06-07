@@ -22,6 +22,10 @@ const AUTH_CACHEABLE = [
   '/api/testimonials',
   '/api/users',
   '/api/parts',
+  '/api/appointments',
+  '/api/banks',
+  '/api/suppliers',
+  '/api/walk-in-customers',
 ];
 
 const shouldSkipCache = (url) => SKIP_PREFIXES.some((p) => url.startsWith(p));
