@@ -1,5 +1,6 @@
 // backend/src/modules/inventory/inventory.model.js
 const prisma = require('../../config/db');
+const { sequentialOnHttp } = require('../../utils/sequentialOnHttp');
 const { runInTransaction } = require('../../config/transaction');
 const { syncInventoryToPartsAndProducts } = require('./inventory.utils');
 
@@ -19,9 +20,9 @@ const getBranchInventory = async ({ branchId, page = 1, limit = 20, type = "" })
   const bikeWhere = { branchId: Number(branchId), product_type: 'bike' };
 
   // Step 1: Count each section
-  const [partsTotal, bikeTotal] = await Promise.all([
-    (type === "" || type === "PART") ? prisma.inventory.count({ where: partWhere }) : Promise.resolve(0),
-    (type === "" || type === "BIKE") ? prisma.product.count({ where: bikeWhere })   : Promise.resolve(0),
+  const [partsTotal, bikeTotal] = await sequentialOnHttp([
+    () => (type === "" || type === "PART") ? prisma.inventory.count({ where: partWhere }) : Promise.resolve(0),
+    () => (type === "" || type === "BIKE") ? prisma.product.count({ where: bikeWhere }) : Promise.resolve(0),
   ]);
 
   // Step 2: Calculate which rows of each section fall inside the requested page window.
@@ -36,30 +37,36 @@ const getBranchInventory = async ({ branchId, page = 1, limit = 20, type = "" })
   const bikesTake = Math.max(0, Math.min(bikeTotal, skip + take - partsTotal) - bikesSkip);
 
   // Step 3: Fetch only the needed slices
-  const [invData, bikes] = await Promise.all([
-    partsTake > 0 ? prisma.inventory.findMany({
-      where: partWhere,
-      skip: partsSkip,
-      take: partsTake,
-      select: {
-        id: true,
-        stock: true,
-        alertAt: true,
-        part: {
-          select: { id: true, name: true, category: true, price: true }
-        }
-      }
-    }) : Promise.resolve([]),
-    bikesTake > 0 ? prisma.product.findMany({
-      where: bikeWhere,
-      skip: bikesSkip,
-      take: bikesTake,
-      select: {
-        id: true,
-        name: true,
-        stock_qty: true
-      }
-    }) : Promise.resolve([]),
+  const [invData, bikes] = await sequentialOnHttp([
+    () =>
+      partsTake > 0
+        ? prisma.inventory.findMany({
+            where: partWhere,
+            skip: partsSkip,
+            take: partsTake,
+            select: {
+              id: true,
+              stock: true,
+              alertAt: true,
+              part: {
+                select: { id: true, name: true, category: true, price: true },
+              },
+            },
+          })
+        : Promise.resolve([]),
+    () =>
+      bikesTake > 0
+        ? prisma.product.findMany({
+            where: bikeWhere,
+            skip: bikesSkip,
+            take: bikesTake,
+            select: {
+              id: true,
+              name: true,
+              stock_qty: true,
+            },
+          })
+        : Promise.resolve([]),
   ]);
 
   // Map bikes to the same shape as inventory records
@@ -170,32 +177,22 @@ const getInventorySummary = async (branchId) => {
   `;
   const lowStockCount = lowStockResult[0]?.count || 0;
 
-  const [totalOutOrders, totalInPurchases, totalAdjustments] = await Promise.all([
-    // 2. Total Out (Sales/Orders)
-    prisma.orderItem.aggregate({
-      where: {
-        order: {
-          branchId: bId
-        }
-      },
-      _sum: { quantity: true }
-    }),
-    // 3. Total In (Purchases/Restock)
-    prisma.purchaseItem.aggregate({
-      where: {
-        purchase: {
-          branchId: bId
-        }
-      },
-      _sum: { quantity: true }
-    }),
-    // 4. Total Manual Adjustments
-    prisma.stockAdjustment.aggregate({
-      where: {
-        branchId: bId
-      },
-      _sum: { quantity: true }
-    })
+  const [totalOutOrders, totalInPurchases, totalAdjustments] = await sequentialOnHttp([
+    () =>
+      prisma.orderItem.aggregate({
+        where: { order: { branchId: bId } },
+        _sum: { quantity: true },
+      }),
+    () =>
+      prisma.purchaseItem.aggregate({
+        where: { purchase: { branchId: bId } },
+        _sum: { quantity: true },
+      }),
+    () =>
+      prisma.stockAdjustment.aggregate({
+        where: { branchId: bId },
+        _sum: { quantity: true },
+      }),
   ]);
 
   const totalOut = (totalOutOrders._sum.quantity || 0) + (totalAdjustments._sum.quantity < 0 ? Math.abs(totalAdjustments._sum.quantity) : 0);

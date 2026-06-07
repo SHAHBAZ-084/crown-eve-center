@@ -250,3 +250,124 @@ exports.getOwnerDashboard = async (req, res) => {
     res.status(500).json({ message: e.message });
   }
 };
+
+/** One request for owner analytics page — replaces 5 staggered client calls. */
+exports.getOwnerAnalyticsBundle = async (req, res) => {
+  try {
+    const branchId = req.query.branchId ? Number(req.query.branchId) : undefined;
+    const days = req.query.period === '30d' ? 30 : 7;
+    const isHttp = getAdapterMode() === 'http';
+
+    let summary, chart, compare, performanceChart, branches;
+
+    if (isHttp) {
+      summary = await Report.getRevenueSummary({ branchId });
+      chart = await Report.getRevenueChart({ branchId, days });
+      compare = await Report.getBranchCompareData();
+      performanceChart = await Report.getBranchPerformanceChart({ days });
+      branches = await prisma.branch.findMany({
+        take: 100,
+        select: { id: true, name: true },
+        orderBy: { name: 'asc' },
+      });
+    } else {
+      [summary, chart, compare, performanceChart, branches] = await Promise.all([
+        Report.getRevenueSummary({ branchId }),
+        Report.getRevenueChart({ branchId, days }),
+        Report.getBranchCompareData(),
+        Report.getBranchPerformanceChart({ days }),
+        prisma.branch.findMany({
+          take: 100,
+          select: { id: true, name: true },
+          orderBy: { name: 'asc' },
+        }),
+      ]);
+    }
+
+    res.json({
+      summary,
+      chart,
+      compare,
+      performanceChart,
+      branches: { data: branches },
+    });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
+/** One request for branch analytics page — replaces 4 staggered client calls. */
+exports.getBranchAnalyticsBundle = async (req, res) => {
+  try {
+    const branchId = resolveBranchId(req);
+    if (!branchId) {
+      return res.status(400).json({ message: 'branchId is required.' });
+    }
+
+    const days = req.query.period === '30d' ? 30 : 7;
+    const isHttp = getAdapterMode() === 'http';
+
+    let summary, chart, branchReport, sales;
+
+    if (isHttp) {
+      summary = await Report.getRevenueSummary({ branchId });
+      chart = await Report.getRevenueChart({ branchId, days });
+      branchReport = await exports.getBranchReportData(branchId);
+      sales = await Report.getSalesReport(branchId);
+    } else {
+      [summary, chart, branchReport, sales] = await Promise.all([
+        Report.getRevenueSummary({ branchId }),
+        Report.getRevenueChart({ branchId, days }),
+        exports.getBranchReportData(branchId),
+        Report.getSalesReport(branchId),
+      ]);
+    }
+
+    res.json({ summary, chart, branchReport, sales });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
+/** Internal helper — branch stats block for analytics bundle. */
+exports.getBranchReportData = async (branchId) => {
+  const isHttp = getAdapterMode() === 'http';
+  let orderGroups, revenue, totalAppointments;
+
+  if (isHttp) {
+    orderGroups = await prisma.order.groupBy({
+      by: ['status'],
+      where: { branchId },
+      _count: { id: true },
+    });
+    revenue = await Report.getBranchRevenue(branchId);
+    totalAppointments = await prisma.serviceBooking.count({ where: { branchId } });
+  } else {
+    [orderGroups, revenue, totalAppointments] = await Promise.all([
+      prisma.order.groupBy({
+        by: ['status'],
+        where: { branchId },
+        _count: { id: true },
+      }),
+      Report.getBranchRevenue(branchId),
+      prisma.serviceBooking.count({ where: { branchId } }),
+    ]);
+  }
+
+  const countByStatus = (status) =>
+    orderGroups.find((g) => g.status === status)?._count.id || 0;
+
+  const branch = await prisma.branch.findUnique({
+    where: { id: branchId },
+    select: { id: true, name: true, location: true },
+  });
+
+  return {
+    ...branch,
+    totalOrders: orderGroups.reduce((sum, g) => sum + g._count.id, 0),
+    completedOrders: countByStatus('COMPLETED'),
+    pendingOrders: countByStatus('PENDING'),
+    totalAppointments,
+    revenue: revenue._sum.total || 0,
+  };
+};

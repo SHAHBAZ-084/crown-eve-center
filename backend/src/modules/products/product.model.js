@@ -1,5 +1,6 @@
 // backend/src/modules/products/product.model.js
 const prisma = require('../../config/db');
+const { sequentialOnHttp } = require('../../utils/sequentialOnHttp');
 const { runInTransaction } = require('../../config/transaction');
 const {
   upsertOneToOne,
@@ -126,15 +127,16 @@ const getProducts = async ({
         },
       };
 
-  const [data, total] = await Promise.all([
-    prisma.product.findMany({
-      where,
-      skip,
-      take: Number(limit),
-      include,
-      orderBy,
-    }),
-    prisma.product.count({ where }),
+  const [data, total] = await sequentialOnHttp([
+    () =>
+      prisma.product.findMany({
+        where,
+        skip,
+        take: Number(limit),
+        include,
+        orderBy,
+      }),
+    () => prisma.product.count({ where }),
   ]);
 
   return {

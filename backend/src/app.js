@@ -4,6 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const { cacheGet, invalidateCacheOnWrite } = require('./middleware/cache');
+const dbConcurrency = require('./middleware/dbConcurrency');
 
 const app = express();
 
@@ -83,8 +84,9 @@ app.use('/api', (req, res, next) => {
   res.setHeader('Pragma', 'no-cache');
   next();
 });
+app.use('/api', dbConcurrency);
 app.use('/api', invalidateCacheOnWrite);
-app.use('/api', cacheGet(120));
+app.use('/api', cacheGet(300));
 
 const authRoutes = require('./modules/auth/auth.routes');
 const branchRoutes = require('./modules/branches/branch.routes');

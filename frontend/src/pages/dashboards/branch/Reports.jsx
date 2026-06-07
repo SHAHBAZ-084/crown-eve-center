@@ -10,19 +10,14 @@ const Reports = () => {
 
   const [period, setPeriod] = useState("7d");
   const fetchSkip = "branchId=undefined";
-  const { data: summary, loading: sl } = useFetch(`/reports/revenue/summary?branchId=${branchId}`, [branchId]);
-  const { data: chart } = useFetch(
-    summary ? `/reports/revenue/chart?branchId=${branchId}&period=${period}` : fetchSkip,
-    [branchId, period, summary]
+  const { data: bundle, loading: sl } = useFetch(
+    branchId ? `/reports/branch-analytics-bundle?branchId=${branchId}&period=${period}` : fetchSkip,
+    [branchId, period]
   );
-  const { data: branchReport } = useFetch(
-    summary ? `/reports/branch/${branchId}` : fetchSkip,
-    [branchId, summary]
-  );
-  const { data: sales } = useFetch(
-    branchReport ? `/reports/sales/${branchId}` : fetchSkip,
-    [branchId, branchReport]
-  );
+  const summary = bundle?.summary;
+  const chart = bundle?.chart;
+  const branchReport = bundle?.branchReport;
+  const sales = bundle?.sales;
 
   const maxChart = chart ? Math.max(...chart.map(d => d.revenue || d._sum?.total || 0), 1) : 1;
 

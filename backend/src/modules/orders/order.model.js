@@ -1,5 +1,6 @@
 // backend/src/modules/orders/order.model.js
 const prisma = require('../../config/db');
+const { sequentialOnHttp } = require('../../utils/sequentialOnHttp');
 const { runInTransaction } = require('../../config/transaction');
 const { syncInventoryToPartsAndProducts } = require('../inventory/inventory.utils');
 const { deductProductStockAtomic } = require('../inventory/stockMovement');
@@ -223,42 +224,43 @@ const getOrders = async ({ page = 1, limit = 20, branchId, status, type, custome
     ...buildOrderSearchFilter(search),
   };
 
-  const [data, total] = await Promise.all([
-    prisma.order.findMany({
-      where,
-      skip,
-      take: Number(limit),
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        status: true,
-        payment_status: true,
-        payment_screenshot: true,
-        total: true,
-        createdAt: true,
-        type: true,
-        payment_method: true,
-        transaction_id: true,
-        tracking_id: true,
-        customer_name: true,
-        customer_phone: true,
-        customer: {
-          select: { id: true, name: true, email: true }
+  const [data, total] = await sequentialOnHttp([
+    () =>
+      prisma.order.findMany({
+        where,
+        skip,
+        take: Number(limit),
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          status: true,
+          payment_status: true,
+          payment_screenshot: true,
+          total: true,
+          createdAt: true,
+          type: true,
+          payment_method: true,
+          transaction_id: true,
+          tracking_id: true,
+          customer_name: true,
+          customer_phone: true,
+          customer: {
+            select: { id: true, name: true, email: true },
+          },
+          walkInCustomer: {
+            select: { id: true, first_name: true, last_name: true, phone: true, cnic: true },
+          },
+          branch: { select: { id: true, name: true } },
+          items: {
+            select: {
+              quantity: true,
+              price: true,
+              product: { select: { name: true, product_type: true } },
+            },
+          },
         },
-        walkInCustomer: {
-          select: { id: true, first_name: true, last_name: true, phone: true, cnic: true }
-        },
-        branch: { select: { id: true, name: true } },
-        items: {
-          select: {
-            quantity: true,
-            price: true,
-            product: { select: { name: true, product_type: true } }
-          }
-        }
-      },
-    }),
-    prisma.order.count({ where }),
+      }),
+    () => prisma.order.count({ where }),
   ]);
 
   return {

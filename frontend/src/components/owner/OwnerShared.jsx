@@ -6,22 +6,36 @@ import { getApiUrl } from "../../utils/apiUrl";
 const API_BASE = getApiUrl();
 const TOKEN_KEY = "token";
 
+let fetchQueue = Promise.resolve();
+const FETCH_GAP_MS = 120;
+
+const runQueued = (fn) => {
+  const run = fetchQueue.then(fn, fn);
+  fetchQueue = run.then(
+    () => new Promise((r) => setTimeout(r, FETCH_GAP_MS)),
+    () => new Promise((r) => setTimeout(r, FETCH_GAP_MS))
+  );
+  return run;
+};
+
 export const api = async (path, options = {}) => {
-  const token = localStorage.getItem(TOKEN_KEY);
-  const res = await fetch(`${API_BASE}${path}`, {
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    ...options,
-    body: options.body ? JSON.stringify(options.body) : undefined,
+  return runQueued(async () => {
+    const token = localStorage.getItem(TOKEN_KEY);
+    const res = await fetch(`${API_BASE}${path}`, {
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      ...options,
+      body: options.body ? JSON.stringify(options.body) : undefined,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || `HTTP ${res.status}`);
+    }
+    return res.json();
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || `HTTP ${res.status}`);
-  }
-  return res.json();
 };
 
 export function useFetch(path, deps = [], disabled = false) {

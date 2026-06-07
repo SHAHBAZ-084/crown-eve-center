@@ -40,7 +40,10 @@ const Settings = () => {
   };
 
   // 2. Bank Accounts Logic
-  const { data: banks, loading: bkLoading, refetch: bkRefetch } = useFetch(`/banks?branchId=${branchId}`, [branchId]);
+  const { data: banks, loading: bkLoading, refetch: bkRefetch } = useFetch(
+    branch ? `/banks?branchId=${branchId}` : null,
+    [branchId, !!branch]
+  );
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [bkForm, setBkForm] = useState({ name: "", account_title: "", account_number: "", branchId });

@@ -7,26 +7,17 @@ import BranchPerformanceLineChart from "../../../components/charts/BranchPerform
 const ReportsPage = () => {
   const [period, setPeriod] = useState("7d");
   const [branchId, setBranchId] = useState("");
-  const { data: summary, loading: sl } = useFetch(
-    `/reports/revenue/summary${branchId ? `?branchId=${branchId}` : ""}`,
-    [branchId]
+  const bundleQs = new URLSearchParams({ period });
+  if (branchId) bundleQs.set("branchId", branchId);
+  const { data: bundle, loading: sl } = useFetch(
+    `/reports/owner-analytics-bundle?${bundleQs}`,
+    [period, branchId]
   );
-  const { data: chart } = useFetch(
-    summary ? `/reports/revenue/chart?period=${period}${branchId ? `&branchId=${branchId}` : ""}` : null,
-    [period, branchId, !!summary]
-  );
-  const { data: compare } = useFetch(
-    chart ? "/reports/branches/compare" : null,
-    [!!chart]
-  );
-  const { data: branchPerfChart } = useFetch(
-    compare ? `/reports/branches/performance-chart?period=${period}` : null,
-    [period, !!compare]
-  );
-  const { data: branchData } = useFetch(
-    chart ? "/branches?limit=100" : null,
-    [!!chart]
-  );
+  const summary = bundle?.summary;
+  const chart = bundle?.chart;
+  const compare = bundle?.compare;
+  const branchPerfChart = bundle?.performanceChart;
+  const branchData = bundle?.branches;
 
   const maxChart = chart ? Math.max(...chart.map(d => d.revenue || d._sum?.total || 0), 1) : 1;
   const chartBarHeight = 110;
