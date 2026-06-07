@@ -13,6 +13,8 @@ const SKIP_PREFIXES = [
   '/api/accounts',
   '/api/inventory',
   '/api/purchases',
+  '/api/branches',
+  '/api/users',
 ];
 
 const shouldSkipCache = (url) => SKIP_PREFIXES.some((p) => url.startsWith(p));

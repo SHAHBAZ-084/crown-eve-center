@@ -64,8 +64,13 @@ const BranchesPage = () => {
     setDeleting(true);
     try {
       await api(`/branches/${id}`, { method: "DELETE" });
+      const fresh = await api(`/branches?limit=100&_t=${Date.now()}`);
+      const stillThere = (fresh?.data || []).some((b) => b.id === id);
+      if (stillThere) {
+        throw new Error("Branch is still on the server after delete. Please refresh and try again.");
+      }
       toast("Branch decommissioned from network");
-      refetch();
+      await refetch();
       setDeleteTarget(null);
       setDeleteAck(false);
     } catch (e) {

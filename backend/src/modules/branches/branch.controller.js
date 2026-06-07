@@ -2,6 +2,7 @@
 const prisma = require('../../config/db');
 const { runInTransaction } = require('../../config/transaction');
 const { updateManySequential } = require('../../config/prismaHttp');
+const { invalidateCatalogCache } = require('../../middleware/cache');
 
 exports.getCount = async (req, res) => {
   try {
@@ -240,6 +241,17 @@ exports.remove = async (req, res) => {
       timeout: 120000,
     });
 
+    const stillExists = await prisma.branch.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    if (stillExists) {
+      return res.status(500).json({
+        message: 'Branch deletion did not complete. Please try again.',
+      });
+    }
+
+    invalidateCatalogCache();
     res.json({ message: 'Branch deleted successfully' });
   } catch (e) {
     const logger = require('../../config/logger');

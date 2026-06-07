@@ -9,6 +9,7 @@ const TOKEN_KEY = "token";
 export const api = async (path, options = {}) => {
   const token = localStorage.getItem(TOKEN_KEY);
   const res = await fetch(`${API_BASE}${path}`, {
+    cache: "no-store",
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
