@@ -19,7 +19,21 @@ const getBranchById = (id) => prisma.branch.findUnique({
   }
 });
 
-const createBranch = (data) => prisma.branch.create({ data });
+/** Keeps Branch autoincrement in sync after manual deletes or failed removals. */
+const syncBranchIdSequence = async () => {
+  await prisma.$executeRaw`
+    SELECT setval(
+      pg_get_serial_sequence('"Branch"', 'id'),
+      COALESCE((SELECT MAX(id) FROM "Branch"), 0) + 1,
+      false
+    )
+  `;
+};
+
+const createBranch = async (data) => {
+  await syncBranchIdSequence();
+  return prisma.branch.create({ data });
+};
 
 const updateBranch = (id, data) => prisma.branch.update({
   where: { id },
@@ -30,4 +44,11 @@ const deleteBranch = (id) => prisma.branch.delete({
   where: { id }
 });
 
-module.exports = { getAllBranches, getBranchById, createBranch, updateBranch, deleteBranch };
+module.exports = {
+  getAllBranches,
+  getBranchById,
+  createBranch,
+  updateBranch,
+  deleteBranch,
+  syncBranchIdSequence,
+};

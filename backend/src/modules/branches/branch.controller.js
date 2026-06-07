@@ -1,5 +1,6 @@
 // backend/src/modules/branches/branch.controller.js
 const prisma = require('../../config/db');
+const Branch = require('./branch.model');
 const { runInTransaction } = require('../../config/transaction');
 const { updateManySequential } = require('../../config/prismaHttp');
 const { invalidateCatalogCache } = require('../../middleware/cache');
@@ -141,10 +142,28 @@ exports.getBanks = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    const branch = await prisma.branch.create({ data: req.body });
+    const { name, location, phone, whatsapp } = req.body;
+    if (!name?.trim() || !location?.trim()) {
+      return res.status(400).json({ message: 'Branch name and location are required.' });
+    }
+
+    const branch = await Branch.createBranch({
+      name: name.trim(),
+      location: location.trim(),
+      phone: phone?.trim() || null,
+      whatsapp: whatsapp?.trim() || null,
+    });
+
+    invalidateCatalogCache();
     res.status(201).json(branch);
   } catch (e) {
-    res.status(500).json({ message: e.message });
+    const isDuplicateId =
+      e.code === 'P2002' || /Branch_pkey|unique constraint/i.test(e.message || '');
+    res.status(500).json({
+      message: isDuplicateId
+        ? 'Could not assign a new branch ID. Please try again in a moment.'
+        : e.message,
+    });
   }
 };
 

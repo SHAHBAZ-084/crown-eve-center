@@ -1,5 +1,6 @@
 // backend/src/modules/users/user.model.js
 const prisma = require('../../config/db');
+const { updateManySequential, deleteManySequential } = require('../../config/prismaHttp');
 
 const getAllUsers = (branchId) => prisma.user.findMany({
   where: branchId ? { branchId } : {},
@@ -19,13 +20,8 @@ const updateUser = (id, data) => prisma.user.update({
 });
 
 const deleteUser = async (id) => {
-  await prisma.order.updateMany({
-    where: { customerId: id },
-    data: { customerId: null },
-  });
-  await prisma.serviceBooking.deleteMany({
-    where: { customerId: id },
-  });
+  await updateManySequential(prisma, prisma.order, { customerId: id }, { customerId: null });
+  await deleteManySequential(prisma, prisma.serviceBooking, { customerId: id });
   return prisma.user.delete({ where: { id } });
 };
 
