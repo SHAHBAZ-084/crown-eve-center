@@ -22,6 +22,8 @@ const PurchaseInvoices = ({ user, queryClient }) => {
     queryKey: ['pi-suppliers', user?.branchId],
     queryFn: () => api.get('/suppliers', { params: { limit: 200 } }).then((r) => r.data?.data ?? r.data ?? []),
     enabled: !!user?.branchId && loadSuppliers,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
   const { data: piProducts, isLoading: loadingPiProducts } = useQuery({
@@ -29,7 +31,9 @@ const PurchaseInvoices = ({ user, queryClient }) => {
     queryFn: () => api.get('/products', {
       params: { branchId: user?.branchId, search: debouncedPiProductSearch, limit: 50, lite: '1' }
     }).then(r => r.data),
-    enabled: !!debouncedPiProductSearch
+    enabled: !!debouncedPiProductSearch,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
   const handlePiSubmit = async (e) => {

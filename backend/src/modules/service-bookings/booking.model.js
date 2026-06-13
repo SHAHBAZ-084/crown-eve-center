@@ -21,14 +21,19 @@ const getAllBookings = (filters = {}) => {
   if (filters.customerId) where.customerId = filters.customerId;
   if (filters.status) where.status = filters.status;
 
+  const limit = Math.min(Number(filters.limit) || 50, 100);
+  const skip  = (Math.max(Number(filters.page) || 1, 1) - 1) * limit;
+
   return prisma.serviceBooking.findMany({
     where,
+    take: limit,
+    skip,
     include: {
       customer: { select: { name: true, email: true, phone: true } },
-      service: { select: { name: true, base_price: true } },
-      branch: { select: { name: true, location: true, phone: true } }
+      service:  { select: { name: true, base_price: true } },
+      branch:   { select: { name: true, location: true, phone: true } },
     },
-    orderBy: { booking_date: 'desc' }
+    orderBy: { booking_date: 'desc' },
   });
 };
 

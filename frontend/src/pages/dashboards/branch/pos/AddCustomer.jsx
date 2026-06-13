@@ -19,6 +19,8 @@ const AddCustomer = ({ user }) => {
       params: { branchId: user?.branchId, search: customerSearch }
     }).then(r => r.data),
     enabled: !!user?.branchId && (customerSearch.trim().length >= 2 || showAddForm),
+    staleTime: 3 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
   const handleAddCustomer = async (e) => {

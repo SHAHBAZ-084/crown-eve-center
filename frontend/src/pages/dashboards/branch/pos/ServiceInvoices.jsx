@@ -38,7 +38,9 @@ const ServiceInvoices = ({ user, queryClient, onPrintReceipt }) => {
     queryFn: () => api.get('/walk-in-customers', {
       params: { branchId: user?.branchId, search: debouncedSvCustomerSearch, limit: 50 }
     }).then(r => r.data),
-    enabled: !!debouncedSvCustomerSearch
+    enabled: !!debouncedSvCustomerSearch,
+    staleTime: 3 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
   const { data: svParts, isLoading: loadingSvParts } = useQuery({
@@ -46,13 +48,17 @@ const ServiceInvoices = ({ user, queryClient, onPrintReceipt }) => {
     queryFn: () => api.get('/products', {
       params: { branchId: user?.branchId, search: debouncedSvPartSearch, limit: 10 }
     }).then(r => r.data),
-    enabled: !!debouncedSvPartSearch
+    enabled: !!debouncedSvPartSearch,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
   const { data: svHistory, refetch: refetchSvHistory } = useQuery({
     queryKey: ['sv-history', user?.branchId],
     queryFn: () => api.get('/appointments', { params: { branchId: user?.branchId } }).then(r => r.data),
-    enabled: !!user?.branchId
+    enabled: !!user?.branchId,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
   });
 
   const handleSvDelete = async (id) => {

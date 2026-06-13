@@ -28,7 +28,9 @@ const SaleInvoices = ({ user, queryClient, onInvoiceGenerated }) => {
     queryFn: () => api.get('/products', {
       params: { branchId: user?.branchId, product_type: siForm.type, search: debouncedSiItemSearch, limit: 50, lite: '1' }
     }).then(r => r.data),
-    enabled: !!debouncedSiItemSearch
+    enabled: !!debouncedSiItemSearch,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
   const { data: siCustomers, isLoading: loadingSiCustomers } = useQuery({
@@ -43,7 +45,9 @@ const SaleInvoices = ({ user, queryClient, onInvoiceGenerated }) => {
         params: { branchId: user?.branchId, search: debouncedSiCustomerSearch, limit: 50 }
       }).then(r => r.data);
     },
-    enabled: !!debouncedSiCustomerSearch
+    enabled: !!debouncedSiCustomerSearch,
+    staleTime: 3 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
   const handleSiSubmit = async (e) => {
